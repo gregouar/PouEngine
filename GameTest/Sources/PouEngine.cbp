@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ProjectW" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../Game/bin_debug/ProjectW" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin_debug" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../Game/bin/ProjectW" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Profile">
+				<Option output="../Game/bin/ProjectWProfiled" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++14" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+				</Linker>
+			</Target>
+			<Target title="ReleaseWithLayers">
+				<Option output="../Game/bin/ProjectW" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++14" />
+			<Add option="-fexceptions" />
+			<Add directory="../../PouEngine/include" />
+			<Add directory="GameTest/Sources/include/states" />
+			<Add directory="include" />
+			<Add directory="../../PouEngine/include/tinyxml" />
+		</Compiler>
+		<Linker>
+			<Add library="vulkan-1" />
+			<Add library="glfw3dll" />
+			<Add directory="../../PouEngine/libs" />
+		</Linker>
+		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/Asset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/AssetHandler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/SpriteSheetAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/TextureAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/Config.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/EventsManager.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/GameState.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationListener.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationSender.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/AbstractRenderer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/FullRenderPass.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderGraph.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderView.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderWindow.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingData.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingInstance.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/CameraObject.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/LightEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/Scene.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneNode.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneObject.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/ShadowCaster.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Profiler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicVBO.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VBuffersAllocator.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VCommandBuffer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VGraphicsPipeline.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VInstance.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VMemoryAllocator.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VMesh.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VRenderPass.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VRenderTarget.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VTexture.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VTexturesManager.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanExtProxies.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanHelpers.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanImpl.h" />
+		<Unit filename="../../PouEngine/include/stb/stb_image.cpp" />
+		<Unit filename="../../PouEngine/include/tinyxml/tinystr.h" />
+		<Unit filename="../../PouEngine/include/tinyxml/tinyxml.h" />
+		<Unit filename="../../PouEngine/libs/tinyxml/tinystr.cpp" />
+		<Unit filename="../../PouEngine/libs/tinyxml/tinyxml.cpp" />
+		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlerror.cpp" />
+		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlparser.cpp" />
+		<Unit filename="../../PouEngine/shaders/blur.frag" />
+		<Unit filename="../../PouEngine/shaders/blur.vert" />
+		<Unit filename="../../PouEngine/shaders/deferred/spriteShader.frag" />
+		<Unit filename="../../PouEngine/shaders/deferred/spriteShader.vert" />
+		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.frag" />
+		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.vert" />
+		<Unit filename="../../PouEngine/shaders/lighting/lighting.frag" />
+		<Unit filename="../../PouEngine/shaders/lighting/lighting.vert" />
+		<Unit filename="../../PouEngine/shaders/toneMapping.frag" />
+		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
+		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
+		<Unit filename="../../PouEngine/src/assets/SpriteSheetAsset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/TextureAsset.cpp" />
+		<Unit filename="../../PouEngine/src/core/Config.cpp" />
+		<Unit filename="../../PouEngine/src/core/EventsManager.cpp" />
+		<Unit filename="../../PouEngine/src/core/GameState.cpp" />
+		<Unit filename="../../PouEngine/src/core/NotificationListener.cpp" />
+		<Unit filename="../../PouEngine/src/core/NotificationSender.cpp" />
+		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
+		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/AbstractRenderer.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/FullRenderPass.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/RenderGraph.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/RenderView.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/RenderWindow.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/SceneRenderer.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/SceneRenderingData.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/SceneRenderingInstance.cpp" />
+		<Unit filename="../../PouEngine/src/scene/CameraObject.cpp" />
+		<Unit filename="../../PouEngine/src/scene/LightEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/Scene.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SceneEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SceneNode.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SceneObject.cpp" />
+		<Unit filename="../../PouEngine/src/scene/ShadowCaster.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Profiler.cpp" />
+		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicVBO.inc" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VBuffersAllocator.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VCommandBuffer.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VGraphicsPipeline.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VInstance.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VMemoryAllocator.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VMesh.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VRenderPass.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VRenderTarget.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VTexture.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VTexturesManager.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanExtProxies.cpp" />
+		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanHelpers.cpp" />
+		<Unit filename="include/Character.h" />
+		<Unit filename="include/states/TestingState.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="src/Character.cpp" />
+		<Unit filename="src/states/TestingState.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

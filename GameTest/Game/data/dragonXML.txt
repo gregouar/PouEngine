@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>Dragon</name>
+	<height>150</height>
+	<texture type="albedo">dragon_albedoup2.png</texture>
+	<texture type="normal">dragon_normalup.png</texture>
+	<texture type="height">dragon_heightup.png</texture>
+	<roughness>.7</roughness>
+	<metalness>0</metalness>
+	<translucency>0</translucency>
+</material>
