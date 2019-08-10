@@ -6,9 +6,8 @@
 #include <chrono>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-///#include "AlAGE/utils/MapIterator.h"
-///#include "AlAGE/utils/ListIterator.h"
 
 namespace pou
 {
@@ -24,6 +23,7 @@ class TextureAsset;
 class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
+class SkeletonAsset;
 
 enum RendererName
 {
@@ -67,8 +67,7 @@ enum NotificationType
 {
     Notification_SenderDestroyed,
     Notification_AssetLoaded,
-    Notification_SceneNodeDetroyed,
-    Notification_SceneNodeMoved,
+    Notification_NodeMoved,
     Notification_UpdateCmb,
     Notification_ModelChanged,
     Notification_TextureChanged,
@@ -117,19 +116,13 @@ typedef unsigned int ObjectTypeId;
 
 typedef glm::vec4 Color;
 
-/**typedef ListIterator<SceneObject*> SceneObjectIterator;
-typedef ListIterator<SceneEntity*> SceneEntityIterator;
-typedef ListIterator<ShadowCaster*> ShadowCasterIterator;
-typedef ListIterator<Light*> LightIterator;
-typedef MapIterator<NodeTypeId, SceneNode*> SceneNodeIterator;**/
-
 typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
+typedef AssetHandler<SkeletonAsset>     SkeletonsHandler;
 //typedef AssetHandler<MeshAsset>     MeshesHandler;
 
 const std::string emptyString;
-///const sf::Texture emptyTexture;
 
 
 

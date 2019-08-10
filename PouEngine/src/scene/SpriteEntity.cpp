@@ -361,7 +361,7 @@ void SpriteEntity::notify(NotificationSender *sender, NotificationType notificat
     if(notification == Notification_AssetLoaded ||
        notification == Notification_TextureChanged ||
        notification == Notification_ModelChanged ||
-       notification == Notification_SceneNodeMoved)
+       notification == Notification_NodeMoved)
         this->updateDatum();
 
     /*if(notification == Notification_UpdateShadow)

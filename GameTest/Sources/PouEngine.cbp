@@ -18,6 +18,7 @@
 					<Add option="-g" />
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -31,6 +32,7 @@
 					<Add option="-DNDEBUG" />
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -48,6 +50,7 @@
 					<Add option="-g" />
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -63,6 +66,7 @@
 					<Add option="-O2" />
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -89,6 +93,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/SkeletonAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/SpriteSheetAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/TextureAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/Config.h" />
@@ -119,6 +124,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Profiler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/SimpleNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
@@ -158,6 +164,7 @@
 		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
+		<Unit filename="../../PouEngine/src/assets/SkeletonAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/SpriteSheetAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/TextureAsset.cpp" />
 		<Unit filename="../../PouEngine/src/core/Config.cpp" />
@@ -188,6 +195,7 @@
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Profiler.cpp" />
+		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />

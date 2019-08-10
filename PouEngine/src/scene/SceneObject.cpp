@@ -65,7 +65,7 @@ void SceneObject::notify(NotificationSender* sender, NotificationType type,
 {
     if(sender == (NotificationSender*)m_parentNode)
     {
-        if(type == Notification_SceneNodeDetroyed)
+        if(type == Notification_SenderDestroyed)
             m_parentNode = nullptr;
     }
 }

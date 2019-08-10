@@ -1,4 +1,4 @@
-#include "PouEngine/assets/SpriteSheetAsset.h"
+#include "PouEngine/assets/SkeletonAsset.h"
 
 #include "PouEngine/Types.h"
 
@@ -12,32 +12,30 @@ namespace pou
 {
 
 
-SpriteSheetAsset::SpriteSheetAsset() : SpriteSheetAsset(-1)
+SkeletonAsset::SkeletonAsset() : SkeletonAsset(-1)
 {
 
 }
 
-SpriteSheetAsset::SpriteSheetAsset(const AssetTypeId id) : Asset(id)
+SkeletonAsset::SkeletonAsset(const AssetTypeId id) : Asset(id), m_rootNode(0)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
-
-    m_texture = nullptr;
 }
 
-SpriteSheetAsset::~SpriteSheetAsset()
+SkeletonAsset::~SkeletonAsset()
 {
     //dtor
 }
 
 
-bool SpriteSheetAsset::loadFromFile(const std::string &filePath)
+bool SkeletonAsset::loadFromFile(const std::string &filePath)
 {
     TiXmlDocument file(filePath.c_str());
 
     if(!file.LoadFile())
     {
-        Logger::error("Cannot load sprite sheet from file: "+filePath);
+        Logger::error("Cannot load skeleton from file: "+filePath);
         std::ostringstream errorReport;
         errorReport << "Because: "<<file.ErrorDesc();
         Logger::error(errorReport);
@@ -51,14 +49,17 @@ bool SpriteSheetAsset::loadFromFile(const std::string &filePath)
 }
 
 
-bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
+bool SkeletonAsset::loadFromXML(TiXmlHandle *hdl)
 {
     bool loaded = true;
 
     if(hdl == nullptr)
         return (false);
 
-    if(hdl->Element()->Attribute("texture") == nullptr)
+    //TiXmlElement *nodeElement =  hdl->FirstChildElement("node").Element();
+    this->loadNode(&m_rootNode, hdl->FirstChildElement("node").Element());
+
+    /*if(hdl->Element()->Attribute("texture") == nullptr)
         return (false);
 
     std::string textureName = std::string(hdl->Element()->Attribute("texture"));
@@ -137,45 +138,57 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
             spriteModel->setTextureRect(spritePosition,spriteSize,false);
 
         if(!m_sprites.insert(std::make_pair(spriteName,std::move(spriteModel))).second)
-            Logger::warning("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);
+            Logger::error("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);
 
         spriteElement = spriteElement->NextSiblingElement("sprite");
         ++i;
-    }
+    }*/
 
     if(loaded)
-        Logger::write("Sprite sheet loaded from file: "+m_filePath);
+        Logger::write("Skeleton loaded from file: "+m_filePath);
 
     return (loaded);
 }
 
-
-SpriteModel* SpriteSheetAsset::getSpriteModel(const std::string &spriteName)
+void SkeletonAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
 {
-    auto spriteModel = m_sprites.find(spriteName);
+    std::string nodeName = "node";
+    glm::vec3 nodePos(0,0,0);
 
-    if(spriteModel == m_sprites.end())
-        return (nullptr);
+    auto nameAtt = element->Attribute("name");
+    if(nameAtt != nullptr)
+        nodeName = std::string(nameAtt);
 
-    return spriteModel->second.get();
-}
+    if(!m_nodes.insert({nodeName,rootNode}).second)
+        Logger::warning("Multiple nodes with the same name \"" + nodeName + "\" in Skeleton Asset : "+m_filePath);
 
+    auto attribute = sizeElement->Attribute("x");
+    if(attribute != nullptr)
+        nodePos.x = Parser::parseFloat(std::string(attribute));
 
-void SpriteSheetAsset::notify(NotificationSender* sender, NotificationType notification,
-                           size_t dataSize, char* data)
-{
-    if(notification == Notification_AssetLoaded)
-        if(sender == m_texture)
-        {
-            m_loaded = true, Asset::loadNow();
-            Logger::write("Sprite sheet loaded from file: "+m_filePath);
-        }
+    attribute = sizeElement->Attribute("y");
+    if(attribute != nullptr)
+        nodePos.y = Parser::parseFloat(std::string(attribute));
 
-    if(notification == Notification_SenderDestroyed)
+    attribute = sizeElement->Attribute("z");
+    if(attribute != nullptr)
+        nodePos.z = Parser::parseFloat(std::string(attribute));
+
+    rootNode->setPosition(nodePos);
+
+    auto child = element->FirstChildElement("node");
+    if(child == nullptr)
+        return;
+
+    TiXmlElement* childElement = child->ToElement();
+    while(childElement != nullptr)
     {
-        if(sender == m_texture)
-            m_texture = nullptr;
+        SimpleNode* node = rootNode->createChildNode();
+        this->loadNode(node, childElement);
+
+        childElement = childElement->NextSiblingElement("node");
     }
 }
+
 
 }

@@ -221,7 +221,7 @@ LightDatum LightEntity::getLightDatum()
 void LightEntity::notify(NotificationSender *sender, NotificationType type,
                          size_t dataSize, char* data)
 {
-    if(type == Notification_SceneNodeMoved)
+    if(type == Notification_NodeMoved)
         this->updateDatum();
 }
 

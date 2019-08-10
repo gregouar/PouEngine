@@ -3,6 +3,7 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
+#include "PouEngine/assets/SkeletonAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 
@@ -29,6 +30,9 @@ bool Character::loadResources()
     if(spriteSheet == nullptr)
         return (false);
 
+    pou::SkeletonAsset *skeletonAsset
+        = pou::SkeletonsHandler::instance()->loadAssetFromFile("../data/char1/skeletonXML.txt");
+
     m_partsModel[BODY_PART] = spriteSheet->getSpriteModel("body");
     m_partsModel[HEAD_PART] = spriteSheet->getSpriteModel("head");
     m_partsModel[BAG_PART] = spriteSheet->getSpriteModel("bag");
@@ -41,7 +45,7 @@ bool Character::loadResources()
     m_partsModel[WEAPON_PART] = spriteSheet->getSpriteModel("weapon");
 
     m_partsNode[BODY_PART]  = this->createChildNode(0,0,1);//m_partsNode[BODY_PART]  = this;
-    m_partsNode[HEAD_PART]  = this->createChildNode(0,-4,5); //m_partsNode[BODY_PART]->createChildNode(0,-4,5);
+    m_partsNode[HEAD_PART]  = this->createChildNode(0,-4,6); //m_partsNode[BODY_PART]->createChildNode(0,-4,5);
     m_partsNode[BAG_PART]   = m_partsNode[BODY_PART]->createChildNode(0,4,1);
     m_partsNode[SHOULDER_L_PART]    = m_partsNode[BODY_PART]->createChildNode(-16,-4,4);
     m_partsNode[SHOULDER_R_PART]    = m_partsNode[BODY_PART]->createChildNode(16,-4,4);
