@@ -85,28 +85,6 @@ SpriteModel::~SpriteModel()
     this->cleanup();
 }
 
-/*void SpriteModel::setMaterial(AssetTypeId materialId)
-{
-    this->setMaterial(MaterialsHandler::instance()->getAsset(materialId));
-}
-
-void SpriteModel::setMaterial(MaterialAsset *material)
-{
-    if(m_material != material)
-    {
-        this->stopListeningTo(m_material);
-        m_material = material;
-        this->startListeningTo(m_material);
-
-        if(m_material != nullptr && !m_material->isLoaded())
-            m_isReady = false;
-        else
-            m_isReady = true;
-
-        this->sendNotification(Notification_ModelChanged);
-    }
-}*/
-
 void SpriteModel::setTexture(AssetTypeId textureId)
 {
     this->setTexture(TexturesHandler::instance()->getAsset(textureId));

@@ -106,6 +106,8 @@ SimpleNode* SimpleNode::createChildNode(glm::vec3 p)
 
 SimpleNode* SimpleNode::createChildNode(const NodeTypeId id)
 {
+    if(m_curNewId <= id)
+        m_curNewId = id+1;
     //auto childsIt = m_childs.find(id);
     //if(childsIt != m_childs.end())
     if(this->getChild(id) != nullptr)
@@ -184,6 +186,24 @@ void SimpleNode::removeAndDestroyAllChilds(bool destroyNonCreatedChilds)
     m_createdChildsList.clear();
 }
 
+void SimpleNode::copyFrom(const SimpleNode* srcNode)
+{
+    if(srcNode == nullptr)
+        return;
+
+    this->setPosition(srcNode->getPosition());
+    this->setRotation(srcNode->getEulerRotation());
+    this->setScale(srcNode->getScale());
+    this->setName(srcNode->getName());
+
+    for(auto child : srcNode->m_childs)
+    {
+        auto newNode = this->createChildNode();
+        if(newNode != nullptr)
+            newNode->copyFrom(child.second);
+    }
+}
+
 void SimpleNode::move(float x, float y)
 {
     this->move(x,y,0);
@@ -259,34 +279,44 @@ void SimpleNode::setRotation(glm::vec3 rotation)
     this->updateModelMatrix();
 }
 
-glm::vec3 SimpleNode::getPosition()
+void SimpleNode::setName(const std::string &name)
+{
+    m_name = name;
+}
+
+glm::vec3 SimpleNode::getPosition() const
 {
     return m_position;
 }
 
-glm::vec3 SimpleNode::getGlobalPosition()
+glm::vec3 SimpleNode::getGlobalPosition() const
 {
     return m_globalPosition;
 }
 
-glm::vec3 SimpleNode::getScale()
+glm::vec3 SimpleNode::getScale() const
 {
     return m_scale;
 }
 
-glm::vec3 SimpleNode::getEulerRotation()
+glm::vec3 SimpleNode::getEulerRotation() const
 {
     return m_eulerRotations;
 }
 
-const glm::mat4 &SimpleNode::getModelMatrix()
+const glm::mat4 &SimpleNode::getModelMatrix() const
 {
     return m_modelMatrix;
 }
 
-NodeTypeId SimpleNode::getId()
+NodeTypeId SimpleNode::getId() const
 {
     return m_id;
+}
+
+const std::string &SimpleNode::getName() const
+{
+    return m_name;
 }
 
 SimpleNode* SimpleNode::getParent()
@@ -301,6 +331,42 @@ SimpleNode* SimpleNode::getChild(const NodeTypeId id)
         return (nullptr);
     return childsIt->second;
 }
+
+SimpleNode* SimpleNode::getChildByName(const std::string &name, bool recursiveSearch)
+{
+    for(auto child : m_childs)
+    {
+        if(child.second->getName() == name)
+            return child.second;
+
+        if(recursiveSearch)
+        {
+            SimpleNode* res = child.second->getChildByName(name,true);
+            if(res != nullptr)
+                return res;
+        }
+    }
+    return (nullptr);
+}
+
+
+void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap)
+{
+    if(!m_name.empty())
+    {
+        auto res = namesAndResMap.find(m_name);
+        if(res != namesAndResMap.end())
+            namesAndResMap.insert_or_assign(res, m_name, this);
+    }
+
+    for(auto child : m_childs)
+        child.second->getNodesByName(namesAndResMap);
+}
+
+/*std::list<SimpleNode*> SimpleNode::getAllChilds()
+{
+    return m_childs.
+}*/
 
 
 void SimpleNode::setId(const NodeTypeId id)

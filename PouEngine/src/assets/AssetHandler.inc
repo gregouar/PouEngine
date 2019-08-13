@@ -23,9 +23,15 @@ AssetHandler<AssetType>::~AssetHandler()
 }
 
 
-
 template<typename AssetType>
 AssetType* AssetHandler<AssetType>::getAsset(const AssetTypeId assetId)
+{
+    return AssetHandler<AssetType>::instance()->getAssetImpl(assetId);
+}
+
+
+template<typename AssetType>
+AssetType* AssetHandler<AssetType>::getAssetImpl(const AssetTypeId assetId)
 {
     if(assetId == 0)
         return this->getDummyAsset();
@@ -51,11 +57,19 @@ template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromFile(
                                         const std::string &filePath, AssetLoadType loadType)
 {
-    return loadAssetFromFile(this->generateId(), filePath, loadType);
+    //return loadAssetFromFile(this->generateId(), filePath, loadType);
+    return AssetHandler<AssetType>::instance()->loadAssetFromFileImpl(AssetHandler<AssetType>::instance()->generateId(), filePath, loadType);
 }
 
 template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromFile(const AssetTypeId id,
+                                        const std::string &filePath, AssetLoadType loadType)
+{
+    return AssetHandler<AssetType>::instance()->loadAssetFromFileImpl(id, filePath, loadType);
+}
+
+template<typename AssetType>
+AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
                                         const std::string &filePath, AssetLoadType loadType)
 {
 	std::map<std::string, AssetTypeId>::iterator filesIter;
@@ -93,11 +107,19 @@ template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromMemory(
                                         void *data, std::size_t dataSize, AssetLoadType loadType)
 {
-    return this->loadAssetFromMemory(this->generateId(), data, dataSize, loadType);
+    //return this->loadAssetFromMemory(this->generateId(), data, dataSize, loadType);
+    return AssetHandler<AssetType>::instance()->loadAssetFromMemoryImpl(AssetHandler<AssetType>::instance()->generateId(), data, dataSize, loadType);
 }
 
 template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromMemory(const AssetTypeId id,
+                                        void *data, std::size_t dataSize, AssetLoadType loadType)
+{
+    return AssetHandler<AssetType>::instance()->loadAssetFromMemoryImpl(id, data, dataSize, loadType);
+}
+
+template<typename AssetType>
+AssetType* AssetHandler<AssetType>::loadAssetFromMemoryImpl(const AssetTypeId id,
                                         void *data, std::size_t dataSize, AssetLoadType loadType)
 {
     Asset* newAsset = this->addAsset(id);

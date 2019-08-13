@@ -104,8 +104,7 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
     {
         std::string materialPath = hdl->FirstChildElement("material").Element()->GetText();
 
-        m_material = MaterialsHandler::instance()
-                        ->loadAssetFromFile(m_fileDirectory+materialPath,m_loadType);
+        m_material = MaterialsHandler::loadAssetFromFile(m_fileDirectory+materialPath,m_loadType);
         this->startListeningTo(m_material);
         if(!m_material->isLoaded())
         {
@@ -219,7 +218,7 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath)
 
 void MeshAsset::setMaterial(AssetTypeId materialId)
 {
-    this->setMaterial(MaterialsHandler::instance()->getAsset(materialId));
+    this->setMaterial(MaterialsHandler::getAsset(materialId));
 }
 
 void MeshAsset::setMaterial(MaterialAsset *material)

@@ -34,6 +34,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
+        void copyFrom(const SimpleNode* srcNode);
+
         void move(float, float);
         void move(float, float, float);
         void move(glm::vec2 );
@@ -42,6 +44,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setPosition(float, float, float);
         void setPosition(glm::vec2 );
         void setPosition(glm::vec3 );
+        void setName(const std::string &name);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -50,15 +53,19 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void rotate(float value, glm::vec3 axis);
         void setRotation(glm::vec3 rotation);
 
-        glm::vec3 getPosition();
-        glm::vec3 getGlobalPosition();
-        glm::vec3 getScale();
-        glm::vec3 getEulerRotation();
-        const glm::mat4 &getModelMatrix();
+        glm::vec3 getPosition() const;
+        glm::vec3 getGlobalPosition() const;
+        glm::vec3 getScale() const;
+        glm::vec3 getEulerRotation()const;
+        const glm::mat4 &getModelMatrix() const;
 
-        NodeTypeId getId();
+        NodeTypeId getId()  const;
+        const std::string &getName()  const;
         SimpleNode* getParent();
         SimpleNode* getChild(const NodeTypeId id);
+        SimpleNode* getChildByName(const std::string &name, bool recursiveSearch = true);
+        void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
+        //std::list<SimpleNode*> getAllChilds();
 
         //could be used for animation ?
         void update(const Time &elapsedTime);
@@ -91,6 +98,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
     private:
         NodeTypeId m_id;
+        std::string m_name;
         std::set<NodeTypeId> m_createdChildsList;
 
         int m_curNewId;

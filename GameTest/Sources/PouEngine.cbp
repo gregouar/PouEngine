@@ -19,6 +19,7 @@
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -33,6 +34,7 @@
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -51,6 +53,7 @@
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -67,6 +70,7 @@
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -75,8 +79,8 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-std=c++14" />
 			<Add option="-fexceptions" />
+			<Add option="-std=c++17" />
 			<Add directory="../../PouEngine/include" />
 			<Add directory="GameTest/Sources/include/states" />
 			<Add directory="include" />
@@ -93,7 +97,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/assets/SkeletonAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/SkeletonModelAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/SpriteSheetAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/TextureAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/Config.h" />
@@ -118,6 +122,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/ShadowCaster.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/Skeleton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
@@ -161,10 +166,11 @@
 		<Unit filename="../../PouEngine/shaders/toneMapping.frag" />
 		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/AssetHandler.inc" />
 		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
-		<Unit filename="../../PouEngine/src/assets/SkeletonAsset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/SkeletonModelAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/SpriteSheetAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/TextureAsset.cpp" />
 		<Unit filename="../../PouEngine/src/core/Config.cpp" />
@@ -189,6 +195,7 @@
 		<Unit filename="../../PouEngine/src/scene/SceneNode.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/ShadowCaster.cpp" />
+		<Unit filename="../../PouEngine/src/scene/Skeleton.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />

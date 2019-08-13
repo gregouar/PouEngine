@@ -1,9 +1,12 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
+#include <memory>
+
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/scene/Skeleton.h"
 
 enum CharacterParts
 {
@@ -35,6 +38,9 @@ class Character : public pou::SceneNode
         pou::SpriteModel    *m_partsModel[TOTAL_PARTS];
         pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
         pou::SceneNode      *m_partsNode[TOTAL_PARTS];
+
+        std::unique_ptr<pou::Skeleton> m_skeleton;
+        //pou::Skeleton       *m_skeleton;
 
 };
 

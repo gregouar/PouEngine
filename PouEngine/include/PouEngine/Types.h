@@ -1,6 +1,6 @@
 
-#ifndef   VALAG_TYPES
-#define   VALAG_TYPES
+#ifndef   POUENGINE_TYPES
+#define   POUENGINE_TYPES
 
 #include <iostream>
 #include <chrono>
@@ -23,7 +23,7 @@ class TextureAsset;
 class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
-class SkeletonAsset;
+class SkeletonModelAsset;
 
 enum RendererName
 {
@@ -119,7 +119,7 @@ typedef glm::vec4 Color;
 typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
-typedef AssetHandler<SkeletonAsset>     SkeletonsHandler;
+typedef AssetHandler<SkeletonModelAsset>     SkeletonsHandler;
 //typedef AssetHandler<MeshAsset>     MeshesHandler;
 
 const std::string emptyString;

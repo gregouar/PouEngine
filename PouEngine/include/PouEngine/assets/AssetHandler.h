@@ -20,15 +20,15 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
         friend class Singleton<AssetHandler<AssetType> >;
 
 
-        AssetType* getAsset(const AssetTypeId assetId);
+        static AssetType* getAsset(const AssetTypeId assetId);
 
-        AssetType* loadAssetFromFile(const std::string &, AssetLoadType = LoadType_Now);
-        AssetType* loadAssetFromMemory(void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
-        ///AssetType* loadAssetFromStream(sf::InputStream *stream, AssetLoadType = LoadType_Now);
+        static AssetType* loadAssetFromFile(const std::string &, AssetLoadType = LoadType_Now);
+        static AssetType* loadAssetFromMemory(void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
+        ///static AssetType* loadAssetFromStream(sf::InputStream *stream, AssetLoadType = LoadType_Now);
 
-        AssetType* loadAssetFromFile(const AssetTypeId id,const std::string &, AssetLoadType = LoadType_Now);
-        AssetType* loadAssetFromMemory(const AssetTypeId id, void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
-       /// AssetType* loadAssetFromStream(const AssetTypeId& id,sf::InputStream *stream, AssetLoadType = LoadType_Now);
+        static AssetType* loadAssetFromFile(const AssetTypeId id,const std::string &, AssetLoadType = LoadType_Now);
+        static AssetType* loadAssetFromMemory(const AssetTypeId id, void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
+       /// static AssetType* loadAssetFromStream(const AssetTypeId& id,sf::InputStream *stream, AssetLoadType = LoadType_Now);
 
         AssetType* addAsset(const AssetTypeId assetId, bool plannedObsolescence=false, int lifeSpan=1);
 
@@ -52,6 +52,13 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
     protected:
         AssetHandler();
         virtual ~AssetHandler();
+
+        AssetType* getAssetImpl(const AssetTypeId assetId);
+
+        AssetType* loadAssetFromFileImpl(const AssetTypeId id,const std::string &, AssetLoadType = LoadType_Now);
+        AssetType* loadAssetFromMemoryImpl(const AssetTypeId id, void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
+       /// AssetType* loadAssetFromStreamImpl(const AssetTypeId& id,sf::InputStream *stream, AssetLoadType = LoadType_Now);
+
 
         void loadInThread();
 

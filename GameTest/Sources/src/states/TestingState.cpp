@@ -34,25 +34,23 @@ void TestingState::init()
 
     pou::AssetLoadType loadType = pou::LoadType_InThread;
 
-    pou::TexturesHandler* textureHandler =  pou::TexturesHandler::instance();
-
     pou::AssetTypeId tex[10];
-    tex[0] = textureHandler->loadAssetFromFile("../data/sand_color.png",loadType)->getId();
-    tex[1] = textureHandler->loadAssetFromFile("../data/sand_height.png",loadType)->getId();
-    tex[2] = textureHandler->loadAssetFromFile("../data/sand_normal.png",loadType)->getId();
+    tex[0] = pou::TexturesHandler::loadAssetFromFile("../data/sand_color.png",loadType)->getId();
+    tex[1] = pou::TexturesHandler::loadAssetFromFile("../data/sand_height.png",loadType)->getId();
+    tex[2] = pou::TexturesHandler::loadAssetFromFile("../data/sand_normal.png",loadType)->getId();
 
-    tex[3] = textureHandler->loadAssetFromFile("../data/abbey_albedo.png",loadType)->getId();
-    tex[4] = textureHandler->loadAssetFromFile("../data/abbey_height.png",loadType)->getId();
-    tex[5] = textureHandler->loadAssetFromFile("../data/abbey_normal.png",loadType)->getId();
+    tex[3] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_albedo.png",loadType)->getId();
+    tex[4] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_height.png",loadType)->getId();
+    tex[5] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_normal.png",loadType)->getId();
 
-    tex[6] = textureHandler->loadAssetFromFile("../data/tree_albedo.png",loadType)->getId();
-    tex[7] = textureHandler->loadAssetFromFile("../data/tree_height.png",loadType)->getId();
-    tex[8] = textureHandler->loadAssetFromFile("../data/tree_height.png",loadType)->getId();
-    tex[9] = textureHandler->loadAssetFromFile("../data/tree_rmt.png",loadType)->getId();
+    tex[6] = pou::TexturesHandler::loadAssetFromFile("../data/tree_albedo.png",loadType)->getId();
+    tex[7] = pou::TexturesHandler::loadAssetFromFile("../data/tree_height.png",loadType)->getId();
+    tex[8] = pou::TexturesHandler::loadAssetFromFile("../data/tree_height.png",loadType)->getId();
+    tex[9] = pou::TexturesHandler::loadAssetFromFile("../data/tree_rmt.png",loadType)->getId();
 
 
-    pou::TextureAsset *charTexture2 = textureHandler->loadAssetFromFile("../data/char1/char1.png",loadType);
-    pou::TextureAsset *charTexture = textureHandler->loadAssetFromFile("../data/char1/char1_scale.png",loadType);
+    pou::TextureAsset *charTexture2 = pou::TexturesHandler::loadAssetFromFile("../data/char1/char1.png",loadType);
+    pou::TextureAsset *charTexture = pou::TexturesHandler::loadAssetFromFile("../data/char1/char1_scale.png",loadType);
 
     m_charModel = new pou::SpriteModel();
     m_charModel->setTexture(charTexture);
@@ -71,7 +69,7 @@ void TestingState::init()
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
-    pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::instance()->loadAssetFromFile("../data/grassXML.txt");
+    pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grassXML.txt");
 
     for(auto x = -5 ; x < 5 ; x++)
     for(auto y = -5 ; y < 5 ; y++)
