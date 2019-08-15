@@ -257,6 +257,11 @@ void SimpleNode::scale(glm::vec3 scale)
     this->setScale(m_scale*scale);
 }
 
+void SimpleNode::linearScale(glm::vec3 scale)
+{
+    this->setScale(m_scale+scale);
+}
+
 void SimpleNode::setScale(float scale)
 {
     this->setScale({scale, scale, scale});
@@ -268,14 +273,33 @@ void SimpleNode::setScale(glm::vec3 scale)
     this->updateModelMatrix();
 }
 
-void SimpleNode::rotate(float value, glm::vec3 axis)
+void SimpleNode::rotate(float value, glm::vec3 axis, bool inRadians)
 {
+    if(!inRadians)
+        value = value*glm::pi<float>()/180.0;
+
     this->setRotation(m_eulerRotations+value*axis);
 }
 
-void SimpleNode::setRotation(glm::vec3 rotation)
+void SimpleNode::rotate(glm::vec3 values, bool inRadians)
 {
-    m_eulerRotations = rotation;
+    if(!inRadians)
+        values = glm::pi<float>()/180.0f*values;
+
+    this->setRotation(m_eulerRotations+values);
+}
+
+
+void SimpleNode::setRotation(glm::vec3 rotation, bool inRadians)
+{
+    if(!inRadians)
+    {
+        rotation.x = rotation.x*glm::pi<float>()/180.0;
+        rotation.y = rotation.y*glm::pi<float>()/180.0;
+        rotation.z = rotation.z*glm::pi<float>()/180.0;
+    }
+
+    m_eulerRotations = glm::mod(rotation+glm::pi<float>()*glm::vec3(1.0),glm::pi<float>()*2)-glm::pi<float>()*glm::vec3(1.0);
     this->updateModelMatrix();
 }
 
@@ -402,19 +426,8 @@ NodeTypeId SimpleNode::generateId()
 
 void SimpleNode::update(const Time &elapsedTime)
 {
-    /**SceneObjectIterator objIt = GetSceneObjectIterator();
-    while(!objIt.IsAtTheEnd())
-    {
-        objIt.GetElement()->Update(elapsedTime);
-        ++objIt;
-    }
-
-    SimpleNodeIterator nodeIt = GetChildIterator();
-    while(!nodeIt.IsAtTheEnd())
-    {
-        nodeIt.GetElement()->Update(elapsedTime);
-        ++nodeIt;
-    }**/
+    for(auto node : m_childs)
+        node.second->update(elapsedTime);
 }
 
 void SimpleNode::updateGlobalPosition()

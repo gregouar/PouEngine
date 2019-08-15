@@ -330,7 +330,7 @@ bool MeshAsset::generateModel(const std::vector<glm::vec3> &vertexList,
     std::vector<AccuVertex>         accuVertexList;
     std::vector<uint16_t>           indexList;
 
-    for(auto triangle : triangleList)
+    for(auto &triangle : triangleList)
     {
         MeshVertex  v1 = {vertexList[triangle.v1.x], uvList[triangle.v1.y], normalList[triangle.v1.z],{},{}},
                     v2 = {vertexList[triangle.v2.x], uvList[triangle.v2.y], normalList[triangle.v2.z],{},{}},
@@ -367,11 +367,11 @@ bool MeshAsset::generateModel(const std::vector<glm::vec3> &vertexList,
     }
 
     std::vector<MeshVertex> meshVertexList;
-    for(auto accu : accuVertexList)
+    for(auto &accu : accuVertexList)
     {
         glm::vec3 T = {}, B = {}, N = accu.normal;
 
-        for(auto v : accu.tangents)
+        for(auto &v : accu.tangents)
             T += v;
         T /= (float)accu.tangents.size();
 

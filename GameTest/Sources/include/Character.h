@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "PouEngine/Types.h"
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
@@ -31,16 +32,23 @@ class Character : public pou::SceneNode
 
         bool loadResources();
 
+        void walk(glm::vec2 direction);
+
+        virtual void update(const pou::Time &elapsedTime);
+
     protected:
         void cleanup();
 
     private:
         pou::SpriteModel    *m_partsModel[TOTAL_PARTS];
         pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
-        pou::SceneNode      *m_partsNode[TOTAL_PARTS];
+        //pou::SceneNode      *m_partsNode[TOTAL_PARTS];
 
         std::unique_ptr<pou::Skeleton> m_skeleton;
         //pou::Skeleton       *m_skeleton;
+
+        glm::vec2 m_walkingDirection;
+        bool m_isWalking;
 
 };
 

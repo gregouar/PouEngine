@@ -148,7 +148,6 @@
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanExtProxies.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanHelpers.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanImpl.h" />
-		<Unit filename="../../PouEngine/include/stb/stb_image.cpp" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinystr.h" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinyxml.h" />
 		<Unit filename="../../PouEngine/libs/tinyxml/tinystr.cpp" />

@@ -211,16 +211,18 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_camVelocity.x = 200.0;
 
 
-    m_charVelocity = {0,0};
+    glm::vec2 charDirection = {0,0};
 
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
-        m_charVelocity.y = 200.0;
+        charDirection.y = 1;
     if(eventsManager->keyIsPressed(GLFW_KEY_W))
-        m_charVelocity.y = -200.0;
+        charDirection.y = -1;
     if(eventsManager->keyIsPressed(GLFW_KEY_A))
-        m_charVelocity.x = -200.0;
+        charDirection.x = -1;
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
-        m_charVelocity.x = 200.0;
+        charDirection.x = 1;
+
+    m_character->walk(charDirection);
 
 }
 
@@ -234,11 +236,14 @@ void TestingState::update(const pou::Time &elapsedTime)
     camMove.y *= elapsedTime.count();
     m_cameraNode->move(camMove);
 
-    glm::vec2 charMove = {m_charVelocity.x*elapsedTime.count(),
+    /*glm::vec2 charMove = {m_charVelocity.x*elapsedTime.count(),
                           m_charVelocity.y*elapsedTime.count()};
+
+    m_character->walk();
+
     m_character->move(charMove);
     if(m_charVelocity.x != 0 || m_charVelocity.y != 0)
-        m_character->setRotation({0,0,3.1415926/2.0+glm::atan(m_charVelocity.y, m_charVelocity.x)});
+        m_character->setRotation({0,0,3.1415926/2.0+glm::atan(m_charVelocity.y, m_charVelocity.x)});*/
 
     m_testChar->rotate(1.0*elapsedTime.count());
 

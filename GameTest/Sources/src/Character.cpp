@@ -9,11 +9,14 @@
 
 Character::Character() : SceneNode(-1,nullptr)
 {
+    m_walkingDirection = {0,0};
+    m_isWalking = false;
+
     for(int i = 0 ; i < TOTAL_PARTS ; ++i)
     {
         m_partsModel[i]     = nullptr;
         m_partsEntity[i]    = nullptr;
-        m_partsNode[i]      = nullptr;
+        //m_partsNode[i]      = nullptr;
     }
 }
 
@@ -68,7 +71,8 @@ bool Character::loadResources()
     }
 
 
-    m_skeleton =  std::unique_ptr<pou::Skeleton>(new pou::Skeleton(this, skeletonModel));
+    m_skeleton =  std::unique_ptr<pou::Skeleton>(new pou::Skeleton(skeletonModel));
+    this->addChildNode(m_skeleton.get());
 
     m_skeleton->attachLimb("body", m_partsEntity[BODY_PART]);
     m_skeleton->attachLimb("head", m_partsEntity[HEAD_PART]);
@@ -91,6 +95,51 @@ bool Character::loadResources()
         scene->
     }
 }*/
+
+void Character::walk(glm::vec2 direction)
+{
+    m_walkingDirection = direction;
+}
+
+void Character::update(const pou::Time& elapsedTime)
+{
+    if(m_walkingDirection != glm::vec2(0))
+    {
+        m_walkingDirection = glm::normalize(m_walkingDirection);
+
+        glm::vec2 charMove = {m_walkingDirection.x*200*elapsedTime.count(),
+                              m_walkingDirection.y*200*elapsedTime.count()};
+
+        SceneNode:move(charMove);
+
+        float curRot = SceneNode::getEulerRotation().z;
+        float desiredRot = glm::pi<float>()/2.0+glm::atan(m_walkingDirection.y, m_walkingDirection.x);
+
+        if(glm::abs(desiredRot-curRot) > glm::abs(desiredRot-curRot+glm::pi<float>()*2.0))
+            desiredRot += glm::pi<float>()*2.0;
+
+        if(glm::abs(desiredRot-curRot) > glm::abs(desiredRot-curRot-glm::pi<float>()*2.0))
+            desiredRot -= glm::pi<float>()*2.0;
+
+        float rotAmount = elapsedTime.count()*10.0f;
+        float newRot = curRot;
+
+        if(glm::abs(desiredRot - curRot) < rotAmount)
+            SceneNode::setRotation({0,0,desiredRot});
+        else
+            SceneNode::rotate(rotAmount, {0,0, (desiredRot > curRot) ? 1 : -1 });
+
+        if(!m_isWalking)
+            m_skeleton->startAnimation("walk", true);
+        m_isWalking = true;
+    } else if(m_isWalking) {
+        m_skeleton->startAnimation("stand", true);
+        m_isWalking = false;
+    }
+
+
+    SceneNode::update(elapsedTime);
+}
 
 void Character::cleanup()
 {

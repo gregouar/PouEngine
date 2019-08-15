@@ -99,7 +99,7 @@ class SpriteEntity : public ShadowCaster
         float       m_rotation;
         glm::vec4   m_color;
         SpriteOrdering  m_ordering;
-        bool            m_inheritRotation;
+        bool            m_inheritRotation; ///Rename this to inheritsTransformations
 };
 
 }

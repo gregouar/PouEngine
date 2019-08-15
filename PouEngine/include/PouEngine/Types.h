@@ -99,6 +99,15 @@ enum ShadowVolumeType
     MirroredTwoSidedShadow,
 };
 
+
+enum SkelAnimCmdType
+{
+    Unknown_Command,
+    Move_To,
+    Rotate_To,
+    Scale_To,
+};
+
 enum CommandPoolName
 {
     COMMANDPOOL_DEFAULT,

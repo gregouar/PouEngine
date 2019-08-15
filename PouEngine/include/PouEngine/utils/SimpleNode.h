@@ -48,10 +48,12 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void scale(float scale);
         void scale(glm::vec3 scale);
+        void linearScale(glm::vec3 scale);
         void setScale(float scale);
         void setScale(glm::vec3 scale);
-        void rotate(float value, glm::vec3 axis);
-        void setRotation(glm::vec3 rotation);
+        void rotate(float value, glm::vec3 axis, bool inRadians = true);
+        void rotate(glm::vec3 values, bool inRadians = true);
+        void setRotation(glm::vec3 rotation, bool inRadians = true);
 
         glm::vec3 getPosition() const;
         glm::vec3 getGlobalPosition() const;
@@ -67,8 +69,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
 
-        //could be used for animation ?
-        void update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
