@@ -479,7 +479,15 @@ void VGraphicsPipeline::destroy()
         for(auto p : vect)
             delete[] p;
 
+    m_attachedShaders.clear();
+    m_specializationInfos.clear();
+    m_blendModes.clear();
+    m_writeMasks.clear();
+    m_customBlends.clear();
+    m_attachedDescriptorSetLayouts.clear();
+    m_attachedPushConstants.clear();
     m_specializationData.clear();
+    m_specializationMapEntries.clear();
 }
 
 }

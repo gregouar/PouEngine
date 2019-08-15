@@ -37,6 +37,8 @@ void VRenderPass::destroy()
     m_vkRenderPass = VK_NULL_HANDLE;
 
     m_attachmentsType.clear();
+    m_attachmentsLoadOp.clear();
+    m_attachmentsStoreOp.clear();
 }
 
 void VRenderPass::addAttachmentType(const VFramebufferAttachmentType &type,

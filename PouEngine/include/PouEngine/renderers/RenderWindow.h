@@ -32,6 +32,10 @@ class RenderWindow
         bool attachRenderer(AbstractRenderer *renderer);
         bool detachRenderer(RendererName renderer);
 
+        void resize();
+
+        void takeScreenshot(const std::string &filepath);
+
         size_t      getFramesCount();
         size_t      getSwapchainSize();
         size_t      getFrameIndex();
@@ -59,6 +63,10 @@ class RenderWindow
         bool                createSwapchain();
         bool                createSemaphoresAndFences();
 
+        bool                recreateSwapchain();
+
+        void                destroySwapchain();
+
         VkSurfaceKHR &getSurface();
         GLFWwindow  *getWindowPtr();
 
@@ -80,6 +88,8 @@ class RenderWindow
         std::vector<VkFence>        m_inFlightFences;
 
         std::map<RendererName, AbstractRenderer*>  m_attachedRenderers;
+
+        bool m_resized;
 };
 
 }

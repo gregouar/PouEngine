@@ -14,7 +14,8 @@ namespace pou
 RenderWindow::RenderWindow() :
     m_window(nullptr),
     m_surface(VK_NULL_HANDLE),
-    m_swapchain(VK_NULL_HANDLE)
+    m_swapchain(VK_NULL_HANDLE),
+    m_resized(false)
 {
     //ctor
 }
@@ -81,6 +82,16 @@ bool RenderWindow::detachRenderer(RendererName renderer)
     return (false);
 }
 
+void RenderWindow::resize()
+{
+    m_resized = true;
+}
+
+void RenderWindow::takeScreenshot(const std::string &filepath)
+{
+    VulkanHelpers::takeScreenshot(this->getSwapchainAttachments()[this->getFrameIndex()], filepath);
+}
+
 size_t RenderWindow::getFramesCount()
 {
     return m_framesCount;
@@ -137,12 +148,25 @@ uint32_t RenderWindow::acquireNextImage()
 {
     VkDevice device = VInstance::device();
 
-    vkWaitForFences(device, 1, &m_inFlightFences[m_curFrameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
-    vkResetFences(device, 1, &m_inFlightFences[m_curFrameIndex]);
-
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(device, m_swapchain, std::numeric_limits<uint64_t>::max(),
+    VkResult result;
+
+
+    if(!m_resized)
+        result = vkAcquireNextImageKHR(device, m_swapchain, std::numeric_limits<uint64_t>::max(),
                           m_imageAvailableSemaphore[m_curFrameIndex], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_resized)
+    {
+        this->recreateSwapchain();
+        m_resized = false;
+
+        return this->acquireNextImage();
+    } else if(result != VK_SUCCESS) {
+        throw std::runtime_error("Couldn't acquire swapchain image.");
+    }
+
+    vkResetFences(device, 1, &m_inFlightFences[m_curFrameIndex]);
 
     m_curImageIndex = imageIndex;
 
@@ -313,7 +337,8 @@ VkExtent2D RenderWindow::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabi
         return capabilities.currentExtent;
 
     int w, h;
-    glfwGetWindowSize(m_window, &w, &h);
+    //glfwGetWindowSize(m_window, &w, &h);
+    glfwGetFramebufferSize(m_window, &w, &h);
     VkExtent2D actualExtent = { static_cast<uint32_t>(w),
                                 static_cast<uint32_t>(h)};
 
@@ -330,8 +355,8 @@ bool RenderWindow::createSwapchain()
     SwapchainSupportDetails swapchainSupport = VInstance::instance()->querySwapchainSupport(VInstance::physicalDevice(), m_surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
-    VkPresentModeKHR presentMode = chooseSwapPresentMode(swapchainSupport.presentModes);
-    VkExtent2D swapchainExtent = chooseSwapExtent(swapchainSupport.capabilities);
+    VkPresentModeKHR presentMode     = chooseSwapPresentMode(swapchainSupport.presentModes);
+    VkExtent2D swapchainExtent       = chooseSwapExtent(swapchainSupport.capabilities);
 
     uint32_t imageCount = swapchainSupport.capabilities.minImageCount + 1;
     if (swapchainSupport.capabilities.maxImageCount > 0
@@ -347,7 +372,7 @@ bool RenderWindow::createSwapchain()
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = swapchainExtent;
     createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT; /// Use VK_IMAGE_USAGE_TRANSFER_DST_BIT  for postfx ?
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     QueueFamilyIndices queueFamilyIndices = VInstance::instance()->getQueueFamilyIndices();
     uint32_t queueFamilyIndicesArray[] = {(uint32_t) queueFamilyIndices.graphicsFamily,
@@ -360,8 +385,8 @@ bool RenderWindow::createSwapchain()
         createInfo.pQueueFamilyIndices = queueFamilyIndicesArray;
     } else {
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0; // Optional
-        createInfo.pQueueFamilyIndices = nullptr; // Optional
+        createInfo.queueFamilyIndexCount = 0;
+        createInfo.pQueueFamilyIndices = nullptr;
     }
 
     createInfo.preTransform = swapchainSupport.capabilities.currentTransform;
@@ -434,6 +459,38 @@ bool RenderWindow::createSemaphoresAndFences()
     return (true);
 }
 
+bool RenderWindow::recreateSwapchain()
+{
+    VInstance::waitDeviceIdle();
+
+    this->destroySwapchain();
+    if(!this->createSwapchain())
+        return (false);
+
+    for(auto renderer : m_attachedRenderers)
+        if(!renderer.second->reinit())
+            return (false);
+
+    return (true);
+}
+
+void RenderWindow::destroySwapchain()
+{
+    VkDevice device = VInstance::device();
+
+    for(auto attachment : m_depthStencilAttachments)
+        VulkanHelpers::destroyAttachment(attachment);
+    m_depthStencilAttachments.clear();
+
+    for (auto attachment : m_swapchainAttachments)
+        vkDestroyImageView(device, attachment.view, nullptr);
+    m_swapchainAttachments.clear();
+
+    if(m_swapchain != VK_NULL_HANDLE)
+        vkDestroySwapchainKHR(device, m_swapchain, nullptr);
+    m_swapchain = VK_NULL_HANDLE;
+}
+
 void RenderWindow::destroy()
 {
     VkDevice device = VInstance::device();
@@ -450,17 +507,7 @@ void RenderWindow::destroy()
         vkDestroySemaphore(device, semaphore, nullptr);
     m_finishedRenderingSemaphores.clear();
 
-    for(auto attachment : m_depthStencilAttachments)
-        VulkanHelpers::destroyAttachment(attachment);
-    m_depthStencilAttachments.clear();
-
-    for (auto attachment : m_swapchainAttachments)
-        vkDestroyImageView(device, attachment.view, nullptr);
-    m_swapchainAttachments.clear();
-
-    if(m_swapchain != VK_NULL_HANDLE)
-        vkDestroySwapchainKHR(device, m_swapchain, nullptr);
-    m_swapchain = VK_NULL_HANDLE;
+    this->destroySwapchain();
 
     if(m_surface != VK_NULL_HANDLE)
         vkDestroySurfaceKHR(VInstance::instance()->getVulkanInstance(), m_surface, nullptr);

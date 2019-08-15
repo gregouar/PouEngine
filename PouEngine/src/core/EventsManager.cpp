@@ -22,6 +22,7 @@ EventsManager::EventsManager()
     m_mouseScroll   = glm::vec2(0,0);
 
     m_askingToClose = false;
+    m_resizedWindow = false;
 }
 
 EventsManager::~EventsManager()
@@ -39,6 +40,7 @@ void EventsManager::init(GLFWwindow *window)
     glfwSetMouseButtonCallback  (m_window, EventsManager::mouse_button_callback);
     glfwSetScrollCallback       (m_window, EventsManager::scroll_callback);
     glfwSetCursorPosCallback    (m_window, EventsManager::cursor_position_callback);
+    glfwSetFramebufferSizeCallback(m_window, EventsManager::resize_callback);
 }
 
 void EventsManager::update()
@@ -70,8 +72,14 @@ void EventsManager::update()
     m_mouseScroll = glm::vec2(0,0);
 
     m_askingToClose = glfwWindowShouldClose(m_window);
+    m_resizedWindow = false;
 
     glfwPollEvents();
+}
+
+void EventsManager::waitForEvents()
+{
+    glfwWaitEvents();
 }
 
 bool EventsManager::keyPressed(int key) const
@@ -140,6 +148,17 @@ bool EventsManager::isAskingToClose() const
     return m_askingToClose;
 }
 
+bool EventsManager::resizedWindow() const
+{
+    return m_resizedWindow;
+}
+
+glm::vec2 EventsManager::getFramebufferSize() const
+{
+    int width, height;
+    glfwGetFramebufferSize(m_window, &width, &height);
+    return glm::vec2(width, height);
+}
 
 
 void EventsManager::updateKey(int key, int action)
@@ -193,6 +212,11 @@ void EventsManager::updateMousePosition(double xpos, double ypos, int width, int
     m_centeredMousePosition = glm::vec2(xpos - (double)width/2, ypos - (double)height/2);
 }
 
+/*void EventsManager::updateWindowSize(int width, int height)
+{
+    m_resizedWindow = true;
+}*/
+
 
 
 void EventsManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -233,5 +257,19 @@ void EventsManager::cursor_position_callback(GLFWwindow* window, double xpos, do
         glfwGetWindowSize(window, &width, &height);
         eventsManager->updateMousePosition(xpos, ypos, width, height);
     }
+}
+
+void EventsManager::resize_callback(GLFWwindow* window, int width, int height)
+{
+    EventsManager *eventsManager =
+      static_cast<EventsManager*>(glfwGetWindowUserPointer(window));
+
+    if(eventsManager != nullptr)
+        eventsManager->m_resizedWindow = true;
+    /*{
+        int w, h;
+        glfwGetFramebufferSize(window, &w, &h);
+        eventsManager->updateWindowSize(w, h);
+    }*/
 }
 

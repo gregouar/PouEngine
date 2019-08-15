@@ -10,6 +10,8 @@ namespace pou
 
 class AbstractRenderer
 {
+    friend class RenderWindow;
+
     public:
         AbstractRenderer(RenderWindow *targetWindow, RendererName name, RenderereOrder order);
         virtual ~AbstractRenderer();
@@ -37,6 +39,7 @@ class AbstractRenderer
         virtual bool    createDescriptorSets();*/
 
         virtual bool    init();
+        virtual bool    reinit();
         virtual void    cleanup();
 
         virtual bool    recordPrimaryCmb(uint32_t imageIndex) = 0;

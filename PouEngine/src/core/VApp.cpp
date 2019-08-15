@@ -130,7 +130,7 @@ bool VApp::createRenderers()
     m_renderers.clear();
 
     m_renderers.push_back(new SceneRenderer(&m_renderWindow, Renderer_Scene, Renderer_Unique));
-    m_renderWindow.attachRenderer(m_renderers.back());
+    //m_renderWindow.attachRenderer(m_renderers.back());
 
     return (true);
 }
@@ -144,6 +144,17 @@ void VApp::loop()
     {
         Time elapsedTime = clock.restart();
         Profiler::resetLoop(ENABLE_PROFILER);
+
+        if(m_eventsManager.resizedWindow())
+        {
+            //VInstance::waitDeviceIdle();
+            m_renderWindow.resize();
+            while(m_eventsManager.getFramebufferSize() != glm::vec2(m_renderWindow.getSwapchainExtent().width,
+                                                                    m_renderWindow.getSwapchainExtent().height))
+                m_eventsManager.waitForEvents();
+            //VInstance::waitDeviceIdle();
+            clock.restart();
+        }
 
         Profiler::pushClock("Acquire next image");
         m_renderWindow.acquireNextImage(); //Also update renderers
@@ -173,7 +184,7 @@ void VApp::loop()
         Profiler::popClock();
 
         if(m_eventsManager.keyPressed(GLFW_KEY_P))
-            VulkanHelpers::takeScreenshot(m_renderWindow.getSwapchainAttachments()[m_renderWindow.getFrameIndex()], "../screenshots/screen.jpg");
+            m_renderWindow.takeScreenshot("../screenshots/screen.jpg");
     }
 
     VInstance::waitDeviceIdle();

@@ -58,6 +58,10 @@ void RenderView::destroy()
     if(m_descriptorPool != VK_NULL_HANDLE)
         vkDestroyDescriptorPool(device, m_descriptorPool, nullptr);
     m_descriptorPool = VK_NULL_HANDLE;
+
+    m_descriptorSets.clear();
+    m_needToUpdateBuffers.clear();
+    m_buffers.clear();
 }
 
 void RenderView::update(size_t frameIndex, VkCommandBuffer cmb)

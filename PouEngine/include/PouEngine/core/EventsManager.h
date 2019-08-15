@@ -15,6 +15,7 @@ class EventsManager
         void init(GLFWwindow *window);
 
         void update();
+        void waitForEvents();
 
         bool keyPressed(int key)    const;
         bool keyIsPressed(int key)  const;
@@ -30,17 +31,22 @@ class EventsManager
         glm::vec2 mouseScroll()     const;
 
         bool isAskingToClose() const;
+        bool resizedWindow() const;
+
+        glm::vec2 getFramebufferSize() const;
 
     protected:
         void updateKey(int key, int action);
         void updateMouseButton(int button, int action);
         void updateMouseScroll(double xoffset, double yoffset);
         void updateMousePosition(double xpos, double ypos, int width, int height);
+        //void updateWindowSize(int width, int height);
 
         static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
         static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
         static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+        static void resize_callback(GLFWwindow* window, int width, int height);
 
     private:
         GLFWwindow *m_window;
@@ -62,6 +68,7 @@ class EventsManager
         glm::vec2 m_mouseScroll;
 
         bool m_askingToClose;
+        bool m_resizedWindow;
 };
 
 #endif // EVENTSMANAGER_H

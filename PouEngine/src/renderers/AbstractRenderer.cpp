@@ -18,6 +18,7 @@ AbstractRenderer::AbstractRenderer(RenderWindow *targetWindow, RendererName name
     m_order(order),
     m_name(name)
 {
+    targetWindow->attachRenderer(this);
 }
 
 AbstractRenderer::~AbstractRenderer()
@@ -125,6 +126,12 @@ bool AbstractRenderer::init()
     }*/
 
     return (true);
+}
+
+bool AbstractRenderer::reinit()
+{
+    this->cleanup();
+    return this->init();
 }
 
 void AbstractRenderer::cleanup()

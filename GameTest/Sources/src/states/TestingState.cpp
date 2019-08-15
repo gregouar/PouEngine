@@ -236,15 +236,6 @@ void TestingState::update(const pou::Time &elapsedTime)
     camMove.y *= elapsedTime.count();
     m_cameraNode->move(camMove);
 
-    /*glm::vec2 charMove = {m_charVelocity.x*elapsedTime.count(),
-                          m_charVelocity.y*elapsedTime.count()};
-
-    m_character->walk();
-
-    m_character->move(charMove);
-    if(m_charVelocity.x != 0 || m_charVelocity.y != 0)
-        m_character->setRotation({0,0,3.1415926/2.0+glm::atan(m_charVelocity.y, m_charVelocity.x)});*/
-
     m_testChar->rotate(1.0*elapsedTime.count());
 
     m_scene->update(elapsedTime);
@@ -262,8 +253,7 @@ void TestingState::draw(pou::RenderWindow *renderWindow)
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        //renderer->draw(&m_abbeyEntity);
-        //renderer->draw(&m_treeEntity);
+
         m_scene->render(renderer, m_camera);
     }
 }
