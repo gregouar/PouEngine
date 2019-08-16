@@ -48,7 +48,7 @@ class RenderWindow
         AbstractRenderer* getRenderer(RendererName renderer);
 
     protected:
-        uint32_t    acquireNextImage();
+        uint32_t    acquireNextImage(bool ignoreFences = false);
         void        submitToGraphicsQueue(std::vector<VkCommandBuffer> &commandBuffers,
                                           std::vector<VkSemaphore> &waitSemaphores);
         void        display();

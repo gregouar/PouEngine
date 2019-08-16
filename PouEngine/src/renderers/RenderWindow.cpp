@@ -144,13 +144,18 @@ AbstractRenderer *RenderWindow::getRenderer(RendererName renderer)
 
 /// PROTECTED ///
 
-uint32_t RenderWindow::acquireNextImage()
+uint32_t RenderWindow::acquireNextImage(bool ignoreFences)
 {
     VkDevice device = VInstance::device();
 
     uint32_t imageIndex;
     VkResult result;
 
+    if(!ignoreFences)
+    {
+        vkWaitForFences(device, 1, &m_inFlightFences[m_curFrameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
+        vkResetFences(device, 1, &m_inFlightFences[m_curFrameIndex]);
+    }
 
     if(!m_resized)
         result = vkAcquireNextImageKHR(device, m_swapchain, std::numeric_limits<uint64_t>::max(),
@@ -160,13 +165,11 @@ uint32_t RenderWindow::acquireNextImage()
     {
         this->recreateSwapchain();
         m_resized = false;
+        return this->acquireNextImage(true);
 
-        return this->acquireNextImage();
     } else if(result != VK_SUCCESS) {
         throw std::runtime_error("Couldn't acquire swapchain image.");
     }
-
-    vkResetFences(device, 1, &m_inFlightFences[m_curFrameIndex]);
 
     m_curImageIndex = imageIndex;
 

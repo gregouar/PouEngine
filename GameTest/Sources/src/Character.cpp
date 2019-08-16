@@ -13,11 +13,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_isWalking = false;
 
     for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-    {
-        m_partsModel[i]     = nullptr;
         m_partsEntity[i]    = nullptr;
-        //m_partsNode[i]      = nullptr;
-    }
 }
 
 Character::~Character()
@@ -28,46 +24,34 @@ Character::~Character()
 bool Character::loadResources()
 {
     pou::SpriteSheetAsset *spriteSheet
-        = pou::SpriteSheetsHandler::loadAssetFromFile("../data/char1/char1XML.txt");
+        = pou::SpriteSheetsHandler::loadAssetFromFile("../data/char1/char1SpritesheetXML.txt");
 
     if(spriteSheet == nullptr)
         return (false);
 
     pou::SkeletonModelAsset *skeletonModel
-        = pou::SkeletonsHandler::loadAssetFromFile("../data/char1/skeletonXML.txt");
+        = pou::SkeletonsHandler::loadAssetFromFile("../data/char1/char1SkeletonXML.txt");
 
-    m_partsModel[BODY_PART] = spriteSheet->getSpriteModel("body");
-    m_partsModel[HEAD_PART] = spriteSheet->getSpriteModel("head");
-    m_partsModel[BAG_PART] = spriteSheet->getSpriteModel("bag");
-    m_partsModel[SHOULDER_L_PART] = spriteSheet->getSpriteModel("shoulderL");
-    m_partsModel[SHOULDER_R_PART] = spriteSheet->getSpriteModel("shoulderR");
-    m_partsModel[HAND_L_PART] = spriteSheet->getSpriteModel("handL");
-    m_partsModel[HAND_R_PART] = spriteSheet->getSpriteModel("handR");
-    m_partsModel[FOOT_L_PART] = spriteSheet->getSpriteModel("footL");
-    m_partsModel[FOOT_R_PART] = spriteSheet->getSpriteModel("footR");
-    m_partsModel[WEAPON_PART] = spriteSheet->getSpriteModel("weapon");
 
-    /*m_partsNode[BODY_PART]  = this->createChildNode(0,0,1);//m_partsNode[BODY_PART]  = this;
-    m_partsNode[HEAD_PART]  = this->createChildNode(0,-4,6); //m_partsNode[BODY_PART]->createChildNode(0,-4,5);
-    m_partsNode[BAG_PART]   = m_partsNode[BODY_PART]->createChildNode(0,4,1);
-    m_partsNode[SHOULDER_L_PART]    = m_partsNode[BODY_PART]->createChildNode(-16,-4,4);
-    m_partsNode[SHOULDER_R_PART]    = m_partsNode[BODY_PART]->createChildNode(16,-4,4);
-    m_partsNode[HAND_L_PART]        = m_partsNode[BODY_PART]->createChildNode(-8,-8,3);
-    m_partsNode[HAND_R_PART]        = m_partsNode[BODY_PART]->createChildNode(10,-8,3);
-    m_partsNode[FOOT_L_PART]  = this->createChildNode(-10,4,0);
-    m_partsNode[FOOT_R_PART]  = this->createChildNode(10,4,0);
-    m_partsNode[WEAPON_PART]        = m_partsNode[BODY_PART]->createChildNode(-2,-10,2);*/
+    pou::SpriteModel  *partsModel[TOTAL_PARTS];
 
+    partsModel[BODY_PART] = spriteSheet->getSpriteModel("body");
+    partsModel[HEAD_PART] = spriteSheet->getSpriteModel("head");
+    partsModel[BAG_PART] = spriteSheet->getSpriteModel("bag");
+    partsModel[SHOULDER_L_PART] = spriteSheet->getSpriteModel("shoulderL");
+    partsModel[SHOULDER_R_PART] = spriteSheet->getSpriteModel("shoulderR");
+    partsModel[HAND_L_PART] = spriteSheet->getSpriteModel("handL");
+    partsModel[HAND_R_PART] = spriteSheet->getSpriteModel("handR");
+    partsModel[FOOT_L_PART] = spriteSheet->getSpriteModel("footL");
+    partsModel[FOOT_R_PART] = spriteSheet->getSpriteModel("footR");
+    partsModel[WEAPON_PART] = spriteSheet->getSpriteModel("sword");
 
     for(int i = 0 ; i < TOTAL_PARTS ; ++i)
     {
         m_partsEntity[i] = new pou::SpriteEntity();
-        m_partsEntity[i]->setSpriteModel(m_partsModel[i]);
+        m_partsEntity[i]->setSpriteModel(partsModel[i]);
         m_partsEntity[i]->setOrdering(pou::ORDERED_BY_Z);
         m_partsEntity[i]->setInheritRotation(true);
-
-        /*if(m_partsNode[i] != nullptr)
-            m_partsNode[i]->attachObject(m_partsEntity[i]);*/
     }
 
 
@@ -87,14 +71,6 @@ bool Character::loadResources()
 
     return (true);
 }
-
-/*bool Character::addToScene(pou::Scene *scene)
-{
-    for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-    {
-        scene->
-    }
-}*/
 
 void Character::walk(glm::vec2 direction)
 {

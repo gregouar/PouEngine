@@ -81,7 +81,9 @@ void TestingState::init()
     m_camera = m_scene->createCamera();
     //m_camera->setViewport({.2,.3},{.5,.4});
     m_cameraNode = m_scene->getRootNode()->createChildNode(0,0);
-    m_cameraNode->attachObject(m_camera);
+    ///m_cameraNode->attachObject(m_camera);
+    m_character->attachObject(m_camera);
+
     //m_scene->setCurrentCamera(m_camera);
 
 

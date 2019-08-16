@@ -147,12 +147,10 @@ void VApp::loop()
 
         if(m_eventsManager.resizedWindow())
         {
-            //VInstance::waitDeviceIdle();
             m_renderWindow.resize();
             while(m_eventsManager.getFramebufferSize() != glm::vec2(m_renderWindow.getSwapchainExtent().width,
                                                                     m_renderWindow.getSwapchainExtent().height))
                 m_eventsManager.waitForEvents();
-            //VInstance::waitDeviceIdle();
             clock.restart();
         }
 

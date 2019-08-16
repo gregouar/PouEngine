@@ -40,7 +40,6 @@ class Character : public pou::SceneNode
         void cleanup();
 
     private:
-        pou::SpriteModel    *m_partsModel[TOTAL_PARTS];
         pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
         //pou::SceneNode      *m_partsNode[TOTAL_PARTS];
 

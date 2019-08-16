@@ -94,6 +94,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/Asset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/AssetHandler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/CharacterModelAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
@@ -166,6 +167,7 @@
 		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/AssetHandler.inc" />
+		<Unit filename="../../PouEngine/src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />

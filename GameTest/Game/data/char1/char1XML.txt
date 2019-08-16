@@ -1,53 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="char1spritesheet_scale.png">
-	<sprite name="body">
-		<size 		x="26" 	y="16" 	/>
-		<center 	x="12" 	y="6" 	/>
-		<position 	x="56" 	y="36"	/>
-	</sprite>
-	<sprite name="head">
-		<size 		x="34" 	y="30" 	/>
-		<center 	x="16" 	y="18" 	/>
-		<position 	x="0" 	y="0" 	/>
-	</sprite>
-	<sprite name="bag">
-		<size 		x="26" 	y="14" 	/>
-		<center 	x="12" 	y="0" 	/>
-		<position 	x="26" 	y="32" 	/>
-	</sprite>
-	<sprite name="shoulderL">
-		<size 		x="24" 	y="28" 	/>
-		<center 	x="16" 	y="12" 	/>
-		<position 	x="36" 	y="2" 	/>
-	</sprite>
-	<sprite name="shoulderR">
-		<size 		x="24" 	y="28" 	/>
-		<center 	x="6" 	y="12" 	/>
-		<position 	x="62" 	y="2" 	/>
-	</sprite>
-	<sprite name="handL">
-		<size 		x="10" 	y="10" 	/>
-		<center 	x="0" 	y="8" 	/>
-		<position 	x="2" 	y="36" 	/>
-	</sprite>
-	<sprite name="handR">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="6" 	y="10" 	/>
-		<position 	x="14" 	y="34" 	/>
-	</sprite>
-	<sprite name="footL">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="4" 	y="10" 	/>
-		<position 	x="2" 	y="48" 	/>
-	</sprite>
-	<sprite name="footR">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="2" 	y="10" 	/>
-		<position 	x="24" 	y="48" 	/>
-	</sprite>
-	<sprite name="weapon">
-		<size 		x="64" 	y="64" 	/>
-		<center 	x="0" 	y="62" 	/>
-		<position 	x="92" 	y="4" 	/>
-	</sprite>
-</spritesheet>
+<character>
+	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
+	
+	<skeleton path="char1SkeletonXML.txt">
+		<limb node="body" sprite="body" spritesheet="mainSpriteSheet">
+		<limb node="head" sprite="head" spritesheet="mainSpriteSheet">
+		<limb node="bag" sprite="bag" spritesheet="mainSpriteSheet">
+		<limb node="shoulderL" sprite="shoulderL" spritesheet="mainSpriteSheet">
+		<limb node="shoulderR" sprite="shoulderR" spritesheet="mainSpriteSheet">
+		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet">
+		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet">
+		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet">
+		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet">
+		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet">
+	</skeleton>
+	
+</character>
