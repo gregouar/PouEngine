@@ -65,7 +65,7 @@ void TestingState::init()
     m_testNode->attachObject(m_testChar);
 
     m_character = new Character();
-    m_character->loadResources();
+    m_character->loadModel("../data/char1/char1XML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 

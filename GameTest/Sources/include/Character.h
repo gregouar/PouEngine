@@ -9,7 +9,7 @@
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/Skeleton.h"
 
-enum CharacterParts
+/*enum CharacterParts
 {
     BODY_PART,
     HEAD_PART,
@@ -22,7 +22,7 @@ enum CharacterParts
     FOOT_R_PART,
     WEAPON_PART,
     TOTAL_PARTS,
-};
+};*/
 
 class Character : public pou::SceneNode
 {
@@ -30,9 +30,11 @@ class Character : public pou::SceneNode
         Character();
         virtual ~Character();
 
-        bool loadResources();
+        bool loadModel(const std::string &path);
 
         void walk(glm::vec2 direction);
+
+        void startAnimation(const std::string &name, bool forceStart = false);
 
         virtual void update(const pou::Time &elapsedTime);
 
@@ -40,11 +42,11 @@ class Character : public pou::SceneNode
         void cleanup();
 
     private:
-        pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
-        //pou::SceneNode      *m_partsNode[TOTAL_PARTS];
+        /*pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
+        std::unique_ptr<pou::Skeleton> m_skeleton;*/
 
-        std::unique_ptr<pou::Skeleton> m_skeleton;
-        //pou::Skeleton       *m_skeleton;
+        std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
+        std::list<std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         glm::vec2 m_walkingDirection;
         bool m_isWalking;

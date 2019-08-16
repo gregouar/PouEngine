@@ -3,16 +3,15 @@
 	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
 	
 	<skeleton path="char1SkeletonXML.txt">
-		<limb node="body" sprite="body" spritesheet="mainSpriteSheet">
-		<limb node="head" sprite="head" spritesheet="mainSpriteSheet">
-		<limb node="bag" sprite="bag" spritesheet="mainSpriteSheet">
-		<limb node="shoulderL" sprite="shoulderL" spritesheet="mainSpriteSheet">
-		<limb node="shoulderR" sprite="shoulderR" spritesheet="mainSpriteSheet">
-		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet">
-		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet">
-		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet">
-		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet">
-		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet">
+		<limb node="body" sprite="body" spritesheet="mainSpriteSheet" />
+		<limb node="head" sprite="head" spritesheet="mainSpriteSheet" />
+		<limb node="bag" sprite="bag" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="shoulderL" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="shoulderR" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
+		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
 	</skeleton>
-	
 </character>

@@ -2,8 +2,7 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
-#include "PouEngine/assets/SpriteSheetAsset.h"
-#include "PouEngine/assets/SkeletonModelAsset.h"
+#include "PouEngine/assets/CharacterModelAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 
@@ -12,8 +11,8 @@ Character::Character() : SceneNode(-1,nullptr)
     m_walkingDirection = {0,0};
     m_isWalking = false;
 
-    for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-        m_partsEntity[i]    = nullptr;
+    /*for(int i = 0 ; i < TOTAL_PARTS ; ++i)
+        m_partsEntity[i]    = nullptr;*/
 }
 
 Character::~Character()
@@ -21,17 +20,29 @@ Character::~Character()
     this->cleanup();
 }
 
-bool Character::loadResources()
+bool Character::loadModel(const std::string &path)
 {
-    pou::SpriteSheetAsset *spriteSheet
+    this->cleanup();
+
+    pou::CharacterModelAsset *characterModel
+        = pou::CharacterModelsHandler::loadAssetFromFile(path);
+
+    if(characterModel == nullptr)
+        return (false);
+
+    characterModel->generateOnNode(this, &m_skeletons, &m_limbs);
+
+
+
+
+    /*pou::SpriteSheetAsset *spriteSheet
         = pou::SpriteSheetsHandler::loadAssetFromFile("../data/char1/char1SpritesheetXML.txt");
 
     if(spriteSheet == nullptr)
         return (false);
 
     pou::SkeletonModelAsset *skeletonModel
-        = pou::SkeletonsHandler::loadAssetFromFile("../data/char1/char1SkeletonXML.txt");
-
+        = pou::SkeletonModelsHandler::loadAssetFromFile("../data/char1/char1SkeletonXML.txt");
 
     pou::SpriteModel  *partsModel[TOTAL_PARTS];
 
@@ -67,7 +78,7 @@ bool Character::loadResources()
     m_skeleton->attachLimb("handR", m_partsEntity[HAND_R_PART]);
     m_skeleton->attachLimb("footL", m_partsEntity[FOOT_L_PART]);
     m_skeleton->attachLimb("footR", m_partsEntity[FOOT_R_PART]);
-    m_skeleton->attachLimb("weapon", m_partsEntity[WEAPON_PART]);
+    m_skeleton->attachLimb("weapon", m_partsEntity[WEAPON_PART]);*/
 
     return (true);
 }
@@ -83,8 +94,8 @@ void Character::update(const pou::Time& elapsedTime)
     {
         m_walkingDirection = glm::normalize(m_walkingDirection);
 
-        glm::vec2 charMove = {m_walkingDirection.x*200*elapsedTime.count(),
-                              m_walkingDirection.y*200*elapsedTime.count()};
+        glm::vec2 charMove = {m_walkingDirection.x*250*elapsedTime.count(),
+                              m_walkingDirection.y*250*elapsedTime.count()};
 
         SceneNode:move(charMove);
 
@@ -106,10 +117,10 @@ void Character::update(const pou::Time& elapsedTime)
             SceneNode::rotate(rotAmount, {0,0, (desiredRot > curRot) ? 1 : -1 });
 
         if(!m_isWalking)
-            m_skeleton->startAnimation("walk", true);
+            this->startAnimation("walk", true);
         m_isWalking = true;
     } else if(m_isWalking) {
-        m_skeleton->startAnimation("stand", true);
+        this->startAnimation("stand", true);
         m_isWalking = false;
     }
 
@@ -117,12 +128,22 @@ void Character::update(const pou::Time& elapsedTime)
     SceneNode::update(elapsedTime);
 }
 
+void Character::startAnimation(const std::string &name, bool forceStart)
+{
+    for(auto &skeleton : m_skeletons)
+        skeleton->startAnimation(name, forceStart);
+
+}
+
 void Character::cleanup()
 {
-    for(int i = 0 ; i < TOTAL_PARTS ; ++i)
+    /*for(int i = 0 ; i < TOTAL_PARTS ; ++i)
     {
         delete m_partsEntity[i];
         m_partsEntity[i]    = nullptr;
-    }
+    }*/
+
+    m_limbs.clear();
+    m_skeletons.clear();
 }
 

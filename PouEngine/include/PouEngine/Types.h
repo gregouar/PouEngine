@@ -24,6 +24,7 @@ class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
 class SkeletonModelAsset;
+class CharacterModelAsset;
 
 enum RendererName
 {
@@ -128,7 +129,8 @@ typedef glm::vec4 Color;
 typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
-typedef AssetHandler<SkeletonModelAsset>     SkeletonsHandler;
+typedef AssetHandler<SkeletonModelAsset>     SkeletonModelsHandler;
+typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 //typedef AssetHandler<MeshAsset>     MeshesHandler;
 
 const std::string emptyString;
