@@ -17,6 +17,9 @@ TestingState::TestingState() :
     m_scene(nullptr)
 {
     m_nbrFps = 0;
+
+    m_character = nullptr;
+    m_croco = nullptr;
 }
 
 TestingState::~TestingState()
@@ -68,6 +71,14 @@ void TestingState::init()
     m_character->loadModel("../data/char1/char1XML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
+
+    m_croco = new Character();
+    m_croco->loadModel("../data/croco/crocoXML.txt");
+    m_croco->setPosition(220,70,1);
+    m_croco->setWalkingSpeed(100.0f);
+    m_scene->getRootNode()->addChildNode(m_croco);
+
+
 
     pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grassXML.txt");
 
@@ -176,6 +187,9 @@ void TestingState::leaving()
 
     delete m_character;
     m_character = nullptr;
+
+    delete m_croco;
+    m_croco = nullptr;
 }
 
 void TestingState::revealed()
@@ -225,6 +239,11 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = 1;
 
     m_character->walk(charDirection);
+
+    if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
+        m_croco->walk({0,-1});
+    else
+        m_croco->walk({0,0});
 
 }
 

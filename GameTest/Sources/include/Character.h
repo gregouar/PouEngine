@@ -32,6 +32,8 @@ class Character : public pou::SceneNode
 
         bool loadModel(const std::string &path);
 
+        void setWalkingSpeed(float speed);
+
         void walk(glm::vec2 direction);
 
         void startAnimation(const std::string &name, bool forceStart = false);
@@ -47,6 +49,8 @@ class Character : public pou::SceneNode
 
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
         std::list<std::unique_ptr<pou::Skeleton> > m_skeletons;
+
+        float m_walkingSpeed;
 
         glm::vec2 m_walkingDirection;
         bool m_isWalking;

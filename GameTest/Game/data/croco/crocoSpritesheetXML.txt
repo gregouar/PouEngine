@@ -1,53 +1,133 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <spritesheet texture="croco_spritesheet_scaled.png">
-	<sprite name="body">
-		<size 		x="26" 	y="16" 	/>
-		<center 	x="12" 	y="6" 	/>
-		<position 	x="56" 	y="36"	/>
-	</sprite>
 	<sprite name="head">
-		<size 		x="34" 	y="30" 	/>
-		<center 	x="16" 	y="18" 	/>
-		<position 	x="0" 	y="0" 	/>
+		<size 		x="54" 	y="92" 	/>
+		<center 	x="26" 	y="90" 	/>
+		<position 	x="28" 	y="8"	/>
 	</sprite>
-	<sprite name="bag">
-		<size 		x="26" 	y="14" 	/>
-		<center 	x="12" 	y="0" 	/>
-		<position 	x="26" 	y="32" 	/>
+	<sprite name="neck">
+		<size 		x="58" 	y="40" 	/>
+		<center 	x="28" 	y="18" 	/>
+		<position 	x="26" 	y="116"	/>
 	</sprite>
+	<sprite name="upperBody">
+		<size 		x="86" 	y="46" 	/>
+		<center 	x="42" 	y="28" 	/>
+		<position 	x="12" 	y="172"	/>
+	</sprite>
+	<sprite name="middleBody">
+		<size 		x="94" 	y="106" />
+		<center 	x="46" 	y="0" 	/>
+		<position 	x="8" 	y="234"	/>
+	</sprite>
+	<sprite name="lowerBody">
+		<size 		x="82" 	y="54" 	/>
+		<center 	x="40" 	y="0" 	/>
+		<position 	x="14" 	y="356"	/>
+	</sprite>
+	
+	<sprite name="tail1">
+		<size 		x="66" 	y="56" 	/>
+		<center 	x="32" 	y="-20" />
+		<position 	x="118" y="8"	/>
+	</sprite>
+	<sprite name="tail2">
+		<size 		x="58" 	y="78" 	/>
+		<center 	x="28" 	y="-14"	/>
+		<position 	x="122" y="80"	/>
+	</sprite>
+	<sprite name="tail3">
+		<size 		x="50" 	y="82" 	/>
+		<center 	x="24" 	y="16"	/>
+		<position 	x="126" y="174"	/>
+	</sprite>
+	<sprite name="tail4">
+		<size 		x="38" 	y="78" 	/>
+		<center 	x="18" 	y="8"	/>
+		<position 	x="132" y="272"	/>
+	</sprite>
+	<sprite name="tail5">
+		<size 		x="22" 	y="76" 	/>
+		<center 	x="10" 	y="8"	/>
+		<position 	x="140" y="366"	/>
+	</sprite>
+	
+	
 	<sprite name="shoulderL">
-		<size 		x="24" 	y="28" 	/>
-		<center 	x="16" 	y="12" 	/>
-		<position 	x="36" 	y="2" 	/>
+		<size 		x="26" 	y="30" 	/>
+		<center 	x="14" 	y="14"	/>
+		<position 	x="200" y="8"	/>
 	</sprite>
 	<sprite name="shoulderR">
-		<size 		x="24" 	y="28" 	/>
-		<center 	x="6" 	y="12" 	/>
-		<position 	x="62" 	y="2" 	/>
+		<size 		x="26" 	y="30" 	/>
+		<center 	x="10" 	y="14"	/>
+		<position 	x="262" y="8"	/>
+	</sprite>
+	<sprite name="upperArmL">
+		<size 		x="30" 	y="28" 	/>
+		<center 	x="28" 	y="12"	/>
+		<position 	x="200" y="54"	/>
+	</sprite>
+	<sprite name="upperArmR">
+		<size 		x="30" 	y="28" 	/>
+		<center 	x="0" 	y="12"	/>
+		<position 	x="258" y="54"	/>
+	</sprite>
+	<sprite name="lowerArmL">
+		<size 		x="22" 	y="34" 	/>
+		<center 	x="10" 	y="22"	/>
+		<position 	x="210" y="98"	/>
+	</sprite>
+	<sprite name="lowerArmR">
+		<size 		x="22" 	y="34" 	/>
+		<center 	x="10" 	y="22"	/>
+		<position 	x="256" y="98"	/>
 	</sprite>
 	<sprite name="handL">
-		<size 		x="10" 	y="10" 	/>
-		<center 	x="0" 	y="8" 	/>
-		<position 	x="2" 	y="36" 	/>
+		<size 		x="24" 	y="26" 	/>
+		<center 	x="12" 	y="24"	/>
+		<position 	x="204" y="148"	/>
 	</sprite>
 	<sprite name="handR">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="6" 	y="10" 	/>
-		<position 	x="14" 	y="34" 	/>
+		<size 		x="24" 	y="26" 	/>
+		<center 	x="10" 	y="24"	/>
+		<position 	x="260" y="148"	/>
+	</sprite>
+	
+	
+	<sprite name="upperLegL">
+		<size 		x="34" 	y="42" 	/>
+		<center 	x="32" 	y="26"	/>
+		<position 	x="202" y="190"	/>
+	</sprite>
+	<sprite name="upperLegR">
+		<size 		x="34" 	y="42" 	/>
+		<center 	x="0" 	y="26"	/>
+		<position 	x="252" y="190"	/>
+	</sprite>
+	<sprite name="lowerLegL">
+		<size 		x="26" 	y="46" 	/>
+		<center 	x="12" 	y="10"	/>
+		<position 	x="208" y="248"	/>
+	</sprite>
+	<sprite name="lowerLegR">
+		<size 		x="26" 	y="46" 	/>
+		<center 	x="12" 	y="10"	/>
+		<position 	x="254" y="248"	/>
 	</sprite>
 	<sprite name="footL">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="4" 	y="10" 	/>
-		<position 	x="2" 	y="48" 	/>
+		<size 		x="26" 	y="52" 	/>
+		<center 	x="12" 	y="44"	/>
+		<position 	x="206" y="310"	/>
 	</sprite>
 	<sprite name="footR">
-		<size 		x="8" 	y="16" 	/>
-		<center 	x="2" 	y="10" 	/>
-		<position 	x="24" 	y="48" 	/>
+		<size 		x="26" 	y="52" 	/>
+		<center 	x="12" 	y="44"	/>
+		<position 	x="256" y="310"	/>
 	</sprite>
-	<sprite name="weapon">
-		<size 		x="64" 	y="64" 	/>
-		<center 	x="0" 	y="62" 	/>
-		<position 	x="92" 	y="4" 	/>
-	</sprite>
+	
+	
 </spritesheet>
+
+
+

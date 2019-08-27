@@ -3,7 +3,31 @@
 	<spritesheet name="mainSpriteSheet" path="crocoSpritesheetXML.txt" />
 	
 	<skeleton path="crocoSkeletonXML.txt">
-		<limb node="body" model="body" spritesheet="mainSpriteSheet">
+		<limb node="head" sprite="head" spritesheet="mainSpriteSheet" />
+		<limb node="neck" sprite="neck" spritesheet="mainSpriteSheet" />
+		<limb node="upperBody" sprite="upperBody" spritesheet="mainSpriteSheet" />
+		<limb node="middleBody" sprite="middleBody" spritesheet="mainSpriteSheet" />
+		<limb node="lowerBody" sprite="lowerBody" spritesheet="mainSpriteSheet" />
+		<limb node="tail1" sprite="tail1" spritesheet="mainSpriteSheet" />
+		<limb node="tail2" sprite="tail2" spritesheet="mainSpriteSheet" />
+		<limb node="tail3" sprite="tail3" spritesheet="mainSpriteSheet" />
+		<limb node="tail4" sprite="tail4" spritesheet="mainSpriteSheet" />
+		<limb node="tail5" sprite="tail5" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="shoulderL" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="shoulderR" spritesheet="mainSpriteSheet" />
+		<limb node="upperArmL" sprite="upperArmL" spritesheet="mainSpriteSheet" />
+		<limb node="upperArmR" sprite="upperArmR" spritesheet="mainSpriteSheet" />
+		<limb node="lowerArmL" sprite="lowerArmL" spritesheet="mainSpriteSheet" />
+		<limb node="lowerArmR" sprite="lowerArmR" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
+		<limb node="upperLegL" sprite="upperLegL" spritesheet="mainSpriteSheet" />
+		<limb node="upperLegR" sprite="upperLegR" spritesheet="mainSpriteSheet" />
+		<limb node="lowerLegL" sprite="lowerLegL" spritesheet="mainSpriteSheet" />
+		<limb node="lowerLegR" sprite="lowerLegR" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 	</skeleton>
+	
 	
 </character>

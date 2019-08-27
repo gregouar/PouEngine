@@ -8,11 +8,10 @@
 
 Character::Character() : SceneNode(-1,nullptr)
 {
+    m_walkingSpeed = 250.0f;
+
     m_walkingDirection = {0,0};
     m_isWalking = false;
-
-    /*for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-        m_partsEntity[i]    = nullptr;*/
 }
 
 Character::~Character()
@@ -32,55 +31,13 @@ bool Character::loadModel(const std::string &path)
 
     characterModel->generateOnNode(this, &m_skeletons, &m_limbs);
 
-
-
-
-    /*pou::SpriteSheetAsset *spriteSheet
-        = pou::SpriteSheetsHandler::loadAssetFromFile("../data/char1/char1SpritesheetXML.txt");
-
-    if(spriteSheet == nullptr)
-        return (false);
-
-    pou::SkeletonModelAsset *skeletonModel
-        = pou::SkeletonModelsHandler::loadAssetFromFile("../data/char1/char1SkeletonXML.txt");
-
-    pou::SpriteModel  *partsModel[TOTAL_PARTS];
-
-    partsModel[BODY_PART] = spriteSheet->getSpriteModel("body");
-    partsModel[HEAD_PART] = spriteSheet->getSpriteModel("head");
-    partsModel[BAG_PART] = spriteSheet->getSpriteModel("bag");
-    partsModel[SHOULDER_L_PART] = spriteSheet->getSpriteModel("shoulderL");
-    partsModel[SHOULDER_R_PART] = spriteSheet->getSpriteModel("shoulderR");
-    partsModel[HAND_L_PART] = spriteSheet->getSpriteModel("handL");
-    partsModel[HAND_R_PART] = spriteSheet->getSpriteModel("handR");
-    partsModel[FOOT_L_PART] = spriteSheet->getSpriteModel("footL");
-    partsModel[FOOT_R_PART] = spriteSheet->getSpriteModel("footR");
-    partsModel[WEAPON_PART] = spriteSheet->getSpriteModel("sword");
-
-    for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-    {
-        m_partsEntity[i] = new pou::SpriteEntity();
-        m_partsEntity[i]->setSpriteModel(partsModel[i]);
-        m_partsEntity[i]->setOrdering(pou::ORDERED_BY_Z);
-        m_partsEntity[i]->setInheritRotation(true);
-    }
-
-
-    m_skeleton =  std::unique_ptr<pou::Skeleton>(new pou::Skeleton(skeletonModel));
-    this->addChildNode(m_skeleton.get());
-
-    m_skeleton->attachLimb("body", m_partsEntity[BODY_PART]);
-    m_skeleton->attachLimb("head", m_partsEntity[HEAD_PART]);
-    m_skeleton->attachLimb("bag", m_partsEntity[BAG_PART]);
-    m_skeleton->attachLimb("shoulderL", m_partsEntity[SHOULDER_L_PART]);
-    m_skeleton->attachLimb("shoulderR", m_partsEntity[SHOULDER_R_PART]);
-    m_skeleton->attachLimb("handL", m_partsEntity[HAND_L_PART]);
-    m_skeleton->attachLimb("handR", m_partsEntity[HAND_R_PART]);
-    m_skeleton->attachLimb("footL", m_partsEntity[FOOT_L_PART]);
-    m_skeleton->attachLimb("footR", m_partsEntity[FOOT_R_PART]);
-    m_skeleton->attachLimb("weapon", m_partsEntity[WEAPON_PART]);*/
-
     return (true);
+}
+
+void Character::setWalkingSpeed(float speed)
+{
+    if(speed >= 0)
+        m_walkingSpeed = speed;
 }
 
 void Character::walk(glm::vec2 direction)
@@ -94,8 +51,8 @@ void Character::update(const pou::Time& elapsedTime)
     {
         m_walkingDirection = glm::normalize(m_walkingDirection);
 
-        glm::vec2 charMove = {m_walkingDirection.x*250*elapsedTime.count(),
-                              m_walkingDirection.y*250*elapsedTime.count()};
+        glm::vec2 charMove = {m_walkingDirection.x*m_walkingSpeed*elapsedTime.count(),
+                              m_walkingDirection.y*m_walkingSpeed*elapsedTime.count()};
 
         SceneNode:move(charMove);
 
@@ -132,7 +89,6 @@ void Character::startAnimation(const std::string &name, bool forceStart)
 {
     for(auto &skeleton : m_skeletons)
         skeleton->startAnimation(name, forceStart);
-
 }
 
 void Character::cleanup()
