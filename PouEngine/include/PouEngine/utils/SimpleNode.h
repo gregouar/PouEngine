@@ -44,6 +44,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setPosition(float, float, float);
         void setPosition(glm::vec2 );
         void setPosition(glm::vec3 );
+        void setGlobalPosition(float, float);
+        void setGlobalPosition(float, float, float);
+        void setGlobalPosition(glm::vec2 );
+        void setGlobalPosition(glm::vec3 );
         void setName(const std::string &name);
 
         void scale(float scale);
@@ -60,6 +64,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::vec3 getScale() const;
         glm::vec3 getEulerRotation()const;
         const glm::mat4 &getModelMatrix() const;
+        const glm::mat4 &getInvModelMatrix() const;
 
         NodeTypeId getId()  const;
         const std::string &getName()  const;
@@ -93,6 +98,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::vec3 m_scale;
 
         glm::mat4 m_modelMatrix;
+        glm::mat4 m_invModelMatrix;
 
         SimpleNode *m_parent;
         std::map<NodeTypeId, SimpleNode*> m_childs;

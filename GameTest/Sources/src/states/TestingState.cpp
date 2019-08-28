@@ -19,6 +19,7 @@ TestingState::TestingState() :
     m_nbrFps = 0;
 
     m_character = nullptr;
+    m_character2 = nullptr;
     m_croco = nullptr;
 }
 
@@ -72,10 +73,16 @@ void TestingState::init()
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
+    m_character2 = new Character();
+    m_character2->loadModel("../data/char1/char1XML.txt");
+    m_character2->setPosition(-100,-100,1);
+    m_scene->getRootNode()->addChildNode(m_character2);
+
     m_croco = new Character();
     m_croco->loadModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
     m_croco->setWalkingSpeed(100.0f);
+    m_croco->setRotationRadius(100.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
 
 
@@ -188,6 +195,9 @@ void TestingState::leaving()
     delete m_character;
     m_character = nullptr;
 
+    delete m_character2;
+    m_character2 = nullptr;
+
     delete m_croco;
     m_croco = nullptr;
 }
@@ -214,6 +224,11 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         return;
 
     glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera);
+
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+        m_croco->setDestination(worldMousePos);
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
+        m_character2->setDestination(worldMousePos);
 
     m_camVelocity = {0,0};
 

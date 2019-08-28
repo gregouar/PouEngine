@@ -9,21 +9,6 @@
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/Skeleton.h"
 
-/*enum CharacterParts
-{
-    BODY_PART,
-    HEAD_PART,
-    BAG_PART,
-    SHOULDER_L_PART,
-    SHOULDER_R_PART,
-    HAND_L_PART,
-    HAND_R_PART,
-    FOOT_L_PART,
-    FOOT_R_PART,
-    WEAPON_PART,
-    TOTAL_PARTS,
-};*/
-
 class Character : public pou::SceneNode
 {
     public:
@@ -33,7 +18,9 @@ class Character : public pou::SceneNode
         bool loadModel(const std::string &path);
 
         void setWalkingSpeed(float speed);
+        void setRotationRadius(float radius);
 
+        void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
 
         void startAnimation(const std::string &name, bool forceStart = false);
@@ -43,17 +30,22 @@ class Character : public pou::SceneNode
     protected:
         void cleanup();
 
-    private:
-        /*pou::SpriteEntity   *m_partsEntity[TOTAL_PARTS];
-        std::unique_ptr<pou::Skeleton> m_skeleton;*/
+        bool walkToDestination(const pou::Time& elapsedTime);
+        void rotateToDestination(const pou::Time& elapsedTime, glm::vec2 destination, float rotationRadius);
 
+    private:
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
         std::list<std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         float m_walkingSpeed;
+        float m_rotationRadius;
 
+        bool m_isDestinationSet;
+        glm::vec2 m_destination;
+
+        bool      m_isWalking;
+        glm::vec2 m_lookingDirection;
         glm::vec2 m_walkingDirection;
-        bool m_isWalking;
 
 };
 

@@ -168,6 +168,7 @@ void VApp::loop()
         else {
             m_statesManager.handleEvents(&m_eventsManager);
 
+            ///I should add a tick control
             Profiler::pushClock("States update");
             m_statesManager.update(elapsedTime);
             Profiler::popClock();

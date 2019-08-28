@@ -10,7 +10,8 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_position(0.0,0.0,0.0),
     m_eulerRotations(0.0,0.0,0.0),
     m_scale(1.0,1.0,1.0),
-    m_modelMatrix(1.0)
+    m_modelMatrix(1.0),
+    m_invModelMatrix(1.0)
 {
     m_parent = nullptr;
     m_id = id;
@@ -247,6 +248,35 @@ void SimpleNode::setPosition(glm::vec3 pos)
     this->updateGlobalPosition();
 }
 
+
+void SimpleNode::setGlobalPosition(float x, float y)
+{
+    this->setGlobalPosition(glm::vec2(x,y));
+}
+
+void SimpleNode::setGlobalPosition(float x, float y, float z)
+{
+    this->setGlobalPosition(glm::vec3(x, y, z));
+}
+
+void SimpleNode::setGlobalPosition(glm::vec2 xyPos)
+{
+    this->setGlobalPosition(glm::vec3(xyPos.x, xyPos.y,this->getGlobalPosition().z));
+}
+
+void SimpleNode::setGlobalPosition(glm::vec3 pos)
+{
+    if(m_parent != nullptr)
+    {
+        glm::vec4 newPos = m_parent->getInvModelMatrix() * glm::vec4(pos,1.0);
+        this->setPosition({newPos.x, newPos.y, newPos.z});
+    }
+    else
+        m_position = pos;
+
+    this->updateGlobalPosition();
+}
+
 void SimpleNode::scale(float scale)
 {
     this->scale({scale, scale, scale});
@@ -331,6 +361,11 @@ glm::vec3 SimpleNode::getEulerRotation() const
 const glm::mat4 &SimpleNode::getModelMatrix() const
 {
     return m_modelMatrix;
+}
+
+const glm::mat4 &SimpleNode::getInvModelMatrix() const
+{
+    return m_invModelMatrix;
 }
 
 NodeTypeId SimpleNode::getId() const
@@ -453,6 +488,16 @@ void SimpleNode::updateModelMatrix()
 
     if(m_parent != nullptr)
         m_modelMatrix = m_parent->getModelMatrix() * m_modelMatrix;
+
+
+    if(m_parent != nullptr)
+        m_invModelMatrix = m_parent->getInvModelMatrix();
+
+    m_invModelMatrix = glm::scale(m_invModelMatrix, 1.0f/m_scale);
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
+    m_invModelMatrix = glm::translate(m_invModelMatrix, -m_position);
 
     this->sendNotification(Notification_NodeMoved);
 }

@@ -48,6 +48,14 @@
 	
 	<animation name="stand">
 		<frame>
+			<command type="rotateTo" node="shoulderR" z="0" rate="200" />
+			<command type="rotateTo" node="upperArmR" z="0" rate="200" />
+			<command type="rotateTo" node="lowerArmR" z="0" rate="200" />
+			
+			<command type="rotateTo" node="shoulderL" z="0" rate="200" />
+			<command type="rotateTo" node="upperArmL" z="0" rate="200" />
+			<command type="rotateTo" node="lowerArmL" z="0" rate="200" />
+		
 			<command type="rotateTo" node="upperLegR" z="0" rate="200" />
 			<command type="rotateTo" node="lowerLegR" z="0" rate="200" />
 			<command type="moveTo" node="lowerLegR" y="0" rate="100" />
@@ -60,15 +68,25 @@
 			<command type="rotateTo" node="footL" z="0" rate="200" />
 			<command type="moveTo" node="footL" y="0" rate="100" />
 
+			<command type="rotateTo" node="lowerBody" z="0" rate="20" />
+			<command type="rotateTo" node="middleBody" z="0" rate="20" />
+			<command type="rotateTo" node="upperBody" z="0" rate="20" />
 			
-			<command type="rotateTo" node="lowerBody" z="0" rate="200" />
-			<command type="rotateTo" node="middleBody" z="0" rate="200" />
-			<command type="rotateTo" node="upperBody" z="0" rate="200" />
+			<command type="rotateTo" node="neck" z="0" rate="10" />
+			<command type="rotateTo" node="head" z="0" rate="15" />
 		</frame>
 	</animation>
 	
 	<animation name="walk" loop="1">
 		<frame>
+			<command type="rotateTo" node="shoulderR" z="20" rate="50" />
+			<command type="rotateTo" node="upperArmR" z="20" rate="50" />
+			<command type="rotateTo" node="lowerArmR" z="-40" rate="100" />
+			
+			<command type="rotateTo" node="shoulderL" z="10" rate="50" />
+			<command type="rotateTo" node="upperArmL" z="10" rate="50" />
+			<command type="rotateTo" node="lowerArmL" z="-20" rate="100" />
+		
 			<command type="rotateTo" node="upperLegR" z="-20" rate="100" />
 			<command type="rotateTo" node="lowerLegR" z="20" rate="100" />
 			<command type="moveTo" node="lowerLegR" y="-5" rate="15" />
@@ -85,9 +103,28 @@
 			<command type="rotateTo" node="upperBody" z="5" rate="25" />
 			<command type="rotateTo" node="middleBody" z="-5" rate="25" />
 			<command type="rotateTo" node="lowerBody" z="-5" rate="25" />
+			
+			<command type="rotateTo" node="neck" z="-2" rate="10" />
+			<command type="rotateTo" node="head" z="-3" rate="15" />
+			
+			<command type="rotateTo" node="tail1" z="1" rate="5" />
+			<command type="rotateTo" node="tail2" z="1" rate="5" />
+			<command type="rotateTo" node="tail3" z="1" rate="5" />
+			<command type="rotateTo" node="tail4" z="1" rate="5" />
+			<command type="rotateTo" node="tail5" z="1" rate="5" />
+			
+			
 		</frame>
 		
 		<frame>
+			<command type="rotateTo" node="shoulderR" z="-10" rate="50" />
+			<command type="rotateTo" node="upperArmR" z="-10" rate="50" />
+			<command type="rotateTo" node="lowerArmR" z="20" rate="100" />
+			
+			<command type="rotateTo" node="shoulderL" z="-20" rate="50" />
+			<command type="rotateTo" node="upperArmL" z="-20" rate="50" />
+			<command type="rotateTo" node="lowerArmL" z="40" rate="100" />
+			
 			<command type="rotateTo" node="upperLegR" z="30" rate="100" />
 			<command type="rotateTo" node="lowerLegR" z="-30" rate="100" />
 			<command type="moveTo" node="lowerLegR" y="0" rate="15" />
@@ -103,6 +140,15 @@
 			<command type="rotateTo" node="upperBody" z="-5" rate="25" />
 			<command type="rotateTo" node="middleBody" z="5" rate="25" />
 			<command type="rotateTo" node="lowerBody" z="5" rate="25" />
+			
+			<command type="rotateTo" node="neck" z="2" rate="10" />
+			<command type="rotateTo" node="head" z="3" rate="15" />
+			
+			<command type="rotateTo" node="tail1" z="-1" rate="5" />
+			<command type="rotateTo" node="tail2" z="-1" rate="5" />
+			<command type="rotateTo" node="tail3" z="-1" rate="5" />
+			<command type="rotateTo" node="tail4" z="-1" rate="5" />
+			<command type="rotateTo" node="tail5" z="-1" rate="5" />
 		</frame>
 	</animation>
 </skeleton>
