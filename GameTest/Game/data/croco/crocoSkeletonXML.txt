@@ -5,23 +5,23 @@
 			<node name="neck" y="-38" z="-.2">
 				<node name="head" y="-8" z=".3" />
 			</node>
-			<node name="middleBody" y="-5" z="-.1" >
-				<node name="lowerBody" y="64" z=".1">
-					<node name="upperLegL" x="-28" y="24" z=".1">
+			<node name="middleBody" y="50" rigidity="0">
+				<node name="lowerBody" y="49" z=".1" rigidity="0">
+					<node name="upperLegL" x="-28" y="-16" z=".1">
 						<node name="lowerLegL" x="-24" y="-14" z="-.1">
 							<node name="footL" x="-2 "y="28" z="-.2" />
 						</node>
 					</node>
-					<node name="upperLegR" x="28" y="24" z=".1">
+					<node name="upperLegR" x="28" y="-16" z=".1">
 						<node name="lowerLegR" x="24" y="-14" z="-.1">
 							<node name="footR" x="2" y="28" z="-.2" />
 						</node>
 					</node>
-					<node name="tail1" y="16" z="-.1">
-						<node name="tail2" y="34" z="-.1">
-							<node name="tail3" y="74" z="-.1">
-								<node name="tail4" y="44" z="-.1">
-									<node name="tail5" y="58" z="-.1" />
+					<node name="tail1" y="40" z="-.1" rigidity="0">
+						<node name="tail2" y="54" z="-.1" rigidity="0">
+							<node name="tail3" y="30" z="-.1" rigidity="0">
+								<node name="tail4" y="54" z="-.1" rigidity="0">
+									<node name="tail5" y="22" z="-.1" rigidity="0" />
 								</node>
 							</node>
 						</node>
@@ -101,7 +101,6 @@
 
 
 			<command type="rotateTo" node="upperBody" z="5" rate="25" />
-			<command type="rotateTo" node="middleBody" z="-5" rate="25" />
 			<command type="rotateTo" node="lowerBody" z="-5" rate="25" />
 			
 			<command type="rotateTo" node="neck" z="-2" rate="10" />
@@ -138,7 +137,6 @@
 			<command type="moveTo" node="footL" y="-5" rate="15" />
 
 			<command type="rotateTo" node="upperBody" z="-5" rate="25" />
-			<command type="rotateTo" node="middleBody" z="5" rate="25" />
 			<command type="rotateTo" node="lowerBody" z="5" rate="25" />
 			
 			<command type="rotateTo" node="neck" z="2" rate="10" />

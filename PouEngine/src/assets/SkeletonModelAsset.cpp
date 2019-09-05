@@ -104,6 +104,24 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     if(attribute != nullptr)
         nodePos.z = Parser::parseFloat(std::string(attribute));
 
+
+    /*attribute = element->Attribute("flexible");
+    if(attribute != nullptr && Parser::parseBool(std::string(attribute)))
+    {
+        SimpleNode* parent = rootNode->getParent();
+        if(parent != nullptr)
+        {
+            parent->moveChildNode(rootNode, parent->getParent());
+            m_joints.insert({parent->getName(), rootNode->getName()});
+        }
+    }*/
+    attribute = element->Attribute("rigidity");
+    if(attribute != nullptr)
+    {
+        float rigidity = Parser::parseFloat(std::string(attribute));
+        rootNode->setRigidity(rigidity);
+    }
+
     rootNode->setPosition(nodePos);
 
     auto child = element->FirstChildElement("node");

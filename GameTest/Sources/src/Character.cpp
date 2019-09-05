@@ -218,12 +218,6 @@ void Character::startAnimation(const std::string &name, bool forceStart)
 
 void Character::cleanup()
 {
-    /*for(int i = 0 ; i < TOTAL_PARTS ; ++i)
-    {
-        delete m_partsEntity[i];
-        m_partsEntity[i]    = nullptr;
-    }*/
-
     m_limbs.clear();
     m_skeletons.clear();
 }

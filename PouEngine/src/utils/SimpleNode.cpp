@@ -10,12 +10,16 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_position(0.0,0.0,0.0),
     m_eulerRotations(0.0,0.0,0.0),
     m_scale(1.0,1.0,1.0),
+    m_rigidity(1.0),
+    m_curFlexibleLength(0.0),
+    m_curFlexibleRotation(0.0),
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0)
 {
     m_parent = nullptr;
     m_id = id;
     m_curNewId = 0;
+    m_needToUpdateModelMat = true;
 }
 
 SimpleNode::~SimpleNode()
@@ -36,14 +40,45 @@ void SimpleNode::addChildNode(const NodeTypeId id, SimpleNode* node)
 {
     auto childsIt = m_childs.find(id);
     if(childsIt != m_childs.end())
+   // if(this->getChild(id) == nullptr)
     {
         std::ostringstream warn_report;
         warn_report << "Adding child node of same id as another one (Id="<<id<<")";
         Logger::warning(warn_report);
     }
 
-    m_childs[id] = node;
+    m_childs.insert_or_assign(childsIt,id,node);
     node->setParent(this);
+}
+
+void SimpleNode::addCreatedChildNode(SimpleNode* node)
+{
+    NodeTypeId id = this->generateId();
+    this->addChildNode(id, node);
+    if(node != nullptr)
+    {
+        node->setId(id);
+        m_createdChildsList.insert(id);
+    }
+}
+
+void SimpleNode::moveChildNode(SimpleNode* node, SimpleNode* target)
+{
+    if(node != nullptr && node->getParent() == this)
+        this->moveChildNode(node->getId(), target);
+}
+
+void SimpleNode::moveChildNode(const NodeTypeId id, SimpleNode* target)
+{
+    auto node = this->getChild(id);
+    auto createdChildsIt = m_createdChildsList.find(id);
+
+    if(createdChildsIt != m_createdChildsList.end())
+    {
+        m_createdChildsList.erase(createdChildsIt);
+        target->addCreatedChildNode(node);
+    } else
+        target->addChildNode(node);
 }
 
 SimpleNode* SimpleNode::removeChildNode(const NodeTypeId id)
@@ -109,8 +144,7 @@ SimpleNode* SimpleNode::createChildNode(const NodeTypeId id)
 {
     if(m_curNewId <= id)
         m_curNewId = id+1;
-    //auto childsIt = m_childs.find(id);
-    //if(childsIt != m_childs.end())
+
     if(this->getChild(id) != nullptr)
     {
         std::ostringstream error_report;
@@ -120,7 +154,7 @@ SimpleNode* SimpleNode::createChildNode(const NodeTypeId id)
         return (nullptr); //childsIt->second;
     }
 
-    SimpleNode* newNode = this->nodeAllocator(id); //new SimpleNode(id);
+    SimpleNode* newNode = this->nodeAllocator(id);
     m_createdChildsList.insert(id);
 
     this->addChildNode(id, newNode);
@@ -196,6 +230,7 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     this->setRotation(srcNode->getEulerRotation());
     this->setScale(srcNode->getScale());
     this->setName(srcNode->getName());
+    this->setRigidity(srcNode->getRigidity());
 
     for(auto child : srcNode->m_childs)
     {
@@ -222,9 +257,14 @@ void SimpleNode::move(glm::vec2 p)
 
 void SimpleNode::move(glm::vec3 p)
 {
+    /*for(auto child : m_childs)
+        child.second->move((child.second->getRigidity()-1.0f)*p);*/
+
+    for(auto child : m_childs)
+        child.second->computeFlexibleMove(p);
+
     this->setPosition(this->getPosition()+p);
 }
-
 
 void SimpleNode::setPosition(float x, float y)
 {
@@ -300,21 +340,21 @@ void SimpleNode::setScale(float scale)
 void SimpleNode::setScale(glm::vec3 scale)
 {
     m_scale = scale;
-    this->updateModelMatrix();
+    this->askForUpdateModelMatrix();
 }
 
 void SimpleNode::rotate(float value, glm::vec3 axis, bool inRadians)
 {
-    if(!inRadians)
-        value = value*glm::pi<float>()/180.0;
-
-    this->setRotation(m_eulerRotations+value*axis);
+    this->rotate(value*axis, inRadians);
 }
 
 void SimpleNode::rotate(glm::vec3 values, bool inRadians)
 {
     if(!inRadians)
         values = glm::pi<float>()/180.0f*values;
+
+    /*for(auto child : m_childs)
+        child.second->computeFlexibleRotate(values.z);*/
 
     this->setRotation(m_eulerRotations+values);
 }
@@ -330,12 +370,19 @@ void SimpleNode::setRotation(glm::vec3 rotation, bool inRadians)
     }
 
     m_eulerRotations = glm::mod(rotation+glm::pi<float>()*glm::vec3(1.0),glm::pi<float>()*2)-glm::pi<float>()*glm::vec3(1.0);
-    this->updateModelMatrix();
+
+    //this->updateModelMatrix();
+    this->askForUpdateModelMatrix();
 }
 
 void SimpleNode::setName(const std::string &name)
 {
     m_name = name;
+}
+
+void SimpleNode::setRigidity(float rigidity)
+{
+    m_rigidity = rigidity;
 }
 
 glm::vec3 SimpleNode::getPosition() const
@@ -376,6 +423,11 @@ NodeTypeId SimpleNode::getId() const
 const std::string &SimpleNode::getName() const
 {
     return m_name;
+}
+
+float SimpleNode::getRigidity() const
+{
+    return m_rigidity;
 }
 
 SimpleNode* SimpleNode::getParent()
@@ -461,6 +513,9 @@ NodeTypeId SimpleNode::generateId()
 
 void SimpleNode::update(const Time &elapsedTime)
 {
+    if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
+
     for(auto node : m_childs)
         node.second->update(elapsedTime);
 }
@@ -469,29 +524,49 @@ void SimpleNode::updateGlobalPosition()
 {
     if(m_parent != nullptr)
     {
-        glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(m_position,1.0);
-        m_globalPosition = {pos.x,pos.y,pos.z};
+        if(m_rigidity != 1.0)
+        {
+            m_globalPosition = m_parent->getGlobalPosition() + m_position;
+        }
+        else
+        {
+            glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(m_position,1.0);
+            m_globalPosition = {pos.x,pos.y,pos.z};
+        }
     }
     else
         m_globalPosition = m_position;
 
-    this->updateModelMatrix();
+    //this->updateModelMatrix();
+    this->askForUpdateModelMatrix();
+}
+
+void SimpleNode::askForUpdateModelMatrix()
+{
+    m_needToUpdateModelMat = true;
+
 }
 
 void SimpleNode::updateModelMatrix()
 {
-    m_modelMatrix = glm::translate(glm::mat4(1.0), m_position);
+    if(m_rigidity != 1.0 && m_parent != nullptr)
+        m_modelMatrix = glm::translate(glm::mat4(1.0), m_parent->getGlobalPosition());
+    else
+        m_modelMatrix = glm::mat4(1.0);
+
+
+    m_modelMatrix = glm::translate(m_modelMatrix, m_position);
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
     m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
 
-    if(m_parent != nullptr)
-        m_modelMatrix = m_parent->getModelMatrix() * m_modelMatrix;
-
-
-    if(m_parent != nullptr)
-        m_invModelMatrix = m_parent->getInvModelMatrix();
+    if(m_rigidity == 1.0 && m_parent != nullptr)
+    {
+        m_modelMatrix       = m_parent->getModelMatrix() * m_modelMatrix;
+        m_invModelMatrix    = m_parent->getInvModelMatrix();
+    } else
+        m_invModelMatrix = glm::mat4(1.0);
 
     m_invModelMatrix = glm::scale(m_invModelMatrix, 1.0f/m_scale);
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
@@ -499,8 +574,54 @@ void SimpleNode::updateModelMatrix()
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
     m_invModelMatrix = glm::translate(m_invModelMatrix, -m_position);
 
+    if(m_rigidity != 1.0 && m_parent != nullptr)
+        m_invModelMatrix = glm::translate(m_invModelMatrix, -m_parent->getGlobalPosition());
+
+    m_needToUpdateModelMat = false;
     this->sendNotification(Notification_NodeMoved);
 }
+
+
+void SimpleNode::computeFlexibleMove(glm::vec3 m)
+{
+    if(m_rigidity != 1.0)
+    {
+        glm::vec2 p(m_position.x,m_position.y);
+        float l = glm::length(p);
+        glm::vec2 np = l*glm::normalize(p-glm::vec2(m.x,m.y));
+        float dot = glm::dot(p,np);
+
+        float wantedRotation = glm::atan(np.y,np.x)-glm::pi<float>()*0.5;
+        this->rotate(wantedRotation-m_curFlexibleRotation,{0,0,1});
+        m_curFlexibleRotation = wantedRotation;
+
+        glm::vec3 mp = m+glm::vec3(np.x-p.x,np.y-p.y,0);
+        for(auto child : m_childs)
+            child.second->computeFlexibleMove(mp);
+
+        this->setPosition(np);
+
+    } else
+        for(auto child : m_childs)
+            child.second->computeFlexibleMove(m);
+}
+
+/*void SimpleNode::computeFlexibleRotate(float rot)
+{
+    if(m_rigidity != 1.0)
+    {
+        float c = glm::cos(rot);
+        float s = glm::sin(rot);
+
+        glm::vec2 p(m_position.x,m_position.y);
+        glm::vec2 np(p.x*c - p.y*s, p.x*s + p.y*c);
+        auto v = np-p;
+
+        this->computeFlexibleMove({v.x,v.y,0.0f});
+    } else
+        for(auto child : m_childs)
+            child.second->computeFlexibleRotate(rot);
+}*/
 
 void SimpleNode::notify(NotificationSender* sender, NotificationType type,
                        size_t dataSize, char* data)

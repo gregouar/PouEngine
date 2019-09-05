@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="body" z="1">
-			<node name="bag" x="0" y="4" z="1" />
-			<node name="shoulderL" x="-16" y="-4" z="4" />
-			<node name="shoulderR" x="16" y="-4" z="4" />
-			<node name="handL" x="-8" y="-8" z="3" />
-			<node name="handR" x="10" y="-8" z="3" />
-			<node name="weapon" x="-2" y="-10" z="2" />
+		<node name="body" z=".1">
+			<node name="bag" x="0" y="4" z=".1" />
+			<node name="shoulderL" x="-16" y="-4" z=".4" />
+			<node name="shoulderR" x="16" y="-4" z=".4" />
+			<node name="handL" x="-8" y="-8" z=".3" />
+			<node name="handR" x="10" y="-8" z=".3" />
+			<node name="weapon" x="-2" y="-10" z=".2" />
 		</node>
-		<node name="head" z="6" />
-		<node name="footL" x="-10" y="4" z="0" />
-		<node name="footR" x="10" y="4" z="0" />
+		<node name="head" z=".6" />
+		<node name="footL" x="-10" y="4" z=".0" />
+		<node name="footR" x="10" y="4" z=".0" />
 	</node>
 	<animation name="stand">
 		<frame>

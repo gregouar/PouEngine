@@ -99,9 +99,8 @@ class SkeletonModelAsset : public Asset
 
     private:
         SimpleNode m_rootNode;
-
         std::map<std::string, SimpleNode*> m_nodesByName;
-
+        std::multimap<std::string, std::string> m_joints;
         std::map<std::string, std::unique_ptr<SkeletalAnimationModel> > m_animations;
 };
 

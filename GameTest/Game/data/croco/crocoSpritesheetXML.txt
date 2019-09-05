@@ -17,38 +17,38 @@
 	</sprite>
 	<sprite name="middleBody">
 		<size 		x="94" 	y="106" />
-		<center 	x="46" 	y="0" 	/>
+		<center 	x="46" 	y="55" 	/>
 		<position 	x="8" 	y="234"	/>
 	</sprite>
 	<sprite name="lowerBody">
 		<size 		x="82" 	y="54" 	/>
-		<center 	x="40" 	y="0" 	/>
+		<center 	x="40" 	y="40" 	/>
 		<position 	x="14" 	y="356"	/>
 	</sprite>
 	
 	<sprite name="tail1">
 		<size 		x="66" 	y="56" 	/>
-		<center 	x="32" 	y="-20" />
+		<center 	x="32" 	y="44" />
 		<position 	x="118" y="8"	/>
 	</sprite>
 	<sprite name="tail2">
 		<size 		x="58" 	y="78" 	/>
-		<center 	x="28" 	y="-14"	/>
+		<center 	x="28" 	y="70"	/>
 		<position 	x="122" y="80"	/>
 	</sprite>
 	<sprite name="tail3">
 		<size 		x="50" 	y="82" 	/>
-		<center 	x="24" 	y="16"	/>
+		<center 	x="24" 	y="56"	/>
 		<position 	x="126" y="174"	/>
 	</sprite>
 	<sprite name="tail4">
 		<size 		x="38" 	y="78" 	/>
-		<center 	x="18" 	y="8"	/>
+		<center 	x="18" 	y="54"	/>
 		<position 	x="132" y="272"	/>
 	</sprite>
 	<sprite name="tail5">
 		<size 		x="22" 	y="76" 	/>
-		<center 	x="10" 	y="8"	/>
+		<center 	x="10" 	y="18"	/>
 		<position 	x="140" y="366"	/>
 	</sprite>
 	
@@ -124,6 +124,13 @@
 		<size 		x="26" 	y="52" 	/>
 		<center 	x="12" 	y="44"	/>
 		<position 	x="256" y="310"	/>
+	</sprite>
+	
+	
+	<sprite name="pixelTest">
+		<size 		x="10" 	y="10" 	/>
+		<center 	x="5" 	y="5"	/>
+		<position 	x="38" y="268"	/>
 	</sprite>
 	
 	

@@ -19,6 +19,9 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void addChildNode(SimpleNode*);
         void addChildNode(const NodeTypeId id, SimpleNode*);
 
+        void moveChildNode(SimpleNode* node, SimpleNode* target);
+        void moveChildNode(const NodeTypeId id, SimpleNode* target);
+
         virtual SimpleNode* removeChildNode(SimpleNode*);
         virtual SimpleNode* removeChildNode(const NodeTypeId id);
 
@@ -49,6 +52,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setGlobalPosition(glm::vec2 );
         void setGlobalPosition(glm::vec3 );
         void setName(const std::string &name);
+        void setRigidity(float rigidity);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -68,6 +72,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         NodeTypeId getId()  const;
         const std::string &getName()  const;
+        float getRigidity() const;
         SimpleNode* getParent();
         SimpleNode* getChild(const NodeTypeId id);
         SimpleNode* getChildByName(const std::string &name, bool recursiveSearch = true);
@@ -81,14 +86,20 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
 
     protected:
+        virtual SimpleNode* nodeAllocator(NodeTypeId);
+
         virtual void setParent(SimpleNode *);
         void setId(const NodeTypeId );
         NodeTypeId generateId();
 
-        virtual SimpleNode* nodeAllocator(NodeTypeId);
+        void addCreatedChildNode(SimpleNode*);
 
+        void askForUpdateModelMatrix();
         void updateGlobalPosition();
         void updateModelMatrix();
+
+        void computeFlexibleMove(glm::vec3 );
+        //void computeFlexibleRotate(float );
 
     protected:
         glm::vec3 m_globalPosition;
@@ -96,6 +107,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::vec3 m_position;
         glm::vec3 m_eulerRotations;
         glm::vec3 m_scale;
+        float     m_rigidity;
+
+        float m_curFlexibleLength;
+        float m_curFlexibleRotation;
 
         glm::mat4 m_modelMatrix;
         glm::mat4 m_invModelMatrix;
@@ -109,6 +124,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::set<NodeTypeId> m_createdChildsList;
 
         int m_curNewId;
+
+        bool m_needToUpdateModelMat;
 };
 
 }
