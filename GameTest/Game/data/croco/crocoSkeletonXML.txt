@@ -2,10 +2,10 @@
 <skeleton>
 	<node name="root"> 
 		<node name="upperBody" z=".1">
-			<node name="neck" y="-38" z="-.2">
+			<node name="neck" y="-46" z="-.2">
 				<node name="head" y="-8" z=".3" />
 			</node>
-			<node name="middleBody" y="50" rigidity="0">
+			<node name="middleBody" z="-.1" y="42" rigidity="0">
 				<node name="lowerBody" y="49" z=".1" rigidity="0">
 					<node name="upperLegL" x="-28" y="-16" z=".1">
 						<node name="lowerLegL" x="-24" y="-14" z="-.1">
@@ -17,25 +17,25 @@
 							<node name="footR" x="2" y="28" z="-.2" />
 						</node>
 					</node>
-					<node name="tail1" y="40" z="-.1" rigidity="0">
-						<node name="tail2" y="54" z="-.1" rigidity="0">
-							<node name="tail3" y="30" z="-.1" rigidity="0">
-								<node name="tail4" y="54" z="-.1" rigidity="0">
-									<node name="tail5" y="22" z="-.1" rigidity="0" />
+					<node name="tail1" y="28" z="-.01" rigidity="0">
+						<node name="tail2" y="50" z=".01" rigidity="0">
+							<node name="tail3" y="56" z=".01" rigidity="0">
+								<node name="tail4" y="56" z=".01" rigidity="0">
+									<node name="tail5" y="60" z=".01" rigidity="0" />
 								</node>
 							</node>
 						</node>
 					</node> 
 				</node>
 			</node>
-			<node name="shoulderL" x="-38" y="-4" z=".1">
+			<node name="shoulderL" x="-38" y="-12" z=".1">
 				<node name="upperArmL" x="-4" z="-.1">
 					<node name="lowerArmL" x="-24" z="-.1">
 						<node name="handL" y="-18" z="-.1" />
 					</node>
 				</node>
 			</node>
-			<node name="shoulderR" x="38" y="-4" z=".1"> 
+			<node name="shoulderR" x="38" y="-12" z=".1"> 
 				<node name="upperArmR" x="4" z="-.1">
 					<node name="lowerArmR" x="24" z="-.1">
 						<node name="handR" y="-18" z="-.1" />

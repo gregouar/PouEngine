@@ -66,7 +66,7 @@ void TestingState::init()
     m_testChar =  m_scene->createSpriteEntity(m_charModel);
     m_testChar->setRotation(30.0);
     m_testChar->setOrdering(pou::ORDERED_BY_Z);
-    m_testNode->attachObject(m_testChar);
+    //m_testNode->attachObject(m_testChar);
 
     m_character = new Character();
     m_character->loadModel("../data/char1/char1XML.txt");

@@ -12,13 +12,13 @@
 	</sprite>
 	<sprite name="upperBody">
 		<size 		x="86" 	y="46" 	/>
-		<center 	x="42" 	y="28" 	/>
+		<center 	x="42" 	y="36" 	/>
 		<position 	x="12" 	y="172"	/>
 	</sprite>
 	<sprite name="middleBody">
-		<size 		x="94" 	y="106" />
-		<center 	x="46" 	y="55" 	/>
-		<position 	x="8" 	y="234"	/>
+		<size 		x="94" 	y="116" />
+		<center 	x="46" 	y="65" 	/>
+		<position 	x="8" 	y="224"	/>
 	</sprite>
 	<sprite name="lowerBody">
 		<size 		x="82" 	y="54" 	/>
@@ -28,27 +28,27 @@
 	
 	<sprite name="tail1">
 		<size 		x="66" 	y="56" 	/>
-		<center 	x="32" 	y="44" />
+		<center 	x="32" 	y="32" />
 		<position 	x="118" y="8"	/>
 	</sprite>
 	<sprite name="tail2">
 		<size 		x="58" 	y="78" 	/>
-		<center 	x="28" 	y="70"	/>
+		<center 	x="28" 	y="54"	/>
 		<position 	x="122" y="80"	/>
 	</sprite>
 	<sprite name="tail3">
 		<size 		x="50" 	y="82" 	/>
-		<center 	x="24" 	y="56"	/>
+		<center 	x="24" 	y="66"	/>
 		<position 	x="126" y="174"	/>
 	</sprite>
 	<sprite name="tail4">
 		<size 		x="38" 	y="78" 	/>
-		<center 	x="18" 	y="54"	/>
+		<center 	x="18" 	y="66"	/>
 		<position 	x="132" y="272"	/>
 	</sprite>
 	<sprite name="tail5">
 		<size 		x="22" 	y="76" 	/>
-		<center 	x="10" 	y="18"	/>
+		<center 	x="10" 	y="68"	/>
 		<position 	x="140" y="366"	/>
 	</sprite>
 	
