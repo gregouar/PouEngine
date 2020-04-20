@@ -49,6 +49,8 @@ class Skeleton : public SceneNode
         bool startAnimation(const std::string &animationName, bool forceStart = false); //Probably could add ForceStart
         //could add pause animation etc
 
+        bool isInAnimation();
+
         virtual void update(const Time &elapsedTime);
 
     protected:

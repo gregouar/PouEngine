@@ -47,6 +47,7 @@ class SkeletalAnimationFrameModel
         bool loadFromXml(TiXmlElement *element);
 
         const std::list<SkeletalAnimationCommandModel> *getCommands();
+        float getSpeedFactor();
 
     protected:
         void setNextFrame(SkeletalAnimationFrameModel *nextFrame);
@@ -54,6 +55,8 @@ class SkeletalAnimationFrameModel
     private:
         SkeletalAnimationFrameModel *m_nextFrame;
         std::list<SkeletalAnimationCommandModel> m_commands;
+
+        float m_speedFactor;
 };
 
 class SkeletalAnimationModel

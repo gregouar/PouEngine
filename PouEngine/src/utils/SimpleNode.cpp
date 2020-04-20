@@ -390,10 +390,21 @@ glm::vec3 SimpleNode::getPosition() const
     return m_position;
 }
 
+glm::vec2 SimpleNode::getXYPosition() const
+{
+    return glm::vec2(m_position.x, m_position.y);
+}
+
 glm::vec3 SimpleNode::getGlobalPosition() const
 {
     return m_globalPosition;
 }
+
+glm::vec2 SimpleNode::getGlobalXYPosition() const
+{
+    return glm::vec2(m_globalPosition.x, m_globalPosition.y);
+}
+
 
 glm::vec3 SimpleNode::getScale() const
 {

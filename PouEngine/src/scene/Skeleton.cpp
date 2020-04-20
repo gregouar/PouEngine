@@ -71,6 +71,11 @@ bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
     return (true);
 }
 
+bool Skeleton::isInAnimation()
+{
+    return (m_curAnimation != nullptr);
+}
+
 void Skeleton::update(const Time &elapsedTime)
 {
     SceneNode::update(elapsedTime);
@@ -81,7 +86,12 @@ void Skeleton::update(const Time &elapsedTime)
         //for(auto &cmd : m_animationCommands)
         for(auto cmd = m_animationCommands.begin() ; cmd != m_animationCommands.end() ; ++cmd)
         {
-            if(!cmd->update(elapsedTime))
+            float speedFactor = 1.0;
+
+            if(m_curAnimationFrame != nullptr)
+                speedFactor *= m_curAnimationFrame->getSpeedFactor();
+
+            if(!cmd->update(elapsedTime * speedFactor))
                 nextFrame = false;
             /*else
             {

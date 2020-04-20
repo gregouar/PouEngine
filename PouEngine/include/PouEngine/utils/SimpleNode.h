@@ -64,7 +64,9 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setRotation(glm::vec3 rotation, bool inRadians = true);
 
         glm::vec3 getPosition() const;
+        glm::vec2 getXYPosition() const;
         glm::vec3 getGlobalPosition() const;
+        glm::vec2 getGlobalXYPosition() const;
         glm::vec3 getScale() const;
         glm::vec3 getEulerRotation()const;
         const glm::mat4 &getModelMatrix() const;

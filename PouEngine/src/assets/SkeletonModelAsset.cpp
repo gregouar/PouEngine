@@ -247,7 +247,7 @@ bool SkeletalAnimationModel::isLooping()
 SkeletalAnimationFrameModel::SkeletalAnimationFrameModel() :
     m_nextFrame(nullptr)
 {
-
+    m_speedFactor = 1.0f;
 }
 
 SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
@@ -257,6 +257,10 @@ SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
 
 bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element)
 {
+    auto speedAtt = element->Attribute("speedFactor");
+    if(speedAtt != nullptr)
+        m_speedFactor = Parser::parseFloat(speedAtt);
+
     auto commandElement = element->FirstChildElement("command");
     while(commandElement != nullptr)
     {
@@ -271,6 +275,11 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element)
 const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::getCommands()
 {
     return &m_commands;
+}
+
+float SkeletalAnimationFrameModel::getSpeedFactor()
+{
+    return m_speedFactor;
 }
 
 void SkeletalAnimationFrameModel::setNextFrame(SkeletalAnimationFrameModel *nextFrame)
