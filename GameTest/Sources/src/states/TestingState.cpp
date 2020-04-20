@@ -68,7 +68,7 @@ void TestingState::init()
     m_testChar->setOrdering(pou::ORDERED_BY_Z);
     //m_testNode->attachObject(m_testChar);
 
-    m_character = new Character();
+    m_character = new PlayableCharacter();
     m_character->loadModel("../data/char1/char1XML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
@@ -89,8 +89,8 @@ void TestingState::init()
 
     pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grassXML.txt");
 
-    for(auto x = -5 ; x < 5 ; x++)
-    for(auto y = -5 ; y < 5 ; y++)
+    for(auto x = -10 ; x < 10 ; x++)
+    for(auto y = -10 ; y < 10 ; y++)
     {
          pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
          grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1")));
@@ -228,6 +228,9 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
         m_croco->setDestination(worldMousePos);
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
+        m_character->attack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
+
+    if(eventsManager->keyIsPressed(GLFW_KEY_E))
         m_character2->setDestination(worldMousePos);
 
     m_camVelocity = {0,0};
@@ -254,12 +257,19 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = 1;
 
     m_character->walk(charDirection);
+    m_character->lookAt(worldMousePos);
+    if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
+        m_character->forceAttackMode();
 
-    if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
+    /*if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
         m_croco->walk({0,-1});
     else
-        m_croco->walk({0,0});
-
+        m_croco->walk({0,0});*/
+    if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
+    {
+        //m_character->startAnimation("attack",true);
+        m_character->attack();
+    }
 }
 
 void TestingState::update(const pou::Time &elapsedTime)

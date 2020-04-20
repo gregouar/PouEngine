@@ -15,6 +15,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_destination       = {0,0};
 
     m_isWalking         = false;
+    m_isAttacking       = false;
     m_walkingDirection  = {0,0};
     m_lookingDirection  = {0,-1};
 }
@@ -60,6 +61,19 @@ void Character::setDestination(glm::vec2 destination)
 void Character::walk(glm::vec2 direction)
 {
     m_walkingDirection = direction;
+    m_lookingDirection = m_walkingDirection;
+}
+
+void Character::attack(glm::vec2 direction, const std::string &animationName)
+{
+    if(!m_isAttacking)
+    {
+        this->startAnimation(animationName,true);
+        m_isAttacking = true;
+        m_isWalking = false;
+        //if(direction != glm::vec2(0))
+            m_lookingDirection = direction;
+    }
 }
 
 bool Character::walkToDestination(const pou::Time& elapsedTime)
@@ -156,56 +170,78 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
     }
 }
 
+float Character::computeWantedRotation(float startingRotation, glm::vec2 position)
+{
+    float wantedRotation = glm::pi<float>()/2.0+glm::atan(position.y, position.x);
+
+    if(glm::abs(wantedRotation-startingRotation) > glm::abs(wantedRotation-startingRotation+glm::pi<float>()*2.0))
+        wantedRotation += glm::pi<float>()*2.0;
+
+    if(glm::abs(wantedRotation-startingRotation) > glm::abs(wantedRotation-startingRotation-glm::pi<float>()*2.0))
+        wantedRotation -= glm::pi<float>()*2.0;
+
+    return wantedRotation;
+}
+
 void Character::update(const pou::Time& elapsedTime)
 {
     bool wantToWalk = false;
 
-    if(m_isDestinationSet)
-        wantToWalk = this->walkToDestination(elapsedTime);
-
-    if(m_walkingDirection != glm::vec2(0))
+    if(m_isAttacking)
     {
-        m_walkingDirection = glm::normalize(m_walkingDirection);
+        bool isAnimationFinished = true;
+        for(auto &skeleton : m_skeletons)
+            isAnimationFinished = isAnimationFinished & !skeleton->isInAnimation();
 
-        glm::vec2 charMove = {m_walkingDirection.x*m_walkingSpeed*elapsedTime.count(),
-                              m_walkingDirection.y*m_walkingSpeed*elapsedTime.count()};
+        if(isAnimationFinished)
+        {
+            m_isAttacking = false;
+            this->startAnimation("stand", true);
+        }
+    } else {
+        if(m_isDestinationSet)
+            wantToWalk = this->walkToDestination(elapsedTime);
 
-        m_lookingDirection = m_walkingDirection;
+        if(m_walkingDirection != glm::vec2(0))
+        {
+            m_walkingDirection = glm::normalize(m_walkingDirection);
 
-        SceneNode:move(charMove);
-        wantToWalk = true;
-    }
+            glm::vec2 charMove = {m_walkingDirection.x*m_walkingSpeed*elapsedTime.count(),
+                                  m_walkingDirection.y*m_walkingSpeed*elapsedTime.count()};
 
-    if(wantToWalk && !m_isWalking)
-    {
-        this->startAnimation("walk", true);
-        m_isWalking = true;
-    }
+            //m_lookingDirection = m_walkingDirection;
 
-    if(!wantToWalk && m_isWalking)
-    {
-        this->startAnimation("stand", true);
-        m_isWalking = false;
+            SceneNode:move(charMove);
+            wantToWalk = true;
+        }
+
+        if(wantToWalk && !m_isWalking)
+        {
+            this->startAnimation("walk", true);
+            m_isWalking = true;
+        }
+
+        if(!wantToWalk && m_isWalking)
+        {
+            this->startAnimation("stand", true);
+            m_isWalking = false;
+        }
     }
 
     ///Introduce animationRotationSpeed
-    float curRot = SceneNode::getEulerRotation().z;
-    float desiredRot = glm::pi<float>()/2.0+glm::atan(m_lookingDirection.y, m_lookingDirection.x);
 
-    if(glm::abs(desiredRot-curRot) > glm::abs(desiredRot-curRot+glm::pi<float>()*2.0))
-        desiredRot += glm::pi<float>()*2.0;
+    if(m_lookingDirection != glm::vec2(0))
+    {
+        float curRotation = SceneNode::getEulerRotation().z;
+        float rotationAmount = elapsedTime.count()*10.0f;
+        float wantedRotation = this->computeWantedRotation( curRotation,
+                                                            m_lookingDirection);
 
-    if(glm::abs(desiredRot-curRot) > glm::abs(desiredRot-curRot-glm::pi<float>()*2.0))
-        desiredRot -= glm::pi<float>()*2.0;
-
-    float rotAmount = elapsedTime.count()*10.0f;
-    float newRot = curRot;
-
-    if(glm::abs(desiredRot - curRot) < rotAmount)
-        SceneNode::setRotation({0,0,desiredRot});
-    else
-        SceneNode::rotate(rotAmount, {0,0, (desiredRot > curRot) ? 1 : -1 });
-
+        if(glm::abs(wantedRotation - curRotation) < rotationAmount)
+            SceneNode::setRotation({0,0,wantedRotation});
+        else
+            SceneNode::rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
+    }
 
     SceneNode::update(elapsedTime);
 }

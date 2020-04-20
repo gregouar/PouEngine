@@ -23,6 +23,8 @@ class Character : public pou::SceneNode
         void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
 
+        virtual void attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");
+
         void startAnimation(const std::string &name, bool forceStart = false);
 
         virtual void update(const pou::Time &elapsedTime);
@@ -32,6 +34,15 @@ class Character : public pou::SceneNode
 
         bool walkToDestination(const pou::Time& elapsedTime);
         void rotateToDestination(const pou::Time& elapsedTime, glm::vec2 destination, float rotationRadius);
+
+        float computeWantedRotation(float startingRotation, glm::vec2 position);
+
+
+    protected:
+        bool      m_isWalking;
+        bool      m_isAttacking;
+        glm::vec2 m_walkingDirection;
+        glm::vec2 m_lookingDirection;
 
     private:
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
@@ -43,9 +54,6 @@ class Character : public pou::SceneNode
         bool m_isDestinationSet;
         glm::vec2 m_destination;
 
-        bool      m_isWalking;
-        glm::vec2 m_lookingDirection;
-        glm::vec2 m_walkingDirection;
 
 };
 

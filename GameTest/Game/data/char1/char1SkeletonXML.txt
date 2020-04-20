@@ -13,30 +13,31 @@
 		<node name="footL" x="-10" y="4" z=".0" />
 		<node name="footR" x="10" y="4" z=".0" />
 	</node>
+	
 	<animation name="stand">
 		<frame>
 			<command type="rotateTo" node="body" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="400" />
 			<command type="rotateTo" node="weapon" z="0" rate="400" />
-			<command type="moveTo" node="footR" y="0" rate="400" />
-			<command type="moveTo" node="footL" y="0" rate="400" />
+			<command type="moveTo" node="footR" x="0" y="0" rate="400" />
+			<command type="moveTo" node="footL" x="0" y="0" rate="400" />
 			<command type="scaleTo" node="bag" x="0" y="0" rate="10" />
 			<command type="rotateTo" node="bag" z="0" rate="400" />
 		</frame>
 	</animation>
+	
 	<animation name="walk" loop="1">
 		<frame>
 			<command type="rotateTo" node="body" z="-20" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="-10" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="10" rate="100" />
 			<command type="rotateTo" node="weapon" z="-10" rate="100" />
-			<command type="moveTo" node="footR" y="-14" rate="100" />
-			<command type="moveTo" node="footL" y="14" rate="100" />
+			<command type="moveTo" node="footR" x="0" y="-14" rate="100" />
+			<command type="moveTo" node="footL" x="0" y="14" rate="100" />
 			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />
 			<command type="rotateTo" node="bag" z="-10" rate="100" />
 		</frame>
-		
 		<frame>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
@@ -47,7 +48,6 @@
 			<command type="scaleTo" node="bag" x="0.1" y="0.1" rate="2" />
 			<command type="rotateTo" node="bag" z="0" rate="100" />
 		</frame>
-		
 		<frame>
 			<command type="rotateTo" node="body" z="20" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="10" rate="100" />
@@ -58,7 +58,6 @@
 			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />
 			<command type="rotateTo" node="bag" z="10" rate="100" />
 		</frame>
-		
 		<frame>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
@@ -70,4 +69,83 @@
 			<command type="rotateTo" node="bag" z="0" rate="100" />
 		</frame>
 	</animation>
+	
+	<animation name="lateralWalk" loop="1">
+		<frame>
+			<command type="rotateTo" node="body" z="-20" rate="100" />
+			<command type="rotateTo" node="shoulderL" z="-10" rate="100" />
+			<command type="rotateTo" node="shoulderR" z="10" rate="100" />
+			<command type="rotateTo" node="weapon" z="-10" rate="100" />
+			<command type="moveTo" node="footR" x="14" y="0" rate="100" />
+			<command type="moveTo" node="footL" x="0" y="0" rate="100" />
+			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />
+			<command type="rotateTo" node="bag" z="-10" rate="100" />
+		</frame>
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="100" />
+			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
+			<command type="rotateTo" node="shoulderR" z="0" rate="100" />
+			<command type="rotateTo" node="weapon" z="0" rate="100" />
+			<command type="moveTo" node="footR" x="0" rate="100" />
+			<command type="moveTo" node="footL" x="0" rate="100" />
+			<command type="scaleTo" node="bag" x="0.1" y="0.1" rate="2" />
+			<command type="rotateTo" node="bag" z="0" rate="100" />
+		</frame>
+		<frame>
+			<command type="rotateTo" node="body" z="20" rate="100" />
+			<command type="rotateTo" node="shoulderL" z="10" rate="100" />
+			<command type="rotateTo" node="shoulderR" z="-10" rate="100" />
+			<command type="rotateTo" node="weapon" z="10" rate="100" />
+			<command type="moveTo" node="footR" x="0" rate="100" />
+			<command type="moveTo" node="footL" x="-14" rate="100" />
+			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />
+			<command type="rotateTo" node="bag" z="10" rate="100" />
+		</frame>
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="100" />
+			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
+			<command type="rotateTo" node="shoulderR" z="0" rate="100" />
+			<command type="rotateTo" node="weapon" z="0" rate="100" />
+			<command type="moveTo" node="footR" x="0" rate="100" />
+			<command type="moveTo" node="footL" x="0" rate="100" />
+			<command type="scaleTo" node="bag" x="0.1" y="0.1" rate="2" />
+			<command type="rotateTo" node="bag" z="0" rate="100" />
+		</frame>
+	</animation>
+	
+	<animation name="attack" loop="0">
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="500" />
+			<command type="rotateTo" node="weapon" z="0" rate="500" />
+			<command type="moveTo" node="handR"  x="0" y="0" rate="50" />
+			<command type="rotateTo" node="shoulderR" z="0" rate="500" />
+			<command type="moveTo" node="head" y="0" rate="50" />
+		</frame>
+		<frame speedFactor="1.5">
+			<command type="rotateTo" node="body" z="10" rate="50" />
+			<command type="rotateTo" node="weapon" z="40" rate="200" />
+			<command type="rotateTo" node="handR" z="40" rate="200" />
+			<command type="moveTo" node="handR" x="0" y="2" rate="10" />
+			<command type="rotateTo" node="shoulderR" z="10" rate="50" />
+			<command type="moveTo" node="head" y="2" rate="10" />
+		</frame>
+		<frame speedFactor="1.5">
+			<command type="rotateTo" node="body" z="-30" rate="150" />
+			<command type="rotateTo" node="weapon" z="-90" rate="450" />
+			<command type="rotateTo" node="handR" z="-90" rate="450" />
+			<command type="moveTo" node="handR" x="-8" y="-10" rate="40" />
+			<command type="rotateTo" node="shoulderR" z="-30" rate="150" />
+			<command type="moveTo" node="head" y="-2" rate="20" />
+		</frame>
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="100" />
+			<command type="rotateTo" node="weapon" z="0" rate="300" />
+			<command type="rotateTo" node="handR" z="0" rate="300" />
+			<command type="moveTo" node="handR" x="0" y="0" rate="40" />
+			<command type="rotateTo" node="shoulderR" z="0" rate="300" />
+			<command type="moveTo" node="head" y="0" rate="20" />
+		</frame>
+	</animation>
 </skeleton>
+
+

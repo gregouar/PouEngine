@@ -9,6 +9,7 @@
 
 
 #include "Character.h"
+#include "PlayableCharacter.h"
 
 class TestingState : public pou::GameState, public Singleton<TestingState>
 {
@@ -44,7 +45,8 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         pou::SceneNode     *m_testNode;
         pou::SpriteEntity *m_testChar;
 
-        Character *m_character, *m_character2, *m_croco;
+        PlayableCharacter *m_character;
+        Character  *m_character2, *m_croco;
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;
