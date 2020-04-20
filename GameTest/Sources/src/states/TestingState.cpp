@@ -75,14 +75,14 @@ void TestingState::init()
 
     m_character2 = new Character();
     m_character2->loadModel("../data/char1/char1XML.txt");
-    m_character2->setPosition(-100,-100,1);
+    m_character2->setPosition(-700,-700,1);
     m_scene->getRootNode()->addChildNode(m_character2);
 
     m_croco = new Character();
     m_croco->loadModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
     m_croco->setWalkingSpeed(100.0f);
-    m_croco->setRotationRadius(100.0f);
+    m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
 
 
@@ -225,10 +225,18 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera);
 
-    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
-        m_croco->setDestination(worldMousePos);
+    //if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+       // m_croco->setDestination(worldMousePos);
+    {
+        if(glm::length(m_croco->getGlobalXYPosition() - m_character->getGlobalXYPosition()) > 150.0f)
+        {
+            glm::vec2 nDist = glm::normalize(m_croco->getGlobalXYPosition() - m_character->getGlobalXYPosition());
+            m_croco->setDestination(m_character->getGlobalXYPosition()+nDist*150.0f);
+        }
+    }
+
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
-        m_character->attack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
+        m_character->askToAttack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
 
     if(eventsManager->keyIsPressed(GLFW_KEY_E))
         m_character2->setDestination(worldMousePos);
@@ -256,7 +264,11 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
 
+    if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
+        m_character->dash(charDirection);
+
     m_character->walk(charDirection);
+
     m_character->lookAt(worldMousePos);
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
         m_character->forceAttackMode();
@@ -268,7 +280,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
     {
         //m_character->startAnimation("attack",true);
-        m_character->attack();
+        m_character->askToAttack();
     }
 }
 

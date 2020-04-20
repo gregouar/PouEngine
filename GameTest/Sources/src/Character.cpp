@@ -61,25 +61,28 @@ void Character::setDestination(glm::vec2 destination)
 void Character::walk(glm::vec2 direction)
 {
     m_walkingDirection = direction;
-    m_lookingDirection = m_walkingDirection;
+    if(direction != glm::vec2(0))
+        m_lookingDirection = m_walkingDirection;
 }
 
-void Character::attack(glm::vec2 direction, const std::string &animationName)
+bool Character::attack(glm::vec2 direction, const std::string &animationName)
 {
-    if(!m_isAttacking)
-    {
-        this->startAnimation(animationName,true);
-        m_isAttacking = true;
-        m_isWalking = false;
-        //if(direction != glm::vec2(0))
-            m_lookingDirection = direction;
-    }
+    if(m_isAttacking)
+        return (false);
+
+
+    this->startAnimation(animationName,true);
+    m_isAttacking = true;
+    m_isWalking = false;
+    //if(direction != glm::vec2(0))
+        m_lookingDirection = direction;
+
+    return (true);
 }
 
 bool Character::walkToDestination(const pou::Time& elapsedTime)
 {
-    glm::vec2 gpos{SceneNode::getGlobalPosition().x,
-                   SceneNode::getGlobalPosition().y};
+    glm::vec2 gpos  = SceneNode::getGlobalXYPosition();
     glm::vec2 delta = m_destination - gpos;
     float ndelta    = glm::dot(delta,delta);
 
@@ -87,7 +90,8 @@ bool Character::walkToDestination(const pou::Time& elapsedTime)
     {
         SceneNode:setGlobalPosition(m_destination);
         m_isDestinationSet = false;
-        this->walk({0,0});
+        m_walkingDirection = glm::vec2(0);
+        //this->walk({0,0});
         return (false);
     }
 
@@ -126,18 +130,17 @@ bool Character::walkToDestination(const pou::Time& elapsedTime)
 
 void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 destination, float rotationRadius)
 {
-    glm::vec2 gpos{SceneNode::getGlobalPosition().x,
-                   SceneNode::getGlobalPosition().y};
-    glm::vec2 delta = destination - gpos;
+    glm::vec2 delta = destination - SceneNode::getGlobalXYPosition();
     glm::vec2 normalizedDelta = glm::normalize(delta);
 
     glm::vec2 coLookinDirection = {m_lookingDirection.y,
                                   -m_lookingDirection.x};
 
     if(glm::dot(normalizedDelta - m_lookingDirection,
-                normalizedDelta - m_lookingDirection) <= 0.001f)
+                normalizedDelta - m_lookingDirection) <= 0.0005f)
     {
         m_walkingDirection = normalizedDelta;
+        m_lookingDirection = normalizedDelta;
     } else {
         float arcLength = m_walkingSpeed*elapsedTime.count();
         float normalizedArcLength = arcLength/rotationRadius;
@@ -167,6 +170,8 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
         glm::vec2 relNewLookingDir{sinArcLength, cosArcLength};
         m_lookingDirection = relNewLookingDir.x * coLookinDirection
                             + relNewLookingDir.y * m_lookingDirection;
+        m_lookingDirection = glm::normalize(m_lookingDirection);
+        m_walkingDirection = glm::vec2(0);
     }
 }
 
@@ -214,6 +219,9 @@ void Character::update(const pou::Time& elapsedTime)
             SceneNode:move(charMove);
             wantToWalk = true;
         }
+
+        if(m_walkingSpeed <= 0)
+            wantToWalk = false;
 
         if(wantToWalk && !m_isWalking)
         {
