@@ -24,7 +24,9 @@ class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
 class SkeletonModelAsset;
-class CharacterModelAsset;
+//class CharacterModelAsset;
+
+class Timer;
 
 enum RendererName
 {
@@ -130,7 +132,7 @@ typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
 typedef AssetHandler<SkeletonModelAsset>     SkeletonModelsHandler;
-typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
+//typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 //typedef AssetHandler<MeshAsset>     MeshesHandler;
 
 const std::string emptyString;

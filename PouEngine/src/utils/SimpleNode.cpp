@@ -595,6 +595,7 @@ void SimpleNode::updateModelMatrix()
 
 void SimpleNode::computeFlexibleMove(glm::vec3 m)
 {
+    ///Need to add partial rigidity
     if(m_rigidity != 1.0)
     {
         glm::vec2 p(m_position.x,m_position.y);

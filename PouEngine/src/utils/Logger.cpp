@@ -1,5 +1,9 @@
 #include "PouEngine/utils/Logger.h"
 
+namespace pou
+{
+
+
 const char *Logger::DEFAULT_LOG_PATH = "log.txt";
 
 Logger::Logger()
@@ -70,5 +74,7 @@ void Logger::enableConsoleWriting()
 void Logger::disableConsoleWriting()
 {
     Logger::instance()->m_enableConsoleWriting = false;
+}
+
 }
 

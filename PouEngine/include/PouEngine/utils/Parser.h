@@ -5,6 +5,11 @@
 
 ///I should maybe switch to functions in a namespace
 
+
+namespace pou
+{
+
+
 class Parser : public Singleton<Parser>
 {
     public:
@@ -26,5 +31,7 @@ class Parser : public Singleton<Parser>
 
     private:
 };
+
+}
 
 #endif // PARSER_H

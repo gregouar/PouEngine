@@ -3,6 +3,11 @@
 
 #include <sstream>
 
+
+namespace pou
+{
+
+
 Parser::Parser()
 {
     //ctor
@@ -77,3 +82,7 @@ std::string Parser::findFileDirectory(const std::string& filePath)
     Logger::error("Cannot find directory of "+filePath);
     return filePath;
 }
+
+}
+
+

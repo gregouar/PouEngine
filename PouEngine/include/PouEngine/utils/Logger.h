@@ -7,6 +7,9 @@
 
 #include "Singleton.h"
 
+namespace pou
+{
+
 class Logger : public Singleton<Logger>
 {
     public:
@@ -38,5 +41,7 @@ class Logger : public Singleton<Logger>
 
         static const char *DEFAULT_LOG_PATH;
 };
+
+}
 
 #endif // LOGGER_H
