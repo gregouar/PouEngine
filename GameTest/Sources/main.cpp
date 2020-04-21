@@ -6,7 +6,7 @@
 
 int main()
 {
-    Logger::instance();
+    pou::Logger::instance();
 
     try {
         pou::VAppCreateInfos createInfos;
@@ -15,7 +15,7 @@ int main()
         pou::VApp app(createInfos);
         app.run(TestingState::instance());
     } catch (const std::exception& e) {
-        Logger::fatalError(e.what());
+        pou::Logger::fatalError(e.what());
         return EXIT_FAILURE;
     }
 

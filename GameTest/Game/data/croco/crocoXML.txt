@@ -29,5 +29,8 @@
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 	</skeleton>
 	
-	
+	<attributes>
+		<walkingSpeed>100</walkingSpeed>
+		<attackDelay>1</attackDelay>
+	</attributes>
 </character>

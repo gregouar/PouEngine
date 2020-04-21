@@ -8,6 +8,8 @@
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/Skeleton.h"
+#include "PouEngine/utils/Timer.h"
+#include "assets/CharacterModelAsset.h"
 
 class Character : public pou::SceneNode
 {
@@ -15,9 +17,9 @@ class Character : public pou::SceneNode
         Character();
         virtual ~Character();
 
-        bool loadModel(const std::string &path);
+        virtual bool loadModel(const std::string &path);
 
-        void setWalkingSpeed(float speed);
+        virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
 
         void setDestination(glm::vec2 destination);
@@ -44,7 +46,10 @@ class Character : public pou::SceneNode
         glm::vec2 m_walkingDirection;
         glm::vec2 m_lookingDirection;
 
-        float m_walkingSpeed;
+        pou::Timer m_attackDelayTimer;
+
+        //float m_walkingSpeed;
+        CharacterAttributes m_attributes;
 
     private:
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;

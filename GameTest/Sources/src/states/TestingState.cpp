@@ -21,6 +21,7 @@ TestingState::TestingState() :
     m_character = nullptr;
     m_character2 = nullptr;
     m_croco = nullptr;
+    m_duck = nullptr;
 }
 
 TestingState::~TestingState()
@@ -33,6 +34,8 @@ void TestingState::init()
     m_firstEntering = false;
 
     m_camVelocity = glm::vec2(0,0);
+    m_activeCroc = false;
+    m_activeDuck = false;
 
     m_scene = new pou::Scene();
 
@@ -81,9 +84,15 @@ void TestingState::init()
     m_croco = new Character();
     m_croco->loadModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
-    m_croco->setWalkingSpeed(100.0f);
     m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
+
+
+
+    m_duck = new Character();
+    m_duck->loadModel("../data/duck/duckXML.txt");
+    m_duck->setPosition(-200,70,1);
+    m_scene->getRootNode()->addChildNode(m_duck);
 
 
 
@@ -200,6 +209,9 @@ void TestingState::leaving()
 
     delete m_croco;
     m_croco = nullptr;
+
+    delete m_duck;
+    m_duck = nullptr;
 }
 
 void TestingState::revealed()
@@ -227,6 +239,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     //if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
        // m_croco->setDestination(worldMousePos);
+    if(m_activeCroc)
     {
         if(glm::length(m_croco->getGlobalXYPosition() - m_character->getGlobalXYPosition()) > 150.0f)
         {
@@ -234,6 +247,23 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
             m_croco->setDestination(m_character->getGlobalXYPosition()+nDist*150.0f);
         }
     }
+
+    if(m_activeDuck)
+    {
+        if(glm::length(m_duck->getGlobalXYPosition() - m_character->getGlobalXYPosition()) > 100.0f)
+        {
+            glm::vec2 nDist = glm::normalize(m_duck->getGlobalXYPosition() - m_character->getGlobalXYPosition());
+            m_duck->setDestination(m_character->getGlobalXYPosition()+nDist*95.0f);
+        } else
+            m_duck->attack(m_character->getGlobalXYPosition() - m_duck->getGlobalXYPosition());
+    }
+
+
+    if(eventsManager->keyPressed(GLFW_KEY_U))
+        m_activeDuck = !m_activeDuck;
+
+    if(eventsManager->keyPressed(GLFW_KEY_C))
+        m_activeCroc = !m_activeCroc;
 
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
         m_character->askToAttack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
@@ -265,7 +295,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = 1;
 
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
-        m_character->dash(charDirection);
+        m_character->askToDash(charDirection);
 
     m_character->walk(charDirection);
 

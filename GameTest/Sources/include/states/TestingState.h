@@ -40,13 +40,15 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         int m_nbrFps;
 
+        bool m_activeCroc, m_activeDuck;
+
         //Maybe this does not really make sense and it should be SpriteAsset
         pou::SpriteModel *m_charModel;
         pou::SceneNode     *m_testNode;
         pou::SpriteEntity *m_testChar;
 
         PlayableCharacter *m_character;
-        Character  *m_character2, *m_croco;
+        Character  *m_character2, *m_croco, *m_duck;
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;

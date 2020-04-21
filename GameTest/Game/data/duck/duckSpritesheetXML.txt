@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet texture="duck_spritesheet.png">
+	<sprite name="head">
+		<size 		x="22" 	y="46" 	/>
+		<center 	x="11" 	y="35" 	/>
+		<position 	x="12" 	y="0"	/>
+	</sprite>
+	<sprite name="body">
+		<size 		x="46" 	y="68" 	/>
+		<center 	x="23" 	y="33" 	/>
+		<position 	x="0" 	y="48"	/>
+	</sprite>
+	<sprite name="tail">
+		<size 		x="22" 	y="26" 	/>
+		<center 	x="11" 	y="8" 	/>
+		<position 	x="12" 	y="118"	/>
+	</sprite>
+	<sprite name="wingL">
+		<size 		x="12" 	y="32" 	/>
+		<center 	x="6" 	y="6" 	/>
+		<position 	x="46" 	y="0"	/>
+	</sprite>
+	<sprite name="wingR">
+		<size 		x="12" 	y="32" 	/>
+		<center 	x="6" 	y="6" 	/>
+		<position 	x="60" 	y="0"	/>
+	</sprite>
+	<sprite name="legL">
+		<size 		x="10" 	y="56" 	/>
+		<center 	x="9" 	y="5" 	/>
+		<position 	x="48" 	y="56"	/>
+	</sprite>	
+	<sprite name="legR">
+		<size 		x="10" 	y="18" 	/>
+		<center 	x="1" 	y="5" 	/>
+		<position 	x="60" 	y="56"	/>
+	</sprite>	
+	<sprite name="foot">
+		<size 		x="22" 	y="20" 	/>
+		<center 	x="11" 	y="15" 	/>
+		<position 	x="46" 	y="34"	/>
+	</sprite>	
+</spritesheet>
+
+
+

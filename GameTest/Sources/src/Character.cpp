@@ -2,19 +2,20 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
-#include "PouEngine/assets/CharacterModelAsset.h"
+#include "assets/CharacterModelAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 
+typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
+
 Character::Character() : SceneNode(-1,nullptr)
 {
-    m_walkingSpeed      = 250.0f;
     m_rotationRadius    = 0.0f;
 
     m_isDestinationSet  = false;
     m_destination       = {0,0};
 
-    m_isWalking         = false;
+    m_isWalking         = true;
     m_isAttacking       = false;
     m_walkingDirection  = {0,0};
     m_lookingDirection  = {0,-1};
@@ -29,13 +30,16 @@ bool Character::loadModel(const std::string &path)
 {
     this->cleanup();
 
-    pou::CharacterModelAsset *characterModel
-        = pou::CharacterModelsHandler::loadAssetFromFile(path);
+    CharacterModelAsset *characterModel
+        = CharacterModelsHandler::loadAssetFromFile(path);
 
     if(characterModel == nullptr)
         return (false);
 
     characterModel->generateOnNode(this, &m_skeletons, &m_limbs);
+    m_attributes = characterModel->getAttributes();
+
+    std::cout<<m_attributes.walkingSpeed<<std::endl;
 
     return (true);
 }
@@ -43,7 +47,7 @@ bool Character::loadModel(const std::string &path)
 void Character::setWalkingSpeed(float speed)
 {
     if(speed >= 0)
-        m_walkingSpeed = speed;
+        m_attributes.walkingSpeed = speed;
 }
 
 void Character::setRotationRadius(float radius)
@@ -70,12 +74,16 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     if(m_isAttacking)
         return (false);
 
+    if(m_attackDelayTimer.isActive())
+        return (false);
 
     this->startAnimation(animationName,true);
     m_isAttacking = true;
     m_isWalking = false;
     //if(direction != glm::vec2(0))
         m_lookingDirection = direction;
+
+    m_attackDelayTimer.reset(m_attributes.attackDelay);
 
     return (true);
 }
@@ -86,7 +94,7 @@ bool Character::walkToDestination(const pou::Time& elapsedTime)
     glm::vec2 delta = m_destination - gpos;
     float ndelta    = glm::dot(delta,delta);
 
-    if(ndelta <= m_walkingSpeed*elapsedTime.count()*m_walkingSpeed*elapsedTime.count())
+    if(ndelta <= m_attributes.walkingSpeed*elapsedTime.count()*m_attributes.walkingSpeed*elapsedTime.count())
     {
         SceneNode:setGlobalPosition(m_destination);
         m_isDestinationSet = false;
@@ -142,7 +150,7 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
         m_walkingDirection = normalizedDelta;
         m_lookingDirection = normalizedDelta;
     } else {
-        float arcLength = m_walkingSpeed*elapsedTime.count();
+        float arcLength = m_attributes.walkingSpeed*elapsedTime.count();
         float normalizedArcLength = arcLength/rotationRadius;
 
         glm::vec2 relDest = {glm::dot(delta, coLookinDirection),
@@ -192,6 +200,8 @@ void Character::update(const pou::Time& elapsedTime)
 {
     bool wantToWalk = false;
 
+    m_attackDelayTimer.update(elapsedTime);
+
     if(m_isAttacking)
     {
         bool isAnimationFinished = true;
@@ -211,8 +221,8 @@ void Character::update(const pou::Time& elapsedTime)
         {
             m_walkingDirection = glm::normalize(m_walkingDirection);
 
-            glm::vec2 charMove = {m_walkingDirection.x*m_walkingSpeed*elapsedTime.count(),
-                                  m_walkingDirection.y*m_walkingSpeed*elapsedTime.count()};
+            glm::vec2 charMove = {m_walkingDirection.x*m_attributes.walkingSpeed*elapsedTime.count(),
+                                  m_walkingDirection.y*m_attributes.walkingSpeed*elapsedTime.count()};
 
             //m_lookingDirection = m_walkingDirection;
 
@@ -220,7 +230,7 @@ void Character::update(const pou::Time& elapsedTime)
             wantToWalk = true;
         }
 
-        if(m_walkingSpeed <= 0)
+        if(m_attributes.walkingSpeed <= 0)
             wantToWalk = false;
 
         if(wantToWalk && !m_isWalking)

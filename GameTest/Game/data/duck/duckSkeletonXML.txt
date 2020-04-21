@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<skeleton>
+	<node name="root"> 
+		<node name="body" z="0">
+			<node name="head" x="0" y="-18" z=".1" />
+			<node name="tail" x="0" y="29" z=".1" />
+			<node name="wingR" x="17" y="-1" z=".1" />
+			<node name="wingL" x="-17" y="-1" z=".1" />
+			<node name="legL" x="-8" y="12" z="-.1">
+				<node name="footL" x="-8" y="10" z="-.1" />
+			</node>
+			<node name="legR" x="8" y="12" z="-.1">
+				<node name="footR" x="8" y="10" z="-.1" />
+			</node>
+		</node>
+	</node>
+	
+	
+	<animation name="stand">
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="200" />
+			<command type="moveTo" node="body" y="0" rate="200" />
+			
+			<command type="rotateTo" node="head" z="0" rate="200" />
+			<command type="moveTo" node="head" y="0" rate="200" />
+			
+			<command type="rotateTo" node="tail" z="0" rate="200" />
+			<command type="rotateTo" node="wingR" z="0" rate="200" />
+			<command type="rotateTo" node="wingL" z="0" rate="200" />
+			
+			<command type="rotateTo" node="footR" z="30" rate="200" />
+			<command type="rotateTo" node="footL" z="-30" rate="200" />
+			
+			<command type="moveTo" node="legR" y="0" rate="200" />
+			<command type="moveTo" node="legL" y="0" rate="200" />
+		</frame>
+	</animation>
+	
+	<animation name="walk" loop="1">
+		<frame>
+			<command type="rotateTo" node="body" z="-10" rate="50" />
+			<command type="moveTo" node="head" y="4" rate="20" />
+			<command type="rotateTo" node="head" z="10" rate="50" />
+			<command type="rotateTo" node="tail" z="-20" rate="100" />
+			
+			<command type="moveTo" node="legR" y="-12" rate="60" />
+			<command type="moveTo" node="legL" y="12" rate="60" />
+		</frame>
+		
+		<frame>
+			<command type="rotateTo" node="body" z="10" rate="50" />
+			<command type="moveTo" node="head" y="-4" rate="20" />
+			<command type="rotateTo" node="head" z="-10" rate="50" />
+			<command type="rotateTo" node="tail" z="20" rate="100" />
+			
+			<command type="moveTo" node="legR" y="12" rate="60" />
+			<command type="moveTo" node="legL" y="-12" rate="60" />
+		</frame>
+	</animation>
+	
+	<animation name="attack">
+		<frame>
+			<command type="moveTo" node="head" y="0" rate="200" />
+			<command type="moveTo" node="body" y="0" rate="200" />
+			<command type="moveTo" node="legL" y="0" rate="200" />
+			<command type="moveTo" node="legR" y="0" rate="200" />
+			<command type="rotateTo" node="wingL" z="0" rate="200" />
+			<command type="rotateTo" node="wingR" z="0" rate="200" />
+		</frame>
+		<frame>
+			<command type="moveTo" node="head" y="-25" rate="125" />
+			<command type="moveTo" node="body" y="-10" rate="50" />
+			<command type="moveTo" node="legL" y="10" rate="50" />
+			<command type="moveTo" node="legR" y="10" rate="50" />
+			
+			<command type="rotateTo" node="wingL" z="40" rate="200" />
+			<command type="rotateTo" node="wingR" z="-40" rate="200" />
+			
+			<command type="scaleTo" node="footL" y="-.25" rate="3" />
+			<command type="scaleTo" node="footR" y="-.25" rate="3" />
+		</frame>
+		<frame speedFactor=".75">
+			<command type="moveTo" node="head" y="0" rate="125" />
+			<command type="moveTo" node="body" y="0" rate="50" />
+			<command type="moveTo" node="legL" y="0" rate="50" />
+			<command type="moveTo" node="legR" y="0" rate="50" />
+			
+			<command type="rotateTo" node="wingL" z="0" rate="200" />
+			<command type="rotateTo" node="wingR" z="0" rate="200" />
+			
+			<command type="scaleTo" node="footL" y="0" rate="3" />
+			<command type="scaleTo" node="footR" y="0" rate="3" />
+		</frame>
+	</animation>
+</skeleton>
+
+

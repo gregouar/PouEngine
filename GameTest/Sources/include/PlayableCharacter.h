@@ -9,6 +9,10 @@ class PlayableCharacter : public Character
         PlayableCharacter();
         virtual ~PlayableCharacter();
 
+        virtual bool loadModel(const std::string &path);
+
+        virtual void setWalkingSpeed(float speed);
+
         virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
         virtual bool attack(glm::vec2 direction = glm::vec2(0,0), const std::string &animationName = "attack");
         virtual void lookAt(glm::vec2 position);
@@ -21,18 +25,23 @@ class PlayableCharacter : public Character
     protected:
 
     private:
-        bool    m_isInCombatMode;
-        float   m_combatModeDelay;
+        //bool        m_isInCombatMode;
+        //float   m_combatModeDelay;
+        pou::Timer  m_combatModeTimer;
 
-        float       m_wantToAttackDelay;
+        //float       m_wantToAttackDelay;
+        pou::Timer  m_wantToAttackTimer;
         glm::vec2   m_wantToAttackDirection;
 
-        bool        m_isDashing;
+        pou::Timer  m_dashDelayTimer, m_dashTimer;
+        //bool        m_isDashing;
         glm::vec2   m_dashDirection;
-        float       m_dashDelay, m_dashTime;
+        //float       m_dashDelay, m_dashTime;
+
         float       m_normalWalkingSpeed;
 
-        float       m_wantToDashDelay;
+        pou::Timer  m_wantToDashTimer;
+        //float       m_wantToDashDelay;
         glm::vec2   m_wantToDashDirection;
 
         bool        m_isLateralWalking;

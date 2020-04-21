@@ -95,7 +95,6 @@
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/Asset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/AssetHandler.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/assets/CharacterModelAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
@@ -134,6 +133,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SimpleNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicVBO.h" />
@@ -168,7 +168,6 @@
 		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/AssetHandler.inc" />
-		<Unit filename="../../PouEngine/src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
@@ -206,6 +205,7 @@
 		<Unit filename="../../PouEngine/src/utils/Profiler.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicVBO.inc" />
@@ -222,9 +222,13 @@
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanExtProxies.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanHelpers.cpp" />
 		<Unit filename="include/Character.h" />
+		<Unit filename="include/PlayableCharacter.h" />
+		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Character.cpp" />
+		<Unit filename="src/PlayableCharacter.cpp" />
+		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/states/TestingState.cpp" />
 		<Extensions />
 	</Project>

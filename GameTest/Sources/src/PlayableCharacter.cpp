@@ -5,22 +5,22 @@ const float PlayableCharacter::DEFAULT_WANTTOATTACK_DELAY = .1f;
 const float PlayableCharacter::DEFAULT_DASH_DELAY = .5f;
 const float PlayableCharacter::DEFAULT_DASH_TIME = .15f;
 const float PlayableCharacter::DEFAULT_DASH_SPEED = 1500.0f;
-const float PlayableCharacter::DEFAULT_WANTTODASH_DELAY = .1f;
+const float PlayableCharacter::DEFAULT_WANTTODASH_DELAY = .5f;
 
 PlayableCharacter::PlayableCharacter() : Character()
 {
-    m_normalWalkingSpeed = 250.0f;
+    //m_normalWalkingSpeed = 250.0f;
 
-    m_isInCombatMode    = false;
-    m_combatModeDelay   = 0.0f;
+    //m_isInCombatMode    = false;
+    //m_combatModeDelay   = 0.0f;
 
-    m_wantToAttackDelay = 0.0f;
+    //m_wantToAttackDelay = 0.0f;
 
     m_isLateralWalking  = false;
     m_lookingAt         = glm::vec2(0);
 
-    m_isDashing         = false;
-    m_dashDelay         = 0.0f;
+    //m_isDashing         = false;
+    //m_dashDelay         = 0.0f;
 }
 
 PlayableCharacter::~PlayableCharacter()
@@ -29,15 +29,33 @@ PlayableCharacter::~PlayableCharacter()
 }
 
 
+bool PlayableCharacter::loadModel(const std::string &path)
+{
+    if(!Character::loadModel(path))
+        return (false);
+
+    m_normalWalkingSpeed = m_attributes.walkingSpeed;
+
+    return (true);
+}
+
+void PlayableCharacter::setWalkingSpeed(float speed)
+{
+    Character::setWalkingSpeed(speed);
+    m_normalWalkingSpeed = m_attributes.walkingSpeed;
+}
+
+
 void PlayableCharacter::askToAttack(glm::vec2 direction)
 {
-    m_wantToAttackDelay     = DEFAULT_WANTTOATTACK_DELAY;
+    //m_wantToAttackDelay     = DEFAULT_WANTTOATTACK_DELAY;
+    m_wantToAttackTimer.reset(DEFAULT_WANTTOATTACK_DELAY);
     m_wantToAttackDirection = direction;
 }
 
 bool PlayableCharacter::attack(glm::vec2 direction, const std::string &animationName)
 {
-    if(m_isDashing)
+    if(m_dashTimer.isActive())
         return (false);
 
     if(m_isAttacking)
@@ -57,19 +75,21 @@ void PlayableCharacter::lookAt(glm::vec2 position)
 
 void PlayableCharacter::forceAttackMode(bool force)
 {
-    m_isInCombatMode    = true;
-    m_combatModeDelay   = DEFAULT_COMBATMODE_DELAY;
+    //m_isInCombatMode    = true;
+    m_combatModeTimer.reset(DEFAULT_COMBATMODE_DELAY);
+    //m_combatModeDelay   = DEFAULT_COMBATMODE_DELAY;
 }
 
 void PlayableCharacter::askToDash(glm::vec2 direction)
 {
-    m_wantToDashDelay     = DEFAULT_WANTTODASH_DELAY;
+    //m_wantToDashDelay     = DEFAULT_WANTTODASH_DELAY;
     m_wantToDashDirection = direction;
+    m_wantToDashTimer.reset(DEFAULT_WANTTODASH_DELAY);
 }
 
 bool PlayableCharacter::dash(glm::vec2 direction)
 {
-    if(m_dashDelay > 0)
+    if(m_dashDelayTimer.isActive())
         return (false);
 
     ///Comment if we want dash to interrupt attack
@@ -77,20 +97,35 @@ bool PlayableCharacter::dash(glm::vec2 direction)
         return (false);
 
     m_isAttacking   = false;
-    m_isDashing     = true;
-    if(direction == glm::vec2())
+    //m_isDashing     = true;
+    if(direction == glm::vec2(0))
         m_dashDirection = m_lookingDirection;
     else
         m_dashDirection = direction;
-    m_dashDelay     = DEFAULT_DASH_DELAY;
-    m_dashTime      = DEFAULT_DASH_TIME;
+    //m_dashDelay     = DEFAULT_DASH_DELAY;
+    m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
+    //m_dashTime      = DEFAULT_DASH_TIME;
+    m_dashTimer.reset(DEFAULT_DASH_TIME);
 
     return (true);
 }
 
 void PlayableCharacter::update(const pou::Time &elapsedTime)
 {
-    if(m_wantToDashDelay > 0)
+    if(m_wantToDashTimer.isActive())
+    {
+        m_wantToDashTimer.update(elapsedTime);
+        if(this->dash(m_wantToDashDirection))
+            m_wantToDashTimer.reset(0);
+    }
+    else if(m_wantToAttackTimer.isActive())
+    {
+        m_wantToAttackTimer.update(elapsedTime);
+        if(this->attack(m_wantToAttackDirection))
+            m_wantToAttackTimer.reset(0);
+    }
+
+    /*if(m_wantToDashDelay > 0)
     {
         if(this->dash(m_wantToDashDirection))
             m_wantToDashDelay = 0;
@@ -111,16 +146,18 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
             if(m_wantToAttackDelay <= 0)
                 m_wantToAttackDelay = 0;
         }
-    }
+    }*/
 
-    if(m_dashDelay > 0)
+    m_dashDelayTimer.update(elapsedTime);
+    m_dashTimer.update(elapsedTime);
+    /*if(m_dashDelay > 0)
     {
         m_dashDelay -= elapsedTime.count();
         if(m_dashDelay <= 0)
             m_dashDelay = 0;
-    }
+    }*/
 
-    if(m_dashTime > 0)
+    /*if(m_dashTime > 0)
     {
         m_dashTime -= elapsedTime.count();
         if(m_dashTime <= 0)
@@ -128,29 +165,30 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
             m_dashTime = 0;
             m_isDashing = false;
         }
-    }
+    }*/
 
-    if(m_isDashing)
+    if(m_dashTimer.isActive())
     {
-        m_walkingSpeed      = DEFAULT_DASH_SPEED;
+        m_attributes.walkingSpeed      = DEFAULT_DASH_SPEED;
         /*m_walkingDirection  = m_dashDirection;
         m_isWalking         = true;*/
         Character::walk(m_dashDirection);
     }
-    else if(m_dashDelay > 0)
-        m_walkingSpeed = m_normalWalkingSpeed * .25f;
+    else if(m_dashDelayTimer.isActive())
+        m_attributes.walkingSpeed = m_normalWalkingSpeed * .25f;
     else
-        m_walkingSpeed = m_normalWalkingSpeed;
+        m_attributes.walkingSpeed = m_normalWalkingSpeed;
 
-    if(m_isInCombatMode)
+    if(m_combatModeTimer.isActive())
     {
-        m_combatModeDelay -= elapsedTime.count();
+        m_combatModeTimer.update(elapsedTime);
+        /*m_combatModeDelay -= elapsedTime.count();
 
         if(m_combatModeDelay <= 0)
         {
             m_combatModeDelay       = 0;
             m_isInCombatMode    = false;
-        }
+        }*/
 
         //if(!m_isAttacking)
             m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="duckSpritesheetXML.txt" />
+	
+	<skeleton path="duckSkeletonXML.txt">
+		<limb node="head" 	sprite="head" 	spritesheet="mainSpriteSheet" />
+		<limb node="body" 	sprite="body" 	spritesheet="mainSpriteSheet" />
+		<limb node="tail" 	sprite="tail" 	spritesheet="mainSpriteSheet" />
+		<limb node="wingL" 	sprite="wingL" 	spritesheet="mainSpriteSheet" />
+		<limb node="wingR" 	sprite="wingR" 	spritesheet="mainSpriteSheet" />
+		<limb node="legL" 	sprite="legL" 	spritesheet="mainSpriteSheet" />
+		<limb node="legR" 	sprite="legR" 	spritesheet="mainSpriteSheet" />
+		<limb node="footL" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
+		<limb node="footR" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
+	</skeleton>
+	
+	<attributes>
+		<walkingSpeed>150</walkingSpeed>
+		<attackDelay>1</attackDelay>
+	</attributes>
+</character>

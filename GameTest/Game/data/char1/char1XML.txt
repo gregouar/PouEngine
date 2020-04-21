@@ -14,4 +14,9 @@
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
 	</skeleton>
+	
+	<attributes>
+		<walkingSpeed>250</walkingSpeed>
+		<attackDelay>0</attackDelay>
+	</attributes>
 </character>
