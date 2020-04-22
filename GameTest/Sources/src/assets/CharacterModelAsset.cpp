@@ -82,7 +82,6 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
 
         targetCharacter->addChildNode(skeleton.get());
         //targetCharacter->m_skeletons.push_back(std::move(skeleton));
-        std::cout<<skeletonModel.first<<std::endl;
         targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
     }
 

@@ -159,13 +159,13 @@ bool Character::interrupt(float amount)
     if(!this->isAlive())
         return (false);
 
-    m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
+    if(!m_interruptTimer.isActive())
+        m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
     m_attackDelayTimer.reset(0);
     this->startAnimation("interrupt",true);
     m_isAttacking   = false;
     m_isWalking     = false;
 
-    //I guess return if interrupt occurs
     return interrupt;
 }
 
@@ -296,7 +296,7 @@ void Character::update(const pou::Time& elapsedTime)
     if(!m_isDead)
     {
         m_attackDelayTimer.update(elapsedTime);
-        if(m_interruptTimer.update(elapsedTime))
+        if(m_interruptTimer.update(elapsedTime) && !m_isAttacking)
             this->startAnimation("stand");
 
         if(m_interruptTimer.isActive()) {}

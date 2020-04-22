@@ -9,6 +9,7 @@
 			<node name="handR" x="10" y="-8" z=".3" />
 			<node name="weapon" x="-2" y="-10" z=".2">
 				<node name="weaponHB" z="1">
+					<rotate z=45 />
 				</node>
 			</node>
 			<node name="bodyHB" z=1 />
@@ -19,17 +20,18 @@
 	</node>
 	
 	<animation name="stand">
-		<frame>
-			<command type="rotateTo" node="body" z="0" rate="400" />
-			<command type="rotateTo" node="shoulderL" z="0" rate="400" />
-			<command type="rotateTo" node="shoulderR" z="0" rate="400" />
-			<command type="rotateTo" node="weapon" z="0" rate="400" />
-			<command type="moveTo" node="footR" x="0" y="0" rate="400" />
-			<command type="moveTo" node="footL" x="0" y="0" rate="400" />
-			<command type="scaleTo" node="bag" x="0" y="0" rate="10" />
-			<command type="rotateTo" node="bag" z="0" rate="400" />
+		<frame frameTime=".1">
+			<reset />
+			<!--<command type="rotateTo" node="body" z="0"  />
+			<command type="rotateTo" node="shoulderL" z="0" />
+			<command type="rotateTo" node="shoulderR" z="0"  />
+			<command type="rotateTo" node="weapon" z="0"  />
+			<command type="moveTo" node="footR" x="0" y="0"  />
+			<command type="moveTo" node="footL" x="0" y="0"  />
+			<command type="scaleTo" node="bag" x="0" y="0"  />
+			<command type="rotateTo" node="bag" z="0"  />-->
 			
-			<command type="rotateTo" node="weaponHB" z="45" rate="1000" />
+			<!--<command type="rotateTo" node="weaponHB" z="45" rate="1000" />-->
 		</frame>
 	</animation>
 	
@@ -148,14 +150,40 @@
 	</animation>
 	
 	<animation name="attack" loop="0">
-		<frame>
-			<command type="rotateTo" node="body" z="0" rate="500" />
+		<frame frameTime=.01>
+			<!--<command type="rotateTo" node="body" z="0" rate="500" />
 			<command type="rotateTo" node="weapon" z="0" rate="500" />
 			<command type="moveTo" node="handR"  x="0" y="0" rate="50" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="500" />
-			<command type="moveTo" node="head" y="0" rate="50" />
+			<command type="moveTo" node="head" y="0" rate="50" />-->
+			<reset />
 		</frame>
-		<frame speedFactor="1.5">
+		<frame frameTime=".1">
+			<command type="rotateTo" node="body" z="10"  />
+			<command type="rotateTo" node="weapon" z="40" />
+			<command type="rotateTo" node="handR" z="40"  />
+			<command type="moveTo" node="handR" x="0" y="2" />
+			<command type="rotateTo" node="shoulderR" z="10" />
+			<command type="moveTo" node="head" y="2"  />
+		</frame>
+		<frame frameTime=".2">
+			<tag>attack</tag>
+			<command type="rotateTo" node="body" z="-30"  />
+			<command type="rotateTo" node="weapon" z="-90" />
+			<command type="rotateTo" node="handR" z="-90"/>
+			<command type="moveTo" node="handR" x="-8" y="-10" />
+			<command type="rotateTo" node="shoulderR" z="-30"  />
+			<command type="moveTo" node="head" y="-2" />
+		</frame>
+		<frame frameTime=".3">
+			<command type="rotateTo" node="body" z="0"  />
+			<command type="rotateTo" node="weapon" z="0"  />
+			<command type="rotateTo" node="handR" z="0"  />
+			<command type="moveTo" node="handR" x="0" y="0" />
+			<command type="rotateTo" node="shoulderR" z="0"  />
+			<command type="moveTo" node="head" y="0"  />
+		</frame>
+		<!--<frame speedFactor="1.5" >
 			<command type="rotateTo" node="body" z="10" rate="50" />
 			<command type="rotateTo" node="weapon" z="40" rate="200" />
 			<command type="rotateTo" node="handR" z="40" rate="200" />
@@ -179,7 +207,7 @@
 			<command type="moveTo" node="handR" x="0" y="0" rate="40" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="300" />
 			<command type="moveTo" node="head" y="0" rate="20" />
-		</frame>
+		</frame>-->
 	</animation>
 </skeleton>
 

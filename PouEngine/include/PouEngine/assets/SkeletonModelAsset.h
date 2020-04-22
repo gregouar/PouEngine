@@ -12,11 +12,13 @@
 namespace pou
 {
 
+class SkeletalAnimationFrameModel;
 
 class SkeletalAnimationCommandModel
 {
     public:
-        SkeletalAnimationCommandModel();
+        SkeletalAnimationCommandModel(SkeletalAnimationFrameModel *frameModel, SkelAnimCmdType type = Unknown_Command,
+                                      const std::string &node = std::string());
         virtual ~SkeletalAnimationCommandModel();
 
         bool loadFromXml(TiXmlElement *element);
@@ -24,9 +26,11 @@ class SkeletalAnimationCommandModel
         SkelAnimCmdType getType() const;
         std::pair<const glm::vec3&,const glm::vec3&> getAmount() const;
         float getRate() const;
+        float getFrameTime() const;
         const std::string &getNode() const;
 
     private:
+        SkeletalAnimationFrameModel *m_frameModel;
         SkelAnimCmdType m_type;
 
         glm::vec3   m_amount, m_enabledDirection;
@@ -43,10 +47,11 @@ class SkeletalAnimationFrameModel
         SkeletalAnimationFrameModel();
         virtual ~SkeletalAnimationFrameModel();
 
-        bool loadFromXml(TiXmlElement *element);
+        bool loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes = nullptr);
 
         const std::list<SkeletalAnimationCommandModel> *getCommands();
-        float getSpeedFactor();
+        float getFrameTime() const;
+        float getSpeedFactor() const;
 
         bool hasTag(const std::string &tag);
 
@@ -59,6 +64,7 @@ class SkeletalAnimationFrameModel
         std::set<std::string> m_tags;
 
         float m_speedFactor;
+        float m_frameTime;
 };
 
 class SkeletalAnimationModel
@@ -67,7 +73,7 @@ class SkeletalAnimationModel
         SkeletalAnimationModel();
         virtual ~SkeletalAnimationModel();
 
-        bool loadFromXml(TiXmlElement *element);
+        bool loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes = nullptr);
 
         SkeletalAnimationFrameModel* nextFrame(SkeletalAnimationFrameModel* curFrame);
 

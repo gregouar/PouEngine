@@ -14,8 +14,8 @@
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
 		
-		<!--<limb node="weaponHB" sprite="swordHBTest" spritesheet="mainSpriteSheet" />
-		<limb node="bodyHB" sprite="bodyHBTest" spritesheet="mainSpriteSheet" />-->
+		<limb node="weaponHB" sprite="swordHBTest" spritesheet="mainSpriteSheet" />
+		<limb node="bodyHB" sprite="bodyHBTest" spritesheet="mainSpriteSheet" />
 	</skeleton>
 	
 	<hitboxes>
@@ -35,7 +35,7 @@
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>
-		<life>100</life>
+		<life>1000</life>
 		<attackDamages>25</attackDamages>
 	</attributes>
 </character>

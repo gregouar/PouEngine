@@ -211,8 +211,14 @@ void SkeletalAnimationCommand::computeAmount()
 
 bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 {
-    float a = elapsedTime.count() * m_model->getRate();
+    glm::vec3 a = glm::vec3(elapsedTime.count()); // * m_model->getRate();
     glm::vec3 absAmount = glm::abs(m_amount);
+
+    if(m_model->getRate() > 0)
+        a = a * m_model->getRate();
+    else
+        a = a * absAmount/m_model->getFrameTime();
+       // std::cout<<m_model->getFrameTime()<<std::endl;
 
     bool finished = true;
 
@@ -225,40 +231,40 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     glm::vec3 finalAmount(0.0);
 
-    if(m_value.x + a >= absAmount.x)
+    if(m_value.x + a.x >= absAmount.x)
     {
         finalAmount.x = sign.x * (absAmount.x - m_value.x);
         m_enabledDirection.x = 0;
     }
     else
     {
-        finalAmount.x = sign.x * a;
+        finalAmount.x = sign.x * a.x;
         finished = false;
     }
 
-    if(m_value.y + a >= absAmount.y)
+    if(m_value.y + a.y >= absAmount.y)
     {
         finalAmount.y = sign.y * (absAmount.y - m_value.y);
         m_enabledDirection.y = 0;
     }
     else
     {
-        finalAmount.y = sign.y * a;
+        finalAmount.y = sign.y * a.y;
         finished = false;
     }
 
-    if(m_value.z + a >= absAmount.z)
+    if(m_value.z + a.z >= absAmount.z)
     {
         finalAmount.z = sign.z * (absAmount.z - m_value.z);
         m_enabledDirection.z = 0;
     }
     else
     {
-        finalAmount.z = sign.z * a;
+        finalAmount.z = sign.z * a.z;
         finished = false;
     }
 
-    m_value += a * glm::vec3(1.0);
+    m_value += a;
 
     if(m_model->getType() == Move_To)
     {

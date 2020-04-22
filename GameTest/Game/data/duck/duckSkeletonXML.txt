@@ -9,10 +9,14 @@
 			<node name="wingR" x="17" y="-1" z=".1" />
 			<node name="wingL" x="-17" y="-1" z=".1" />
 			<node name="legL" x="-8" y="12" z="-.1">
-				<node name="footL" x="-8" y="10" z="-.1" />
+				<node name="footL" x="-8" y="10" z="-.1">
+					<rotate z="-30" />
+				</node>
 			</node>
 			<node name="legR" x="8" y="12" z="-.1">
-				<node name="footR" x="8" y="10" z="-.1" />
+				<node name="footR" x="8" y="10" z="-.1" >
+					<rotate z="30" />
+				</node>
 			</node>
 			
 			<node name="bodyHB" z=1 />
@@ -20,23 +24,24 @@
 	</node>
 	
 	
-	<animation name="stand">
-		<frame>
-			<command type="rotateTo" node="body" z="0" rate="200" />
-			<command type="moveTo" node="body" y="0" rate="200" />
+	<animation name="stand" >
+		<frame frameTime=".1">
+			<reset />
+			<!--<command type="rotateTo" node="body" z="0"  />
+			<command type="moveTo" node="body" y="0"  />
 			
-			<command type="rotateTo" node="head" z="0" rate="200" />
-			<command type="moveTo" node="head" y="0" rate="200" />
+			<command type="rotateTo" node="head" z="0" />
+			<command type="moveTo" node="head" y="0"  />
 			
-			<command type="rotateTo" node="tail" z="0" rate="200" />
-			<command type="rotateTo" node="wingR" z="0" rate="200" />
-			<command type="rotateTo" node="wingL" z="0" rate="200" />
+			<command type="rotateTo" node="tail" z="0" />
+			<command type="rotateTo" node="wingR" z="0"  />
+			<command type="rotateTo" node="wingL" z="0"  />
 			
-			<command type="rotateTo" node="footR" z="30" rate="200" />
-			<command type="rotateTo" node="footL" z="-30" rate="200" />
+			<command type="rotateTo" node="footR" z="30"  />
+			<command type="rotateTo" node="footL" z="-30"  />
 			
-			<command type="moveTo" node="legR" y="0" rate="200" />
-			<command type="moveTo" node="legL" y="0" rate="200" />
+			<command type="moveTo" node="legR" y="0"  />
+			<command type="moveTo" node="legL" y="0"  />-->
 		</frame>
 	</animation>
 	
@@ -59,15 +64,15 @@
 			<command type="moveTo" node="legL" y="0" rate="200" />
 		</frame>-->
 		
-		<frame>
-			<command type="moveTo" node="head" y=6 rate=200 />
-			<command type="scaleTo" node="head" y=-.1 x=-.1 rate=10 />
-			<command type="scaleTo" node="tail" y=.2 x=.2 rate=10 />
-			<command type="rotateTo" node="head" z=10 rate=100 />
-			<command type="rotateTo" node="wingL" z=40 rate=400 />
-			<command type="rotateTo" node="wingR" z=-40 rate=400 />
-			<command type="moveTo" node="legL" x=-8 y=8 rate=80 />
-			<command type="moveTo" node="legR" x=8 y=8 rate=80 />
+		<frame frameTime=".15">
+			<command type="moveTo" node="head" y=6  />
+			<command type="scaleTo" node="head" y=-.1 x=-.1 />
+			<command type="scaleTo" node="tail" y=.2 x=.2  />
+			<command type="rotateTo" node="head" z=10 />
+			<command type="rotateTo" node="wingL" z=40 />
+			<command type="rotateTo" node="wingR" z=-40 />
+			<command type="moveTo" node="legL" x=-8 y=8 />
+			<command type="moveTo" node="legR" x=8 y=8 />
 		</frame>
 	</animation>
 	
@@ -82,8 +87,10 @@
 			<command type="rotateTo" node="wingR" z=-90 rate=400 />
 			<command type="moveTo" node="legL" x=-8 y=8 rate=80 />
 			<command type="moveTo" node="legR" x=8 y=8 rate=80 />
-			<command type="rotateTo" node="footL" z=-90 rate=1000 />
-			<command type="rotateTo" node="footR" z=90 rate=1000 />
+			<command type="rotateTo" node="footL" z=-120 rate=1000 />
+			<command type="rotateTo" node="footR" z=120 rate=1000 />
+			
+			<command type="moveTo" node="body" z=-.5 rate=1 />
 		</frame>
 	</animation>
 	

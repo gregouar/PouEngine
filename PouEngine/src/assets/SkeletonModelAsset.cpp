@@ -124,6 +124,27 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
 
     rootNode->setPosition(nodePos);
 
+    auto rotElement = element->FirstChildElement("rotate");
+    if(rotElement != nullptr)
+    {
+        glm::vec3 rotation = glm::vec3(0);
+        auto att = rotElement->Attribute("x");
+        if(att != nullptr)
+            rotation.x = Parser::parseFloat(att);
+
+        att = rotElement->Attribute("y");
+        if(att != nullptr)
+            rotation.y = Parser::parseFloat(att);
+
+        att = rotElement->Attribute("z");
+        if(att != nullptr)
+            rotation.z = Parser::parseFloat(att);
+
+        std::cout<<rotation.z<<std::endl;
+
+        rootNode->rotate(rotation,false);
+    }
+
     auto child = element->FirstChildElement("node");
     if(child == nullptr)
         return;
@@ -150,7 +171,7 @@ void SkeletonModelAsset::loadAnimation(TiXmlElement *element)
         animationName = "Animation"+std::to_string(m_animations.size());
 
     animationModel->setName(animationName);
-    animationModel->loadFromXml(element);
+    animationModel->loadFromXml(element, &m_nodesByName);
 
     if(!m_animations.insert(std::make_pair(animationName,std::move(animationModel))).second)
         Logger::warning("Multiple animations named \""+animationName+"\" in the skeleton : "+m_filePath);
@@ -191,7 +212,7 @@ SkeletalAnimationModel::~SkeletalAnimationModel()
 
 }
 
-bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element)
+bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes)
 {
     auto loopAtt = element->Attribute("loop");
     if(loopAtt != nullptr)
@@ -202,7 +223,7 @@ bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element)
     while(frameElement != nullptr)
     {
         m_frames.push_back(SkeletalAnimationFrameModel ());
-        m_frames.back().loadFromXml(frameElement->ToElement());
+        m_frames.back().loadFromXml(frameElement->ToElement(), mapOfNodes);
         if(lastFrame != nullptr)
             lastFrame->setNextFrame(&m_frames.back());
         lastFrame = &m_frames.back();
@@ -247,6 +268,7 @@ bool SkeletalAnimationModel::isLooping()
 SkeletalAnimationFrameModel::SkeletalAnimationFrameModel() :
     m_nextFrame(nullptr)
 {
+    m_frameTime   = 0.0f;
     m_speedFactor = 1.0f;
 }
 
@@ -255,11 +277,15 @@ SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
 
 }
 
-bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element)
+bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes )
 {
     auto speedAtt = element->Attribute("speedFactor");
     if(speedAtt != nullptr)
         m_speedFactor = Parser::parseFloat(speedAtt);
+
+    auto timeAtt = element->Attribute("frameTime");
+    if(timeAtt != nullptr)
+        m_frameTime = Parser::parseFloat(timeAtt);
 
     /*auto tagAtt = element->Attribute("tag");
     if(tagAtt != nullptr)
@@ -275,9 +301,31 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element)
     auto commandElement = element->FirstChildElement("command");
     while(commandElement != nullptr)
     {
-        m_commands.push_back(SkeletalAnimationCommandModel ());
+        m_commands.push_back(SkeletalAnimationCommandModel (this));
         m_commands.back().loadFromXml(commandElement->ToElement());
         commandElement = commandElement->NextSiblingElement("command");
+    }
+
+    commandElement = element->FirstChildElement("reset");
+    while(commandElement != nullptr)
+    {
+        auto att = commandElement->ToElement()->Attribute("node");
+        if(att != nullptr)
+        {
+            std::string nodeName = std::string(att);
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,nodeName));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,nodeName));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,nodeName));
+        }
+        else
+        for(const auto n : *mapOfNodes)
+        {
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,n.first));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,n.first));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,n.first));
+        }
+
+        commandElement = commandElement->NextSiblingElement("reset");
     }
 
     return (true);
@@ -288,10 +336,16 @@ const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::get
     return &m_commands;
 }
 
-float SkeletalAnimationFrameModel::getSpeedFactor()
+float SkeletalAnimationFrameModel::getSpeedFactor() const
 {
     return m_speedFactor;
 }
+
+float SkeletalAnimationFrameModel::getFrameTime() const
+{
+    return m_frameTime;
+}
+
 
 bool SkeletalAnimationFrameModel::hasTag(const std::string &tag)
 {
@@ -308,12 +362,18 @@ void SkeletalAnimationFrameModel::setNextFrame(SkeletalAnimationFrameModel *next
 /// SkeletalAnimationCommandModel   ///
 /**                                 **/
 
-SkeletalAnimationCommandModel::SkeletalAnimationCommandModel() :
-    m_type(Unknown_Command),
-    m_rate(0)
+SkeletalAnimationCommandModel::SkeletalAnimationCommandModel(SkeletalAnimationFrameModel *frameModel,
+                                        SkelAnimCmdType type, const std::string &node) :
+    m_frameModel(frameModel),
+    m_type(type),
+    m_rate(0),
+    m_node(node)
 {
     m_amount = {0,0,0};
-    m_enabledDirection = {false,false,false};
+    if(type != Unknown_Command)
+        m_enabledDirection = {true,true,true};
+    else
+        m_enabledDirection = {false,false,false};
 }
 
 SkeletalAnimationCommandModel::~SkeletalAnimationCommandModel()
@@ -373,6 +433,13 @@ std::pair<const glm::vec3&,const glm::vec3&> SkeletalAnimationCommandModel::getA
 float SkeletalAnimationCommandModel::getRate() const
 {
     return m_rate;
+}
+
+float SkeletalAnimationCommandModel::getFrameTime() const
+{
+    if(m_frameModel == nullptr)
+        return (0.0f);
+    return m_frameModel->getFrameTime();
 }
 
 const std::string &SkeletalAnimationCommandModel::getNode() const

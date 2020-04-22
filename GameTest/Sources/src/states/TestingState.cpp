@@ -94,7 +94,13 @@ void TestingState::init()
     m_duck->setPosition(-200,70,1);
     m_scene->getRootNode()->addChildNode(m_duck);
 
-
+    for(auto i = 1 ; i < 10 ; i++)
+    {
+        m_duckSwarm.push_back(new Character());
+        m_duckSwarm.back()->loadModel("../data/duck/duckXML.txt");
+        m_duckSwarm.back()->setPosition(glm::linearRand(-1000*i,1000*i),glm::linearRand(-1000*i,1000*i),1);
+        m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
+    }
 
     pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grassXML.txt");
 
@@ -212,6 +218,10 @@ void TestingState::leaving()
 
     delete m_duck;
     m_duck = nullptr;
+
+    for(auto duck : m_duckSwarm)
+        delete duck;
+    m_duckSwarm.clear();
 }
 
 void TestingState::revealed()
@@ -256,6 +266,16 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
             m_duck->setDestination(m_character->getGlobalXYPosition()+nDist*95.0f);
         } else
             m_duck->attack(m_character->getGlobalXYPosition() - m_duck->getGlobalXYPosition());
+
+        for(auto duck : m_duckSwarm)
+        {
+            if(glm::length(duck->getGlobalXYPosition() - m_character->getGlobalXYPosition()) > 100.0f)
+            {
+                glm::vec2 nDist = glm::normalize(duck->getGlobalXYPosition() - m_character->getGlobalXYPosition());
+                duck->setDestination(m_character->getGlobalXYPosition()+nDist*95.0f);
+            } else
+                duck->attack(m_character->getGlobalXYPosition() - duck->getGlobalXYPosition());
+        }
     }
 
 
@@ -331,6 +351,12 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     m_character->addToNearbyCharacters(m_duck);
     m_duck->addToNearbyCharacters(m_character);
+
+    for(auto duck : m_duckSwarm)
+    {
+        m_character->addToNearbyCharacters(duck);
+        duck->addToNearbyCharacters(m_character);
+    }
 
     //m_testChar->rotate(1.0*elapsedTime.count());
 

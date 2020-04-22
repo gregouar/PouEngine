@@ -8,6 +8,8 @@ int main()
 {
     pou::Logger::instance();
 
+    srand (time(NULL));
+
     try {
         pou::VAppCreateInfos createInfos;
         createInfos.name = "ProjectW";
