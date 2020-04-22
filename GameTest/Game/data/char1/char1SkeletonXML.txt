@@ -33,6 +33,34 @@
 		</frame>
 	</animation>
 	
+	<animation name="interrupt">
+		<frame>
+			<command type="rotateTo" node="body" z="0" rate="400" />
+			<command type="rotateTo" node="shoulderL" z="0" rate="400" />
+			<command type="rotateTo" node="shoulderR" z="0" rate="400" />
+			<!--<command type="rotateTo" node="weapon" z="0" rate="400" />-->
+			<command type="moveTo" node="footR" x="0" y="0" rate="400" />
+			<command type="moveTo" node="footL" x="0" y="0" rate="400" />
+			<command type="scaleTo" node="bag" x="0" y="0" rate="10" />
+			<command type="rotateTo" node="bag" z="0" rate="400" />
+			
+			<command type="scaleTo" node="bag" x=.2 y=.2 rate=2 />
+			<command type="rotateTo" node="weapon" z=30 rate=400 />
+			<command type="rotateTo" node="head" z=30 rate=400 />
+			<command type="moveTo" node="head" y=4 rate=100 />
+			<command type="rotateTo" node="shoulderR" z=20 rate=400 />
+			<command type="rotateTo" node="shoulderL" z=-20 rate=400 />
+		</frame>
+		<frame>
+			<command type="scaleTo" node="bag" x=0 y=0 rate=2 />
+			<command type="rotateTo" node="weapon" z=0 rate=400 />
+			<command type="rotateTo" node="head" z=0 rate=400 />
+			<command type="moveTo" node="head" y=0 rate=100 />
+			<command type="rotateTo" node="shoulderR" z=0 rate=400 />
+			<command type="rotateTo" node="shoulderL" z=0 rate=400 />
+		</frame>
+	</animation>
+	
 	<animation name="walk" loop="1">
 		<frame>
 			<command type="rotateTo" node="body" z="-20" rate="100" />

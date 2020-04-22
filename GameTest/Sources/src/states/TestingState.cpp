@@ -260,7 +260,12 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
 
     if(eventsManager->keyPressed(GLFW_KEY_U))
-        m_activeDuck = !m_activeDuck;
+    {
+        if(m_duck->isAlive())
+            m_activeDuck = !m_activeDuck;
+        else
+            m_duck->resurrect();
+    }
 
     if(eventsManager->keyPressed(GLFW_KEY_C))
         m_activeCroc = !m_activeCroc;

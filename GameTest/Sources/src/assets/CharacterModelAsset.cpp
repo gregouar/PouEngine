@@ -301,7 +301,10 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 
     e = element->FirstChildElement("life");
     if(e != nullptr)
-        m_attributes.life = pou::Parser::parseFloat(e->GetText());
+    {
+        m_attributes.life       = pou::Parser::parseFloat(e->GetText());
+        m_attributes.maxLife    = m_attributes.life;
+    }
 
     e = element->FirstChildElement("attackDamages");
     if(e != nullptr)

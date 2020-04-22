@@ -30,11 +30,17 @@ class Character : public pou::SceneNode
         void walk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");
 
+        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0));
+        virtual bool interrupt(float amount);
+        virtual bool resurrect();
+
         void startAnimation(const std::string &name, bool forceStart = false);
 
         void addToNearbyCharacters(Character *character);
 
         virtual void update(const pou::Time &elapsedTime);
+
+        bool isAlive() const;
 
         const std::list<Hitbox> *getHitboxes() const;
         const std::list<Hitbox> *getHurtboxes() const;
@@ -53,6 +59,7 @@ class Character : public pou::SceneNode
 
 
     protected:
+        bool      m_isDead;
         bool      m_isWalking;
         bool      m_isAttacking;
         glm::vec2 m_walkingDirection;
@@ -60,10 +67,15 @@ class Character : public pou::SceneNode
 
         pou::Timer m_attackDelayTimer;
 
+        glm::vec2   m_pushVelocity;
+        pou::Timer  m_pushTimer;
+        pou::Timer  m_interruptTimer;
+
         //float m_walkingSpeed;
         CharacterAttributes m_attributes;
 
-        std::list<Character*> m_nearbyCharacters;
+        std::list<Character*>   m_nearbyCharacters;
+        std::set<Character*>    m_alreadyHitCharacters;
 
     private:
         CharacterModelAsset *m_model;
@@ -75,6 +87,8 @@ class Character : public pou::SceneNode
 
         bool m_isDestinationSet;
         glm::vec2 m_destination;
+
+        static const float DEFAULT_INTERRUPT_DELAY;
 };
 
 #endif // CHARACTER_H

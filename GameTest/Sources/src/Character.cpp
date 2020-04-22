@@ -9,6 +9,8 @@
 
 typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
+const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
+
 Character::Character() : SceneNode(-1,nullptr)
 {
     m_model             = nullptr;
@@ -18,6 +20,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_isDestinationSet  = false;
     m_destination       = {0,0};
 
+    m_isDead            = false;
     m_isWalking         = true;
     m_isAttacking       = false;
     m_walkingDirection  = {0,0};
@@ -96,7 +99,13 @@ void Character::walk(glm::vec2 direction)
 
 bool Character::attack(glm::vec2 direction, const std::string &animationName)
 {
+    if(m_isDead)
+        return (false);
+
     if(m_isAttacking)
+        return (false);
+
+    if(m_interruptTimer.isActive())
         return (false);
 
     if(m_attackDelayTimer.isActive())
@@ -110,6 +119,63 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
 
     m_attackDelayTimer.reset(m_attributes.attackDelay);
 
+    return (true);
+}
+
+bool Character::damage(float damages, glm::vec2 direction)
+{
+    bool isFatal = false;
+    m_attributes.life -= damages;
+    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
+
+    if(m_attributes.life <= 0)
+    {
+        m_attributes.life  = 0;
+        if(!m_isDead)
+        {
+            this->startAnimation("death",true);
+            isFatal = true;
+        }
+        m_isDead        = true;
+        m_isAttacking   = false;
+        m_isWalking     = false;
+    }
+    //Do something to compute interrupt amount ?
+    this->interrupt(damages);
+
+    if(direction != glm::vec2(0) && damages >= m_attributes.maxLife*.25)
+    {
+        m_pushTimer.reset(.1f);
+        m_pushVelocity = glm::normalize(direction)*200.0f;
+    }
+
+    return isFatal;
+}
+
+bool Character::interrupt(float amount)
+{
+    bool interrupt = true;
+
+    if(!this->isAlive())
+        return (false);
+
+    m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
+    m_attackDelayTimer.reset(0);
+    this->startAnimation("interrupt",true);
+    m_isAttacking   = false;
+    m_isWalking     = false;
+
+    //I guess return if interrupt occurs
+    return interrupt;
+}
+
+bool Character::resurrect()
+{
+    if(this->isAlive())
+        return (false);
+
+    m_attributes.life = m_attributes.maxLife;
+    m_isDead = false;
     return (true);
 }
 
@@ -223,13 +289,23 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
 
 void Character::update(const pou::Time& elapsedTime)
 {
-    m_attackDelayTimer.update(elapsedTime);
+    if(m_pushTimer.isActive())
+        this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
+    m_pushTimer.update(elapsedTime);
 
-    if(m_isAttacking)
-        this->updateAttacking(elapsedTime);
-    else
-        this->updateWalking(elapsedTime);
-    this->updateLookingDirection(elapsedTime);
+    if(!m_isDead)
+    {
+        m_attackDelayTimer.update(elapsedTime);
+        if(m_interruptTimer.update(elapsedTime))
+            this->startAnimation("stand");
+
+        if(m_interruptTimer.isActive()) {}
+        else if(m_isAttacking)
+            this->updateAttacking(elapsedTime);
+        else
+            this->updateWalking(elapsedTime);
+        this->updateLookingDirection(elapsedTime);
+    }
 
     m_nearbyCharacters.clear();
 
@@ -276,7 +352,8 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
         isAnimationFinished = isAnimationFinished & !skeleton.second->isInAnimation();
         if(skeleton.second->hasTag("attack"))
         for(auto c : m_nearbyCharacters)
-        if(c != nullptr && c->getHurtboxes() != nullptr)
+        if(c != nullptr && c->isAlive() && c->getHurtboxes() != nullptr
+           && m_alreadyHitCharacters.find(c) == m_alreadyHitCharacters.end())
         for(const auto hurtBox : *c->getHurtboxes())
         if(this->getHitboxes() != nullptr)
         for(const auto hitBox : *this->getHitboxes())
@@ -292,21 +369,23 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 
                 if(hitNode != nullptr && hurtNode != nullptr)
                 {
-                    std::cout<<pou::MathTools::detectBoxCollision(hitBox.box,hurtBox.box,
-                                                                  hitNode,hurtNode)<<std::endl;
-                    //hitNode->getModelMatrix();
+                    bool collision = pou::MathTools::detectBoxCollision(hitBox.box,hurtBox.box,
+                                                                        hitNode,hurtNode);
+                    if(collision)
+                    {
+                        m_alreadyHitCharacters.insert(c);
+                        float damages = m_attributes.attackDamages * hitBox.factor * hurtBox.factor;
+                        c->damage(damages,c->getGlobalXYPosition()-this->getGlobalXYPosition());
+                    }
                 }
             }
-
-            //hurt.skeleton
-            //apply transformation matrices
-            //testCollision(hurt,hit);
         }
     }
 
     if(isAnimationFinished)
     {
         m_isAttacking = false;
+        m_alreadyHitCharacters.clear();
         this->startAnimation("stand", true);
     }
 }
@@ -337,6 +416,12 @@ void Character::startAnimation(const std::string &name, bool forceStart)
 void Character::addToNearbyCharacters(Character *character)
 {
     m_nearbyCharacters.push_back(character);
+}
+
+
+bool Character::isAlive() const
+{
+    return (!m_isDead);
 }
 
 const std::list<Hitbox> *Character::getHitboxes() const

@@ -35,6 +35,7 @@ struct CharacterAttributes
         {}
     float walkingSpeed;
     float attackDelay;
+    float maxLife;
     float life;
     float attackDamages;
 };

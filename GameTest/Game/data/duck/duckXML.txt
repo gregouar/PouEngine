@@ -14,8 +14,8 @@
 		<limb node="footR" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
 		
 		
-		<limb node="beakHB" 	sprite="beakHBTest" 	spritesheet="mainSpriteSheet" />
-		<limb node="bodyHB" 	sprite="bodyHBTest" 	spritesheet="mainSpriteSheet" />
+		<!--<limb node="beakHB" 	sprite="beakHBTest" 	spritesheet="mainSpriteSheet" />
+		<limb node="bodyHB" 	sprite="bodyHBTest" 	spritesheet="mainSpriteSheet" />-->
 	</skeleton>
 	
 	<hitboxes>
