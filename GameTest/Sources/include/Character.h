@@ -13,29 +13,41 @@
 
 class Character : public pou::SceneNode
 {
+    //friend class CharacterModelAsset;
+
     public:
         Character();
         virtual ~Character();
 
         virtual bool loadModel(const std::string &path);
+        virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
+        virtual bool addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name);
 
         virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
 
         void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
-
         virtual bool attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");
 
         void startAnimation(const std::string &name, bool forceStart = false);
 
+        void addToNearbyCharacters(Character *character);
+
         virtual void update(const pou::Time &elapsedTime);
+
+        const std::list<Hitbox> *getHitboxes() const;
+        const std::list<Hitbox> *getHurtboxes() const;
 
     protected:
         void cleanup();
 
         bool walkToDestination(const pou::Time& elapsedTime);
         void rotateToDestination(const pou::Time& elapsedTime, glm::vec2 destination, float rotationRadius);
+
+        virtual void updateWalking(const pou::Time &elapsedTime);
+        virtual void updateAttacking(const pou::Time &elapsedTime);
+        virtual void updateLookingDirection(const pou::Time &elapsedTime);
 
         float computeWantedRotation(float startingRotation, glm::vec2 position);
 
@@ -51,16 +63,18 @@ class Character : public pou::SceneNode
         //float m_walkingSpeed;
         CharacterAttributes m_attributes;
 
+        std::list<Character*> m_nearbyCharacters;
+
     private:
+        CharacterModelAsset *m_model;
+
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
-        std::list<std::unique_ptr<pou::Skeleton> > m_skeletons;
+        std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         float m_rotationRadius;
 
         bool m_isDestinationSet;
         glm::vec2 m_destination;
-
-
 };
 
 #endif // CHARACTER_H

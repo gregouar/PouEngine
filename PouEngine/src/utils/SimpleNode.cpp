@@ -575,6 +575,43 @@ void SimpleNode::updateModelMatrix()
     if(m_rigidity == 1.0 && m_parent != nullptr)
     {
         m_modelMatrix       = m_parent->getModelMatrix() * m_modelMatrix;
+      //  m_invModelMatrix    = m_parent->getInvModelMatrix();
+    }// else
+        m_invModelMatrix = glm::mat4(1.0);
+
+    m_invModelMatrix = glm::scale(m_invModelMatrix, 1.0f/m_scale);
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
+    m_invModelMatrix = glm::translate(m_invModelMatrix, -m_position);
+
+    if(m_rigidity != 1.0 && m_parent != nullptr)
+        m_invModelMatrix = glm::translate(m_invModelMatrix, -m_parent->getGlobalPosition());
+
+    if(m_rigidity == 1.0 && m_parent != nullptr)
+        m_invModelMatrix = m_invModelMatrix * m_parent->getInvModelMatrix();
+
+    m_needToUpdateModelMat = false;
+    this->sendNotification(Notification_NodeMoved);
+}
+
+
+/*{
+if(m_rigidity != 1.0 && m_parent != nullptr)
+        m_modelMatrix = glm::translate(glm::mat4(1.0), m_parent->getGlobalPosition());
+    else
+        m_modelMatrix = glm::mat4(1.0);
+
+
+    m_modelMatrix = glm::translate(m_modelMatrix, m_position);
+    m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
+    m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
+    m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
+    m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
+
+    if(m_rigidity == 1.0 && m_parent != nullptr)
+    {
+        m_modelMatrix       = m_parent->getModelMatrix() * m_modelMatrix;
         m_invModelMatrix    = m_parent->getInvModelMatrix();
     } else
         m_invModelMatrix = glm::mat4(1.0);
@@ -590,7 +627,7 @@ void SimpleNode::updateModelMatrix()
 
     m_needToUpdateModelMat = false;
     this->sendNotification(Notification_NodeMoved);
-}
+}*/
 
 
 void SimpleNode::computeFlexibleMove(glm::vec3 m)

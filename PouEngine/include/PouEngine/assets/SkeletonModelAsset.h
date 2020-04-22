@@ -37,7 +37,6 @@ class SkeletalAnimationCommandModel
 
 class SkeletalAnimationFrameModel
 {
-
     friend class SkeletalAnimationModel;
 
     public:
@@ -49,12 +48,15 @@ class SkeletalAnimationFrameModel
         const std::list<SkeletalAnimationCommandModel> *getCommands();
         float getSpeedFactor();
 
+        bool hasTag(const std::string &tag);
+
     protected:
         void setNextFrame(SkeletalAnimationFrameModel *nextFrame);
 
     private:
         SkeletalAnimationFrameModel *m_nextFrame;
         std::list<SkeletalAnimationCommandModel> m_commands;
+        std::set<std::string> m_tags;
 
         float m_speedFactor;
 };

@@ -6,6 +6,7 @@
 #include "PouEngine/assets/SkeletonmodelAsset.h"
 #include "PouEngine/scene/Skeleton.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/utils/MathTools.h"
 
 #include "tinyxml/tinyxml.h"
 
@@ -13,6 +14,7 @@
 #include <list>
 #include <map>
 
+class Character;
 
 struct LimbModel
 {
@@ -28,9 +30,26 @@ struct SkeletonWithLimbs
 
 struct CharacterAttributes
 {
-    CharacterAttributes() : walkingSpeed(0), attackDelay(0) {}
+    CharacterAttributes() : walkingSpeed(0), attackDelay(0),
+        life(0), attackDamages(0)
+        {}
     float walkingSpeed;
     float attackDelay;
+    float life;
+    float attackDamages;
+};
+
+struct Hitbox
+{
+    Hitbox(const std::string &s, const std::string &n) :
+        skeleton(s),node(n), factor(1.0f) {}
+
+    std::string skeleton;
+    std::string node;
+    float factor;
+    pou::MathTools::Box box;
+    //glm::vec2 size;
+    //glm::vec2 center;
 };
 
 class CharacterModelAsset : public pou::Asset
@@ -42,21 +61,28 @@ class CharacterModelAsset : public pou::Asset
 
         bool loadFromFile(const std::string &filePath);
 
-        bool generateOnNode(pou::SceneNode *parentNode,
+        /*bool generateOnNode(pou::SceneNode *parentNode,
                             std::list<std::unique_ptr<pou::Skeleton> > *skeletons,
-                            std::list<std::unique_ptr<pou::SpriteEntity> > *limbs);
+                            std::list<std::unique_ptr<pou::SpriteEntity> > *limbs);*/
+
+        bool generateCharacter(Character *targetCharacter);
 
         const CharacterAttributes &getAttributes() const;
+        const std::list<Hitbox> *getHitboxes() const;
+        const std::list<Hitbox> *getHurtboxes() const;
 
     protected:
         bool loadFromXML(TiXmlHandle *);
         bool loadSpriteSheet(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
+        bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
         bool loadAttributes(TiXmlElement *element);
 
     private:
         std::map<std::string, pou::SpriteSheetAsset*> m_spriteSheets;
-        std::list<SkeletonWithLimbs> m_skeletonModels;
+        std::map<std::string, SkeletonWithLimbs> m_skeletonModels;
+
+        std::list<Hitbox> m_hitboxes, m_hurtboxes;
 
         CharacterAttributes m_attributes;
 };

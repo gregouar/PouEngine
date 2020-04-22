@@ -50,6 +50,9 @@ class Skeleton : public SceneNode
         //could add pause animation etc
 
         bool isInAnimation();
+        bool hasTag(const std::string &tag);
+
+        const SceneNode* findNode(const std::string &name) const;
 
         virtual void update(const Time &elapsedTime);
 

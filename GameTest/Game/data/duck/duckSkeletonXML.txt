@@ -2,7 +2,9 @@
 <skeleton>
 	<node name="root"> 
 		<node name="body" z="0">
-			<node name="head" x="0" y="-18" z=".1" />
+			<node name="head" x="0" y="-18" z=".1">
+				<node name="beakHB" z=1 />
+			</node>
 			<node name="tail" x="0" y="29" z=".1" />
 			<node name="wingR" x="17" y="-1" z=".1" />
 			<node name="wingL" x="-17" y="-1" z=".1" />
@@ -12,6 +14,8 @@
 			<node name="legR" x="8" y="12" z="-.1">
 				<node name="footR" x="8" y="10" z="-.1" />
 			</node>
+			
+			<node name="bodyHB" z=1 />
 		</node>
 	</node>
 	
@@ -68,6 +72,7 @@
 			<command type="rotateTo" node="wingR" z="0" rate="200" />
 		</frame>
 		<frame>
+			<tag>attack</tag>
 			<command type="moveTo" node="head" y="-25" rate="125" />
 			<command type="moveTo" node="body" y="-10" rate="50" />
 			<command type="moveTo" node="legL" y="10" rate="50" />

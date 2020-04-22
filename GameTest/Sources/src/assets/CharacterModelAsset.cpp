@@ -9,6 +9,8 @@
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Parser.h"
 
+#include "Character.h"
+
 CharacterModelAsset::CharacterModelAsset() :
     CharacterModelAsset(-1)
 {
@@ -28,7 +30,7 @@ CharacterModelAsset::~CharacterModelAsset()
 }
 
 
-bool CharacterModelAsset::generateOnNode(pou::SceneNode *parentNode,
+/*bool CharacterModelAsset::generateOnNode(pou::SceneNode *parentNode,
                             std::list<std::unique_ptr<pou::Skeleton> > *skeletons,
                             std::list<std::unique_ptr<pou::SpriteEntity> > *limbs)
 {
@@ -37,8 +39,8 @@ bool CharacterModelAsset::generateOnNode(pou::SceneNode *parentNode,
 
     for(auto &skeletonModel : m_skeletonModels)
     {
-        std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.skeleton));
-        for(auto &limb : skeletonModel.limbs)
+        std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
+        for(auto &limb : skeletonModel.second.limbs)
         {
             std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
 
@@ -55,11 +57,51 @@ bool CharacterModelAsset::generateOnNode(pou::SceneNode *parentNode,
     }
 
     return (true);
+}*/
+
+bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
+{
+    if(targetCharacter == nullptr)
+        return (false);
+
+    for(auto &skeletonModel : m_skeletonModels)
+    {
+        std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
+        for(auto &limb : skeletonModel.second.limbs)
+        {
+            std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
+
+            limbEntity->setSpriteModel(limb.spriteModel);
+            limbEntity->setOrdering(pou::ORDERED_BY_Z);
+            limbEntity->setInheritRotation(true);
+
+            skeleton->attachLimb(limb.node,limbEntity.get());
+            //targetCharacter->m_limbs.push_back(std::move(limbEntity));
+            targetCharacter->addLimb(std::move(limbEntity));
+        }
+
+        targetCharacter->addChildNode(skeleton.get());
+        //targetCharacter->m_skeletons.push_back(std::move(skeleton));
+        std::cout<<skeletonModel.first<<std::endl;
+        targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
+    }
+
+    return (true);
 }
 
 const CharacterAttributes &CharacterModelAsset::getAttributes() const
 {
     return m_attributes;
+}
+
+const std::list<Hitbox> *CharacterModelAsset::getHitboxes() const
+{
+    return &m_hitboxes;
+}
+
+const std::list<Hitbox> *CharacterModelAsset::getHurtboxes() const
+{
+    return &m_hurtboxes;
 }
 
 bool CharacterModelAsset::loadFromFile(const std::string &filePath)
@@ -105,6 +147,17 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
         skeletonElement = skeletonElement->NextSiblingElement("skeleton");
     }
 
+    TiXmlElement* hitboxesElement = hdl->FirstChildElement("hitboxes").Element();
+    if(hitboxesElement != nullptr)
+        if(!this->loadHitboxes(hitboxesElement, m_hitboxes))
+            loaded = false;
+
+    hitboxesElement = hdl->FirstChildElement("hurtboxes").Element();
+    if(hitboxesElement != nullptr)
+        if(!this->loadHitboxes(hitboxesElement, m_hurtboxes))
+            loaded = false;
+
+
     TiXmlElement* attributesElement = hdl->FirstChildElement("attributes").Element();
     if(attributesElement != nullptr)
         if(!this->loadAttributes(attributesElement))
@@ -138,15 +191,25 @@ bool CharacterModelAsset::loadSpriteSheet(TiXmlElement *element)
 
 bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
 {
+
+    std::string skeletonName = "skeleton"+std::to_string(m_skeletonModels.size());
+
     auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)
         return (false);
 
-    m_skeletonModels.push_back(SkeletonWithLimbs ());
-    auto &skeletonWithLimbs = m_skeletonModels.back();
+    auto nameAtt = element->Attribute("name");
+    if(nameAtt != nullptr)
+        skeletonName = std::string(nameAtt);
+
+    auto skelPair = m_skeletonModels.insert({skeletonName, SkeletonWithLimbs ()});
+    if(!skelPair.second)
+        pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in character model:"+m_filePath);
+
+    //m_skeletonModels.push_back(SkeletonWithLimbs ());
+    auto &skeletonWithLimbs = skelPair.first->second;//m_skeletonModels.back();
 
     skeletonWithLimbs.skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
-
 
     auto limbChild = element->FirstChildElement("limb");
     while(limbChild != nullptr)
@@ -181,6 +244,51 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
     return (true);
 }
 
+
+bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList)
+{
+    auto boxChild = element->FirstChildElement("box");
+    while(boxChild != nullptr)
+    {
+        auto boxElement = boxChild->ToElement();
+        auto skeletonAtt= boxElement->Attribute("skeleton");
+        auto nodeAtt    = boxElement->Attribute("node");
+
+        if(skeletonAtt != nullptr && nodeAtt != nullptr)
+        {
+            boxList.push_back(Hitbox(std::string(skeletonAtt), std::string(nodeAtt)));
+            auto &box = boxList.back();
+
+            auto factorAtt = boxElement->Attribute("factor");
+            if(factorAtt != nullptr)
+                box.factor = pou::Parser::parseFloat(std::string(factorAtt));
+
+            auto sizeElement = boxElement->FirstChildElement("size");
+            if(sizeElement != nullptr)
+            {
+                if(sizeElement->Attribute("x") != nullptr)
+                    box.box.size.x = pou::Parser::parseFloat(std::string(sizeElement->Attribute("x")));
+                if(sizeElement->Attribute("y") != nullptr)
+                    box.box.size.y = pou::Parser::parseFloat(std::string(sizeElement->Attribute("y")));
+            }
+
+            auto centerElement = boxElement->FirstChildElement("center");
+            if(centerElement != nullptr)
+            {
+                if(centerElement->Attribute("x") != nullptr)
+                    box.box.center.x = pou::Parser::parseFloat(std::string(centerElement->Attribute("x")));
+                if(centerElement->Attribute("y") != nullptr)
+                    box.box.center.y = pou::Parser::parseFloat(std::string(centerElement->Attribute("y")));
+            }
+        } else
+            pou::Logger::warning("Incomplete hitbox in character model: "+m_filePath);
+
+        boxChild = boxChild->NextSiblingElement("box");
+    }
+
+    return (true);
+}
+
 bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 {
     auto e = element->FirstChildElement("walkingSpeed");
@@ -190,6 +298,14 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
     e = element->FirstChildElement("attackDelay");
     if(e != nullptr)
         m_attributes.attackDelay = pou::Parser::parseFloat(e->GetText());
+
+    e = element->FirstChildElement("life");
+    if(e != nullptr)
+        m_attributes.life = pou::Parser::parseFloat(e->GetText());
+
+    e = element->FirstChildElement("attackDamages");
+    if(e != nullptr)
+        m_attributes.attackDamages = pou::Parser::parseFloat(e->GetText());
 
     return (true);
 }

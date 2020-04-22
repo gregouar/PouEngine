@@ -261,6 +261,17 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element)
     if(speedAtt != nullptr)
         m_speedFactor = Parser::parseFloat(speedAtt);
 
+    /*auto tagAtt = element->Attribute("tag");
+    if(tagAtt != nullptr)
+        m_tag = tagAtt;*/
+
+    auto tagElement = element->FirstChildElement("tag");
+    while(tagElement != nullptr)
+    {
+        m_tags.insert(tagElement->GetText());
+        tagElement = tagElement->NextSiblingElement("tag");
+    }
+
     auto commandElement = element->FirstChildElement("command");
     while(commandElement != nullptr)
     {
@@ -280,6 +291,11 @@ const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::get
 float SkeletalAnimationFrameModel::getSpeedFactor()
 {
     return m_speedFactor;
+}
+
+bool SkeletalAnimationFrameModel::hasTag(const std::string &tag)
+{
+    return (m_tags.find(tag) != m_tags.end());
 }
 
 void SkeletalAnimationFrameModel::setNextFrame(SkeletalAnimationFrameModel *nextFrame)

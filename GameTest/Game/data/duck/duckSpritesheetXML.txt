@@ -40,6 +40,18 @@
 		<center 	x="11" 	y="15" 	/>
 		<position 	x="46" 	y="34"	/>
 	</sprite>	
+	
+	
+	<sprite name="bodyHBTest">
+		<size 		x="46" 	y="60" 	/>
+		<center 	x="23" 	y="25" 	/>
+		<position 	x="0" 	y="146"	/>
+	</sprite>
+	<sprite name="beakHBTest">
+		<size 		x="14" 	y="20" 	/>
+		<center 	x="7" 	y="35" 	/>
+		<position 	x="48" 	y="146"	/>
+	</sprite>
 </spritesheet>
 
 

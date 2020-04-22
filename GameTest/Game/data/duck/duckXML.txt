@@ -2,7 +2,7 @@
 <character>
 	<spritesheet name="mainSpriteSheet" path="duckSpritesheetXML.txt" />
 	
-	<skeleton path="duckSkeletonXML.txt">
+	<skeleton name="mainSkeleton" path="duckSkeletonXML.txt">
 		<limb node="head" 	sprite="head" 	spritesheet="mainSpriteSheet" />
 		<limb node="body" 	sprite="body" 	spritesheet="mainSpriteSheet" />
 		<limb node="tail" 	sprite="tail" 	spritesheet="mainSpriteSheet" />
@@ -12,10 +12,31 @@
 		<limb node="legR" 	sprite="legR" 	spritesheet="mainSpriteSheet" />
 		<limb node="footL" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
 		<limb node="footR" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
+		
+		
+		<limb node="beakHB" 	sprite="beakHBTest" 	spritesheet="mainSpriteSheet" />
+		<limb node="bodyHB" 	sprite="bodyHBTest" 	spritesheet="mainSpriteSheet" />
 	</skeleton>
+	
+	<hitboxes>
+		<box skeleton="mainSkeleton" node="beakHB" >
+			<size 		x="14" 	y="20" 	/>
+			<center 	x="7" 	y="35" 	/>
+		</box>
+	</hitboxes>
+	
+	<hurtboxes>
+		<box skeleton="mainSkeleton" node="bodyHB" >
+			<size 		x="46" 	y="60" 	/>
+			<center 	x="23" 	y="25" 	/>
+		</box>
+	</hurtboxes>
+	
 	
 	<attributes>
 		<walkingSpeed>150</walkingSpeed>
 		<attackDelay>1</attackDelay>
+		<life>100</life>
+		<attackDamages>10</attackDamages>
 	</attributes>
 </character>

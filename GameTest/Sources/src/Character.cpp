@@ -5,11 +5,14 @@
 #include "assets/CharacterModelAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/utils/MathTools.h"
 
 typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
 Character::Character() : SceneNode(-1,nullptr)
 {
+    m_model             = nullptr;
+
     m_rotationRadius    = 0.0f;
 
     m_isDestinationSet  = false;
@@ -26,23 +29,45 @@ Character::~Character()
     this->cleanup();
 }
 
+void Character::cleanup()
+{
+    m_model = nullptr;
+    m_limbs.clear();
+    m_skeletons.clear();
+}
+
 bool Character::loadModel(const std::string &path)
 {
     this->cleanup();
 
-    CharacterModelAsset *characterModel
-        = CharacterModelsHandler::loadAssetFromFile(path);
+    m_model = CharacterModelsHandler::loadAssetFromFile(path);
 
-    if(characterModel == nullptr)
+    //CharacterModelAsset *characterModel
+      //  = CharacterModelsHandler::loadAssetFromFile(path);
+
+    if(m_model == nullptr)
         return (false);
 
-    characterModel->generateOnNode(this, &m_skeletons, &m_limbs);
-    m_attributes = characterModel->getAttributes();
+    //m_model->generateOnNode(this, &m_skeletons, &m_limbs);
+    if(!m_model->generateCharacter(this))
+       return (false);
 
-    std::cout<<m_attributes.walkingSpeed<<std::endl;
+    m_attributes = m_model->getAttributes();
 
     return (true);
 }
+
+bool Character::addLimb(std::unique_ptr<pou::SpriteEntity> limb)
+{
+    m_limbs.push_back(std::move(limb));
+    return (true);
+}
+
+bool Character::addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name)
+{
+    return (m_skeletons.insert({name,std::move(skeleton)}).second);
+}
+
 
 void Character::setWalkingSpeed(float speed)
 {
@@ -96,7 +121,7 @@ bool Character::walkToDestination(const pou::Time& elapsedTime)
 
     if(ndelta <= m_attributes.walkingSpeed*elapsedTime.count()*m_attributes.walkingSpeed*elapsedTime.count())
     {
-        SceneNode:setGlobalPosition(m_destination);
+        SceneNode::setGlobalPosition(m_destination);
         m_isDestinationSet = false;
         m_walkingDirection = glm::vec2(0);
         //this->walk({0,0});
@@ -198,56 +223,97 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
 
 void Character::update(const pou::Time& elapsedTime)
 {
-    bool wantToWalk = false;
-
     m_attackDelayTimer.update(elapsedTime);
 
     if(m_isAttacking)
+        this->updateAttacking(elapsedTime);
+    else
+        this->updateWalking(elapsedTime);
+    this->updateLookingDirection(elapsedTime);
+
+    m_nearbyCharacters.clear();
+
+    SceneNode::update(elapsedTime);
+}
+
+void Character::updateWalking(const pou::Time &elapsedTime)
+{
+    bool wantToWalk = false;
+
+    if(m_isDestinationSet)
+        wantToWalk = this->walkToDestination(elapsedTime);
+
+    if(m_walkingDirection != glm::vec2(0))
     {
-        bool isAnimationFinished = true;
-        for(auto &skeleton : m_skeletons)
-            isAnimationFinished = isAnimationFinished & !skeleton->isInAnimation();
+        m_walkingDirection = glm::normalize(m_walkingDirection);
+        glm::vec2 charMove = {m_walkingDirection.x*m_attributes.walkingSpeed*elapsedTime.count(),
+                              m_walkingDirection.y*m_attributes.walkingSpeed*elapsedTime.count()};
+        //m_lookingDirection = m_walkingDirection;
+        SceneNode::move(charMove);
+        wantToWalk = true;
+    }
 
-        if(isAnimationFinished)
+    if(m_attributes.walkingSpeed <= 0)
+        wantToWalk = false;
+
+    if(wantToWalk && !m_isWalking)
+    {
+        this->startAnimation("walk", true);
+        m_isWalking = true;
+    }
+    else if(!wantToWalk && m_isWalking)
+    {
+        this->startAnimation("stand", true);
+        m_isWalking = false;
+    }
+}
+
+void Character::updateAttacking(const pou::Time &elapsedTime)
+{
+    bool isAnimationFinished = true;
+    for(auto &skeleton : m_skeletons)
+    {
+        isAnimationFinished = isAnimationFinished & !skeleton.second->isInAnimation();
+        if(skeleton.second->hasTag("attack"))
+        for(auto c : m_nearbyCharacters)
+        if(c != nullptr && c->getHurtboxes() != nullptr)
+        for(const auto hurtBox : *c->getHurtboxes())
+        if(this->getHitboxes() != nullptr)
+        for(const auto hitBox : *this->getHitboxes())
         {
-            m_isAttacking = false;
-            this->startAnimation("stand", true);
-        }
-    } else {
-        if(m_isDestinationSet)
-            wantToWalk = this->walkToDestination(elapsedTime);
+            auto hitSkeleton    = this->m_skeletons.find(hitBox.skeleton);
+            auto hurtSkeleton   = c->m_skeletons.find(hurtBox.skeleton);
 
-        if(m_walkingDirection != glm::vec2(0))
-        {
-            m_walkingDirection = glm::normalize(m_walkingDirection);
+            if(hitSkeleton != this->m_skeletons.end() &&
+               hurtSkeleton != c->m_skeletons.end())
+            {
+                auto hitNode    = hitSkeleton->second->findNode(hitBox.node);
+                auto hurtNode   = hurtSkeleton->second->findNode(hurtBox.node);
 
-            glm::vec2 charMove = {m_walkingDirection.x*m_attributes.walkingSpeed*elapsedTime.count(),
-                                  m_walkingDirection.y*m_attributes.walkingSpeed*elapsedTime.count()};
+                if(hitNode != nullptr && hurtNode != nullptr)
+                {
+                    std::cout<<pou::MathTools::detectBoxCollision(hitBox.box,hurtBox.box,
+                                                                  hitNode,hurtNode)<<std::endl;
+                    //hitNode->getModelMatrix();
+                }
+            }
 
-            //m_lookingDirection = m_walkingDirection;
-
-            SceneNode:move(charMove);
-            wantToWalk = true;
-        }
-
-        if(m_attributes.walkingSpeed <= 0)
-            wantToWalk = false;
-
-        if(wantToWalk && !m_isWalking)
-        {
-            this->startAnimation("walk", true);
-            m_isWalking = true;
-        }
-
-        if(!wantToWalk && m_isWalking)
-        {
-            this->startAnimation("stand", true);
-            m_isWalking = false;
+            //hurt.skeleton
+            //apply transformation matrices
+            //testCollision(hurt,hit);
         }
     }
 
-    ///Introduce animationRotationSpeed
+    if(isAnimationFinished)
+    {
+        m_isAttacking = false;
+        this->startAnimation("stand", true);
+    }
+}
 
+void Character::updateLookingDirection(const pou::Time &elapsedTime)
+{
+    ///Introduce animationRotationSpeed
     if(m_lookingDirection != glm::vec2(0))
     {
         float curRotation = SceneNode::getEulerRotation().z;
@@ -260,19 +326,30 @@ void Character::update(const pou::Time& elapsedTime)
         else
             SceneNode::rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
     }
-
-    SceneNode::update(elapsedTime);
 }
 
 void Character::startAnimation(const std::string &name, bool forceStart)
 {
     for(auto &skeleton : m_skeletons)
-        skeleton->startAnimation(name, forceStart);
+        skeleton.second->startAnimation(name, forceStart);
 }
 
-void Character::cleanup()
+void Character::addToNearbyCharacters(Character *character)
 {
-    m_limbs.clear();
-    m_skeletons.clear();
+    m_nearbyCharacters.push_back(character);
+}
+
+const std::list<Hitbox> *Character::getHitboxes() const
+{
+    if(m_model == nullptr)
+        return (nullptr);
+    return m_model->getHitboxes();
+}
+
+const std::list<Hitbox> *Character::getHurtboxes() const
+{
+    if(m_model == nullptr)
+        return (nullptr);
+    return m_model->getHurtboxes();
 }
 

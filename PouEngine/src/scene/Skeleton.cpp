@@ -76,6 +76,22 @@ bool Skeleton::isInAnimation()
     return (m_curAnimation != nullptr);
 }
 
+bool Skeleton::hasTag(const std::string &tag)
+{
+    if(m_curAnimationFrame == nullptr)
+        return (false);
+
+    return m_curAnimationFrame->hasTag(tag);
+}
+
+const SceneNode* Skeleton::findNode(const std::string &name) const
+{
+    auto found = m_nodesByName.find(name);
+    if(found == m_nodesByName.end())
+        return (nullptr);
+    return found->second;
+}
+
 void Skeleton::update(const Time &elapsedTime)
 {
     SceneNode::update(elapsedTime);
@@ -155,7 +171,8 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
     {
         std::string nodeName = cmd->getNode();
         auto node = m_nodesByName[nodeName]; ///Need to change this so that I dont use name (but some kind of ID ?)
-        m_animationCommands.push_back(
+        if(node != nullptr)
+            m_animationCommands.push_back(
                 SkeletalAnimationCommand (&(*cmd), node, &m_nodeStates[node]));
         //m_animationCommands.back().computeAmount(m_nodeStates[node]);
     }

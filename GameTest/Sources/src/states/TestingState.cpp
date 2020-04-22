@@ -41,7 +41,7 @@ void TestingState::init()
 
     pou::AssetLoadType loadType = pou::LoadType_InThread;
 
-    pou::AssetTypeId tex[10];
+    /*pou::AssetTypeId tex[10];
     tex[0] = pou::TexturesHandler::loadAssetFromFile("../data/sand_color.png",loadType)->getId();
     tex[1] = pou::TexturesHandler::loadAssetFromFile("../data/sand_height.png",loadType)->getId();
     tex[2] = pou::TexturesHandler::loadAssetFromFile("../data/sand_normal.png",loadType)->getId();
@@ -68,7 +68,7 @@ void TestingState::init()
     m_testNode = m_scene->getRootNode()->createChildNode({0,0});
     m_testChar =  m_scene->createSpriteEntity(m_charModel);
     m_testChar->setRotation(30.0);
-    m_testChar->setOrdering(pou::ORDERED_BY_Z);
+    m_testChar->setOrdering(pou::ORDERED_BY_Z);*/
     //m_testNode->attachObject(m_testChar);
 
     m_character = new PlayableCharacter();
@@ -324,7 +324,10 @@ void TestingState::update(const pou::Time &elapsedTime)
     camMove.y *= elapsedTime.count();
     m_cameraNode->move(camMove);
 
-    m_testChar->rotate(1.0*elapsedTime.count());
+    m_character->addToNearbyCharacters(m_duck);
+    m_duck->addToNearbyCharacters(m_character);
+
+    //m_testChar->rotate(1.0*elapsedTime.count());
 
     m_scene->update(elapsedTime);
 

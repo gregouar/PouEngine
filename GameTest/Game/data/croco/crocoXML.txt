@@ -2,7 +2,7 @@
 <character>
 	<spritesheet name="mainSpriteSheet" path="crocoSpritesheetXML.txt" />
 	
-	<skeleton path="crocoSkeletonXML.txt">
+	<skeleton name="mainSkeleton" path="crocoSkeletonXML.txt">
 		<limb node="head" sprite="head" spritesheet="mainSpriteSheet" />
 		<limb node="neck" sprite="neck" spritesheet="mainSpriteSheet" />
 		<limb node="upperBody" sprite="upperBody" spritesheet="mainSpriteSheet" />
