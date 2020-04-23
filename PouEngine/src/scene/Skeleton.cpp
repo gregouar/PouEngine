@@ -92,6 +92,13 @@ const SceneNode* Skeleton::findNode(const std::string &name) const
     return found->second;
 }
 
+const std::string &Skeleton::getCurrentAnimationName()
+{
+    if(m_curAnimation == nullptr)
+        return (pou::emptyString);
+    return m_curAnimation->getName();
+}
+
 void Skeleton::update(const Time &elapsedTime)
 {
     SceneNode::update(elapsedTime);
@@ -200,13 +207,16 @@ void SkeletalAnimationCommand::computeAmount()
     m_amount = m_model->getAmount().first;
     m_enabledDirection = m_model->getAmount().second;
 
-
     if(m_model->getType() == Move_To)
         m_amount = m_amount - m_nodeState->posisiton;
     else if(m_model->getType() == Rotate_To)
         m_amount = m_amount - m_nodeState->rotation;
     else if(m_model->getType() == Scale_To)
         m_amount = m_amount - m_nodeState->scale;
+
+    if(m_amount.x == 0) m_enabledDirection.x = false;
+    if(m_amount.y == 0) m_enabledDirection.y = false;
+    if(m_amount.z == 0) m_enabledDirection.z = false;
 }
 
 bool SkeletalAnimationCommand::update(const Time &elapsedTime)

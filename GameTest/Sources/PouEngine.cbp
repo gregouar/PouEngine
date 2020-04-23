@@ -128,6 +128,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Profiler.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SimpleNode.h" />
@@ -202,6 +203,7 @@
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
+		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Profiler.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />

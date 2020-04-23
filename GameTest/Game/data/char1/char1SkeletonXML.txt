@@ -63,6 +63,22 @@
 		</frame>
 	</animation>
 	
+	<animation name="death" >
+		<frame>
+			<command type="moveTo" node="body" z=-1 rate=5 />
+			<command type="rotateTo" node="weapon" z=-90 rate=400 />
+			<command type="moveTo" node="weapon" x=30 y=-30  rate=100 />
+			<command type="moveTo" node="shoulderL" x=-4 rate=5 />
+			<command type="moveTo" node="shoulderR" x=4 rate=5 />
+			<command type="scaleTo" node="shoulderL" x=-.2 rate=1 />
+			<command type="scaleTo" node="shoulderR" x=-.2 rate=1 />
+			<command type="moveTo" node="bag" y=-4 rate=5 />
+			<command type="scaleTo" node="bag" y=.2 rate=1 />
+			<command type="moveTo" node="head" y=-12 rate=15 />
+			<command type="scaleTo" node="head" y=-.2 rate=1 />
+		</frame>
+	</animation>
+	
 	<animation name="walk" loop="1">
 		<frame>
 			<command type="rotateTo" node="body" z="-20" rate="100" />
@@ -156,7 +172,11 @@
 			<command type="moveTo" node="handR"  x="0" y="0" rate="50" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="500" />
 			<command type="moveTo" node="head" y="0" rate="50" />-->
-			<reset />
+			<reset node="body" />
+			<reset node="weapon" />
+			<reset node="handR" />
+			<reset node="head" />
+			<reset node="bag" />
 		</frame>
 		<frame frameTime=".1">
 			<command type="rotateTo" node="body" z="10"  />

@@ -140,8 +140,6 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             rotation.z = Parser::parseFloat(att);
 
-        std::cout<<rotation.z<<std::endl;
-
         rootNode->rotate(rotation,false);
     }
 

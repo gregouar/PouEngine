@@ -96,7 +96,7 @@ bool PlayableCharacter::dash(glm::vec2 direction)
     if(m_isAttacking)
         return (false);
 
-    m_isAttacking   = false;
+    //m_isAttacking   = false;
     //m_isDashing     = true;
     if(direction == glm::vec2(0))
         m_dashDirection = m_lookingDirection;

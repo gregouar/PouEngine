@@ -34,6 +34,9 @@ int Timer::update(float elapsedTime)
     if(elapsedTime < 0)
         return (0);
 
+    if(m_maxTime == 0)
+        return (0);
+
     m_elapsedTime += elapsedTime;
     if(m_elapsedTime >= m_maxTime)
     {

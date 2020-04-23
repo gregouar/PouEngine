@@ -51,6 +51,7 @@ class Skeleton : public SceneNode
 
         bool isInAnimation();
         bool hasTag(const std::string &tag);
+        const std::string &getCurrentAnimationName();
 
         const SceneNode* findNode(const std::string &name) const;
 
