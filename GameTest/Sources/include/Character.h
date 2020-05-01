@@ -76,12 +76,12 @@ class Character : public pou::SceneNode
 
         std::list<Character*>   m_nearbyCharacters;
         std::set<Character*>    m_alreadyHitCharacters;
+        std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
     private:
         CharacterModelAsset *m_model;
 
         std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
-        std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         float m_rotationRadius;
 

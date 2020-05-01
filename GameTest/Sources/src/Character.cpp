@@ -161,9 +161,9 @@ bool Character::interrupt(float amount)
 
     if(!m_interruptTimer.isActive())
     {
+        this->startAnimation("interrupt",true);
         m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
         m_attackDelayTimer.reset(0);
-        this->startAnimation("interrupt",true);
         m_isAttacking   = false;
         m_isWalking     = false;
     }
@@ -298,15 +298,18 @@ void Character::update(const pou::Time& elapsedTime)
     if(!m_isDead)
     {
         m_attackDelayTimer.update(elapsedTime);
-        if(m_interruptTimer.update(elapsedTime))
-            this->startAnimation("stand");
 
-        if(m_interruptTimer.isActive()) {}
-        else if(m_isAttacking)
+        //if(m_interruptTimer.isActive()) {}
+        //else
+        if(m_isAttacking)
             this->updateAttacking(elapsedTime);
         else
             this->updateWalking(elapsedTime);
         this->updateLookingDirection(elapsedTime);
+
+
+        if(m_interruptTimer.update(elapsedTime))
+            this->startAnimation("stand");
     }
 
     m_nearbyCharacters.clear();
@@ -317,6 +320,9 @@ void Character::update(const pou::Time& elapsedTime)
 void Character::updateWalking(const pou::Time &elapsedTime)
 {
     bool wantToWalk = false;
+
+    if(m_interruptTimer.isActive())
+        return;
 
     if(m_isDestinationSet)
         wantToWalk = this->walkToDestination(elapsedTime);
@@ -352,6 +358,10 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
     for(auto &skeleton : m_skeletons)
     {
         isAnimationFinished = isAnimationFinished & !skeleton.second->isInAnimation();
+
+         //if(skeleton.second->hasTag("attackTest"))
+           // std::cout<<"attackTest"<<std::endl;
+
         if(skeleton.second->hasTag("attack"))
         for(auto c : m_nearbyCharacters)
         if(c != nullptr && c->isAlive() && c->getHurtboxes() != nullptr
@@ -384,7 +394,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
         }
     }
 
-    if(isAnimationFinished)
+    if(isAnimationFinished && m_isAttacking)
     {
         m_isAttacking = false;
         m_alreadyHitCharacters.clear();

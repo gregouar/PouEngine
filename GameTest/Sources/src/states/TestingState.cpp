@@ -102,7 +102,7 @@ void TestingState::init()
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
     }
 
-    pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grassXML.txt");
+    pou::SpriteSheetAsset *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt");
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
@@ -110,6 +110,18 @@ void TestingState::init()
          pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
          grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1")));
     }
+
+
+    pou::SpriteSheetAsset *treeSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
+
+    for(auto x = -3 ; x < 3 ; x++)
+    {
+         pou::SceneNode *treeNode = m_scene->getRootNode()->createChildNode(glm::linearRand(-640,640), glm::linearRand(-640,640),5);
+         treeNode->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("tree")));
+    }
+
+
+
 
     m_camera = m_scene->createCamera();
     //m_camera->setViewport({.2,.3},{.5,.4});

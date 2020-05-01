@@ -97,14 +97,11 @@ bool PlayableCharacter::dash(glm::vec2 direction)
         return (false);
 
     //m_isAttacking   = false;
-    //m_isDashing     = true;
     if(direction == glm::vec2(0))
         m_dashDirection = m_lookingDirection;
     else
         m_dashDirection = direction;
-    //m_dashDelay     = DEFAULT_DASH_DELAY;
     m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
-    //m_dashTime      = DEFAULT_DASH_TIME;
     m_dashTimer.reset(DEFAULT_DASH_TIME);
 
     return (true);
@@ -125,53 +122,12 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
             m_wantToAttackTimer.reset(0);
     }
 
-    /*if(m_wantToDashDelay > 0)
-    {
-        if(this->dash(m_wantToDashDirection))
-            m_wantToDashDelay = 0;
-        else
-        {
-            m_wantToDashDelay -= elapsedTime.count();
-            if(m_wantToDashDelay <= 0)
-                m_wantToDashDelay = 0;
-        }
-    }
-    else if(m_wantToAttackDelay > 0)
-    {
-        if(this->attack(m_wantToAttackDirection))
-            m_wantToAttackDelay = 0;
-        else
-        {
-            m_wantToAttackDelay -= elapsedTime.count();
-            if(m_wantToAttackDelay <= 0)
-                m_wantToAttackDelay = 0;
-        }
-    }*/
-
     m_dashDelayTimer.update(elapsedTime);
     m_dashTimer.update(elapsedTime);
-    /*if(m_dashDelay > 0)
-    {
-        m_dashDelay -= elapsedTime.count();
-        if(m_dashDelay <= 0)
-            m_dashDelay = 0;
-    }*/
-
-    /*if(m_dashTime > 0)
-    {
-        m_dashTime -= elapsedTime.count();
-        if(m_dashTime <= 0)
-        {
-            m_dashTime = 0;
-            m_isDashing = false;
-        }
-    }*/
 
     if(m_dashTimer.isActive())
     {
-        m_attributes.walkingSpeed      = DEFAULT_DASH_SPEED;
-        /*m_walkingDirection  = m_dashDirection;
-        m_isWalking         = true;*/
+        m_attributes.walkingSpeed = DEFAULT_DASH_SPEED;
         Character::walk(m_dashDirection);
     }
     else if(m_dashDelayTimer.isActive())
@@ -182,22 +138,12 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
     if(m_combatModeTimer.isActive())
     {
         m_combatModeTimer.update(elapsedTime);
-        /*m_combatModeDelay -= elapsedTime.count();
-
-        if(m_combatModeDelay <= 0)
-        {
-            m_combatModeDelay       = 0;
-            m_isInCombatMode    = false;
-        }*/
 
         //if(!m_isAttacking)
             m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
         //SceneNode::setRotation({0,0,desiredRot});
         if(m_isWalking && !m_isAttacking)
         {
-            //0 = up, from -PI to PI
-            //std::cout<<SceneNode::getEulerRotation().z<<std::endl;
-
             bool wantToLateralWalk = false;
 
             if(m_walkingDirection != glm::vec2(0))
@@ -226,6 +172,9 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
         m_isLateralWalking = false;
         Character::startAnimation("walk", true);
     }
+
+    //for(auto &skeleton : m_skeletons)
+      //  std::cout<<skeleton.second->getCurrentAnimationName()<<std::endl;
 
     Character::update(elapsedTime);
 }

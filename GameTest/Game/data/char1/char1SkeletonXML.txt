@@ -19,7 +19,7 @@
 		<node name="footR" x="10" y="4" z=".0" />
 	</node>
 	
-	<animation name="stand">
+	<animation name="stand" loop=1>
 		<frame frameTime=".1">
 			<reset />
 			<!--<command type="rotateTo" node="body" z="0"  />
@@ -166,18 +166,13 @@
 	</animation>
 	
 	<animation name="attack" loop="0">
-		<frame frameTime=.01>
-			<!--<command type="rotateTo" node="body" z="0" rate="500" />
-			<command type="rotateTo" node="weapon" z="0" rate="500" />
-			<command type="moveTo" node="handR"  x="0" y="0" rate="50" />
-			<command type="rotateTo" node="shoulderR" z="0" rate="500" />
-			<command type="moveTo" node="head" y="0" rate="50" />-->
+		<!--<frame frameTime=.01>
 			<reset node="body" />
 			<reset node="weapon" />
 			<reset node="handR" />
 			<reset node="head" />
 			<reset node="bag" />
-		</frame>
+		</frame>-->
 		<frame frameTime=".1">
 			<command type="rotateTo" node="body" z="10"  />
 			<command type="rotateTo" node="weapon" z="40" />
@@ -188,6 +183,7 @@
 		</frame>
 		<frame frameTime=".2">
 			<tag>attack</tag>
+			<tag>attackTest</tag>
 			<command type="rotateTo" node="body" z="-30"  />
 			<command type="rotateTo" node="weapon" z="-90" />
 			<command type="rotateTo" node="handR" z="-90"/>
