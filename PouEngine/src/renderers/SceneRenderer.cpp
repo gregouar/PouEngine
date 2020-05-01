@@ -45,6 +45,8 @@ const char *SceneRenderer::BLUR_FRAGSHADERFILE = "smartBlur.frag.spv";*/
 
 const char *SceneRenderer::SPRITE_DEFERRED_VERTSHADERFILE = "deferred/spriteShader.vert.spv";
 const char *SceneRenderer::SPRITE_DEFERRED_FRAGSHADERFILE = "deferred/spriteShader.frag.spv";
+const char *SceneRenderer::MESH_DEFERRED_VERTSHADERFILE = "deferred/meshShader.vert.spv";
+const char *SceneRenderer::MESH_DEFERRED_FRAGSHADERFILE = "deferred/meshShader.frag.spv";
 const char *SceneRenderer::LIGHTING_VERTSHADERFILE = "lighting/lighting.vert.spv";
 const char *SceneRenderer::LIGHTING_FRAGSHADERFILE = "lighting/lighting.frag.spv";
 const char *SceneRenderer::AMBIENTLIGHTING_VERTSHADERFILE = "lighting/ambientLighting.vert.spv";
@@ -137,13 +139,13 @@ void SceneRenderer::addToSpritesVbo(const SpriteDatum &datum)
     m_spritesVbos[m_curFrameIndex]->push_back(datum);
 }
 
-/*void SceneRenderer::addToMeshesVbo(VMesh* mesh, const MeshDatum &datum)
+void SceneRenderer::addToMeshesVbo(VMesh* mesh, const MeshDatum &datum)
 {
     auto foundedVbo = m_meshesVbos[m_curFrameIndex].find(mesh);
     if(foundedVbo == m_meshesVbos[m_curFrameIndex].end())
         foundedVbo = m_meshesVbos[m_curFrameIndex].insert(foundedVbo, {mesh, new DynamicVBO<MeshDatum>(4)});
     foundedVbo->second->push_back(datum);
-}*/
+}
 
 void SceneRenderer::addToLightsVbo(const LightDatum &datum)
 {
@@ -155,13 +157,13 @@ size_t SceneRenderer::getSpritesVboSize()
     return m_spritesVbos[m_curFrameIndex]->getSize();
 }
 
-/*size_t SceneRenderer::getMeshesVboSize(VMesh *mesh)
+size_t SceneRenderer::getMeshesVboSize(VMesh *mesh)
 {
     auto foundedVbo = m_meshesVbos[m_curFrameIndex].find(mesh);
     if(foundedVbo == m_meshesVbos[m_curFrameIndex].end())
         return (0);
     return foundedVbo->second->getSize();
-}*/
+}
 
 size_t SceneRenderer::getLightsVboSize()
 {
@@ -223,8 +225,8 @@ void SceneRenderer::uploadVbos()
     m_spriteShadowsVbos[m_curFrameIndex]->uploadVBO();*/
     m_spritesVbos[m_curFrameIndex]->uploadVBO();
 
-    /*for(auto &mesh : m_meshesVbos[m_curFrameIndex])
-        mesh.second->uploadVBO();*/
+    for(auto &mesh : m_meshesVbos[m_curFrameIndex])
+        mesh.second->uploadVBO();
 
     m_lightsVbos[m_curFrameIndex]->uploadVBO();
 }
@@ -379,7 +381,7 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
         vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 m_deferredSpritesPipeline.getLayout(),0,2, descriptorSets, 0, nullptr);
 
-        /*m_deferredMeshesPipeline.bind(cmb);
+        m_deferredMeshesPipeline.bind(cmb);
 
         for(auto &mesh : m_meshesVbos[m_curFrameIndex])
         {
@@ -409,7 +411,7 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
                                      0, 0, renderingInstance->getMeshesVboOffset(mesh.first));
                 }
             }
-        }*/
+        }
 
         if(spritesVboSize != 0)
         {
@@ -711,7 +713,7 @@ bool SceneRenderer::init()
     for(auto &vbo : m_spritesVbos)
         vbo = new DynamicVBO<SpriteDatum>(256);
 
-    //m_meshesVbos.resize(framesCount);
+    m_meshesVbos.resize(framesCount);
 
     m_lightsVbos.resize(framesCount);
     for(auto &vbo : m_lightsVbos)
@@ -756,9 +758,9 @@ bool SceneRenderer::createGraphicsPipeline()
         return (false);*/
     if(!this->createDeferredSpritesPipeline())
         return (false);
-    /*if(!this->createDeferredMeshesPipeline())
+    if(!this->createDeferredMeshesPipeline())
         return (false);
-    if(!this->createAlphaDetectPipeline())
+    /*if(!this->createAlphaDetectPipeline())
         return (false);
     if(!this->createAlphaDeferredPipeline())
         return (false);
@@ -1183,7 +1185,7 @@ bool SceneRenderer::createDeferredSpritesPipeline()
     return m_deferredSpritesPipeline.init(m_renderGraph.getRenderPass(m_deferredPass));
 }
 
-/*bool SceneRenderer::createDeferredMeshesPipeline()
+bool SceneRenderer::createDeferredMeshesPipeline()
 {
     std::ostringstream vertShaderPath,fragShaderPath;
     vertShaderPath << VApp::DEFAULT_SHADERPATH << MESH_DEFERRED_VERTSHADERFILE;
@@ -1226,7 +1228,7 @@ bool SceneRenderer::createDeferredSpritesPipeline()
     return m_deferredMeshesPipeline.init(m_renderGraph.getRenderPass(m_deferredPass));
 }
 
-bool SceneRenderer::createAlphaDetectPipeline()
+/*bool SceneRenderer::createAlphaDetectPipeline()
 {
     std::ostringstream vertShaderPath,fragShaderPath;
     vertShaderPath << VApp::DEFAULT_SHADERPATH << SPRITE_ALPHADETECT_VERTSHADERFILE;
@@ -1551,10 +1553,10 @@ void SceneRenderer::cleanup()
         delete vbo;
     m_spritesVbos.clear();
 
-    /*for(auto meshVboMap : m_meshesVbos)
+    for(auto meshVboMap : m_meshesVbos)
         for(auto meshVbo : meshVboMap)
             delete meshVbo.second;
-    m_meshesVbos.clear();*/
+    m_meshesVbos.clear();
 
     VulkanHelpers::destroyAttachment(m_deferredDepthAttachment);
     VulkanHelpers::destroyAttachment(m_albedoAttachment);
@@ -1583,8 +1585,8 @@ void SceneRenderer::cleanup()
     m_spriteShadowsPipeline.destroy();
     m_meshDirectShadowsPipeline.destroy();*/
     m_deferredSpritesPipeline.destroy();
-    /*m_deferredMeshesPipeline.destroy();
-    m_alphaDetectPipeline.destroy();
+    m_deferredMeshesPipeline.destroy();
+    /*m_alphaDetectPipeline.destroy();
     m_alphaDeferredPipeline.destroy();
     m_ssgiBNPipeline.destroy();*/
     m_lightingPipeline.destroy();

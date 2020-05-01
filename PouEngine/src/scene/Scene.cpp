@@ -6,6 +6,8 @@
 #include "PouEngine/scene/SceneObject.h"
 #include "PouEngine/assets/TextureAsset.h"
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 namespace pou
 {
 
@@ -16,8 +18,9 @@ Scene::Scene() :
     m_rootNode.setPosition(0,0,0);
     m_curNewId = 0;
 
-    m_viewAngle = glm::mat4(1.0);
-    m_viewAngleInv = glm::mat4(1.0);
+    m_projectionFactor  = 500.0f;
+    m_viewAngle         = glm::mat4(1.0);
+    m_viewAngleInv      = glm::mat4(1.0);
 }
 
 Scene::~Scene()
@@ -50,9 +53,30 @@ void Scene::render(SceneRenderer *renderer, CameraObject *camera)
         glm::mat4 camTranslate    = glm::translate(glm::mat4(1.0), -camPos);
         glm::mat4 camTranslateInv = glm::translate(glm::mat4(1.0), camPos);
 
+        //std::cout<<camPos.z<<std::endl;
+
         ViewInfo viewInfo;
         viewInfo.view     = m_viewAngle;
         viewInfo.viewInv  = m_viewAngleInv;
+        viewInfo.projFactor = m_projectionFactor;
+
+        /*glm::mat4 projMat = //glm::perspective(45.0f, 1024.0f/768.0f, 1.0f, 150.0f);
+         glm::perspective(45.0f, 1024.0f/768.0f, .01f, 500.0f);*/
+        //projMat[1][1] *= -1;
+
+        //glm::mat4 projMat = glm::mat4(1);
+
+       /* float K = 10.0f;
+        glm::mat4 projMat = glm::mat4(
+            1,0,0,0,
+            0,1,0,0,
+            );*/
+
+        //viewInfo.proj  = projMat;
+
+        //for(auto i = 0 ; i < 4 ; ++i)
+        //std::cout<<projMat[i][0]<<" "<<projMat[i][1]<<" "<<projMat[i][2]<<" "<<projMat[i][3]<<std::endl;
+
         renderer->setView(viewInfo);
 
         SceneRenderingInstance *renderingInstance = new SceneRenderingInstance(&m_renderingData, renderer);
@@ -60,6 +84,7 @@ void Scene::render(SceneRenderer *renderer, CameraObject *camera)
         viewInfo.viewInv  = camTranslateInv*m_viewAngleInv;
         viewInfo.viewportOffset = camera->getViewportOffset();
         viewInfo.viewportExtent = camera->getViewportExtent();
+
 
         renderingInstance->setViewInfo(viewInfo, camPos, camera->getZoom());
 
@@ -90,13 +115,13 @@ SpriteEntity *Scene::createSpriteEntity(SpriteModel *model)
     return entity;
 }
 
-/*MeshEntity *Scene::createMeshEntity(MeshAsset *model)
+MeshEntity *Scene::createMeshEntity(MeshAsset *model)
 {
     MeshEntity *entity = new MeshEntity();
     entity->setMesh(model);
     this->addCreatedObject(this->generateObjectId(), entity);
     return entity;
-}*/
+}
 
 LightEntity *Scene::createLightEntity(LightType type, Color color, float intensity)
 {

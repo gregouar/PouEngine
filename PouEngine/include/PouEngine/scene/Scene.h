@@ -27,7 +27,7 @@ class Scene : public NotificationListener
 
         CameraObject       *createCamera();
         SpriteEntity       *createSpriteEntity(SpriteModel *model = nullptr);
-        //MeshEntity         *createMeshEntity(MeshAsset *model = nullptr);
+        MeshEntity         *createMeshEntity(MeshAsset *model = nullptr);
         LightEntity        *createLightEntity(LightType type = pou::LightType_Omni,
                                               Color color = {1.0,1.0,1.0,1.0}, float intensity = 1.0);
 
@@ -55,6 +55,7 @@ class Scene : public NotificationListener
 
         //float m_zAngle;
         //float m_xyAngle;
+        float m_projectionFactor;
         /** I can probably remove the following : **/
         glm::mat4   m_viewAngle,    //World to screen transformation matrix (inv is transpose)
                     m_viewAngleInv;// 2D Screen to world transformation matrix

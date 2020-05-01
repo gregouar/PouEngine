@@ -13,7 +13,7 @@ class SceneRenderingInstance
 
         void addToSpritesVbo(const SpriteDatum &datum);
         void addToSpritesOrdered(const SpriteDatum &datum, float weight);
-        //void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);
+        void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);
         void addToLightsVbo(const LightDatum &datum);
 
         void addToShadowLightsList(LightEntity *entity);
@@ -25,8 +25,8 @@ class SceneRenderingInstance
 
         size_t getSpritesVboSize();
         size_t getSpritesVboOffset();
-        /*size_t getMeshesVboSize(VMesh *mesh);
-        size_t getMeshesVboOffset(VMesh *mesh);*/
+        size_t getMeshesVboSize(VMesh *mesh);
+        size_t getMeshesVboOffset(VMesh *mesh);
         size_t getLightsVboSize();
         size_t getLightsVboOffset();
 
@@ -48,8 +48,8 @@ class SceneRenderingInstance
 
         size_t      m_spritesVboSize;
         size_t      m_spritesVboOffset;
-        /*std::map<VMesh*, size_t>    m_meshesVboSize;
-        std::map<VMesh*, size_t>    m_meshesVboOffset;*/
+        std::map<VMesh*, size_t>    m_meshesVboSize;
+        std::map<VMesh*, size_t>    m_meshesVboOffset;
         size_t      m_lightsVboSize;
         size_t      m_lightsVboOffset;
 

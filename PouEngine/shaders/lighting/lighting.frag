@@ -14,6 +14,7 @@ layout(set = 0, binding = 0) uniform ViewUBO {
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 
 layout(set = 1, binding = 0) uniform sampler samp;

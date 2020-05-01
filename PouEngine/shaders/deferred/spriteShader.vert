@@ -7,6 +7,7 @@ layout(binding = 0, set = 0) uniform ViewUBO {
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 
 layout(push_constant) uniform PER_OBJECT
@@ -63,6 +64,10 @@ void main()
     //gl_Position.xyz = vec4(viewUbo.view * (vec4(vertPos[gl_VertexIndex],0.0,0.0) * inModel) - vec4(pc.camPosAndZoom.xyz,0.0)) ;
 
     screenPos = gl_Position.xyz;
+	
+	gl_Position.x = gl_Position.x * (gl_Position.z/viewUbo.proj+1);
+	gl_Position.y = gl_Position.y * (gl_Position.z/viewUbo.proj+1);
+
 
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);

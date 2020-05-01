@@ -79,7 +79,7 @@ class SpriteEntity : public ShadowCaster
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
-        virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
+        ///virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;

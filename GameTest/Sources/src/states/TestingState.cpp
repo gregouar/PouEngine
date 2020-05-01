@@ -7,6 +7,7 @@
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
+#include "PouEngine/assets/MeshesHandler.h"
 
 #include "PouEngine/Types.h"
 
@@ -33,7 +34,7 @@ void TestingState::init()
 {
     m_firstEntering = false;
 
-    m_camVelocity = glm::vec2(0,0);
+    m_camVelocity = glm::vec3(0);
     m_activeCroc = false;
     m_activeDuck = false;
 
@@ -116,18 +117,43 @@ void TestingState::init()
 
     for(auto x = -3 ; x < 3 ; x++)
     {
-         pou::SceneNode *treeNode = m_scene->getRootNode()->createChildNode(glm::linearRand(-640,640), glm::linearRand(-640,640),5);
-         treeNode->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("tree")));
+         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+         pou::SceneNode *treeTrunkNode = m_scene->getRootNode()->createChildNode(p.x,p.y,30);
+         treeTrunkNode->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeTrunk")));
+         pou::SceneNode *treeFoliage1Node = m_scene->getRootNode()->createChildNode(p.x,p.y,40);
+         treeFoliage1Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage1")));
+         pou::SceneNode *treeFoliage2Node = m_scene->getRootNode()->createChildNode(p.x,p.y,50);
+         treeFoliage2Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage2")));
     }
 
+
+
+    pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::instance()->loadAssetFromFile("../data/wallXML.txt",loadType);
+    pou::MeshAsset *wallBoxModel = pou::MeshesHandler::makeBox({0,0,0},{1,1,1},wallMaterial);
+    pou::MeshEntity *wallBoxEntity;
+    wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
+    //m_shadowBoxEntity->setRmt({0.8,0.0,0.0});
+    //wallBoxEntity->setColor({1.0,0.0,0.0,1.0});
+    wallBoxEntity->setScale(glm::vec3(20,200,50));
+    //m_shadowBoxEntity->setShadowCasting(vlg::ShadowCasting_All);
+    //m_shadowBoxNode = m_scene->getRootNode()->createChildNode({0,0,0});
+    m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
+
+    pou::MeshAsset* quackMesh = pou::MeshesHandler::instance()->loadAssetFromFile("../data/quackXML.txt",loadType);
+    pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
+
+    pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
+    quackNode->attachObject(quackEntity);
+    quackNode->setScale(1.5f);
 
 
 
     m_camera = m_scene->createCamera();
     //m_camera->setViewport({.2,.3},{.5,.4});
-    m_cameraNode = m_scene->getRootNode()->createChildNode(0,0);
-    ///m_cameraNode->attachObject(m_camera);
-    m_character->attachObject(m_camera);
+    //m_cameraNode = m_scene->getRootNode()->createChildNode(0,0,5);
+    m_cameraNode = m_character->createChildNode(0,0,-1);
+    m_cameraNode->attachObject(m_camera);
+    //m_character->attachObject(m_camera);
 
     //m_scene->setCurrentCamera(m_camera);
 
@@ -308,16 +334,20 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_E))
         m_character2->setDestination(worldMousePos);
 
-    m_camVelocity = {0,0};
+    m_camVelocity = glm::vec3(0);
 
-    if(eventsManager->keyIsPressed(GLFW_KEY_DOWN))
+    /*if(eventsManager->keyIsPressed(GLFW_KEY_DOWN))
         m_camVelocity.y = 200.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_UP))
         m_camVelocity.y = -200.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT))
         m_camVelocity.x = -200.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_RIGHT))
-        m_camVelocity.x = 200.0;
+        m_camVelocity.x = 200.0;*/
+    if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_UP))
+        m_camVelocity.z = -1.0;
+    if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_DOWN))
+        m_camVelocity.z = 1.0;
 
 
     glm::vec2 charDirection = {0,0};
@@ -356,10 +386,14 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_totalTime += elapsedTime;
     m_nbrFps++;
 
-    glm::vec2 camMove = m_scene->convertScreenToWorldCoord(m_camVelocity);
+    glm::vec2 camMoveXY = m_scene->convertScreenToWorldCoord(glm::vec2(m_camVelocity.x,m_camVelocity.y));
+    glm::vec3 camMove = glm::vec3(camMoveXY.x, camMoveXY.y, m_camVelocity.z);
     camMove.x *= elapsedTime.count();
     camMove.y *= elapsedTime.count();
+    camMove.z *= elapsedTime.count();
     m_cameraNode->move(camMove);
+
+    //m_cameraNode->move(glm::vec3(0,0,elapsedTime.count()));
 
     m_character->addToNearbyCharacters(m_duck);
     m_duck->addToNearbyCharacters(m_character);

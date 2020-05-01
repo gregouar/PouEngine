@@ -45,11 +45,11 @@ class SceneRenderer : public AbstractRenderer
         void addToMeshShadowsVbo(VMesh *mesh, const MeshDatum &datum);*/
 
         void addToSpritesVbo(const SpriteDatum &datum);
-        //void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);
+        void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);
         void addToLightsVbo(const LightDatum &datum);
 
         size_t getSpritesVboSize();
-        //size_t getMeshesVboSize(VMesh *mesh);
+        size_t getMeshesVboSize(VMesh *mesh);
         size_t getLightsVboSize();
 
         /*VRenderPass *getSpriteShadowsRenderPass();
@@ -86,8 +86,8 @@ class SceneRenderer : public AbstractRenderer
         bool createMeshDirectShadowsPipeline();*/
         //Deferred
         bool createDeferredSpritesPipeline();
-        /*bool createDeferredMeshesPipeline();
-        bool createAlphaDetectPipeline();
+        bool createDeferredMeshesPipeline();
+        /*bool createAlphaDetectPipeline();
         bool createAlphaDeferredPipeline();*/
         //Lighting
         /*bool createSsgiBNPipelines();*/
@@ -116,8 +116,8 @@ class SceneRenderer : public AbstractRenderer
                             m_spriteShadowsPipeline,
                             m_meshDirectShadowsPipeline;*/
 
-        VGraphicsPipeline   m_deferredSpritesPipeline/*,
-                            m_deferredMeshesPipeline,
+        VGraphicsPipeline   m_deferredSpritesPipeline,
+                            m_deferredMeshesPipeline/*,
                             m_alphaDetectPipeline,
                             m_alphaDeferredPipeline*/;
 
@@ -169,7 +169,7 @@ class SceneRenderer : public AbstractRenderer
         /*std::vector<DynamicVBO<SpriteShadowGenerationDatum>*>   m_spriteShadowGenerationVbos;
         std::vector<DynamicVBO<SpriteShadowDatum>*>          m_spriteShadowsVbos;*/
         std::vector<DynamicVBO<SpriteDatum>*>                m_spritesVbos;
-        //std::vector<std::map<VMesh* ,DynamicVBO<MeshDatum>*> >  m_meshesVbos;
+        std::vector<std::map<VMesh* ,DynamicVBO<MeshDatum>*> >  m_meshesVbos;
         std::vector<DynamicVBO<LightDatum>*>                    m_lightsVbos;
 
         std::list<SceneRenderingInstance*>      m_renderingInstances;
@@ -209,6 +209,8 @@ class SceneRenderer : public AbstractRenderer
 
         static const char *SPRITE_DEFERRED_VERTSHADERFILE;
         static const char *SPRITE_DEFERRED_FRAGSHADERFILE;
+        static const char *MESH_DEFERRED_VERTSHADERFILE;
+        static const char *MESH_DEFERRED_FRAGSHADERFILE;
         static const char *LIGHTING_VERTSHADERFILE;
         static const char *LIGHTING_FRAGSHADERFILE;
         static const char *AMBIENTLIGHTING_VERTSHADERFILE;

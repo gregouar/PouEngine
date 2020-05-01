@@ -7,6 +7,7 @@ layout(binding = 0, set = 0) uniform ViewUBO {
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 
 layout(push_constant) uniform PER_OBJECT
@@ -68,10 +69,13 @@ void main()
     vec3 N      = normalize(vec4(inModel * vec4(inNormal,    0.0)).xyz);
     fragTBN     = mat3(T, B, N);
 
-    gl_Position = viewUbo.view*(fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
-    gl_Position.xy = gl_Position.xy/gl_Position.w;
+    gl_Position = viewUbo.view* (fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0))*vec4(1.0,1.0,1.0,1.0);
+    gl_Position.xyz = gl_Position.xyz/gl_Position.w;
+	
+	gl_Position.x = gl_Position.x * (gl_Position.z/viewUbo.proj+1);
+	gl_Position.y = gl_Position.y * (gl_Position.z/viewUbo.proj+1);
 
-    gl_Position.z = fragWorldPos.z;
+    //gl_Position.z = fragWorldPos.z;
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
 

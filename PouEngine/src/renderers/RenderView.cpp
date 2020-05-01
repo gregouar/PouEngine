@@ -16,6 +16,7 @@ RenderView::RenderView() :
     m_viewUbo.depthOffsetAndFactor  = glm::vec2(0.0f, 0.0f);
     m_viewUbo.screenOffset          = glm::vec2(0.0f, 0.0f);
     m_viewUbo.screenSizeFactor      = glm::vec2(1.0f, 1.0f);
+    m_viewUbo.projFactor            = 1.0f;
     m_viewUbo.view                  = glm::mat4(1.0f);
     m_viewUbo.viewInv               = glm::mat4(1.0f);
 }
@@ -141,6 +142,13 @@ void RenderView::setLookAt(glm::vec3 position, glm::vec3 lookAt)
     for(auto b : m_needToUpdateBuffers) b = true;
     m_viewUbo.view = glm::lookAt(position, lookAt, glm::vec3(0.0,0.0,1.0));
     m_viewUbo.viewInv = glm::inverse(m_viewUbo.view); ///Could maybe be optimize
+}
+
+void RenderView::setProjectionFactor(float projFactor)
+{
+    if(projFactor != m_viewUbo.projFactor)
+        for(auto b : m_needToUpdateBuffers) b = true;
+    m_viewUbo.projFactor = projFactor;
 }
 
 void RenderView::setView(glm::mat4 view, glm::mat4 viewInv)

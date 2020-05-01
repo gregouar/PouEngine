@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<texture3D>
+	<name>Wall</name>
+	<height>5</height>
+	<texture type="albedo">wall.png</texture>
+</texture3D>

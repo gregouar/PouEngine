@@ -303,9 +303,9 @@ void SpriteEntity::generateRenderingData(SceneRenderingInstance *renderingInstan
     }
 }
 
-glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
+/**glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 {
-    /*if(m_spriteModel == nullptr || m_parentNode == nullptr)
+    if(m_spriteModel == nullptr || m_parentNode == nullptr)
         return glm::vec2(0.0);
 
     if(!m_spriteModel->isReady())
@@ -323,10 +323,10 @@ glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
         renderer->addToSpriteShadowsVbo(m_shadowDatum);
 
         return shadowShift;
-    }*/
+    }
 
     return glm::vec2(0.0);
-}
+}**/
 
 /*glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 {

@@ -12,6 +12,7 @@ struct ViewUBO {
     glm::vec2 screenOffset;
     glm::vec2 screenSizeFactor;
     glm::vec2 depthOffsetAndFactor;
+    glm::float32 projFactor;
 };
 
 struct ViewInfo {
@@ -22,6 +23,7 @@ struct ViewInfo {
     glm::mat4 viewInv;
     glm::vec2 viewportOffset;
     glm::vec2 viewportExtent;
+    glm::float32 projFactor;
 };
 
 class RenderView
@@ -42,6 +44,7 @@ class RenderView
         void setScreenOffset(glm::vec3 offset);
 
         void setLookAt(glm::vec3 position, glm::vec3 lookAt);
+        void setProjectionFactor(float factor);
         void setView(glm::mat4 view, glm::mat4 viewInv);
         void setZoom(float zoom);
 

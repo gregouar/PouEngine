@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="body" z="0">
-			<node name="head" x="0" y="-18" z=".1">
+		<node name="body" z="2.5">
+			<node name="head" x="0" y="-18" z="5">
 				<node name="beakHB" z=1 />
 			</node>
 			<node name="tail" x="0" y="29" z=".1" />
 			<node name="wingR" x="17" y="-1" z=".1" />
 			<node name="wingL" x="-17" y="-1" z=".1" />
-			<node name="legL" x="-8" y="12" z="-.1">
+			<node name="legL" x="-8" y="12" z="-2">
 				<node name="footL" x="-8" y="10" z="-.1">
 					<rotate z="-30" />
 				</node>
 			</node>
-			<node name="legR" x="8" y="12" z="-.1">
+			<node name="legR" x="8" y="12" z="-2">
 				<node name="footR" x="8" y="10" z="-.1" >
 					<rotate z="30" />
 				</node>

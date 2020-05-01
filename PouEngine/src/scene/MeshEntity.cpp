@@ -180,7 +180,7 @@ void MeshEntity::generateRenderingData(SceneRenderingInstance *renderingInstance
         renderingInstance->addToMeshesVbo(m_mesh->getMesh(), this->getMeshDatum());
 }
 
-glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
+/**glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 {
     if(m_mesh == nullptr || !m_mesh->isLoaded())
         return glm::vec2{0.0};
@@ -190,7 +190,7 @@ glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 
     ///I should compute bounding box and then maxShadowShift
     return glm::vec2{0.0};
-}
+}**/
 
 /*void MeshEntity::draw(SceneRenderer *renderer)
 {
@@ -203,7 +203,7 @@ void MeshEntity::notify(NotificationSender *sender, NotificationType notificatio
 {
     if(notification == Notification_AssetLoaded ||
        notification == Notification_TextureChanged ||
-       notification == Notification_SceneNodeMoved)
+       notification == Notification_NodeMoved)
         this->updateDatum();
 
     if(notification == Notification_SenderDestroyed)

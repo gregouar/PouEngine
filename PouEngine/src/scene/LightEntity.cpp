@@ -93,14 +93,14 @@ VTexture LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<Shado
 
     m_datum.shadowShift = {0,0};
 
-    for(auto shadowCaster : shadowCastersList)
+   /*** for(auto shadowCaster : shadowCastersList)
     {
         glm::vec2 shadowShift = shadowCaster->castShadow(renderer, this);
         if(glm::abs(shadowShift.x) > glm::abs(m_datum.shadowShift.x))
             m_datum.shadowShift.x = shadowShift.x;
         if(glm::abs(shadowShift.y) > glm::abs(m_datum.shadowShift.y))
             m_datum.shadowShift.y = shadowShift.y;
-    }
+    }**/
 
     return m_shadowMap.texture;
 }

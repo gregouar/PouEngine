@@ -55,7 +55,7 @@ class MeshEntity : public ShadowCaster
 
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance);
 
-        virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
+        ///virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
 
     protected:

@@ -29,7 +29,7 @@ void SceneRenderingInstance::addToSpritesOrdered(const SpriteDatum &datum, float
     m_spritesOrdered.insert({weight,datum});
 }
 
-/*void SceneRenderingInstance::addToMeshesVbo(VMesh *mesh, const MeshDatum &datum)
+void SceneRenderingInstance::addToMeshesVbo(VMesh *mesh, const MeshDatum &datum)
 {
     auto foundedSize = m_meshesVboSize.find(mesh);
     if(foundedSize == m_meshesVboSize.end())
@@ -39,7 +39,7 @@ void SceneRenderingInstance::addToSpritesOrdered(const SpriteDatum &datum, float
     }
     m_renderer->addToMeshesVbo(mesh, datum);
     ++foundedSize->second;
-}*/
+}
 
 void SceneRenderingInstance::addToLightsVbo(const LightDatum &datum)
 {
@@ -88,7 +88,7 @@ size_t SceneRenderingInstance::getSpritesVboOffset()
     return m_spritesVboOffset;
 }
 
-/*size_t SceneRenderingInstance::getMeshesVboSize(VMesh *mesh)
+size_t SceneRenderingInstance::getMeshesVboSize(VMesh *mesh)
 {
     auto founded = m_meshesVboSize.find(mesh);
     if(founded == m_meshesVboSize.end())
@@ -102,7 +102,7 @@ size_t SceneRenderingInstance::getMeshesVboOffset(VMesh *mesh)
     if(founded == m_meshesVboOffset.end())
         return (0);
     return founded->second;
-}*/
+}
 
 size_t SceneRenderingInstance::getLightsVboSize()
 {

@@ -2,6 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 0, set = 0) uniform ViewUBO {
+    float proj;
     mat4 view;
     mat4 viewInv;
     vec2 screenOffset;

@@ -44,6 +44,7 @@ void AbstractRenderer::render(uint32_t imageIndex)
 
 void AbstractRenderer::setView(ViewInfo viewInfo)
 {
+    m_renderView.setProjectionFactor(viewInfo.projFactor);
     m_renderView.setView(viewInfo.view, viewInfo.viewInv);
 }
 

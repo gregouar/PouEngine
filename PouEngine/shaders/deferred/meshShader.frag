@@ -7,6 +7,7 @@ layout(binding = 0, set = 0) uniform ViewUBO {
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 layout(binding = 0, set = 1) uniform sampler samp;
 layout(binding = 1, set = 1) uniform texture2DArray textures[128];

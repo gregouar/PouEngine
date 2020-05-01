@@ -53,7 +53,7 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;
-        glm::vec2            m_camVelocity;
+        glm::vec3            m_camVelocity;
         //glm::vec2            m_charVelocity;
 };
 
