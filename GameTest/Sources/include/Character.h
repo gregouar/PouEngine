@@ -29,6 +29,7 @@ class Character : public pou::SceneNode
         void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");
+        virtual bool stopAttacking();
 
         virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0));
         virtual bool interrupt(float amount);

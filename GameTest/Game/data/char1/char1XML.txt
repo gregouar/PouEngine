@@ -35,7 +35,7 @@
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>
-		<life>10000</life>
-		<attackDamages>2</attackDamages>
+		<life>100</life>
+		<attackDamages>25</attackDamages>
 	</attributes>
 </character>

@@ -118,6 +118,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingInstance.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/CameraObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/LightEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/MeshEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/Scene.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneNode.h" />
@@ -193,6 +194,7 @@
 		<Unit filename="../../PouEngine/src/renderers/SceneRenderingInstance.cpp" />
 		<Unit filename="../../PouEngine/src/scene/CameraObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/LightEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/MeshEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/Scene.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneNode.cpp" />

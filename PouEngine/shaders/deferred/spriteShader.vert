@@ -65,9 +65,7 @@ void main()
 
     screenPos = gl_Position.xyz;
 	
-	gl_Position.x = gl_Position.x * (gl_Position.z/viewUbo.proj+1);
-	gl_Position.y = gl_Position.y * (gl_Position.z/viewUbo.proj+1);
-
+	gl_Position.xy *= (gl_Position.z/viewUbo.proj+1);
 
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);

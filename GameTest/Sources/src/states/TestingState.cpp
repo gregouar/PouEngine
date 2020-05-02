@@ -118,13 +118,18 @@ void TestingState::init()
     for(auto x = -3 ; x < 3 ; x++)
     {
          glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
-         pou::SceneNode *treeTrunkNode = m_scene->getRootNode()->createChildNode(p.x,p.y,30);
+         pou::SceneNode *treeTrunkNode = m_scene->getRootNode()->createChildNode(p.x,p.y,40);
          treeTrunkNode->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeTrunk")));
-         pou::SceneNode *treeFoliage1Node = m_scene->getRootNode()->createChildNode(p.x,p.y,40);
+         pou::SceneNode *treeFoliage1Node = m_scene->getRootNode()->createChildNode(p.x,p.y,50);
          treeFoliage1Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage1")));
-         pou::SceneNode *treeFoliage2Node = m_scene->getRootNode()->createChildNode(p.x,p.y,50);
+         pou::SceneNode *treeFoliage2Node = m_scene->getRootNode()->createChildNode(p.x,p.y,60);
          treeFoliage2Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage2")));
     }
+
+
+     pou::SpriteSheetAsset *wallSpriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/wallSpriteXML.txt");
+     pou::SceneNode *wallSpriteNode = m_scene->getRootNode()->createChildNode(-50,-100);
+     wallSpriteNode->attachObject(m_scene->createSpriteEntity(wallSpriteSheet->getSpriteModel("wallSprite")));
 
 
 

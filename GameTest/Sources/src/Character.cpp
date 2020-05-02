@@ -111,6 +111,7 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     if(m_attackDelayTimer.isActive())
         return (false);
 
+    std::cout<<"start attack animation"<<std::endl;
     this->startAnimation(animationName,true);
     m_isAttacking = true;
     m_isWalking = false;
@@ -120,6 +121,18 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     m_attackDelayTimer.reset(m_attributes.attackDelay);
 
     return (true);
+}
+
+
+bool Character::stopAttacking()
+{
+    bool wasAttacking = m_isAttacking;
+
+    m_isAttacking = false;
+    m_alreadyHitCharacters.clear();
+    this->startAnimation("stand", true);
+
+    return wasAttacking;
 }
 
 bool Character::damage(float damages, glm::vec2 direction)
@@ -161,11 +174,13 @@ bool Character::interrupt(float amount)
 
     if(!m_interruptTimer.isActive())
     {
+        this->stopAttacking();
+        m_isWalking     = false;
+
         this->startAnimation("interrupt",true);
         m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
         m_attackDelayTimer.reset(0);
-        m_isAttacking   = false;
-        m_isWalking     = false;
+        //m_isAttacking   = false;
     }
 
     return interrupt;
@@ -383,6 +398,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
                 {
                     bool collision = pou::MathTools::detectBoxCollision(hitBox.box,hurtBox.box,
                                                                         hitNode,hurtNode);
+
                     if(collision)
                     {
                         m_alreadyHitCharacters.insert(c);
@@ -395,11 +411,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
     }
 
     if(isAnimationFinished && m_isAttacking)
-    {
-        m_isAttacking = false;
-        m_alreadyHitCharacters.clear();
-        this->startAnimation("stand", true);
-    }
+        this->stopAttacking();
 }
 
 void Character::updateLookingDirection(const pou::Time &elapsedTime)
