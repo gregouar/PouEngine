@@ -54,7 +54,7 @@
 			<command type="moveTo" node="baseTrunk" z=2  />
 		</frame>
 		
-		<frame frameTime=".5">
+		<frame frameTime=".75">
 			<command type="moveTo" node="trunk" y=20 x=120 z=-39  />
 			<command type="moveTo" node="foliage1" y=10 x=10 z=-9  />
 			<command type="moveTo" node="foliage2" y=0 x=0 z=-9  />

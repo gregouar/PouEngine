@@ -13,6 +13,7 @@
 		<box skeleton="mainSkeleton" node="trunkHB" >
 			<size 		x=24 	y=24 	/>
 			<center 	x=12 	y=12 	/>
+			<factor 	type="axe"> 1 </factor>
 		</box>
 	</hurtboxes>
 	
@@ -20,6 +21,6 @@
 	<attributes>
 		<walkingSpeed>0</walkingSpeed>
 		<immovable>true</immovable>
-		<life>200</life>
+		<life>50</life>
 	</attributes>
 </character>

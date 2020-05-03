@@ -12,23 +12,25 @@
 		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
 		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
-		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
+		<!--<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" /> -->
 		
 		<!--<limb node="weaponHB" sprite="swordHBTest" spritesheet="mainSpriteSheet" />
 		<limb node="bodyHB" sprite="bodyHBTest" spritesheet="mainSpriteSheet" />-->
 	</skeleton>
 	
-	<hitboxes>
+	<!--<hitboxes>
 		<box skeleton="mainSkeleton" node="weaponHB" >
 			<size 		x="14" 	y="72" 	/>
 			<center 	x="7" 	y="90" 	/>
+			<factor type="cut">1</factor>
 		</box>
-	</hitboxes>
+	</hitboxes>-->
 	
 	<hurtboxes>
 		<box skeleton="mainSkeleton" node="bodyHB" >
 			<size 		x="26" 	y="20" 	/>
 			<center 	x="12" 	y="10" 	/>
+			<factor>1</factor>
 		</box>
 	</hurtboxes>
 	
@@ -36,6 +38,6 @@
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>
 		<life>100</life>
-		<attackDamages>25</attackDamages>
+		<!--<attackDamages>25</attackDamages>-->
 	</attributes>
 </character>

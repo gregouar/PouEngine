@@ -69,15 +69,17 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
         for(auto &limb : skeletonModel.second.limbs)
         {
-            std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
+            auto *spriteEntity = targetCharacter->addLimb(&limb);
+            skeleton->attachLimb(limb.node,spriteEntity);
+
+            /*std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
 
             limbEntity->setSpriteModel(limb.spriteModel);
             limbEntity->setOrdering(pou::ORDERED_BY_Z);
             limbEntity->setInheritRotation(true);
 
             skeleton->attachLimb(limb.node,limbEntity.get());
-            //targetCharacter->m_limbs.push_back(std::move(limbEntity));
-            targetCharacter->addLimb(std::move(limbEntity));
+            targetCharacter->addLimb(std::move(limbEntity));*/
         }
 
         targetCharacter->addChildNode(skeleton.get());
@@ -249,37 +251,9 @@ bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::list<Hitbox> 
     auto boxChild = element->FirstChildElement("box");
     while(boxChild != nullptr)
     {
-        auto boxElement = boxChild->ToElement();
-        auto skeletonAtt= boxElement->Attribute("skeleton");
-        auto nodeAtt    = boxElement->Attribute("node");
+        boxList.push_back(Hitbox ());
 
-        if(skeletonAtt != nullptr && nodeAtt != nullptr)
-        {
-            boxList.push_back(Hitbox(std::string(skeletonAtt), std::string(nodeAtt)));
-            auto &box = boxList.back();
-
-            auto factorAtt = boxElement->Attribute("factor");
-            if(factorAtt != nullptr)
-                box.factor = pou::Parser::parseFloat(std::string(factorAtt));
-
-            auto sizeElement = boxElement->FirstChildElement("size");
-            if(sizeElement != nullptr)
-            {
-                if(sizeElement->Attribute("x") != nullptr)
-                    box.box.size.x = pou::Parser::parseFloat(std::string(sizeElement->Attribute("x")));
-                if(sizeElement->Attribute("y") != nullptr)
-                    box.box.size.y = pou::Parser::parseFloat(std::string(sizeElement->Attribute("y")));
-            }
-
-            auto centerElement = boxElement->FirstChildElement("center");
-            if(centerElement != nullptr)
-            {
-                if(centerElement->Attribute("x") != nullptr)
-                    box.box.center.x = pou::Parser::parseFloat(std::string(centerElement->Attribute("x")));
-                if(centerElement->Attribute("y") != nullptr)
-                    box.box.center.y = pou::Parser::parseFloat(std::string(centerElement->Attribute("y")));
-            }
-        } else
+        if(!boxList.back().loadFromXML(boxChild->ToElement()))
             pou::Logger::warning("Incomplete hitbox in character model: "+m_filePath);
 
         boxChild = boxChild->NextSiblingElement("box");

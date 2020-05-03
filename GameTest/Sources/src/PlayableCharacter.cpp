@@ -1,5 +1,7 @@
 #include "PlayableCharacter.h"
 
+#include "PouEngine/assets/AssetHandler.h"
+
 const float PlayableCharacter::DEFAULT_COMBATMODE_DELAY = 3.0f;
 const float PlayableCharacter::DEFAULT_WANTTOATTACK_DELAY = .1f;
 const float PlayableCharacter::DEFAULT_DASH_DELAY = .5f;
@@ -18,6 +20,8 @@ PlayableCharacter::PlayableCharacter() : Character()
 
     m_isLateralWalking  = false;
     m_lookingAt         = glm::vec2(0);
+
+    m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
@@ -38,6 +42,33 @@ bool PlayableCharacter::loadModel(const std::string &path)
 
     return (true);
 }
+
+bool PlayableCharacter::loadItem(const std::string &path)
+{
+    ItemModelAsset* itemModel = pou::AssetHandler<ItemModelAsset>::loadAssetFromFile(path);
+
+    if(itemModel == nullptr)
+        return (false);
+
+    GearType type = itemModel->getAttributes().type;
+
+    if(type == NBR_GEAR_TYPES)
+        return (false);
+
+    if(m_gearsModel[type] != nullptr)
+    {
+        m_gearsModel[type]->removeFromCharacter(this);
+        //Do Something
+    }
+
+    itemModel->generateOnCharacter(this);
+
+    m_gearsModel[type] = itemModel;
+    this->updateGearsAttributes();
+
+    return (true);
+}
+
 
 void PlayableCharacter::setWalkingSpeed(float speed)
 {
@@ -179,4 +210,33 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
     Character::update(elapsedTime);
 }
 
+
+const std::list<Hitbox> *PlayableCharacter::getHitboxes() const
+{
+    return &m_hitboxes;
+}
+
+
+void PlayableCharacter::updateGearsAttributes()
+{
+    m_hitboxes.clear();
+
+    if(Character::getModel() != nullptr)
+        for(auto box : *Character::getModel()->getHitboxes())
+            m_hitboxes.push_back(box);
+
+
+    for(auto gear : m_gearsModel)
+    {
+        if(gear != nullptr)
+            for(auto box : *gear->getHitboxes())
+                m_hitboxes.push_back(box);
+    }
+
+    if(m_gearsModel[GearType_Weapon] != nullptr)
+    {
+        m_attributes.attackDamages  = m_gearsModel[GearType_Weapon]->getAttributes().attackDamages;
+        m_attributes.attackDelay    = m_gearsModel[GearType_Weapon]->getAttributes().attackDelay;
+    }
+}
 

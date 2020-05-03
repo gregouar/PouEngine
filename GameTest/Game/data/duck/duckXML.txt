@@ -22,6 +22,8 @@
 		<box skeleton="mainSkeleton" node="beakHB" >
 			<size 		x="14" 	y="20" 	/>
 			<center 	x="7" 	y="35" 	/>
+			<factor type="pierce">.7</factor>
+			<factor type="blunt">.3</factor>
 		</box>
 	</hitboxes>
 	
@@ -29,6 +31,7 @@
 		<box skeleton="mainSkeleton" node="bodyHB" >
 			<size 		x="46" 	y="60" 	/>
 			<center 	x="23" 	y="25" 	/>
+			<factor>1</factor>
 		</box>
 	</hurtboxes>
 	

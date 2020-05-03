@@ -50,6 +50,11 @@
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="92" 	y="4" 	/>
 	</sprite>
+	<sprite name="axe">
+		<size 		x="64" 	y="64" 	/>
+		<center 	x="14" 	y="48" 	/>
+		<position 	x="92" 	y="68" 	/>
+	</sprite>
 	
 	<sprite name="swordHBTest">
 		<size 		x="14" 	y="72" 	/>

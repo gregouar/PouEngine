@@ -3,6 +3,9 @@
 
 #include <Character.h>
 
+#include "assets/ItemModelAsset.h"
+
+
 class PlayableCharacter : public Character
 {
     public:
@@ -10,6 +13,7 @@ class PlayableCharacter : public Character
         virtual ~PlayableCharacter();
 
         virtual bool loadModel(const std::string &path);
+        virtual bool loadItem(const std::string &path);
 
         virtual void setWalkingSpeed(float speed);
 
@@ -22,7 +26,14 @@ class PlayableCharacter : public Character
 
         virtual void update(const pou::Time &elapsedTime);
 
+        virtual const std::list<Hitbox> *getHitboxes() const;
+
     protected:
+        virtual void updateGearsAttributes();
+
+    protected:
+        std::vector<ItemModelAsset *> m_gearsModel;
+        std::list<Hitbox>             m_hitboxes;
 
     private:
         //bool        m_isInCombatMode;

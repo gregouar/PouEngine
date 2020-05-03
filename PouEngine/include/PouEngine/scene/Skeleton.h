@@ -46,6 +46,8 @@ class Skeleton : public SceneNode
         virtual ~Skeleton();
 
         bool attachLimb(const std::string &boneName, SceneObject *object);
+        bool detachLimb(const std::string &boneName, SceneObject *object);
+        bool detachAllLimbs(const std::string &boneName);
 
         bool startAnimation(const std::string &animationName, bool forceStart = false); //Probably could add ForceStart
         //could add pause animation etc

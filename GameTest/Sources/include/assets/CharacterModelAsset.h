@@ -6,9 +6,11 @@
 #include "PouEngine/assets/SkeletonmodelAsset.h"
 #include "PouEngine/scene/Skeleton.h"
 #include "PouEngine/scene/SpriteEntity.h"
-#include "PouEngine/utils/MathTools.h"
 
 #include "tinyxml/tinyxml.h"
+
+#include "Types.h"
+#include "Hitbox.h"
 
 #include <vector>
 #include <list>
@@ -41,18 +43,6 @@ struct CharacterAttributes
     bool  immovable;
 };
 
-struct Hitbox
-{
-    Hitbox(const std::string &s, const std::string &n) :
-        skeleton(s),node(n), factor(1.0f) {}
-
-    std::string skeleton;
-    std::string node;
-    float factor;
-    pou::MathTools::Box box;
-    //glm::vec2 size;
-    //glm::vec2 center;
-};
 
 class CharacterModelAsset : public pou::Asset
 {

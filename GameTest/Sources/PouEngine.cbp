@@ -20,6 +20,7 @@
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
 					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -35,6 +36,7 @@
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
 					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -54,6 +56,7 @@
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
 					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -71,6 +74,7 @@
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />
 					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -230,11 +234,13 @@
 		<Unit filename="include/Character.h" />
 		<Unit filename="include/PlayableCharacter.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
+		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Character.cpp" />
 		<Unit filename="src/PlayableCharacter.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
+		<Unit filename="src/assets/ItemModelAsset.cpp" />
 		<Unit filename="src/states/TestingState.cpp" />
 		<Extensions />
 	</Project>

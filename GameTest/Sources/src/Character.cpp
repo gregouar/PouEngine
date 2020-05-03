@@ -60,17 +60,57 @@ bool Character::loadModel(const std::string &path)
     return (true);
 }
 
-bool Character::addLimb(std::unique_ptr<pou::SpriteEntity> limb)
-{
-    m_limbs.push_back(std::move(limb));
-    return (true);
-}
-
 bool Character::addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name)
 {
     return (m_skeletons.insert({name,std::move(skeleton)}).second);
 }
 
+pou::SpriteEntity *Character::addLimb(LimbModel *limbModel)
+{
+    std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
+
+    limbEntity->setSpriteModel(limbModel->spriteModel);
+    limbEntity->setOrdering(pou::ORDERED_BY_Z);
+    limbEntity->setInheritRotation(true);
+
+    auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
+
+    return (limb.first->second.get());
+}
+
+bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skeletonName)
+{
+    auto skeleton = m_skeletons.find(skeletonName);
+
+    if(skeleton == m_skeletons.end())
+        return (false);
+
+    auto *spriteEntity = this->addLimb(limbModel);
+    skeleton->second.get()->attachLimb(limbModel->node,spriteEntity);
+
+    return (true);
+}
+
+bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeletonName)
+{
+    if(limbModel == nullptr)
+        return (false);
+
+    auto skeleton = m_skeletons.find(skeletonName);
+
+    if(skeleton == m_skeletons.end())
+        return (false);
+
+    auto limb = m_limbs.find(limbModel);
+
+    if(limb == m_limbs.end())
+        return (false);
+
+    skeleton->second.get()->detachLimb(limbModel->node, limb->second.get());
+    m_limbs.erase(limb);
+
+    return (true);
+}
 
 void Character::setWalkingSpeed(float speed)
 {
@@ -136,6 +176,9 @@ bool Character::stopAttacking()
 
 bool Character::damage(float damages, glm::vec2 direction)
 {
+    if(damages == 0)
+        return (false);
+
     bool isFatal = false;
     m_attributes.life -= damages;
     std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
@@ -385,25 +428,29 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
         if(this->getHitboxes() != nullptr)
         for(const auto hitBox : *this->getHitboxes())
         {
-            auto hitSkeleton    = this->m_skeletons.find(hitBox.skeleton);
-            auto hurtSkeleton   = c->m_skeletons.find(hurtBox.skeleton);
+            auto hitSkeleton    = this->m_skeletons.find(hitBox.getSkeleton());
+            auto hurtSkeleton   = c->m_skeletons.find(hurtBox.getSkeleton());
 
             if(hitSkeleton != this->m_skeletons.end() &&
                hurtSkeleton != c->m_skeletons.end())
             {
-                auto hitNode    = hitSkeleton->second->findNode(hitBox.node);
-                auto hurtNode   = hurtSkeleton->second->findNode(hurtBox.node);
+                auto hitNode    = hitSkeleton->second->findNode(hitBox.getNode());
+                auto hurtNode   = hurtSkeleton->second->findNode(hurtBox.getNode());
 
                 if(hitNode != nullptr && hurtNode != nullptr)
                 {
-                    bool collision = pou::MathTools::detectBoxCollision(hitBox.box,hurtBox.box,
+                    bool collision = pou::MathTools::detectBoxCollision(hitBox.getBox(),hurtBox.getBox(),
                                                                         hitNode,hurtNode);
 
                     if(collision)
                     {
                         m_alreadyHitCharacters.insert(c);
-                        float damages = m_attributes.attackDamages * hitBox.factor * hurtBox.factor;
-                        c->damage(damages,c->getGlobalXYPosition()-this->getGlobalXYPosition());
+
+                        float totalDamages = 0;
+                        for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
+                            totalDamages += m_attributes.attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
+
+                        c->damage(totalDamages,c->getGlobalXYPosition()-this->getGlobalXYPosition());
                     }
                 }
             }
@@ -460,5 +507,10 @@ const std::list<Hitbox> *Character::getHurtboxes() const
     if(m_model == nullptr)
         return (nullptr);
     return m_model->getHurtboxes();
+}
+
+const CharacterModelAsset *Character::getModel() const
+{
+    return m_model;
 }
 

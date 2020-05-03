@@ -369,6 +369,12 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_camVelocity.z = 1.0;
 
 
+
+    if(eventsManager->keyPressed(GLFW_KEY_1))
+        m_character->loadItem("../data/char1/swordXML.txt");
+    if(eventsManager->keyPressed(GLFW_KEY_2))
+        m_character->loadItem("../data/char1/axeXML.txt");
+
     glm::vec2 charDirection = {0,0};
 
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
@@ -382,6 +388,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
         m_character->askToDash(charDirection);
+
 
     m_character->walk(charDirection);
 

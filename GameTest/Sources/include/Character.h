@@ -20,8 +20,13 @@ class Character : public pou::SceneNode
         virtual ~Character();
 
         virtual bool loadModel(const std::string &path);
-        virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
         virtual bool addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name);
+
+        //virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
+        virtual pou::SpriteEntity *addLimb(LimbModel *limbModel); //return nullptr if error
+        virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
+        virtual bool removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeleton);
+        //virtual bool removeLimbFromSkeleton(pou::SpriteEntity limb*, const std::string &skeleton);
 
         virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
@@ -43,8 +48,10 @@ class Character : public pou::SceneNode
 
         bool isAlive() const;
 
-        const std::list<Hitbox> *getHitboxes() const;
-        const std::list<Hitbox> *getHurtboxes() const;
+        virtual const std::list<Hitbox> *getHitboxes() const;
+        virtual const std::list<Hitbox> *getHurtboxes() const;
+
+        const CharacterModelAsset *getModel() const;
 
     protected:
         void cleanup();
@@ -82,7 +89,7 @@ class Character : public pou::SceneNode
     private:
         CharacterModelAsset *m_model;
 
-        std::list<std::unique_ptr<pou::SpriteEntity> > m_limbs;
+        std::map<LimbModel*, std::unique_ptr<pou::SpriteEntity> > m_limbs;
 
         float m_rotationRadius;
 

@@ -51,6 +51,37 @@ bool Skeleton::attachLimb(const std::string &boneName, SceneObject *object)
     return (true);
 }
 
+bool Skeleton::detachLimb(const std::string &boneName, SceneObject *object)
+{
+    auto bone = m_nodesByName.find(boneName);
+    if(bone == m_nodesByName.end())
+    {
+        Logger::warning("Cannot detach limb from bone "+boneName);
+        return (false);
+    }
+
+    bone->second->detachObject(object);
+
+    return (true);
+}
+
+
+
+bool Skeleton::detachAllLimbs(const std::string &boneName)
+{
+    auto bone = m_nodesByName.find(boneName);
+    if(bone == m_nodesByName.end())
+    {
+        Logger::warning("Cannot detach limbs from bone "+boneName);
+        return (false);
+    }
+
+    bone->second->detachAllObjects();
+
+    return (true);
+}
+
+
 bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
 {
     if(m_curAnimation != nullptr && m_curAnimation->getName() == animationName)
