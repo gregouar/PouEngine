@@ -140,6 +140,7 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             rotation.z = Parser::parseFloat(att);
 
+
         rootNode->rotate(rotation,false);
     }
 
@@ -304,6 +305,17 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
         commandElement = commandElement->NextSiblingElement("command");
     }
 
+    commandElement = element->FirstChildElement("globalCommand");
+    while(commandElement != nullptr)
+    {
+        for(const auto n : *mapOfNodes)
+        {
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Unknown_Command,n.first));
+            m_commands.back().loadFromXml(commandElement->ToElement());
+        }
+        commandElement = commandElement->NextSiblingElement("globalCommand");
+    }
+
     commandElement = element->FirstChildElement("reset");
     while(commandElement != nullptr)
     {
@@ -314,6 +326,7 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
             m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,nodeName));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,nodeName));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,nodeName));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,nodeName));
         }
         else
         for(const auto n : *mapOfNodes)
@@ -321,6 +334,7 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
             m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,n.first));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,n.first));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,n.first));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,n.first));
         }
 
         commandElement = commandElement->NextSiblingElement("reset");
@@ -364,14 +378,14 @@ SkeletalAnimationCommandModel::SkeletalAnimationCommandModel(SkeletalAnimationFr
                                         SkelAnimCmdType type, const std::string &node) :
     m_frameModel(frameModel),
     m_type(type),
+    m_amount(0),
     m_rate(0),
     m_node(node)
 {
-    m_amount = {0,0,0};
     if(type != Unknown_Command)
-        m_enabledDirection = {true,true,true};
+        m_enabledDirection = glm::vec4(true);
     else
-        m_enabledDirection = {false,false,false};
+        m_enabledDirection = glm::vec4(false);
 }
 
 SkeletalAnimationCommandModel::~SkeletalAnimationCommandModel()
@@ -390,6 +404,8 @@ bool SkeletalAnimationCommandModel::loadFromXml(TiXmlElement *element)
             m_type = Rotate_To;
         else if(type.compare("scaleTo") == 0)
             m_type = Scale_To;
+        else if(type.compare("colorTo") == 0)
+            m_type = Color_To;
         /**  Add more **/
     }
     else
@@ -411,6 +427,26 @@ bool SkeletalAnimationCommandModel::loadFromXml(TiXmlElement *element)
     if(att != nullptr)
         m_amount.z = Parser::parseFloat(att), m_enabledDirection.z = true;
 
+
+
+    att = element->Attribute("r");
+    if(att != nullptr)
+        m_amount.x = Parser::parseFloat(att), m_enabledDirection.x = true;
+
+    att = element->Attribute("g");
+    if(att != nullptr)
+        m_amount.y = Parser::parseFloat(att), m_enabledDirection.y = true;
+
+    att = element->Attribute("b");
+    if(att != nullptr)
+        m_amount.z = Parser::parseFloat(att), m_enabledDirection.z = true;
+
+    att = element->Attribute("a");
+    if(att != nullptr)
+        m_amount.w = Parser::parseFloat(att), m_enabledDirection.w = true;
+
+
+
     att = element->Attribute("rate");
     if(att != nullptr)
         m_rate = glm::abs(Parser::parseFloat(att));
@@ -423,7 +459,7 @@ SkelAnimCmdType SkeletalAnimationCommandModel::getType() const
     return m_type;
 }
 
-std::pair<const glm::vec3&,const glm::vec3&> SkeletalAnimationCommandModel::getAmount() const
+std::pair<const glm::vec4&,const glm::vec4&> SkeletalAnimationCommandModel::getAmount() const
 {
     return {m_amount, m_enabledDirection};
 }

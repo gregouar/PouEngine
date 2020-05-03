@@ -50,6 +50,7 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         PlayableCharacter *m_character;
         Character  *m_character2, *m_croco, *m_duck;
         std::list<Character *> m_duckSwarm;
+        std::list<Character *> m_trees;
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;

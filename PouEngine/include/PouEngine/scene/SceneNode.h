@@ -58,6 +58,9 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         void detachObject(SceneObject *);
         void detachAllObjects();
 
+        void colorize(const glm::vec4 &c);
+        void setColor(const glm::vec4 &c);
+
         /*void move(float, float);
         void move(float, float, float);
         void move(glm::vec2 );
@@ -87,6 +90,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         /*NodeTypeId getId();
         SceneNode* getParent();*/
         Scene*  getScene();
+        const glm::vec4 &getColor() const;
 
         //void update(const Time &elapsedTime);
 
@@ -117,6 +121,8 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         glm::mat4 m_modelMatrix;*/
 
         Scene* m_scene;
+
+        glm::vec4 m_color;
 
     private:
         /*NodeTypeId m_id;

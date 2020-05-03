@@ -309,6 +309,10 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
     if(e != nullptr)
         m_attributes.attackDamages = pou::Parser::parseFloat(e->GetText());
 
+    e = element->FirstChildElement("immovable");
+    if(e != nullptr)
+        m_attributes.immovable = pou::Parser::parseBool(e->GetText());
+
     return (true);
 }
 

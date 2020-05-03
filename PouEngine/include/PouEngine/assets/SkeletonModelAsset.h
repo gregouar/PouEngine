@@ -24,7 +24,7 @@ class SkeletalAnimationCommandModel
         bool loadFromXml(TiXmlElement *element);
 
         SkelAnimCmdType getType() const;
-        std::pair<const glm::vec3&,const glm::vec3&> getAmount() const;
+        std::pair<const glm::vec4&,const glm::vec4&> getAmount() const;
         float getRate() const;
         float getFrameTime() const;
         const std::string &getNode() const;
@@ -33,7 +33,7 @@ class SkeletalAnimationCommandModel
         SkeletalAnimationFrameModel *m_frameModel;
         SkelAnimCmdType m_type;
 
-        glm::vec3   m_amount, m_enabledDirection;
+        glm::vec4  m_amount, m_enabledDirection;
         float   m_rate;
 
         std::string m_node; //Need to switch from string to pointer

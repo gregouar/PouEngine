@@ -11,15 +11,16 @@ struct SkeletalNodeState
 {
     SkeletalNodeState();
 
-    glm::vec3   posisiton;
-    glm::vec3   rotation;
-    glm::vec3   scale;
+    glm::vec4   posisiton;
+    glm::vec4   rotation;
+    glm::vec4   scale;
+    glm::vec4   color;
 };
 
 class SkeletalAnimationCommand
 {
     public:
-        SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SimpleNode *node, SkeletalNodeState *nodeState);
+        SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node, SkeletalNodeState *nodeState);
 
         virtual bool update(const Time &elapsedTime);
 
@@ -28,12 +29,12 @@ class SkeletalAnimationCommand
 
     protected:
         const SkeletalAnimationCommandModel *m_model;
-        SimpleNode *m_node;
+        SceneNode *m_node;
         SkeletalNodeState *m_nodeState;
 
-        glm::vec3 m_value;
-        glm::vec3 m_amount;
-        glm::vec3 m_enabledDirection;
+        glm::vec4 m_value;
+        glm::vec4 m_amount;
+        glm::vec4 m_enabledDirection;
 };
 
 

@@ -394,7 +394,7 @@ void SpriteEntity::updateDatum()
 
     //float heightFactor = 1.0;
 
-    m_datum.albedo_color = m_color;
+    m_datum.albedo_color = m_color * m_parentNode->getColor();
     //m_datum.rmt_color = m_rmt;
 
     /*MaterialAsset* material = m_spriteModel->getMaterial();

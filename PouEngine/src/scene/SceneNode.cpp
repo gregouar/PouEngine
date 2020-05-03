@@ -9,7 +9,8 @@ namespace pou
 {
 
 SceneNode::SceneNode(const NodeTypeId id) :
-    SimpleNode(id)
+    SimpleNode(id),
+    m_color(1.0f)
     /*m_globalPosition(0.0,0.0,0.0),
     m_position(0.0,0.0,0.0),
     m_eulerRotations(0.0,0.0,0.0),
@@ -388,6 +389,12 @@ Scene* SceneNode::getScene()
     return m_scene;
 }
 
+const glm::vec4 &SceneNode::getColor() const
+{
+    return m_color;
+}
+
+
 /*SceneNode* SceneNode::getParent()
 {
     return m_parent;
@@ -399,6 +406,17 @@ void SceneNode::setId(const NodeTypeId id)
 {
     m_id = id;
 }*/
+
+
+void SceneNode::colorize(const glm::vec4 &c)
+{
+    this->setColor(m_color + c);
+}
+
+void SceneNode::setColor(const glm::vec4 &c)
+{
+    m_color = c;
+}
 
 void SceneNode::setScene(Scene *scene)
 {

@@ -31,13 +31,14 @@ struct SkeletonWithLimbs
 struct CharacterAttributes
 {
     CharacterAttributes() : walkingSpeed(0), attackDelay(0),
-        life(0), attackDamages(0)
+        life(0), attackDamages(0), immovable(0)
         {}
     float walkingSpeed;
     float attackDelay;
     float maxLife;
     float life;
     float attackDamages;
+    bool  immovable;
 };
 
 struct Hitbox

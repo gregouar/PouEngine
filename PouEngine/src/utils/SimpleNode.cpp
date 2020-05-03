@@ -327,6 +327,11 @@ void SimpleNode::scale(glm::vec3 scale)
     this->setScale(m_scale*scale);
 }
 
+void SimpleNode::linearScale(float x, float y, float z)
+{
+    this->linearScale(glm::vec3(x,y,z));
+}
+
 void SimpleNode::linearScale(glm::vec3 scale)
 {
     this->setScale(m_scale+scale);

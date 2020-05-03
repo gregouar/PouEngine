@@ -112,8 +112,16 @@ void TestingState::init()
          grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1")));
     }
 
+    for(auto x = -3 ; x < 3 ; x++)
+    {
+        glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        m_trees.push_back(new Character());
+        m_trees.back()->loadModel("../data/grasslands/treeXML.txt");
+        m_trees.back()->setPosition(p);
+        m_scene->getRootNode()->addChildNode(m_trees.back());
+    }
 
-    pou::SpriteSheetAsset *treeSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
+    /*pou::SpriteSheetAsset *treeSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
 
     for(auto x = -3 ; x < 3 ; x++)
     {
@@ -124,7 +132,9 @@ void TestingState::init()
          treeFoliage1Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage1")));
          pou::SceneNode *treeFoliage2Node = m_scene->getRootNode()->createChildNode(p.x,p.y,60);
          treeFoliage2Node->attachObject(m_scene->createSpriteEntity(treeSheet->getSpriteModel("treeFoliage2")));
-    }
+    }*/
+
+
 
 
      pou::SpriteSheetAsset *wallSpriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/wallSpriteXML.txt");
@@ -265,6 +275,10 @@ void TestingState::leaving()
     for(auto duck : m_duckSwarm)
         delete duck;
     m_duckSwarm.clear();
+
+    for(auto tree : m_trees)
+        delete tree;
+    m_trees.clear();
 }
 
 void TestingState::revealed()
@@ -408,6 +422,12 @@ void TestingState::update(const pou::Time &elapsedTime)
         m_character->addToNearbyCharacters(duck);
         duck->addToNearbyCharacters(m_character);
     }
+
+    for(auto tree : m_trees)
+    {
+        m_character->addToNearbyCharacters(tree);
+    }
+
 
     //m_testChar->rotate(1.0*elapsedTime.count());
 

@@ -190,13 +190,13 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
 /**                             **/
 
 
-SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SimpleNode *node,
+SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node,
                                                    SkeletalNodeState *nodeState) :
     m_model(model),
     m_node(node),
     m_nodeState(nodeState),
     m_value(0),
-    m_amount({0,0,0})
+    m_amount(0)
 {
     this->computeAmount();
 }
@@ -213,33 +213,36 @@ void SkeletalAnimationCommand::computeAmount()
         m_amount = m_amount - m_nodeState->rotation;
     else if(m_model->getType() == Scale_To)
         m_amount = m_amount - m_nodeState->scale;
+    else if(m_model->getType() == Color_To)
+        m_amount = m_amount - m_nodeState->color;
 
     if(m_amount.x == 0) m_enabledDirection.x = false;
     if(m_amount.y == 0) m_enabledDirection.y = false;
     if(m_amount.z == 0) m_enabledDirection.z = false;
+    if(m_amount.w == 0) m_enabledDirection.w = false;
 }
 
 bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 {
-    glm::vec3 a = glm::vec3(elapsedTime.count()); // * m_model->getRate();
-    glm::vec3 absAmount = glm::abs(m_amount);
+    glm::vec4 a = glm::vec4(elapsedTime.count()); // * m_model->getRate();
+    glm::vec4 absAmount = glm::abs(m_amount);
 
     if(m_model->getRate() > 0)
         a = a * m_model->getRate();
     else
         a = a * absAmount/m_model->getFrameTime();
-       // std::cout<<m_model->getFrameTime()<<std::endl;
 
     bool finished = true;
 
-    glm::vec3 sign;
+    glm::vec4 sign;
 
     sign.x = (m_amount.x < 0) ? -1 : 1;
     sign.y = (m_amount.y < 0) ? -1 : 1;
     sign.z = (m_amount.z < 0) ? -1 : 1;
+    sign.w = (m_amount.w < 0) ? -1 : 1;
     sign = sign * m_enabledDirection;
 
-    glm::vec3 finalAmount(0.0);
+    glm::vec4 finalAmount(0.0);
 
     if(m_value.x + a.x >= absAmount.x)
     {
@@ -274,22 +277,38 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
         finished = false;
     }
 
+    if(m_value.w + a.w >= absAmount.w)
+    {
+        finalAmount.w = sign.w * (absAmount.w - m_value.w);
+        m_enabledDirection.w = 0;
+    }
+    else
+    {
+        finalAmount.w = sign.w * a.w;
+        finished = false;
+    }
+
     m_value += a;
 
     if(m_model->getType() == Move_To)
     {
-        m_node->move(finalAmount);
+        m_node->move(finalAmount.x,finalAmount.y,finalAmount.z);
         m_nodeState->posisiton += finalAmount;
     }
     else if(m_model->getType() == Rotate_To)
     {
-        m_node->rotate(finalAmount, false);
+        m_node->rotate(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z), false);
         m_nodeState->rotation += finalAmount;
     }
     else if(m_model->getType() == Scale_To)
     {
-        m_node->linearScale(finalAmount);
+        m_node->linearScale(finalAmount.x,finalAmount.y,finalAmount.z);
         m_nodeState->scale += finalAmount;
+    }
+    else if(m_model->getType() == Color_To)
+    {
+        m_node->colorize(finalAmount);
+        m_nodeState->color += finalAmount;
     }
     else
         return (true);
@@ -300,9 +319,10 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 /// ************************  ///
 
 SkeletalNodeState::SkeletalNodeState() :
-    posisiton({0,0,0}),
-    rotation({0,0,0}),
-    scale({0,0,0})
+    posisiton(0),
+    rotation(0),
+    scale(0),
+    color(0)
 {
 
 }

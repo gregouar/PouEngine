@@ -109,6 +109,7 @@ enum SkelAnimCmdType
     Move_To,
     Rotate_To,
     Scale_To,
+    Color_To
 };
 
 enum CommandPoolName

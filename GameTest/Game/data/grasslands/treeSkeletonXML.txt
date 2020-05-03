@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<skeleton>
+	<node name="root"> 
+		<node name="trunk" z=40>
+			<node name="foliage1" z=10 >
+				<node name="foliage2" z=10 />
+			</node>
+		</node>
+		<node name="baseTrunk" z=-2 />
+		<node name="trunkHB" />
+	</node>
+	
+	
+	<animation name="stand" loop=1>
+		<frame frameTime=".1">
+			<reset />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="foliage1" y=2 x=-1  />
+			<command type="moveTo" node="foliage2" y=-3 x=-4  />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="foliage1" y=3 x=2  />
+			<command type="moveTo" node="foliage2" y=.5 x=2  />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="foliage1" y=0 x=0  />
+			<command type="moveTo" node="foliage2" y=0 x=0  />
+		</frame>
+	</animation>
+	
+	<animation name="interrupt">
+		<frame frameTime=".1">
+			<command type="moveTo" node="trunk" y=-1 x=2  />
+			<command type="moveTo" node="foliage1" y=5 x=7  />
+			<command type="moveTo" node="foliage2" y=-3 x=-4  />
+		</frame>
+		<frame frameTime=".1">
+			<command type="moveTo" node="trunk" y=1 x=-1  />
+			<command type="moveTo" node="foliage1" y=-2.5 x=-3.5  />
+			<command type="moveTo" node="foliage2" y=1.5 x=2  />
+		</frame>
+		<frame frameTime=".1">
+			<reset />
+		</frame>
+	</animation>
+	
+	
+	<animation name="death">		
+		<frame frameTime=".1">
+			<reset />
+		</frame>	
+		<frame frameTime=".01">
+			<command type="moveTo" node="baseTrunk" z=2  />
+		</frame>
+		
+		<frame frameTime=".5">
+			<command type="moveTo" node="trunk" y=20 x=120 z=-39  />
+			<command type="moveTo" node="foliage1" y=10 x=10 z=-9  />
+			<command type="moveTo" node="foliage2" y=0 x=0 z=-9  />
+			<command type="colorTo" node="trunk" a=-1 />
+			<command type="colorTo" node="foliage2" a=-1 />
+			<command type="colorTo" node="foliage1" a=-1 />
+		</frame>
+	</animation>
+</skeleton>
+
+

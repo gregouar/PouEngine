@@ -111,7 +111,6 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     if(m_attackDelayTimer.isActive())
         return (false);
 
-    std::cout<<"start attack animation"<<std::endl;
     this->startAnimation(animationName,true);
     m_isAttacking = true;
     m_isWalking = false;
@@ -156,6 +155,7 @@ bool Character::damage(float damages, glm::vec2 direction)
     //Do something to compute interrupt amount ?
     this->interrupt(damages);
 
+    if(!m_attributes.immovable)
     if(direction != glm::vec2(0) && damages >= m_attributes.maxLife*.25)
     {
         m_pushTimer.reset(.1f);

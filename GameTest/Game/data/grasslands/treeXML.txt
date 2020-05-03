@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="tree.png">
-	<sprite name="treeTrunk">
-		<size 		x="256" y="256" 	/>
-		<center 	x="128" y="128" 	/>
-		<position 	x="0" 	y="0" 	/>
-	</sprite>
-	<sprite name="treeFoliage1">
-		<size 		x="256" y="256" 	/>
-		<center 	x="128" y="128" 	/>
-		<position 	x="256" y="0" 	/>
-	</sprite>
-	<sprite name="treeFoliage2">
-		<size 		x="256" y="256" 	/>
-		<center 	x="128" y="128" 	/>
-		<position 	x="512" y="0" 	/>
-	</sprite>
-</spritesheet>
+<character>
+	<spritesheet name="mainSpriteSheet" path="treeSpritesheetXML.txt" />
+	
+	<skeleton name="mainSkeleton" path="treeSkeletonXML.txt">
+		<limb node="baseTrunk" 	sprite="treeBaseTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="trunk" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="foliage1" 	sprite="treeFoliage1" 	spritesheet="mainSpriteSheet" />
+		<limb node="foliage2" 	sprite="treeFoliage2" 	spritesheet="mainSpriteSheet" />
+	</skeleton>
+	
+	<hurtboxes>
+		<box skeleton="mainSkeleton" node="trunkHB" >
+			<size 		x=24 	y=24 	/>
+			<center 	x=12 	y=12 	/>
+		</box>
+	</hurtboxes>
+	
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>200</life>
+	</attributes>
+</character>

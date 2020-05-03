@@ -64,6 +64,19 @@
 			<command type="moveTo" node="legL" y="0" rate="200" />
 		</frame>-->
 		
+		<frame frameTime=".05" >
+			<!--<command type="colorTo" node="body" x=10 y=10 z=10 />
+			<command type="colorTo" node="head" x=10 y=10 z=10 />
+			<command type="colorTo" node="tail" x=10 y=10 z=10 />
+			<command type="colorTo" node="wingR" x=10 y=10 z=10 />
+			<command type="colorTo" node="wingL" x=10 y=10 z=10 />
+			<command type="colorTo" node="legL" x=10 y=10 z=10 />
+			<command type="colorTo" node="legR" x=10 y=10 z=10 />
+			<command type="colorTo" node="footL" x=10 y=10 z=10 />
+			<command type="colorTo" node="footR" x=10 y=10 z=10 />-->
+			<globalCommand type="colorTo" r=10 g=10 b=10 />
+		</frame>
+		
 		<frame frameTime=".15">
 			<command type="moveTo" node="head" y=6  />
 			<command type="scaleTo" node="head" y=-.1 x=-.1 />
@@ -73,11 +86,26 @@
 			<command type="rotateTo" node="wingR" z=-40 />
 			<command type="moveTo" node="legL" x=-8 y=8 />
 			<command type="moveTo" node="legR" x=8 y=8 />
+			
+			<!--<command type="colorTo" node="body" x=0 y=0 z=0 />
+			<command type="colorTo" node="head" x=0 y=0 z=0 />
+			<command type="colorTo" node="tail" x=0 y=0 z=0 />
+			<command type="colorTo" node="wingR" x=0 y=0 z=0 />
+			<command type="colorTo" node="wingL" x=0 y=0 z=0 />
+			<command type="colorTo" node="legL" x=0 y=0 z=0 />
+			<command type="colorTo" node="legR" x=0 y=0 z=0 />
+			<command type="colorTo" node="footL" x=0 y=0 z=0 />
+			<command type="colorTo" node="footR" x=0 y=0 z=0 />-->
+			
+			<globalCommand type="colorTo" r=0 g=0 b=0 rate=200 />
 		</frame>
 	</animation>
 	
 	
 	<animation name="death">		
+		<frame frameTime=".05" >
+			<globalCommand type="colorTo" r=10 g=10 b=10 />
+		</frame>
 		<frame>
 			<command type="moveTo" node="head" y=-4 rate=200 />
 			<command type="scaleTo" node="head" y=-.1 x=-.1 rate=10 />
@@ -90,7 +118,12 @@
 			<command type="rotateTo" node="footL" z=-120 rate=1000 />
 			<command type="rotateTo" node="footR" z=120 rate=1000 />
 			
+			<command type="moveTo" node="head" z=-4 rate=10 />
+			
 			<command type="moveTo" node="body" z=-.5 rate=1 />
+			
+			<globalCommand type="colorTo" r=0 g=0 b=0 rate=200 />
+			
 		</frame>
 	</animation>
 	

@@ -56,6 +56,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void scale(float scale);
         void scale(glm::vec3 scale);
+        void linearScale(float, float, float);
         void linearScale(glm::vec3 scale);
         void setScale(float scale);
         void setScale(glm::vec3 scale);
