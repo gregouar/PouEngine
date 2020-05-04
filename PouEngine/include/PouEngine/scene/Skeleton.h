@@ -33,6 +33,7 @@ class SkeletalAnimationCommand
         SkeletalNodeState *m_nodeState;
 
         glm::vec4 m_value;
+        float     m_curFrameTime;
         glm::vec4 m_amount;
         glm::vec4 m_enabledDirection;
 };

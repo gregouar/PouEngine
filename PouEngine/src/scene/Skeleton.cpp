@@ -95,8 +95,8 @@ bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
     if(forceStart)
     {
         m_forceNewAnimation = true;
-        m_curAnimation = m_nextAnimation;
-        m_nextAnimation = nullptr;
+        m_curAnimation      = m_nextAnimation;
+        m_nextAnimation     = nullptr;
     }
 
     return (true);
@@ -227,6 +227,7 @@ SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationComman
     m_node(node),
     m_nodeState(nodeState),
     m_value(0),
+    m_curFrameTime(0),
     m_amount(0)
 {
     this->computeAmount();
@@ -255,13 +256,20 @@ void SkeletalAnimationCommand::computeAmount()
 
 bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 {
+    m_curFrameTime += elapsedTime.count();
+
     glm::vec4 a = glm::vec4(elapsedTime.count()); // * m_model->getRate();
     glm::vec4 absAmount = glm::abs(m_amount);
 
     if(m_model->getRate() > 0)
         a = a * m_model->getRate();
     else
-        a = a * absAmount/m_model->getFrameTime();
+    {
+        if(m_curFrameTime > m_model->getFrameTime())
+            a = absAmount - m_value;
+        else
+            a = a * absAmount/m_model->getFrameTime();
+    }
 
     bool finished = true;
 
@@ -275,48 +283,61 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     glm::vec4 finalAmount(0.0);
 
-    if(m_value.x + a.x >= absAmount.x)
+    if(m_enabledDirection.x)
     {
-        finalAmount.x = sign.x * (absAmount.x - m_value.x);
-        m_enabledDirection.x = 0;
-    }
-    else
-    {
-        finalAmount.x = sign.x * a.x;
-        finished = false;
-    }
-
-    if(m_value.y + a.y >= absAmount.y)
-    {
-        finalAmount.y = sign.y * (absAmount.y - m_value.y);
-        m_enabledDirection.y = 0;
-    }
-    else
-    {
-        finalAmount.y = sign.y * a.y;
-        finished = false;
+        if(m_value.x + a.x >= absAmount.x)
+        {
+            finalAmount.x = sign.x * (absAmount.x - m_value.x);
+            m_enabledDirection.x = 0;
+        }
+        else
+        {
+            finalAmount.x = sign.x * a.x;
+            finished = false;
+        }
     }
 
-    if(m_value.z + a.z >= absAmount.z)
+    if(m_enabledDirection.y)
     {
-        finalAmount.z = sign.z * (absAmount.z - m_value.z);
-        m_enabledDirection.z = 0;
-    }
-    else
-    {
-        finalAmount.z = sign.z * a.z;
-        finished = false;
+        if(m_value.y + a.y >= absAmount.y)
+        {
+            finalAmount.y = sign.y * (absAmount.y - m_value.y);
+            m_enabledDirection.y = 0;
+        }
+        else
+        {
+            finalAmount.y = sign.y * a.y;
+            finished = false;
+        }
     }
 
-    if(m_value.w + a.w >= absAmount.w)
+
+    if(m_enabledDirection.z)
     {
-        finalAmount.w = sign.w * (absAmount.w - m_value.w);
-        m_enabledDirection.w = 0;
+        if(m_value.z + a.z >= absAmount.z)
+        {
+            finalAmount.z = sign.z * (absAmount.z - m_value.z);
+            m_enabledDirection.z = 0;
+        }
+        else
+        {
+            finalAmount.z = sign.z * a.z;
+            finished = false;
+        }
     }
-    else
+
+    if(m_enabledDirection.w)
     {
-        finalAmount.w = sign.w * a.w;
-        finished = false;
+        if(m_value.w + a.w >= absAmount.w)
+        {
+            finalAmount.w = sign.w * (absAmount.w - m_value.w);
+            m_enabledDirection.w = 0;
+        }
+        else
+        {
+            finalAmount.w = sign.w * a.w;
+            finished = false;
+        }
     }
 
     m_value += a;

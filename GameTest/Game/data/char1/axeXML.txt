@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<item>
+	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
+	
+	<skeleton name="mainSkeleton">
+		<limb node="weapon" sprite="axe" spritesheet="mainSpriteSheet" />
+	</skeleton>
+	
+	<hitboxes>
+		<box skeleton="mainSkeleton" node="weaponHB" >
+			<size 		x="26" 	y="30" 	/>
+			<center 	x="19" 	y="58" 	/>
+			<factor 	type="axe"> 1 </factor>
+		</box>
+	</hitboxes>
+	
+	<attributes>
+		<type>weapon</type>
+		<attackDelay>0</attackDelay>
+		<attackDamages>10</attackDamages>
+	</attributes>
+</item>

@@ -232,12 +232,15 @@
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanExtProxies.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanHelpers.cpp" />
 		<Unit filename="include/Character.h" />
+		<Unit filename="include/Hitbox.h" />
 		<Unit filename="include/PlayableCharacter.h" />
+		<Unit filename="include/Types.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Character.cpp" />
+		<Unit filename="src/Hitbox.cpp" />
 		<Unit filename="src/PlayableCharacter.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />

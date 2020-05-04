@@ -142,7 +142,7 @@ SimpleNode* SimpleNode::createChildNode(glm::vec3 p)
 
 SimpleNode* SimpleNode::createChildNode(const NodeTypeId id)
 {
-    if(m_curNewId <= id)
+    if(static_cast<unsigned int>(m_curNewId) <= id)
         m_curNewId = id+1;
 
     if(this->getChild(id) != nullptr)

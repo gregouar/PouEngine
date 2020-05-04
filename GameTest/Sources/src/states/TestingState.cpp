@@ -352,6 +352,8 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyIsPressed(GLFW_KEY_E))
         m_character2->setDestination(worldMousePos);
+    if(eventsManager->keyIsPressed(GLFW_KEY_F))
+        m_character2->attack();
 
     m_camVelocity = glm::vec3(0);
 
