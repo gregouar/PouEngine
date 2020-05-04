@@ -53,7 +53,10 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         std::list<Character *> m_duckSwarm;
         std::list<Character *> m_trees;
 
-        pou::SoundAsset *m_soundTest;
+        pou::SoundAsset     *m_soundTest;
+        pou::SoundBankAsset *m_soundBankTest;
+
+        pou::SoundTypeId    m_soundEventTest;
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;

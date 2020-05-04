@@ -24,6 +24,8 @@ class Parser : public Singleton<Parser>
         static float parseFloat(const std::string&);
 
         static std::string findFileDirectory(const std::string&);
+        static std::string findFileExtension(const std::string&);
+        static std::string removeFileExtension(const std::string&);
 
     protected:
         Parser();

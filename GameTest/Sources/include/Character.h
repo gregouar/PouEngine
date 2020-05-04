@@ -7,6 +7,7 @@
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/scene/SoundObject.h"
 #include "PouEngine/scene/Skeleton.h"
 #include "PouEngine/utils/Timer.h"
 #include "assets/CharacterModelAsset.h"
@@ -24,6 +25,8 @@ class Character : public pou::SceneNode
 
         //virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
         virtual pou::SpriteEntity *addLimb(LimbModel *limbModel); //return nullptr if error
+        virtual pou::SoundObject *addSound(SoundModel *soundModel); //return nullptr if error
+
         virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
         virtual bool removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeleton);
         //virtual bool removeLimbFromSkeleton(pou::SpriteEntity limb*, const std::string &skeleton);
@@ -62,6 +65,7 @@ class Character : public pou::SceneNode
         virtual void updateWalking(const pou::Time &elapsedTime);
         virtual void updateAttacking(const pou::Time &elapsedTime);
         virtual void updateLookingDirection(const pou::Time &elapsedTime);
+        virtual void updateSounds();
 
         float computeWantedRotation(float startingRotation, glm::vec2 position);
 
@@ -89,7 +93,9 @@ class Character : public pou::SceneNode
     private:
         CharacterModelAsset *m_model;
 
-        std::map<LimbModel*, std::unique_ptr<pou::SpriteEntity> > m_limbs;
+        std::map<LimbModel*, std::unique_ptr<pou::SpriteEntity> >   m_limbs;
+        std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
+        std::map<std::string, pou::SoundObject*> m_soundsMap;
 
         float m_rotationRadius;
 

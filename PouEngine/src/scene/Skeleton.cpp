@@ -27,6 +27,7 @@ Skeleton::Skeleton(SkeletonModelAsset *model) :
     m_curAnimation      = nullptr;
     m_curAnimationFrame = nullptr;
     m_forceNewAnimation = false;
+    m_isNewFrame        = false;
 
     this->copyFromModel(model);
 }
@@ -107,6 +108,11 @@ bool Skeleton::isInAnimation()
     return (m_curAnimation != nullptr);
 }
 
+bool Skeleton::isNewFrame()
+{
+    return m_isNewFrame;
+}
+
 bool Skeleton::hasTag(const std::string &tag)
 {
     if(m_curAnimationFrame == nullptr)
@@ -114,6 +120,16 @@ bool Skeleton::hasTag(const std::string &tag)
 
     return m_curAnimationFrame->hasTag(tag);
 }
+
+std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
+    Skeleton::getTagValues(const std::string &tag)
+{
+    if(m_curAnimationFrame == nullptr)
+        return std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>();
+
+    return m_curAnimationFrame->getTagValues(tag);
+}
+
 
 const SceneNode* Skeleton::findNode(const std::string &name) const
 {
@@ -134,6 +150,7 @@ void Skeleton::update(const Time &elapsedTime)
 {
     SceneNode::update(elapsedTime);
 
+    m_isNewFrame = false;
     bool nextFrame = true;
 
     if(!m_forceNewAnimation)
@@ -167,8 +184,10 @@ void Skeleton::update(const Time &elapsedTime)
             {
                 m_curAnimation  = m_nextAnimation;
                 m_nextAnimation = nullptr;
-            } else
+            } else {
                 this->loadAnimationCommands(m_curAnimationFrame);
+                m_isNewFrame = true;
+            }
 
         } else {
             m_curAnimation  = m_nextAnimation;

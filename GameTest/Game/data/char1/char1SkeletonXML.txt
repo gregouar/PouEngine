@@ -35,6 +35,7 @@
 	
 	<animation name="interrupt">
 		<frame>
+			<tag value="hurtSound">playSound</tag>
 			<command type="rotateTo" node="body" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="400" />
@@ -63,6 +64,7 @@
 	
 	<animation name="death" >
 		<frame>
+			<tag value="deathSound">playSound</tag>
 			<command type="moveTo" node="body" z=-1 rate=5 />
 			<command type="rotateTo" node="weapon" z=-90 rate=400 />
 			<command type="moveTo" node="weapon" x=30 y=-30  rate=100 />
@@ -89,6 +91,7 @@
 			<command type="rotateTo" node="bag" z="-10" rate="100" />
 		</frame>
 		<frame>
+			<tag value="stepSound">playSound</tag>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="100" />
@@ -109,6 +112,7 @@
 			<command type="rotateTo" node="bag" z="10" rate="100" />
 		</frame>
 		<frame>
+			<tag value="stepSound">playSound</tag>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="100" />
@@ -181,8 +185,8 @@
 			<command type="moveTo" node="head" y="2"  />
 		</frame>
 		<frame frameTime=".2">
+			<tag value="attackSound">playSound</tag>
 			<tag>attack</tag>
-			<tag>attackTest</tag>
 			<command type="rotateTo" node="body" z="-30"  />
 			<command type="rotateTo" node="weapon" z="-90" />
 			<command type="rotateTo" node="handR" z="-90"/>

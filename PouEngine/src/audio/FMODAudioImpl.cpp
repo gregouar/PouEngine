@@ -1,6 +1,7 @@
 #include "PouEngine/audio/FMODAudioImpl.h"
 
 #include "PouEngine/utils/Logger.h"
+#include "PouEngine/utils/Parser.h"
 
 namespace pou
 {
@@ -75,10 +76,10 @@ void FMODAudioImpl::update()
     FMOD_Studio_System_Update(m_studioSystem);
 }
 
-bool FMODAudioImpl::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
+SoundTypeId FMODAudioImpl::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
 {
     if(m_system == nullptr)
-        return (false);
+        return (0);
 
     FMOD_MODE eMode = FMOD_DEFAULT;
     eMode |= is3D ? FMOD_3D : FMOD_2D;
@@ -87,11 +88,11 @@ bool FMODAudioImpl::loadSound(const std::string &path, bool is3D, bool isLooping
 
     FMOD_SOUND *sound = nullptr;
     if(FMOD_System_CreateSound(m_system, path.c_str(), eMode, nullptr, &sound) != FMOD_OK)
-        return (false);
+        return (0);
 
-    m_sounds.insert({++m_curId, sound});
-
-    return (true);
+    auto soundID = ++m_curSoundId;
+    m_sounds.insert({soundID, sound});
+    return (soundID);
 }
 
 bool FMODAudioImpl::destroySound(SoundTypeId id)
@@ -112,36 +113,6 @@ bool FMODAudioImpl::destroySound(SoundTypeId id)
 
     return (r);
 }
-
-/*int CAudioEngine::PlaySounds(const string& strSoundName, const Vector3& vPosition, float fVolumedB)
-{
-    int nChannelId = sgpImplementation->mnNextChannelId++;
-    auto tFoundIt = sgpImplementation->mSounds.find(strSoundName);
-    if (tFoundIt == sgpImplementation->mSounds.end())
-    {
-        LoadSound(strSoundName);
-        tFoundIt = sgpImplementation->mSounds.find(strSoundName);
-        if (tFoundIt == sgpImplementation->mSounds.end())
-        {
-            return nChannelId;
-        }
-    }
-    FMOD::Channel* pChannel = nullptr;
-    CAudioEngine::ErrorCheck(sgpImplementation->mpSystem->playSound(tFoundIt->second, nullptr, true, &pChannel));
-    if (pChannel)
-    {
-        FMOD_MODE currMode;
-        tFoundIt->second->getMode(&currMode);
-        if (currMode & FMOD_3D){
-            FMOD_VECTOR position = VectorToFmod(vPosition);
-            CAudioEngine::ErrorCheck(pChannel->set3DAttributes(&position, nullptr));
-        }
-        CAudioEngine::ErrorCheck(pChannel->setVolume(dbToVolume(fVolumedB)));
-        CAudioEngine::ErrorCheck(pChannel->setPaused(false));
-        sgpImplementation->mChannels[nChannelId] = pChannel;
-    }
-    return nChannelId;
-}*/
 
 bool FMODAudioImpl::playSound(SoundTypeId id, float volume, const glm::vec3 &pos)
 {
@@ -166,18 +137,121 @@ bool FMODAudioImpl::playSound(SoundTypeId id, float volume, const glm::vec3 &pos
     FMOD_Sound_GetMode(foundedSound->second, &curMode);
     if(curMode & FMOD_3D)
     {
-        FMOD_VECTOR fmodPos = VectorToFmod(pos);
+        FMOD_VECTOR fmodPos = vectorToFmod(pos);
         FMOD_Channel_Set3DAttributes(channel,&fmodPos,nullptr);
     }
     FMOD_Channel_SetVolume(channel, volume);
     FMOD_Channel_SetPaused(channel,false);
+
     m_channels[channelId] = channel;
 
     return (true);
 }
 
+SoundTypeId FMODAudioImpl::loadBank(const std::string &filePath)
+{
+    return this->loadBank(filePath, false);
+}
 
-FMOD_VECTOR FMODAudioImpl::VectorToFmod(const glm::vec3& v)
+SoundTypeId FMODAudioImpl::loadBank(const std::string &filePath, bool isStrings)
+{
+    if(m_system == nullptr)
+        return (0);
+
+    FMOD_STUDIO_BANK *bank;
+    if(FMOD_Studio_System_LoadBankFile(m_studioSystem,filePath.c_str(),FMOD_STUDIO_LOAD_BANK_NORMAL,&bank)
+       != FMOD_OK)
+        return (0);
+
+    if(!isStrings)
+    {
+        std::string fileExt = Parser::findFileExtension(filePath);
+        std::string fileName = Parser::removeFileExtension(filePath);
+        this->loadBank(fileName+".strings."+fileExt, true);
+    }
+
+    ///FMOD_Studio_Bank_LoadSampleData(bank);
+
+    auto bankID = ++m_curBankId;
+    m_banks.insert({bankID, bank});
+    return (bankID);
+}
+
+
+bool FMODAudioImpl::destroyBank(SoundTypeId id)
+{
+    bool r = true;
+
+    if(m_system == nullptr)
+        return (false);
+
+    auto foundedBank = m_banks.find(id);
+    if(foundedBank == m_banks.end())
+        return (false);
+
+    if(FMOD_Studio_Bank_Unload(foundedBank->second) != FMOD_OK)
+        r = false;
+
+    m_banks.erase(foundedBank);
+
+    return (r);
+}
+
+SoundTypeId FMODAudioImpl::createEvent(const std::string &eventName)
+{
+    if(m_system == nullptr)
+        return (0);
+
+    FMOD_STUDIO_EVENTDESCRIPTION    *eventDesc = nullptr;
+    FMOD_STUDIO_EVENTINSTANCE       *event = nullptr;
+
+    if(FMOD_Studio_System_GetEvent(m_studioSystem, eventName.c_str(), &eventDesc) != FMOD_OK)
+        return (0);
+
+    if(!eventDesc)
+        return (0);
+
+    if(FMOD_Studio_EventDescription_CreateInstance(eventDesc,&event) != FMOD_OK)
+        return (0);
+
+    auto eventID = ++m_curEventId;
+    m_events.insert({eventID, event});
+    return (eventID);
+}
+
+bool FMODAudioImpl::destroyEvent(SoundTypeId id)
+{
+    bool r = true;
+
+    if(m_system == nullptr)
+        return (false);
+
+    auto foundedEvent = m_events.find(id);
+    if(foundedEvent == m_events.end())
+        return (false);
+
+    if(FMOD_Studio_EventInstance_Release(foundedEvent->second) != FMOD_OK)
+        r = false;
+
+    m_events.erase(foundedEvent);
+
+    return (r);
+}
+
+bool FMODAudioImpl::playEvent(SoundTypeId id)
+{
+    auto foundedEvent = m_events.find(id);
+
+    if(foundedEvent == m_events.end())
+        return (false);
+
+    FMOD_Studio_EventInstance_Start(foundedEvent->second);
+
+    return (true);
+}
+
+
+FMOD_VECTOR FMODAudioImpl::vectorToFmod(const glm::vec3& v)
 {
     FMOD_VECTOR fVec;
     fVec.x = v.x;

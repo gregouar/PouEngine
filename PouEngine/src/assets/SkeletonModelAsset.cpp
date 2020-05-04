@@ -293,7 +293,13 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
     auto tagElement = element->FirstChildElement("tag");
     while(tagElement != nullptr)
     {
-        m_tags.insert(tagElement->GetText());
+        FrameTag tag;
+
+        auto valueAtt = tagElement->Attribute("value");
+        if(valueAtt != nullptr)
+            tag.value = valueAtt;
+
+        m_tags.insert({tagElement->GetText(), tag});
         tagElement = tagElement->NextSiblingElement("tag");
     }
 
@@ -362,6 +368,12 @@ float SkeletalAnimationFrameModel::getFrameTime() const
 bool SkeletalAnimationFrameModel::hasTag(const std::string &tag)
 {
     return (m_tags.find(tag) != m_tags.end());
+}
+
+std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
+    SkeletalAnimationFrameModel::getTagValues(const std::string &tag)
+{
+    return m_tags.equal_range(tag);
 }
 
 void SkeletalAnimationFrameModel::setNextFrame(SkeletalAnimationFrameModel *nextFrame)

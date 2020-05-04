@@ -14,6 +14,11 @@ namespace pou
 
 class SkeletalAnimationFrameModel;
 
+struct FrameTag
+{
+    std::string value;
+};
+
 class SkeletalAnimationCommandModel
 {
     public:
@@ -54,6 +59,8 @@ class SkeletalAnimationFrameModel
         float getSpeedFactor() const;
 
         bool hasTag(const std::string &tag);
+        std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
+            getTagValues(const std::string &tag);
 
     protected:
         void setNextFrame(SkeletalAnimationFrameModel *nextFrame);
@@ -61,7 +68,7 @@ class SkeletalAnimationFrameModel
     private:
         SkeletalAnimationFrameModel *m_nextFrame;
         std::list<SkeletalAnimationCommandModel> m_commands;
-        std::set<std::string> m_tags;
+        std::multimap<std::string, FrameTag> m_tags;
 
         float m_speedFactor;
         float m_frameTime;

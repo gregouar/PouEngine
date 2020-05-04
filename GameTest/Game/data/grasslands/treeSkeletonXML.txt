@@ -31,6 +31,7 @@
 	
 	<animation name="interrupt">
 		<frame frameTime=".1">
+			<tag value="chopSound">playSound</tag>
 			<command type="moveTo" node="trunk" y=-1 x=2  />
 			<command type="moveTo" node="foliage1" y=5 x=7  />
 			<command type="moveTo" node="foliage2" y=-3 x=-4  />
@@ -51,6 +52,8 @@
 			<reset />
 		</frame>	
 		<frame frameTime=".01">
+			<tag value="chopSound">playSound</tag>
+			<tag value="fallSound">playSound</tag>
 			<command type="moveTo" node="baseTrunk" z=2  />
 		</frame>
 		

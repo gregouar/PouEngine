@@ -2,6 +2,8 @@
 <character>
 	<spritesheet name="mainSpriteSheet" path="duckSpritesheetXML.txt" />
 	
+	<soundbank path="duckSoundBank.bank" />
+	
 	<skeleton name="mainSkeleton" path="duckSkeletonXML.txt">
 		<limb node="head" 	sprite="head" 	spritesheet="mainSpriteSheet" />
 		<limb node="body" 	sprite="body" 	spritesheet="mainSpriteSheet" />
@@ -12,10 +14,12 @@
 		<limb node="legR" 	sprite="legR" 	spritesheet="mainSpriteSheet" />
 		<limb node="footL" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
 		<limb node="footR" 	sprite="foot" 	spritesheet="mainSpriteSheet" />
-		
-		
 		<!--<limb node="beakHB" 	sprite="beakHBTest" 	spritesheet="mainSpriteSheet" />
 		<limb node="bodyHB" 	sprite="bodyHBTest" 	spritesheet="mainSpriteSheet" />-->
+		
+		
+		<sound tag="hurtSound" name="event:/DuckHurt" type="event" />
+		<sound tag="deathSound" name="event:/DuckDeath" type="event" />
 	</skeleton>
 	
 	<hitboxes>

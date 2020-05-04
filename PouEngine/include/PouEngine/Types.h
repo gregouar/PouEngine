@@ -24,6 +24,7 @@ class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
 class SoundAsset;
+class SoundBankAsset;
 class SkeletonModelAsset;
 //class CharacterModelAsset;
 
@@ -136,6 +137,7 @@ typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
 typedef AssetHandler<SkeletonModelAsset>SkeletonModelsHandler;
 typedef AssetHandler<SoundAsset>        SoundsHandler;
+typedef AssetHandler<SoundBankAsset>    SoundBanksHandler;
 //typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 //typedef AssetHandler<MeshAsset>         MeshesHandler;
 

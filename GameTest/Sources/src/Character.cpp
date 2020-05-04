@@ -78,6 +78,21 @@ pou::SpriteEntity *Character::addLimb(LimbModel *limbModel)
     return (limb.first->second.get());
 }
 
+pou::SoundObject *Character::addSound(SoundModel *soundModel)
+{
+    std::unique_ptr<pou::SoundObject> soundObject(new pou::SoundObject());
+
+    if(soundModel->isEvent)
+        soundObject->setSoundEventModel(soundModel->soundName);
+
+    auto sound = m_sounds.insert({soundModel, std::move(soundObject)});
+    auto *soundPtr = sound.first->second.get();
+
+    this->attachObject(soundPtr);
+    m_soundsMap.insert({soundModel->tag, soundPtr});
+    return (soundPtr);
+}
+
 bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skeletonName)
 {
     auto skeleton = m_skeletons.find(skeletonName);
@@ -373,6 +388,8 @@ void Character::update(const pou::Time& elapsedTime)
     m_nearbyCharacters.clear();
 
     SceneNode::update(elapsedTime);
+
+    this->updateSounds();
 }
 
 void Character::updateWalking(const pou::Time &elapsedTime)
@@ -475,6 +492,25 @@ void Character::updateLookingDirection(const pou::Time &elapsedTime)
             SceneNode::setRotation({0,0,wantedRotation});
         else
             SceneNode::rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
+    }
+}
+
+void Character::updateSounds()
+{
+    for(auto &skeleton : m_skeletons)
+    {
+        auto skelPtr = skeleton.second.get();
+        if(skelPtr->isNewFrame())
+        {
+            auto soundTags = skelPtr->getTagValues("playSound");
+            for(auto it = soundTags.first ; it != soundTags.second ; ++it)
+            {
+                auto soundTag = it->second.value;
+                auto foundedSound = m_soundsMap.find(soundTag);
+                if(foundedSound != m_soundsMap.end())
+                    foundedSound->second->play();
+            }
+        }
     }
 }
 

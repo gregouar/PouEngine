@@ -9,6 +9,7 @@
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/MeshesHandler.h"
 #include "PouEngine/assets/SoundAsset.h"
+#include "PouEngine/assets/SoundBankAsset.h"
 #include "PouEngine/audio/AudioEngine.h"
 
 #include "PouEngine/Types.h"
@@ -43,6 +44,8 @@ void TestingState::init()
     m_scene = new pou::Scene();
 
     pou::AssetLoadType loadType = pou::LoadType_InThread;
+
+    pou::SoundBanksHandler::loadAssetFromFile("../data/Master SoundBank.bank");
 
     /*pou::AssetTypeId tex[10];
     tex[0] = pou::TexturesHandler::loadAssetFromFile("../data/sand_color.png",loadType)->getId();
@@ -164,6 +167,8 @@ void TestingState::init()
     quackNode->setScale(1.5f);
 
     m_soundTest = pou::SoundsHandler::loadAssetFromFile("../data/hurtSoundXML.txt");
+    //m_soundBankTest = pou::SoundBanksHandler::loadAssetFromFile("../data/char1/char1SoundBank.bank");
+
 
     m_camera = m_scene->createCamera();
     //m_camera->setViewport({.2,.3},{.5,.4});
@@ -357,6 +362,8 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_G))
         pou::AudioEngine::playSound(m_soundTest);
+    if(eventsManager->keyPressed(GLFW_KEY_H))
+        pou::AudioEngine::playEvent(m_soundEventTest);
 
     m_camVelocity = glm::vec3(0);
 

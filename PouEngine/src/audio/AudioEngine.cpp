@@ -39,18 +39,16 @@ void AudioEngine::update()
 }
 
 
-bool AudioEngine::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
+SoundTypeId AudioEngine::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
 {
     if(instance()->m_impl == nullptr)
-        return (false);
+        return (0);
 
-    if(!instance()->m_impl.get()->loadSound(path,is3D,isLooping,isStream))
-    {
+    auto r =  instance()->m_impl.get()->loadSound(path,is3D,isLooping,isStream);
+    if(r == 0)
         Logger::error("Could not load sound: "+path);
-        return (false);
-    }
 
-    return (true);
+    return r;
 }
 
 bool AudioEngine::destroySound(SoundTypeId id)
@@ -70,6 +68,51 @@ bool AudioEngine::playSound(SoundTypeId id, float volume, const glm::vec3 &pos)
 bool AudioEngine::playSound(const SoundAsset *soundAsset, float volumeFactor, const glm::vec3 &pos)
 {
     return AudioEngine::playSound(soundAsset->getSoundId(),soundAsset->getVolume(), pos);
+}
+
+SoundTypeId AudioEngine::loadBank(const std::string &path)
+{
+    if(instance()->m_impl == nullptr)
+        return (0);
+
+    auto r =  instance()->m_impl.get()->loadBank(path);
+    if(r == 0)
+        Logger::error("Could not load sounds bank: "+path);
+
+    return r;
+}
+
+bool AudioEngine::destroyBank(SoundTypeId id)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->destroyBank(id);
+}
+
+SoundTypeId AudioEngine::createEvent(const std::string &eventName)
+{
+    if(instance()->m_impl == nullptr)
+        return (0);
+
+    auto r =  instance()->m_impl.get()->createEvent(eventName);
+    if(r == 0)
+        Logger::error("Could not load sound event: "+eventName);
+
+    return r;
+}
+
+bool AudioEngine::destroyEvent(SoundTypeId id)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->destroyEvent(id);
+}
+
+bool AudioEngine::playEvent(SoundTypeId id)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->playEvent(id);
 }
 
 }

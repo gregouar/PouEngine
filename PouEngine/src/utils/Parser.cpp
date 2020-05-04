@@ -73,7 +73,7 @@ float Parser::parseFloat(const std::string& data)
     return value;
 }
 
-std::string Parser::findFileDirectory(const std::string& filePath)
+std::string Parser::findFileDirectory(const std::string &filePath)
 {
     std::size_t p = filePath.find_last_of("/\\");
     if(p != std::string::npos)
@@ -82,6 +82,29 @@ std::string Parser::findFileDirectory(const std::string& filePath)
     Logger::error("Cannot find directory of "+filePath);
     return filePath;
 }
+
+std::string Parser::findFileExtension(const std::string &filePath)
+{
+    std::size_t p = filePath.find_last_of('.');
+
+    if(p != std::string::npos)
+        return filePath.substr(p+1, filePath.size());
+
+    Logger::error("Cannot find extension of "+filePath);
+    return filePath;
+}
+
+std::string Parser::removeFileExtension(const std::string &filePath)
+{
+    std::size_t p = filePath.find_last_of('.');
+
+    if(p != std::string::npos)
+        return filePath.substr(0, p);
+
+    Logger::error("Cannot remove extension of "+filePath);
+    return filePath;
+}
+
 
 }
 

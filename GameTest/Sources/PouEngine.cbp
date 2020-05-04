@@ -22,6 +22,7 @@
 					<Add directory="PouEngine/include/PouEngine/scene" />
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -39,6 +40,7 @@
 					<Add directory="PouEngine/include/PouEngine/scene" />
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -60,6 +62,7 @@
 					<Add directory="PouEngine/include/PouEngine/scene" />
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -79,6 +82,7 @@
 					<Add directory="PouEngine/include/PouEngine/scene" />
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -100,6 +104,7 @@
 			<Add library="vulkan-1" />
 			<Add library="glfw3dll" />
 			<Add library="fmodstudio_vc" />
+			<Add library="fmod_vc" />
 			<Add directory="../../PouEngine/libs" />
 		</Linker>
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
@@ -110,6 +115,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/SkeletonModelAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/SoundAsset.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/SoundBankAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/SpriteSheetAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/TextureAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/audio/AbstractAudioImpl.h" />
@@ -139,6 +145,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/ShadowCaster.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/Skeleton.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
@@ -190,6 +197,7 @@
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
 		<Unit filename="../../PouEngine/src/assets/SkeletonModelAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/SoundAsset.cpp" />
+		<Unit filename="../../PouEngine/src/assets/SoundBankAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/SpriteSheetAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/TextureAsset.cpp" />
 		<Unit filename="../../PouEngine/src/audio/AudioEngine.cpp" />
@@ -218,6 +226,7 @@
 		<Unit filename="../../PouEngine/src/scene/SceneObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/ShadowCaster.cpp" />
 		<Unit filename="../../PouEngine/src/scene/Skeleton.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SoundEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />

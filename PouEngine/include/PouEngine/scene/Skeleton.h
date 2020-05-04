@@ -54,7 +54,10 @@ class Skeleton : public SceneNode
         //could add pause animation etc
 
         bool isInAnimation();
+        bool isNewFrame();
         bool hasTag(const std::string &tag);
+        std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
+            getTagValues(const std::string &tag);
         const std::string &getCurrentAnimationName();
 
         const SceneNode* findNode(const std::string &name) const;
@@ -77,6 +80,7 @@ class Skeleton : public SceneNode
         SkeletalAnimationModel *m_nextAnimation, *m_curAnimation;
         SkeletalAnimationFrameModel *m_curAnimationFrame;
         bool m_forceNewAnimation;
+        bool m_isNewFrame;
 
         std::list<SkeletalAnimationCommand> m_animationCommands;
         //bool m_createdRootNode;

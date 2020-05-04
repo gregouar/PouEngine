@@ -3,6 +3,7 @@
 #include "PouEngine/Types.h"
 
 #include "PouEngine/assets/AssetHandler.h"
+#include "PouEngine/assets/SoundBankAsset.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/SkeletonModelAsset.h"
 
@@ -82,6 +83,10 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
             targetCharacter->addLimb(std::move(limbEntity));*/
         }
 
+        //std::cout<<skeletonModel.second.sounds.size()<<std::endl;
+        for(auto &sound : skeletonModel.second.sounds)
+            targetCharacter->addSound(&sound);
+
         targetCharacter->addChildNode(skeleton.get());
         //targetCharacter->m_skeletons.push_back(std::move(skeleton));
         targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
@@ -132,36 +137,44 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
     if(hdl == nullptr)
         return (false);
 
-    TiXmlElement* spriteSheetElement = hdl->FirstChildElement("spritesheet").Element();
-    while(spriteSheetElement != nullptr)
+    TiXmlElement* element = hdl->FirstChildElement("spritesheet").Element();
+    while(element != nullptr)
     {
-        if(!this->loadSpriteSheet(spriteSheetElement))
+        if(!this->loadSpriteSheet(element))
             loaded = false;
-        spriteSheetElement = spriteSheetElement->NextSiblingElement("spritesheet");
+        element = element->NextSiblingElement("spritesheet");
     }
 
-    TiXmlElement* skeletonElement = hdl->FirstChildElement("skeleton").Element();
-    while(skeletonElement != nullptr)
+    element = hdl->FirstChildElement("soundbank").Element();
+    while(element != nullptr)
     {
-        if(!this->loadSkeleton(skeletonElement))
+        if(!this->loadSoundBank(element))
             loaded = false;
-        skeletonElement = skeletonElement->NextSiblingElement("skeleton");
+        element = element->NextSiblingElement("soundbank");
     }
 
-    TiXmlElement* hitboxesElement = hdl->FirstChildElement("hitboxes").Element();
-    if(hitboxesElement != nullptr)
-        if(!this->loadHitboxes(hitboxesElement, m_hitboxes))
+    element = hdl->FirstChildElement("skeleton").Element();
+    while(element != nullptr)
+    {
+        if(!this->loadSkeleton(element))
+            loaded = false;
+        element = element->NextSiblingElement("skeleton");
+    }
+
+    element = hdl->FirstChildElement("hitboxes").Element();
+    if(element != nullptr)
+        if(!this->loadHitboxes(element, m_hitboxes))
             loaded = false;
 
-    hitboxesElement = hdl->FirstChildElement("hurtboxes").Element();
-    if(hitboxesElement != nullptr)
-        if(!this->loadHitboxes(hitboxesElement, m_hurtboxes))
+    element = hdl->FirstChildElement("hurtboxes").Element();
+    if(element != nullptr)
+        if(!this->loadHitboxes(element, m_hurtboxes))
             loaded = false;
 
 
-    TiXmlElement* attributesElement = hdl->FirstChildElement("attributes").Element();
-    if(attributesElement != nullptr)
-        if(!this->loadAttributes(attributesElement))
+    element = hdl->FirstChildElement("attributes").Element();
+    if(element != nullptr)
+        if(!this->loadAttributes(element))
             loaded = false;
 
     if(loaded)
@@ -189,6 +202,30 @@ bool CharacterModelAsset::loadSpriteSheet(TiXmlElement *element)
 
     return (true);
 }
+
+
+bool CharacterModelAsset::loadSoundBank(TiXmlElement *element)
+{
+    //std::string soundBankName = "soundbank"+std::to_string(m_soundBanks.size());
+
+    /*auto nameAtt = element->Attribute("name");
+    if(nameAtt != nullptr)
+        spriteSheetName = std::string(nameAtt);*/
+
+
+    auto pathAtt = element->Attribute("path");
+    if(pathAtt == nullptr)
+        return (false);
+
+    /*if(!m_spriteSheets.insert({spriteSheetName,
+                              pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
+        pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in character model:"+m_filePath);*/
+
+    pou::SoundBanksHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt),m_loadType);
+
+    return (true);
+}
+
 
 bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
 {
@@ -240,6 +277,32 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
             pou::Logger::warning("Incomplete limb in character model: "+m_filePath);
 
         limbChild = limbChild->NextSiblingElement("limb");
+    }
+
+
+    auto soundChild = element->FirstChildElement("sound");
+    while(soundChild != nullptr)
+    {
+        auto soundElement = soundChild->ToElement();
+
+        auto tagAtt     = soundElement->Attribute("tag");
+        auto nameAtt    = soundElement->Attribute("name");
+        auto typeAtt    = soundElement->Attribute("type");
+
+        if(tagAtt != nullptr && nameAtt != nullptr)
+        {
+            skeletonWithLimbs.sounds.push_back(SoundModel ());
+            skeletonWithLimbs.sounds.back().tag = tagAtt;
+            skeletonWithLimbs.sounds.back().soundName = nameAtt;
+
+            if(typeAtt != nullptr && std::string(typeAtt) != "event")
+                skeletonWithLimbs.sounds.back().isEvent = false;
+            else
+                skeletonWithLimbs.sounds.back().isEvent = true;
+
+        }
+
+        soundChild = soundChild->NextSiblingElement("sound");
     }
 
     return (true);

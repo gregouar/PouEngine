@@ -24,11 +24,18 @@ class AudioEngine  : public Singleton<AudioEngine>
 
         void update();
 
-        static bool loadSound(const std::string &path, bool is3D = false, bool isLooping = false,
+        static SoundTypeId loadSound(const std::string &path, bool is3D = false, bool isLooping = false,
                        bool isStream = false);
         static bool destroySound(SoundTypeId id);
         static bool playSound(SoundTypeId id, float volume = 1.0f, const glm::vec3 &pos = glm::vec3(0));
         static bool playSound(const SoundAsset *soundAsset, float volumeFactor = 1.0f, const glm::vec3 &pos = glm::vec3(0));
+
+        static SoundTypeId loadBank(const std::string &path);
+        static bool destroyBank(SoundTypeId id);
+
+        static SoundTypeId createEvent(const std::string &eventName);
+        static bool destroyEvent(SoundTypeId id);
+        static bool playEvent(SoundTypeId id);
 
     protected:
 

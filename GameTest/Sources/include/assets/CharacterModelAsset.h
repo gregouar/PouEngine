@@ -24,10 +24,20 @@ struct LimbModel
     pou::SpriteModel* spriteModel;
 };
 
+struct SoundModel
+{
+    SoundModel() : isEvent(true){}
+
+    std::string tag;
+    std::string soundName;
+    bool isEvent;
+};
+
 struct SkeletonWithLimbs
 {
     pou::SkeletonModelAsset* skeleton;
     std::list<LimbModel> limbs;
+    std::list<SoundModel> sounds;
 };
 
 struct CharacterAttributes
@@ -66,6 +76,7 @@ class CharacterModelAsset : public pou::Asset
     protected:
         bool loadFromXML(TiXmlHandle *);
         bool loadSpriteSheet(TiXmlElement *element);
+        bool loadSoundBank(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
         bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
         bool loadAttributes(TiXmlElement *element);
