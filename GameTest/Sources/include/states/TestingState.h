@@ -43,7 +43,7 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         bool m_activeCroc, m_activeDuck;
 
         //Maybe this does not really make sense and it should be SpriteAsset
-        pou::SpriteModel *m_charModel;
+        //pou::SpriteModel *m_charModel;
         pou::SceneNode     *m_testNode;
         pou::SpriteEntity *m_testChar;
 
@@ -52,6 +52,8 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         Character  *m_character2, *m_croco, *m_duck;
         std::list<Character *> m_duckSwarm;
         std::list<Character *> m_trees;
+
+        pou::SoundAsset *m_soundTest;
 
         pou::CameraObject   *m_camera;
         pou::SceneNode      *m_cameraNode;

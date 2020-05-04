@@ -643,7 +643,7 @@ void SimpleNode::computeFlexibleMove(glm::vec3 m)
         glm::vec2 p(m_position.x,m_position.y);
         float l = glm::length(p);
         glm::vec2 np = l*glm::normalize(p-glm::vec2(m.x,m.y));
-        float dot = glm::dot(p,np);
+        //float dot = glm::dot(p,np);
 
         float wantedRotation = glm::atan(np.y,np.x)-glm::pi<float>()*0.5;
         this->rotate(wantedRotation-m_curFlexibleRotation,{0,0,1});

@@ -11,6 +11,9 @@
 
 #include "PouEngine/renderers/SceneRenderer.h"
 
+#include "PouEngine/audio/AudioEngine.h"
+#include "PouEngine/audio/FMODAudioImpl.h"
+
 #include "PouEngine/utils/Profiler.h"
 
 namespace pou
@@ -110,6 +113,12 @@ bool VApp::init()
         throw std::runtime_error("Cannot create renderers");
     Profiler::popClock();
 
+
+    Profiler::pushClock("Create renderers");
+    if(!AudioEngine::instance()->init(std::make_unique<FMODAudioImpl> ()))
+        throw std::runtime_error("Cannot initialize audio engine");
+    Profiler::popClock();
+
     return (true);
 }
 
@@ -158,8 +167,11 @@ void VApp::loop()
         m_renderWindow.acquireNextImage(); //Also update renderers
         Profiler::popClock();
 
+
         VTexturesManager::instance()->update(m_renderWindow.getFrameIndex(),
                                              m_renderWindow.getImageIndex());
+
+        AudioEngine::instance()->update();
 
         m_eventsManager.update();
 

@@ -8,6 +8,8 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/MeshesHandler.h"
+#include "PouEngine/assets/SoundAsset.h"
+#include "PouEngine/audio/AudioEngine.h"
 
 #include "PouEngine/Types.h"
 
@@ -143,7 +145,7 @@ void TestingState::init()
 
 
 
-    pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::instance()->loadAssetFromFile("../data/wallXML.txt",loadType);
+    pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
     pou::MeshAsset *wallBoxModel = pou::MeshesHandler::makeBox({0,0,0},{1,1,1},wallMaterial);
     pou::MeshEntity *wallBoxEntity;
     wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
@@ -154,14 +156,14 @@ void TestingState::init()
     //m_shadowBoxNode = m_scene->getRootNode()->createChildNode({0,0,0});
     m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
 
-    pou::MeshAsset* quackMesh = pou::MeshesHandler::instance()->loadAssetFromFile("../data/quackXML.txt",loadType);
+    pou::MeshAsset* quackMesh = pou::MeshesHandler::loadAssetFromFile("../data/quackXML.txt",loadType);
     pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
 
     pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
     quackNode->attachObject(quackEntity);
     quackNode->setScale(1.5f);
 
-
+    m_soundTest = pou::SoundsHandler::loadAssetFromFile("../data/hurtSoundXML.txt");
 
     m_camera = m_scene->createCamera();
     //m_camera->setViewport({.2,.3},{.5,.4});
@@ -257,9 +259,6 @@ void TestingState::leaving()
     delete m_scene;
     m_scene = nullptr;
 
-    delete m_charModel;
-    m_charModel = nullptr;
-
     delete m_character;
     m_character = nullptr;
 
@@ -354,6 +353,10 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_character2->setDestination(worldMousePos);
     if(eventsManager->keyIsPressed(GLFW_KEY_F))
         m_character2->attack();
+
+
+    if(eventsManager->keyPressed(GLFW_KEY_G))
+        pou::AudioEngine::playSound(m_soundTest);
 
     m_camVelocity = glm::vec3(0);
 

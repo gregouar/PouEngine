@@ -23,6 +23,7 @@ class TextureAsset;
 class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
+class SoundAsset;
 class SkeletonModelAsset;
 //class CharacterModelAsset;
 
@@ -126,15 +127,17 @@ typedef std::chrono::duration<double, std::chrono::seconds::period> Time;
 typedef unsigned int AssetTypeId;
 typedef unsigned int NodeTypeId;
 typedef unsigned int ObjectTypeId;
+typedef unsigned int SoundTypeId;
 
 typedef glm::vec4 Color;
 
 typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
-typedef AssetHandler<SkeletonModelAsset>     SkeletonModelsHandler;
+typedef AssetHandler<SkeletonModelAsset>SkeletonModelsHandler;
+typedef AssetHandler<SoundAsset>        SoundsHandler;
 //typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
-//typedef AssetHandler<MeshAsset>     MeshesHandler;
+//typedef AssetHandler<MeshAsset>         MeshesHandler;
 
 const std::string emptyString;
 
