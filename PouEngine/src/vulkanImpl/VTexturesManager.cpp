@@ -369,6 +369,8 @@ bool VTexturesManager::createSampler()
 {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    ///samplerInfo.magFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
+    ///samplerInfo.minFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
     samplerInfo.magFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
     samplerInfo.minFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;

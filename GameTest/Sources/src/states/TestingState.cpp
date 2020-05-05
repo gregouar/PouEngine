@@ -45,7 +45,7 @@ void TestingState::init()
 
     pou::AssetLoadType loadType = pou::LoadType_InThread;
 
-    pou::SoundBanksHandler::loadAssetFromFile("../data/Master SoundBank.bank");
+    pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
     auto music = pou::AudioEngine::createEvent("event:/Music");
     pou::AudioEngine::playEvent(music);
 

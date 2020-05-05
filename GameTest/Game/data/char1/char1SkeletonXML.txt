@@ -21,16 +21,14 @@
 	
 	<animation name="stand" loop=1>
 		<frame frameTime=".1">
-			<!--<reset />-->
-			
-			<command type="rotateTo" node="body" z="0" />
+			<reset />
 		</frame>
-		<!--<frame frameTime=2>
+		<frame frameTime=2>
 			<command type="rotateTo" node="weapon" z=10 />
 		</frame>
 		<frame frameTime=2>
 			<command type="rotateTo" node="weapon" z=0 />
-		</frame>-->
+		</frame>
 	</animation>
 	
 	<animation name="interrupt">
@@ -232,6 +230,20 @@
 			<command type="rotateTo" node="shoulderR" z="0" rate="300" />
 			<command type="moveTo" node="head" y="0" rate="20" />
 		</frame>-->
+	</animation>
+	
+	<animation name="dash" loop=0>
+		<frame>
+			<sound>dashSound</sound>
+			<command type="rotateTo" node="body" z="-20" rate="100" />
+			<command type="rotateTo" node="shoulderL" z="-10" rate="100" />
+			<command type="rotateTo" node="shoulderR" z="10" rate="100" />
+			<command type="rotateTo" node="weapon" z="-10" rate="100" />
+			<command type="moveTo" node="footR" x="0" y="-14" rate="100" />
+			<command type="moveTo" node="footL" x="0" y="14" rate="100" />
+			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />
+			<command type="rotateTo" node="bag" z="-10" rate="100" />
+		</frame>
 	</animation>
 </skeleton>
 

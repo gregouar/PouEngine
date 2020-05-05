@@ -135,6 +135,8 @@ bool PlayableCharacter::dash(glm::vec2 direction)
     m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
     m_dashTimer.reset(DEFAULT_DASH_TIME);
 
+    this->startAnimation("dash",true);
+
     return (true);
 }
 
@@ -154,12 +156,14 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
     }
 
     m_dashDelayTimer.update(elapsedTime);
-    m_dashTimer.update(elapsedTime);
+    if(m_dashTimer.update(elapsedTime))
+        this->startAnimation("walk");
 
     if(m_dashTimer.isActive())
     {
         m_attributes.walkingSpeed = DEFAULT_DASH_SPEED;
         Character::walk(m_dashDirection);
+        m_isWalking = true;
     }
     else if(m_dashDelayTimer.isActive())
         m_attributes.walkingSpeed = m_normalWalkingSpeed * .25f;

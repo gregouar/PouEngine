@@ -14,7 +14,8 @@
 namespace pou
 {
 const std::vector<const char*> VInstance::const_validationLayers = {
-    "VK_LAYER_LUNARG_standard_validation"
+    "VK_LAYER_KHRONOS_validation"
+    //"VK_LAYER_LUNARG_standard_validation"
 };
 
 const std::vector<const char*> VInstance::const_deviceExtensions = {
