@@ -72,23 +72,16 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         {
             auto *spriteEntity = targetCharacter->addLimb(&limb);
             skeleton->attachLimb(limb.node,spriteEntity);
-
-            /*std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
-
-            limbEntity->setSpriteModel(limb.spriteModel);
-            limbEntity->setOrdering(pou::ORDERED_BY_Z);
-            limbEntity->setInheritRotation(true);
-
-            skeleton->attachLimb(limb.node,limbEntity.get());
-            targetCharacter->addLimb(std::move(limbEntity));*/
         }
 
-        //std::cout<<skeletonModel.second.sounds.size()<<std::endl;
         for(auto &sound : skeletonModel.second.sounds)
-            targetCharacter->addSound(&sound);
+        {
+            //targetCharacter->addSound(&sound);
+            skeleton->attachSound(targetCharacter->addSound(&sound),
+                                  skeletonModel.second.skeleton->getSoundId(sound.name));
+        }
 
         targetCharacter->addChildNode(skeleton.get());
-        //targetCharacter->m_skeletons.push_back(std::move(skeleton));
         targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
     }
 
@@ -285,15 +278,15 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
     {
         auto soundElement = soundChild->ToElement();
 
-        auto tagAtt     = soundElement->Attribute("tag");
         auto nameAtt    = soundElement->Attribute("name");
+        auto pathAtt    = soundElement->Attribute("path");
         auto typeAtt    = soundElement->Attribute("type");
 
-        if(tagAtt != nullptr && nameAtt != nullptr)
+        if(nameAtt != nullptr && pathAtt != nullptr)
         {
             skeletonWithLimbs.sounds.push_back(SoundModel ());
-            skeletonWithLimbs.sounds.back().tag = tagAtt;
-            skeletonWithLimbs.sounds.back().soundName = nameAtt;
+            skeletonWithLimbs.sounds.back().name = nameAtt;
+            skeletonWithLimbs.sounds.back().path = pathAtt;
 
             if(typeAtt != nullptr && std::string(typeAtt) != "event")
                 skeletonWithLimbs.sounds.back().isEvent = false;

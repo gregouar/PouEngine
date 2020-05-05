@@ -13,6 +13,7 @@ namespace pou
 {
 
 class SkeletalAnimationFrameModel;
+class SkeletonModelAsset;
 
 struct FrameTag
 {
@@ -23,7 +24,8 @@ class SkeletalAnimationCommandModel
 {
     public:
         SkeletalAnimationCommandModel(SkeletalAnimationFrameModel *frameModel, SkelAnimCmdType type = Unknown_Command,
-                                      const std::string &node = std::string());
+                                      int nodeId = -1);
+                                      //const std::string &node = std::string());
         virtual ~SkeletalAnimationCommandModel();
 
         bool loadFromXml(TiXmlElement *element);
@@ -32,7 +34,8 @@ class SkeletalAnimationCommandModel
         std::pair<const glm::vec4&,const glm::vec4&> getAmount() const;
         float getRate() const;
         float getFrameTime() const;
-        const std::string &getNode() const;
+        //const std::string &getNode() const;
+        int getNodeId() const;
 
     private:
         SkeletalAnimationFrameModel *m_frameModel;
@@ -41,7 +44,8 @@ class SkeletalAnimationCommandModel
         glm::vec4  m_amount, m_enabledDirection;
         float   m_rate;
 
-        std::string m_node; //Need to switch from string to pointer
+        //std::string m_node; //Need to switch from string to pointer or something better
+        int m_nodeId;
 };
 
 class SkeletalAnimationFrameModel
@@ -49,12 +53,14 @@ class SkeletalAnimationFrameModel
     friend class SkeletalAnimationModel;
 
     public:
-        SkeletalAnimationFrameModel();
+        SkeletalAnimationFrameModel(SkeletonModelAsset *skeletonModel);
         virtual ~SkeletalAnimationFrameModel();
 
-        bool loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes = nullptr);
+        bool loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes = nullptr*/);
 
-        const std::list<SkeletalAnimationCommandModel> *getCommands();
+        const SkeletonModelAsset *getSkeletonModel() const;
+        const std::list<SkeletalAnimationCommandModel> *getCommands() const;
+        const std::list<int> *getSounds() const;
         float getFrameTime() const;
         float getSpeedFactor() const;
 
@@ -66,9 +72,12 @@ class SkeletalAnimationFrameModel
         void setNextFrame(SkeletalAnimationFrameModel *nextFrame);
 
     private:
+        SkeletonModelAsset *m_skeletonModel;
+
         SkeletalAnimationFrameModel *m_nextFrame;
         std::list<SkeletalAnimationCommandModel> m_commands;
         std::multimap<std::string, FrameTag> m_tags;
+        std::list<int> m_sounds;
 
         float m_speedFactor;
         float m_frameTime;
@@ -77,10 +86,10 @@ class SkeletalAnimationFrameModel
 class SkeletalAnimationModel
 {
     public:
-        SkeletalAnimationModel();
+        SkeletalAnimationModel(SkeletonModelAsset *skeletonModel);
         virtual ~SkeletalAnimationModel();
 
-        bool loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes = nullptr);
+        bool loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes = nullptr*/);
 
         SkeletalAnimationFrameModel* nextFrame(SkeletalAnimationFrameModel* curFrame);
 
@@ -90,6 +99,8 @@ class SkeletalAnimationModel
         bool isLooping();
 
     private:
+        SkeletonModelAsset *m_skeletonModel;
+
         bool m_isLooping;
         std::string m_name;
         std::list<SkeletalAnimationFrameModel> m_frames;
@@ -106,9 +117,18 @@ class SkeletonModelAsset : public Asset
 
         const SimpleNode *getRootNode() const;
         std::map<std::string, SimpleNode*> getNodesByName();
+        const std::map<int, SimpleNode*> *getNodesById();
 
+        SkeletalAnimationModel* findAnimation(int id);
         SkeletalAnimationModel* findAnimation(const std::string &name);
 
+        int generateNodeId(const std::string nodeName);
+        int generateAnimationId(const std::string animationName);
+        int generateSoundId(const std::string soundName);
+
+        int getNodeId(const std::string nodeName) const;
+        int getAnimationId(const std::string animationName) const;
+        int getSoundId(const std::string soundName) const;
 
     protected:
         bool loadFromXML(TiXmlHandle *);
@@ -118,8 +138,16 @@ class SkeletonModelAsset : public Asset
     private:
         SimpleNode m_rootNode;
         std::map<std::string, SimpleNode*> m_nodesByName;
+        std::map<int, SimpleNode*> m_nodesById;
+
+        std::map<std::string, int> m_nodeIdByName;
+        std::map<std::string, int> m_animationIdByName;
+        std::map<std::string, int> m_soundIdByName;
+
         std::multimap<std::string, std::string> m_joints;
+
         std::map<std::string, std::unique_ptr<SkeletalAnimationModel> > m_animations;
+        std::map<int, SkeletalAnimationModel*> m_animationById;
 };
 
 }

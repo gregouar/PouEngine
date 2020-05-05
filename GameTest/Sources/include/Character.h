@@ -65,7 +65,7 @@ class Character : public pou::SceneNode
         virtual void updateWalking(const pou::Time &elapsedTime);
         virtual void updateAttacking(const pou::Time &elapsedTime);
         virtual void updateLookingDirection(const pou::Time &elapsedTime);
-        virtual void updateSounds();
+        //virtual void updateSounds();
 
         float computeWantedRotation(float startingRotation, glm::vec2 position);
 
@@ -95,7 +95,7 @@ class Character : public pou::SceneNode
 
         std::map<LimbModel*, std::unique_ptr<pou::SpriteEntity> >   m_limbs;
         std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
-        std::map<std::string, pou::SoundObject*> m_soundsMap;
+        //std::map<std::string, pou::SoundObject*> m_soundsMap;
 
         float m_rotationRadius;
 

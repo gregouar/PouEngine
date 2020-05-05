@@ -15,10 +15,10 @@
 		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 		
-		<sound tag="stepSound" name="event:/CharacterFootstep" type="event" />
-		<sound tag="hurtSound" name="event:/CharacterHurt" type="event" />
-		<sound tag="attackSound" name="event:/CharacterAttack" type="event" />
-		<sound tag="deathSound" name="event:/CharacterDeath" type="event" />
+		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
+		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
+		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
+		<sound name="deathSound" path="event:/CharacterDeath" type="event" />
 		<!--<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" /> -->
 		
 		<!--<limb node="weaponHB" sprite="swordHBTest" spritesheet="mainSpriteSheet" />

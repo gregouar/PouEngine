@@ -10,8 +10,8 @@
 		<limb node="foliage1" 	sprite="treeFoliage1" 	spritesheet="mainSpriteSheet" />
 		<limb node="foliage2" 	sprite="treeFoliage2" 	spritesheet="mainSpriteSheet" />
 		
-		<sound tag="chopSound" name="event:/ChopTree" type="event" />
-		<sound tag="fallSound" name="event:/TreeFall" type="event" />
+		<sound name="chopSound" path="event:/ChopTree" type="event" />
+		<sound name="fallSound" path="event:/TreeFall" type="event" />
 	</skeleton>
 	
 	<hurtboxes>

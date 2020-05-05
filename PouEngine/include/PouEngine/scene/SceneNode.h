@@ -10,6 +10,7 @@
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/scene/LightEntity.h"
 #include "PouEngine/scene/ShadowCaster.h"
+#include "PouEngine/scene/SoundObject.h"
 
 /*#include "PouEngine/core/NotificationListener.h"
 #include "PouEngine/core/NotificationSender.h"*/
@@ -35,7 +36,9 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         SceneNode* createChildNode(const NodeTypeId id);
 
         void attachObject(SceneObject *);
+        void attachSound(SoundObject *, int);
         void detachObject(SceneObject *);
+        void detachSound(int);
         void detachAllObjects();
 
         void colorize(const glm::vec4 &c);
@@ -48,6 +51,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         const glm::vec4 &getColor() const;
 
         void generateRenderingData(SceneRenderingInstance *renderingInstance);
+        bool playSound(int id);
 
         /*virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;*/
@@ -67,6 +71,8 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         std::list<SceneEntity *>    m_attachedEntities;
         std::list<LightEntity *>    m_attachedLights;
         std::list<ShadowCaster *>   m_attachedShadowCasters;
+
+        std::map<int, SoundObject *> m_attachedSounds;
 };
 
 }

@@ -46,6 +46,8 @@ void TestingState::init()
     pou::AssetLoadType loadType = pou::LoadType_InThread;
 
     pou::SoundBanksHandler::loadAssetFromFile("../data/Master SoundBank.bank");
+    auto music = pou::AudioEngine::createEvent("event:/Music");
+    pou::AudioEngine::playEvent(music);
 
     /*pou::AssetTypeId tex[10];
     tex[0] = pou::TexturesHandler::loadAssetFromFile("../data/sand_color.png",loadType)->getId();
@@ -100,11 +102,11 @@ void TestingState::init()
     m_duck->setPosition(-200,70,1);
     m_scene->getRootNode()->addChildNode(m_duck);
 
-    for(auto i = 1 ; i < 10 ; i++)
+    for(auto i = 1 ; i < 4 ; i++)
     {
         m_duckSwarm.push_back(new Character());
         m_duckSwarm.back()->loadModel("../data/duck/duckXML.txt");
-        m_duckSwarm.back()->setPosition(glm::linearRand(-1000*i,1000*i),glm::linearRand(-1000*i,1000*i),1);
+        m_duckSwarm.back()->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-2000*i,2000*i),1);
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
     }
 

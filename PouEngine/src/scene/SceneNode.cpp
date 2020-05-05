@@ -80,6 +80,12 @@ void SceneNode::attachObject(SceneObject *e)
         Logger::error("Cannot attach null entity");
 }
 
+void SceneNode::attachSound(SoundObject *e, int id)
+{
+    this->attachObject(e);
+    m_attachedSounds.insert({id,e});
+}
+
 void SceneNode::detachObject(SceneObject *e)
 {
     if(e->getParentNode() != this)
@@ -100,6 +106,16 @@ void SceneNode::detachObject(SceneObject *e)
         m_attachedShadowCasters.remove(dynamic_cast<ShadowCaster*>(e));
 
     e->setParentNode(nullptr);
+}
+
+void SceneNode::detachSound(int id)
+{
+    auto founded = m_attachedSounds.find(id);
+    if(founded == m_attachedSounds.end())
+        return;
+
+    this->detachObject(founded->second);
+    m_attachedSounds.erase(founded);
 }
 
 
@@ -163,6 +179,15 @@ void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
 
     for(auto node : m_childs)
         dynamic_cast<SceneNode*>(node.second)->generateRenderingData(renderingInstance);
+}
+
+bool SceneNode::playSound(int id)
+{
+    auto sound = m_attachedSounds.find(id);
+    if(sound == m_attachedSounds.end())
+        return (false);
+
+    return sound->second->play();
 }
 
 SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)

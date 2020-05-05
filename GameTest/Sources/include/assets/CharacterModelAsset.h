@@ -28,8 +28,8 @@ struct SoundModel
 {
     SoundModel() : isEvent(true){}
 
-    std::string tag;
-    std::string soundName;
+    std::string name;
+    std::string path;
     bool isEvent;
 };
 

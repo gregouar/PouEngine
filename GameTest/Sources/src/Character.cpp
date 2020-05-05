@@ -83,13 +83,13 @@ pou::SoundObject *Character::addSound(SoundModel *soundModel)
     std::unique_ptr<pou::SoundObject> soundObject(new pou::SoundObject());
 
     if(soundModel->isEvent)
-        soundObject->setSoundEventModel(soundModel->soundName);
+        soundObject->setSoundEventModel(soundModel->path);
 
     auto sound = m_sounds.insert({soundModel, std::move(soundObject)});
     auto *soundPtr = sound.first->second.get();
 
-    this->attachObject(soundPtr);
-    m_soundsMap.insert({soundModel->tag, soundPtr});
+    //this->attachObject(soundPtr);
+    //m_soundsMap.insert({soundModel->tag, soundPtr});
     return (soundPtr);
 }
 
@@ -389,7 +389,7 @@ void Character::update(const pou::Time& elapsedTime)
 
     SceneNode::update(elapsedTime);
 
-    this->updateSounds();
+    //this->updateSounds();
 }
 
 void Character::updateWalking(const pou::Time &elapsedTime)
@@ -495,7 +495,7 @@ void Character::updateLookingDirection(const pou::Time &elapsedTime)
     }
 }
 
-void Character::updateSounds()
+/*void Character::updateSounds()
 {
     for(auto &skeleton : m_skeletons)
     {
@@ -512,7 +512,7 @@ void Character::updateSounds()
             }
         }
     }
-}
+}*/
 
 void Character::startAnimation(const std::string &name, bool forceStart)
 {

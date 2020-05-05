@@ -65,7 +65,8 @@
 		</frame>-->
 		
 		<frame frameTime=".05" >
-			<tag value="hurtSound">playSound</tag>
+			<!--<tag value="hurtSound">playSound</tag>-->
+			<sound>hurtSound</sound>
 			<!--<command type="colorTo" node="body" x=10 y=10 z=10 />
 			<command type="colorTo" node="head" x=10 y=10 z=10 />
 			<command type="colorTo" node="tail" x=10 y=10 z=10 />
@@ -109,7 +110,8 @@
 			<globalCommand type="colorTo" r=10 g=10 b=10 />
 		</frame>
 		<frame>
-			<tag value="deathSound">playSound</tag>
+			<!--<tag value="deathSound">playSound</tag>-->
+			<sound>deathSound</sound>
 			
 			<command type="moveTo" node="head" y=-4 rate=200 />
 			<command type="scaleTo" node="head" y=-.1 x=-.1 rate=10 />

@@ -18,8 +18,8 @@
 		<limb node="bodyHB" 	sprite="bodyHBTest" 	spritesheet="mainSpriteSheet" />-->
 		
 		
-		<sound tag="hurtSound" name="event:/DuckHurt" type="event" />
-		<sound tag="deathSound" name="event:/DuckDeath" type="event" />
+		<sound name="hurtSound" path="event:/DuckHurt" type="event" />
+		<sound name="deathSound" path="event:/DuckDeath" type="event" />
 	</skeleton>
 	
 	<hitboxes>

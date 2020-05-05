@@ -211,8 +211,13 @@ void Skeleton::copyFromModel(SkeletonModelAsset *model)
     SceneNode::getNodesByName(nodeNames);
 
     m_nodesByName.clear();
+    m_nodesById.clear();
     for(auto it : nodeNames)
-        m_nodesByName.insert({it.first, dynamic_cast<SceneNode*>(it.second)});
+    {
+        auto *node = dynamic_cast<SceneNode*>(it.second);
+        m_nodesByName.insert({it.first, node});
+        m_nodesById.insert({model->getNodeId(it.first), node});
+    }
 
    // m_nodesByName = m_model->getNodesByName();
    // m_rootNode->getChildsByNames(m_nodesByName, true);
@@ -223,16 +228,22 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
     m_animationCommands.clear();
 
     auto commands = frame->getCommands();
-
     for(auto cmd  = commands->begin() ; cmd != commands->end() ; ++cmd)
     {
-        std::string nodeName = cmd->getNode();
-        auto node = m_nodesByName[nodeName]; ///Need to change this so that I dont use name (but some kind of ID ?)
+        //std::string nodeName = cmd->getNode();
+        int nodeId = cmd->getNodeId();
+
+        //auto node = m_nodesByName[nodeName]; ///Need to change this so that I dont use name (but some kind of ID ?)
+        auto node = m_nodesById[nodeId];
         if(node != nullptr)
             m_animationCommands.push_back(
                 SkeletalAnimationCommand (&(*cmd), node, &m_nodeStates[node]));
         //m_animationCommands.back().computeAmount(m_nodeStates[node]);
     }
+
+    auto sounds = frame->getSounds();
+    for(const auto sound : *sounds)
+        this->playSound(sound);
 }
 
 /**                             **/

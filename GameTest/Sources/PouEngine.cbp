@@ -145,7 +145,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/ShadowCaster.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/Skeleton.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
@@ -226,7 +226,7 @@
 		<Unit filename="../../PouEngine/src/scene/SceneObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/ShadowCaster.cpp" />
 		<Unit filename="../../PouEngine/src/scene/Skeleton.cpp" />
-		<Unit filename="../../PouEngine/src/scene/SoundEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SoundObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />

@@ -61,6 +61,7 @@ class Skeleton : public SceneNode
         const std::string &getCurrentAnimationName();
 
         const SceneNode* findNode(const std::string &name) const;
+        const SceneNode* findNode(int id) const;
 
         virtual void update(const Time &elapsedTime);
 
@@ -72,6 +73,7 @@ class Skeleton : public SceneNode
     protected:
         //SceneNode *m_rootNode;
         std::map<std::string, SceneNode*> m_nodesByName;
+        std::map<int, SceneNode*> m_nodesById;
         std::map<SceneNode*, SkeletalNodeState> m_nodeStates;
 
     private:

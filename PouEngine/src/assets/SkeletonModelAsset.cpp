@@ -89,8 +89,11 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     }
 
     if(!nodeName.empty())
-    if(!m_nodesByName.insert({nodeName,rootNode}).second)
-        Logger::warning("Multiple nodes with the same name \"" + nodeName + "\" in Skeleton Asset : "+m_filePath);
+    {
+        if(!m_nodesByName.insert({nodeName,rootNode}).second)
+            Logger::warning("Multiple nodes with the same name \"" + nodeName + "\" in Skeleton Asset : "+m_filePath);
+        m_nodesById.insert({this->generateNodeId(nodeName), rootNode});
+    }
 
     auto attribute = element->Attribute("x");
     if(attribute != nullptr)
@@ -104,17 +107,6 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     if(attribute != nullptr)
         nodePos.z = Parser::parseFloat(std::string(attribute));
 
-
-    /*attribute = element->Attribute("flexible");
-    if(attribute != nullptr && Parser::parseBool(std::string(attribute)))
-    {
-        SimpleNode* parent = rootNode->getParent();
-        if(parent != nullptr)
-        {
-            parent->moveChildNode(rootNode, parent->getParent());
-            m_joints.insert({parent->getName(), rootNode->getName()});
-        }
-    }*/
     attribute = element->Attribute("rigidity");
     if(attribute != nullptr)
     {
@@ -161,7 +153,7 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
 void SkeletonModelAsset::loadAnimation(TiXmlElement *element)
 {
     std::string animationName;
-    std::unique_ptr<SkeletalAnimationModel> animationModel(new SkeletalAnimationModel());
+    std::unique_ptr<SkeletalAnimationModel> animationModel(new SkeletalAnimationModel(this));
 
     auto nameAtt = element->Attribute("name");
     if(nameAtt != nullptr)
@@ -170,7 +162,9 @@ void SkeletonModelAsset::loadAnimation(TiXmlElement *element)
         animationName = "Animation"+std::to_string(m_animations.size());
 
     animationModel->setName(animationName);
-    animationModel->loadFromXml(element, &m_nodesByName);
+    animationModel->loadFromXml(element/*, &m_nodesById*/);
+
+    m_animationById.insert({this->generateAnimationId(animationName), animationModel.get()});
 
     if(!m_animations.insert(std::make_pair(animationName,std::move(animationModel))).second)
         Logger::warning("Multiple animations named \""+animationName+"\" in the skeleton : "+m_filePath);
@@ -187,6 +181,12 @@ std::map<std::string, SimpleNode*> SkeletonModelAsset::getNodesByName()
     return m_nodesByName;
 }
 
+const std::map<int, SimpleNode*> *SkeletonModelAsset::getNodesById()
+{
+    return &m_nodesById;
+}
+
+
 SkeletalAnimationModel* SkeletonModelAsset::findAnimation(const std::string &name)
 {
     auto animation = m_animations.find(name);
@@ -195,13 +195,85 @@ SkeletalAnimationModel* SkeletonModelAsset::findAnimation(const std::string &nam
     return animation->second.get();
 }
 
+SkeletalAnimationModel* SkeletonModelAsset::findAnimation(int id)
+{
+    auto animation = m_animationById.find(id);
+    if(animation == m_animationById.end())
+        return (nullptr);
+    return animation->second;
+}
+
+
+int SkeletonModelAsset::generateNodeId(const std::string nodeName)
+{
+    int id = 0;
+    if(!m_nodeIdByName.empty())
+        id = m_nodeIdByName.size();//(--m_nodeIdByName.end())->second++;
+    m_nodeIdByName.insert({nodeName,id});
+    return id;
+}
+
+int SkeletonModelAsset::generateAnimationId(const std::string animationName)
+{
+    int id = 0;
+    if(!m_animationIdByName.empty())
+        id = m_animationIdByName.size();//(--m_animationIdByName.end())->second++;
+    m_animationIdByName.insert({animationName,id});
+    return id;
+}
+
+int SkeletonModelAsset::generateSoundId(const std::string soundName)
+{
+    int id = 0;
+    if(!m_soundIdByName.empty())
+    {
+        auto founded = m_soundIdByName.find(soundName);
+        if(founded != m_soundIdByName.end())
+            return id = founded->second;
+
+        id = m_soundIdByName.size();//(--m_soundIdByName.end())->second++;
+    }
+
+    m_soundIdByName.insert({soundName,id});
+    return id;
+}
+
+
+int SkeletonModelAsset::getNodeId(const std::string nodeName) const
+{
+    auto founded = m_nodeIdByName.find(nodeName);
+    if(founded == m_nodeIdByName.end())
+        return (-1);
+
+    return founded->second;
+}
+
+int SkeletonModelAsset::getAnimationId(const std::string animationName) const
+{
+    auto founded = m_animationIdByName.find(animationName);
+    if(founded == m_animationIdByName.end())
+        return (-1);
+
+    return founded->second;
+}
+
+int SkeletonModelAsset::getSoundId(const std::string soundName) const
+{
+    auto founded = m_soundIdByName.find(soundName);
+    if(founded == m_soundIdByName.end())
+        return (-1);
+
+    return founded->second;
+}
+
+
 /**                        **/
 /// SkeletalAnimationModel ///
 /**                        **/
 
 
-SkeletalAnimationModel::SkeletalAnimationModel() :
-    m_isLooping(false)
+SkeletalAnimationModel::SkeletalAnimationModel(SkeletonModelAsset *skeletonModel) :
+    m_skeletonModel(skeletonModel),m_isLooping(false)
 {
 
 }
@@ -211,7 +283,7 @@ SkeletalAnimationModel::~SkeletalAnimationModel()
 
 }
 
-bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes)
+bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes*/)
 {
     auto loopAtt = element->Attribute("loop");
     if(loopAtt != nullptr)
@@ -221,8 +293,8 @@ bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element, const std::map<s
     auto frameElement = element->FirstChildElement("frame");
     while(frameElement != nullptr)
     {
-        m_frames.push_back(SkeletalAnimationFrameModel ());
-        m_frames.back().loadFromXml(frameElement->ToElement(), mapOfNodes);
+        m_frames.push_back(SkeletalAnimationFrameModel (m_skeletonModel));
+        m_frames.back().loadFromXml(frameElement->ToElement()/*, mapOfNodes*/);
         if(lastFrame != nullptr)
             lastFrame->setNextFrame(&m_frames.back());
         lastFrame = &m_frames.back();
@@ -264,8 +336,8 @@ bool SkeletalAnimationModel::isLooping()
 /// SkeletalAnimationFrameModel  ///
 /**                              **/
 
-SkeletalAnimationFrameModel::SkeletalAnimationFrameModel() :
-    m_nextFrame(nullptr)
+SkeletalAnimationFrameModel::SkeletalAnimationFrameModel(SkeletonModelAsset *skeletonModel) :
+    m_skeletonModel(skeletonModel), m_nextFrame(nullptr)
 {
     m_frameTime   = 0.0f;
     m_speedFactor = 1.0f;
@@ -276,8 +348,10 @@ SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
 
 }
 
-bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::map<std::string, SimpleNode*> *mapOfNodes )
+bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes */)
 {
+    auto *mapOfNodes = m_skeletonModel->getNodesById();
+
     auto speedAtt = element->Attribute("speedFactor");
     if(speedAtt != nullptr)
         m_speedFactor = Parser::parseFloat(speedAtt);
@@ -303,7 +377,16 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
         tagElement = tagElement->NextSiblingElement("tag");
     }
 
-    auto commandElement = element->FirstChildElement("command");
+    auto commandElement = element->FirstChildElement("sound");
+    while(commandElement != nullptr)
+    {
+        m_sounds.push_back(m_skeletonModel->generateSoundId(commandElement->GetText()));
+        //m_commands.push_back(SkeletalAnimationCommandModel (this));
+        //m_commands.back().loadFromXml(commandElement->ToElement());
+        commandElement = commandElement->NextSiblingElement("sound");
+    }
+
+    commandElement = element->FirstChildElement("command");
     while(commandElement != nullptr)
     {
         m_commands.push_back(SkeletalAnimationCommandModel (this));
@@ -329,10 +412,10 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
         if(att != nullptr)
         {
             std::string nodeName = std::string(att);
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,nodeName));
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,nodeName));
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,nodeName));
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,nodeName));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,m_skeletonModel->getNodeId(nodeName)));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,m_skeletonModel->getNodeId(nodeName)));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,m_skeletonModel->getNodeId(nodeName)));
+            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,m_skeletonModel->getNodeId(nodeName)));
         }
         else
         for(const auto n : *mapOfNodes)
@@ -349,9 +432,19 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element, const std::
     return (true);
 }
 
-const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::getCommands()
+const SkeletonModelAsset *SkeletalAnimationFrameModel::getSkeletonModel() const
+{
+    return m_skeletonModel;
+}
+
+const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::getCommands()const
 {
     return &m_commands;
+}
+
+const std::list<int> *SkeletalAnimationFrameModel::getSounds() const
+{
+    return &m_sounds;
 }
 
 float SkeletalAnimationFrameModel::getSpeedFactor() const
@@ -387,12 +480,13 @@ void SkeletalAnimationFrameModel::setNextFrame(SkeletalAnimationFrameModel *next
 /**                                 **/
 
 SkeletalAnimationCommandModel::SkeletalAnimationCommandModel(SkeletalAnimationFrameModel *frameModel,
-                                        SkelAnimCmdType type, const std::string &node) :
+                                        SkelAnimCmdType type, int nodeId/*const std::string &node*/) :
     m_frameModel(frameModel),
     m_type(type),
     m_amount(0),
     m_rate(0),
-    m_node(node)
+    m_nodeId(nodeId)
+    //m_node(node)
 {
     if(type != Unknown_Command)
         m_enabledDirection = glm::vec4(true);
@@ -425,7 +519,7 @@ bool SkeletalAnimationCommandModel::loadFromXml(TiXmlElement *element)
 
     att = element->Attribute("node");
     if(att != nullptr)
-        m_node = std::string(att);
+        m_nodeId = m_frameModel->getSkeletonModel()->getNodeId(std::string(att)) ;//std::string(att);
 
     att = element->Attribute("x");
     if(att != nullptr)
@@ -488,9 +582,16 @@ float SkeletalAnimationCommandModel::getFrameTime() const
     return m_frameModel->getFrameTime();
 }
 
-const std::string &SkeletalAnimationCommandModel::getNode() const
+/*const std::string &SkeletalAnimationCommandModel::getNode() const
 {
     return m_node;
+}*/
+
+int SkeletalAnimationCommandModel::getNodeId() const
+{
+    return m_nodeId;
 }
+
+
 
 }
