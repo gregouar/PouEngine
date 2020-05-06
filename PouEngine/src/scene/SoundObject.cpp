@@ -1,5 +1,6 @@
 #include "PouEngine/scene/SoundObject.h"
 
+#include "PouEngine/scene/SceneNode.h"
 
 namespace pou
 {
@@ -38,12 +39,18 @@ bool SoundObject::setSoundEventModel(const std::string &eventPath)
     m_soundId = AudioEngine::createEvent(eventPath);
     m_isEvent = true;
 
+    this->updateSoundPosition();
+
     return (m_soundId != 0);
 }
 
 void SoundObject::updateSoundPosition()
 {
+    if(m_parentNode == nullptr || m_soundId == 0)
+        return;
 
+    if(m_isEvent)
+        AudioEngine::setEvent3DPosition(m_soundId, m_parentNode->getGlobalPosition());
 }
 
 

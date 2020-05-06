@@ -58,9 +58,9 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         pou::SoundTypeId    m_soundEventTest;
 
-        pou::CameraObject   *m_camera;
-        pou::SceneNode      *m_cameraNode;
-        glm::vec3            m_camVelocity;
+        pou::CameraObject   *m_camera, *m_listeningCamera;
+        //pou::SceneNode      *m_cameraNode;
+        //glm::vec3            m_camVelocity;
         //glm::vec2            m_charVelocity;
 };
 

@@ -38,6 +38,42 @@ void AudioEngine::update()
         m_impl.get()->update();
 }
 
+bool AudioEngine::set3DSettings(float dopplerscale,  float distancefactor,  float rolloffscale)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    if(distancefactor <= 0)
+        return (false);
+    return instance()->m_impl.get()->set3DSettings(dopplerscale, distancefactor, rolloffscale);
+}
+
+SoundTypeId AudioEngine::add3DListener()
+{
+    if(instance()->m_impl == nullptr)
+        return (0);
+    return instance()->m_impl.get()->add3DListener();
+}
+
+bool AudioEngine::remove3DListener(SoundTypeId id)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->remove3DListener(id);
+}
+
+bool AudioEngine::set3DListenerOrientation(SoundTypeId id, const glm::vec3 &up, const glm::vec3 &forwrd)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->set3DListenerOrientation(id,up,forwrd);
+}
+
+bool AudioEngine::set3DListenerPosition(SoundTypeId id, const glm::vec3 &pos)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->set3DListenerPosition(id,pos);
+}
 
 SoundTypeId AudioEngine::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
 {
@@ -114,5 +150,13 @@ bool AudioEngine::playEvent(SoundTypeId id)
         return (false);
     return instance()->m_impl.get()->playEvent(id);
 }
+
+bool AudioEngine::setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos)
+{
+    if(instance()->m_impl == nullptr)
+        return (false);
+    return instance()->m_impl.get()->setEvent3DPosition(id, pos);
+}
+
 
 }

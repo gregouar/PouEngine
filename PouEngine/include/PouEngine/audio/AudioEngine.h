@@ -24,6 +24,13 @@ class AudioEngine  : public Singleton<AudioEngine>
 
         void update();
 
+        static bool set3DSettings(float dopplerscale = 1.0f,  float distancefactor = 1.0f,  float rolloffscale = 1.0f);
+
+        static SoundTypeId add3DListener();
+        static bool remove3DListener(SoundTypeId id);
+        static bool set3DListenerOrientation(SoundTypeId id, const glm::vec3 &up, const glm::vec3 &forwrd);
+        static bool set3DListenerPosition(SoundTypeId id, const glm::vec3 &pos);
+
         static SoundTypeId loadSound(const std::string &path, bool is3D = false, bool isLooping = false,
                        bool isStream = false);
         static bool destroySound(SoundTypeId id);
@@ -36,6 +43,7 @@ class AudioEngine  : public Singleton<AudioEngine>
         static SoundTypeId createEvent(const std::string &eventName);
         static bool destroyEvent(SoundTypeId id);
         static bool playEvent(SoundTypeId id);
+        static bool setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos);
 
     protected:
 

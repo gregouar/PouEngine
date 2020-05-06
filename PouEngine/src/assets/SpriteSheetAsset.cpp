@@ -64,7 +64,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
     std::string textureName = std::string(hdl->Element()->Attribute("texture"));
 
     m_texture = TexturesHandler::instance()
-                    ->loadAssetFromFile(m_fileDirectory+textureName,m_loadType);
+                    ->loadAssetFromFile(m_fileDirectory+textureName,LoadType_InThread/**m_loadType**/);
     this->startListeningTo(m_texture);
     if(!m_texture->isLoaded())
         loaded = false;
@@ -124,7 +124,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
 
         spriteModel->setTexture(m_texture);
 
-        if(!customSize)
+        if(!customSize && m_texture->isLoaded())
             spriteSize = m_texture->getExtent();
         if(!customCenter)
             spriteCenter = {spriteSize.x*0.5,

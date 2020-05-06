@@ -138,6 +138,7 @@
 			<command type="rotateTo" node="bag" z="-10" rate="100" />
 		</frame>
 		<frame>
+			<sound>stepSound</sound>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="100" />
@@ -158,6 +159,7 @@
 			<command type="rotateTo" node="bag" z="10" rate="100" />
 		</frame>
 		<frame>
+			<sound>stepSound</sound>
 			<command type="rotateTo" node="body" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="100" />

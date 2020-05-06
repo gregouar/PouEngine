@@ -37,7 +37,7 @@ void TestingState::init()
 {
     m_firstEntering = false;
 
-    m_camVelocity = glm::vec3(0);
+    //m_camVelocity = glm::vec3(0);
     m_activeCroc = false;
     m_activeDuck = false;
 
@@ -168,16 +168,21 @@ void TestingState::init()
     quackNode->attachObject(quackEntity);
     quackNode->setScale(1.5f);
 
-    m_soundTest = pou::SoundsHandler::loadAssetFromFile("../data/hurtSoundXML.txt");
+    //m_soundTest = pou::SoundsHandler::loadAssetFromFile("../data/hurtSoundXML.txt");
     //m_soundBankTest = pou::SoundBanksHandler::loadAssetFromFile("../data/char1/char1SoundBank.bank");
 
 
     m_camera = m_scene->createCamera();
+    m_listeningCamera = m_scene->createCamera();
+    m_listeningCamera -> setListening(true);
     //m_camera->setViewport({.2,.3},{.5,.4});
     //m_cameraNode = m_scene->getRootNode()->createChildNode(0,0,5);
-    m_cameraNode = m_character->createChildNode(0,0,-1);
-    m_cameraNode->attachObject(m_camera);
-    //m_character->attachObject(m_camera);
+    auto *cameraNode = m_character->createChildNode(0,0,-1);
+    cameraNode->attachObject(m_camera);
+
+    cameraNode = cameraNode->createChildNode(0,0,250);
+    cameraNode->attachObject(m_listeningCamera);
+    //m_character->attachObject(m_listeningCamera);
 
     //m_scene->setCurrentCamera(m_camera);
 
@@ -367,7 +372,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_H))
         pou::AudioEngine::playEvent(m_soundEventTest);
 
-    m_camVelocity = glm::vec3(0);
+   // m_camVelocity = glm::vec3(0);
 
     /*if(eventsManager->keyIsPressed(GLFW_KEY_DOWN))
         m_camVelocity.y = 200.0;
@@ -377,10 +382,10 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_camVelocity.x = -200.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_RIGHT))
         m_camVelocity.x = 200.0;*/
-    if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_UP))
+   /* if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_UP))
         m_camVelocity.z = -1.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_DOWN))
-        m_camVelocity.z = 1.0;
+        m_camVelocity.z = 1.0;*/
 
 
 
@@ -426,12 +431,12 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_totalTime += elapsedTime;
     m_nbrFps++;
 
-    glm::vec2 camMoveXY = m_scene->convertScreenToWorldCoord(glm::vec2(m_camVelocity.x,m_camVelocity.y));
+    /*glm::vec2 camMoveXY = m_scene->convertScreenToWorldCoord(glm::vec2(m_camVelocity.x,m_camVelocity.y));
     glm::vec3 camMove = glm::vec3(camMoveXY.x, camMoveXY.y, m_camVelocity.z);
     camMove.x *= elapsedTime.count();
     camMove.y *= elapsedTime.count();
     camMove.z *= elapsedTime.count();
-    m_cameraNode->move(camMove);
+    m_cameraNode->move(camMove);*/
 
     //m_cameraNode->move(glm::vec3(0,0,elapsedTime.count()));
 

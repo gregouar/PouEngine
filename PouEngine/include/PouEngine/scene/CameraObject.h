@@ -2,6 +2,7 @@
 #define CAMERAOBJECT_H
 
 #include "PouEngine/scene/SceneObject.h"
+#include "PouEngine/audio/AudioEngine.h"
 
 namespace pou
 {
@@ -16,6 +17,8 @@ class CameraObject : public SceneObject
 
         void setViewport(glm::vec2 offset, glm::vec2 extent); //Normalized viewport
 
+        void setListening(bool listening = true);
+
         void setZoom(float zoom);
         void zoom(float zoomFactor);
 
@@ -23,12 +26,22 @@ class CameraObject : public SceneObject
         glm::vec2 getViewportOffset();
         glm::vec2 getViewportExtent();
 
+        virtual void notify(NotificationSender* , NotificationType,
+                            size_t dataSize = 0, char* data = nullptr) override;
     protected:
+        void updateListeningPosition();
+
+    protected:
+        bool        m_isListening;
+        SoundTypeId m_3DListener;
+
+
         float m_zoom;
         glm::vec2 m_offset;
         glm::vec2 m_extent;
 
     private:
+
 };
 
 }

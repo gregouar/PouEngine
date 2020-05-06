@@ -12,6 +12,9 @@ FMODAudioImpl::FMODAudioImpl() : AbstractAudioImpl(),
     m_studioSystem(nullptr) , m_system(nullptr)
 {
     m_nbrChannels = DEFAULT_NBR_CHANNELS;
+    m_distanceFactor = 1.0f;
+
+    m_listenerSoundTypeId = 0;
 
     this->init();
 }
@@ -45,6 +48,8 @@ bool FMODAudioImpl::init()
         return (false);
     }
 
+    m_inUseListeners.resize(1, false);
+
     m_channels.resize(m_nbrChannels, nullptr);
 
     return (true);
@@ -74,6 +79,103 @@ void FMODAudioImpl::update()
         return;
 
     FMOD_Studio_System_Update(m_studioSystem);
+}
+
+bool FMODAudioImpl::set3DSettings(float dopplerscale,  float distancefactor,  float rolloffscale)
+{
+    m_distanceFactor = distancefactor;
+    return (FMOD_System_Set3DSettings(m_system,dopplerscale,distancefactor,rolloffscale) == FMOD_OK);
+}
+
+
+SoundTypeId FMODAudioImpl::add3DListener()
+{
+    for(auto i = 0 ; i < static_cast<int>(m_inUseListeners.size()) ; ++i)
+        if(!m_inUseListeners[i])
+        {
+            m_listeners.insert({++m_listenerSoundTypeId,i+1});
+            m_inUseListeners[i] = true;
+            FMOD_Studio_System_SetListenerWeight(m_studioSystem, i+1, 1.0f);
+
+            return (m_listenerSoundTypeId);
+        }
+
+    if(m_inUseListeners.size() == FMOD_MAX_LISTENERS)
+    {
+        Logger::warning("Could not add 3D listener: maximal amount of listeners reached");
+        return (0);
+    }
+
+    m_inUseListeners.push_back(true);
+    m_listeners.insert({++m_listenerSoundTypeId,m_inUseListeners.size()});
+    FMOD_Studio_System_SetNumListeners(m_studioSystem, m_inUseListeners.size());
+    FMOD_Studio_System_SetListenerWeight(m_studioSystem, m_inUseListeners.size(), 1.0f);
+
+    return (m_listenerSoundTypeId);
+}
+
+bool FMODAudioImpl::remove3DListener(SoundTypeId id)
+{
+    auto founded = m_listeners.find(id);
+    if(founded == m_listeners.end())
+        return (false);
+    int index = founded->second;
+
+    if(index == static_cast<int>(m_inUseListeners.size()))
+    {
+        if(index != 1)
+        {
+            m_inUseListeners.resize(index-1);
+            FMOD_Studio_System_SetNumListeners(m_studioSystem, m_inUseListeners.size());
+        } else
+            m_inUseListeners[0] = false;
+    }
+    else
+    {
+        FMOD_Studio_System_SetListenerWeight(m_studioSystem, index, 0.0f);
+        m_inUseListeners[index-1] = false;
+    }
+
+    return (true);
+}
+
+bool FMODAudioImpl::set3DListenerOrientation(SoundTypeId id, const glm::vec3 &up, const glm::vec3 &forwrd)
+{
+    auto founded = m_listeners.find(id);
+    if(founded == m_listeners.end())
+        return (false);
+    int index = founded->second;
+
+    FMOD_3D_ATTRIBUTES att;
+    if(FMOD_Studio_System_GetListenerAttributes(m_studioSystem,index,&att,nullptr) != FMOD_OK)
+        return(false);
+
+    att.forward     = vectorToFmod(forwrd);
+    att.up          = vectorToFmod(up);
+
+    return (FMOD_Studio_System_SetListenerAttributes(m_studioSystem,index,&att,nullptr) == FMOD_OK);
+}
+
+bool FMODAudioImpl::set3DListenerPosition(SoundTypeId id, const glm::vec3 &pos)
+{
+    auto founded = m_listeners.find(id);
+    if(founded == m_listeners.end())
+        return (false);
+    int index = founded->second;
+
+    if(m_inUseListeners.size() == 1)
+        index = 0;
+
+    FMOD_3D_ATTRIBUTES att;
+    FMOD_VECTOR attenuationPos;
+
+    if(FMOD_Studio_System_GetListenerAttributes(m_studioSystem,index,&att,&attenuationPos) != FMOD_OK)
+       return(false);
+
+    att.position    = vectorToFmod(pos/m_distanceFactor);
+    attenuationPos  = vectorToFmod(pos/m_distanceFactor);
+
+    return (FMOD_Studio_System_SetListenerAttributes(m_studioSystem,index,&att,&attenuationPos) == FMOD_OK);
 }
 
 SoundTypeId FMODAudioImpl::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
@@ -241,7 +343,6 @@ bool FMODAudioImpl::destroyEvent(SoundTypeId id)
 bool FMODAudioImpl::playEvent(SoundTypeId id)
 {
     auto foundedEvent = m_events.find(id);
-
     if(foundedEvent == m_events.end())
         return (false);
 
@@ -250,14 +351,24 @@ bool FMODAudioImpl::playEvent(SoundTypeId id)
     return (true);
 }
 
+bool FMODAudioImpl::setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos)
+{
+    auto foundedEvent = m_events.find(id);
+    if(foundedEvent == m_events.end())
+        return (false);
+
+    FMOD_3D_ATTRIBUTES att;
+    if(FMOD_Studio_EventInstance_Get3DAttributes(foundedEvent->second,&att) != FMOD_OK)
+        return (false);
+
+    att.position = vectorToFmod(pos/m_distanceFactor);
+
+    return (FMOD_Studio_EventInstance_Set3DAttributes(foundedEvent->second,&att) == FMOD_OK);
+}
 
 FMOD_VECTOR FMODAudioImpl::vectorToFmod(const glm::vec3& v)
 {
-    FMOD_VECTOR fVec;
-    fVec.x = v.x;
-    fVec.y = v.y;
-    fVec.z = v.z;
-    return fVec;
+    return FMOD_VECTOR{v.x,v.y,v.z};
 }
 
 

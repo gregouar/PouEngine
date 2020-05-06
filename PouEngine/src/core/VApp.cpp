@@ -114,9 +114,11 @@ bool VApp::init()
     Profiler::popClock();
 
 
-    Profiler::pushClock("Create renderers");
+    Profiler::pushClock("Init audio engine");
     if(!AudioEngine::instance()->init(std::make_unique<FMODAudioImpl> ()))
         throw std::runtime_error("Cannot initialize audio engine");
+
+    AudioEngine::set3DSettings(1.0f,100.0f,1.0f);
     Profiler::popClock();
 
     return (true);
