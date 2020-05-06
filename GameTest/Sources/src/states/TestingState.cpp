@@ -49,36 +49,6 @@ void TestingState::init()
     auto music = pou::AudioEngine::createEvent("event:/Music");
     pou::AudioEngine::playEvent(music);
 
-    /*pou::AssetTypeId tex[10];
-    tex[0] = pou::TexturesHandler::loadAssetFromFile("../data/sand_color.png",loadType)->getId();
-    tex[1] = pou::TexturesHandler::loadAssetFromFile("../data/sand_height.png",loadType)->getId();
-    tex[2] = pou::TexturesHandler::loadAssetFromFile("../data/sand_normal.png",loadType)->getId();
-
-    tex[3] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_albedo.png",loadType)->getId();
-    tex[4] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_height.png",loadType)->getId();
-    tex[5] = pou::TexturesHandler::loadAssetFromFile("../data/abbey_normal.png",loadType)->getId();
-
-    tex[6] = pou::TexturesHandler::loadAssetFromFile("../data/tree_albedo.png",loadType)->getId();
-    tex[7] = pou::TexturesHandler::loadAssetFromFile("../data/tree_height.png",loadType)->getId();
-    tex[8] = pou::TexturesHandler::loadAssetFromFile("../data/tree_height.png",loadType)->getId();
-    tex[9] = pou::TexturesHandler::loadAssetFromFile("../data/tree_rmt.png",loadType)->getId();
-
-
-    pou::TextureAsset *charTexture2 = pou::TexturesHandler::loadAssetFromFile("../data/char1/char1.png",loadType);
-    pou::TextureAsset *charTexture = pou::TexturesHandler::loadAssetFromFile("../data/char1/char1_scale.png",loadType);
-
-    m_charModel = new pou::SpriteModel();
-    m_charModel->setTexture(charTexture);
-    m_charModel->setSize({128.0,128.0});
-    m_charModel->setCenter({64,64});
-    m_charModel->setTextureRect({0,0},{1,1});
-
-    m_testNode = m_scene->getRootNode()->createChildNode({0,0});
-    m_testChar =  m_scene->createSpriteEntity(m_charModel);
-    m_testChar->setRotation(30.0);
-    m_testChar->setOrdering(pou::ORDERED_BY_Z);*/
-    //m_testNode->attachObject(m_testChar);
-
     m_character = new PlayableCharacter();
     m_character->loadModel("../data/char1/char1XML.txt");
     m_character->setPosition(0,0,1);
@@ -94,8 +64,6 @@ void TestingState::init()
     m_croco->setPosition(220,70,1);
     m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
-
-
 
     m_duck = new Character();
     m_duck->loadModel("../data/duck/duckXML.txt");
@@ -125,6 +93,15 @@ void TestingState::init()
         m_trees.push_back(new Character());
         m_trees.back()->loadModel("../data/grasslands/treeXML.txt");
         m_trees.back()->setPosition(p);
+        m_trees.back()->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
+        m_trees.back()->scale(glm::vec3(
+                                glm::linearRand(0,10) > 5 ? 1 : -1,
+                                glm::linearRand(0,10) > 5 ? 1 : -1,
+                                1));
+        float red = glm::linearRand(1.0,1.0);
+        float green = glm::linearRand(0.9,1.0);
+        float blue = green;//glm::linearRand(0.9,1.0);
+        m_trees.back()->setColor(glm::vec4(red,green,blue,1));
         m_scene->getRootNode()->addChildNode(m_trees.back());
     }
 
@@ -332,7 +309,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         {
             glm::vec2 nDist = glm::normalize(m_duck->getGlobalXYPosition() - m_character->getGlobalXYPosition());
             m_duck->setDestination(m_character->getGlobalXYPosition()+nDist*95.0f);
-        } else
+        } else if(m_character->isAlive())
             m_duck->attack(m_character->getGlobalXYPosition() - m_duck->getGlobalXYPosition());
 
         for(auto duck : m_duckSwarm)
@@ -341,7 +318,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
             {
                 glm::vec2 nDist = glm::normalize(duck->getGlobalXYPosition() - m_character->getGlobalXYPosition());
                 duck->setDestination(m_character->getGlobalXYPosition()+nDist*95.0f);
-            } else
+            } else if(m_character->isAlive())
                 duck->attack(m_character->getGlobalXYPosition() - duck->getGlobalXYPosition());
         }
     }

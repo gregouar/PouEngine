@@ -407,7 +407,7 @@ bool VInstance::createLogicalDevice()
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
-    deviceFeatures.independentBlend  = VK_TRUE; ///Do I really need it ?
+    //deviceFeatures.independentBlend  = VK_TRUE; ///Do I really need it ?
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

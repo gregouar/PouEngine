@@ -10,7 +10,8 @@ namespace pou
 
 SceneNode::SceneNode(const NodeTypeId id) :
     SimpleNode(id),
-    m_color(1.0f)
+    m_color(1.0f),
+    m_finalColor(1.0f)
 {
     m_scene = nullptr;
 }
@@ -145,6 +146,11 @@ const glm::vec4 &SceneNode::getColor() const
     return m_color;
 }
 
+const glm::vec4 &SceneNode::getFinalColor() const
+{
+    return m_finalColor;
+}
+
 
 
 void SceneNode::colorize(const glm::vec4 &c)
@@ -206,6 +212,16 @@ bool SceneNode::playSound(int id)
         if(!s->second->play()) r = false;
 
     return r;
+}
+
+void SceneNode::updateGlobalPosition()
+{
+    glm::vec4 parentColor(1.0f);
+    if(m_parent != nullptr)
+        parentColor = dynamic_cast<SceneNode*>(m_parent)->getFinalColor();
+    m_finalColor = m_color * parentColor;
+
+    SimpleNode::updateGlobalPosition();
 }
 
 SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)

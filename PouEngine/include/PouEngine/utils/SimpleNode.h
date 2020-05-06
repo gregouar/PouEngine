@@ -98,7 +98,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void addCreatedChildNode(SimpleNode*);
 
         void askForUpdateModelMatrix();
-        void updateGlobalPosition();
+        virtual void updateGlobalPosition();
         void updateModelMatrix();
 
         void computeFlexibleMove(glm::vec3 );

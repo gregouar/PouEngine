@@ -528,6 +528,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 void Character::updateLookingDirection(const pou::Time &elapsedTime)
 {
     ///Introduce animationRotationSpeed
+    if(!m_attributes.immovable)
     if(m_lookingDirection != glm::vec2(0))
     {
         float curRotation = SceneNode::getEulerRotation().z;

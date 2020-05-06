@@ -51,6 +51,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         Scene*  getScene();
         const glm::vec4 &getColor() const;
+        const glm::vec4 &getFinalColor() const;
 
         void generateRenderingData(SceneRenderingInstance *renderingInstance);
         bool playSound(int id);
@@ -63,10 +64,12 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         virtual void setParent(SimpleNode *);
         void setScene(Scene *);
+        virtual void updateGlobalPosition();
 
     protected:
         Scene* m_scene;
         glm::vec4 m_color;
+        glm::vec4 m_finalColor;
 
     private:
         std::list<SceneObject *>    m_attachedObjects;

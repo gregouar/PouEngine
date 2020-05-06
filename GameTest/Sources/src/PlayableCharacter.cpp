@@ -142,6 +142,9 @@ bool PlayableCharacter::dash(glm::vec2 direction)
 
 void PlayableCharacter::update(const pou::Time &elapsedTime)
 {
+    if(!m_isDead)
+    {
+
     if(m_wantToDashTimer.isActive())
     {
         m_wantToDashTimer.update(elapsedTime);
@@ -206,6 +209,8 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
     {
         m_isLateralWalking = false;
         Character::startAnimation("walk", true);
+    }
+
     }
 
     //for(auto &skeleton : m_skeletons)
