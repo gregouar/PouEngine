@@ -102,11 +102,11 @@ void TestingState::init()
     m_duck->setPosition(-200,70,1);
     m_scene->getRootNode()->addChildNode(m_duck);
 
-    for(auto i = 1 ; i < 4 ; i++)
+    for(auto i = 1 ; i < 10 ; i++)
     {
         m_duckSwarm.push_back(new Character());
         m_duckSwarm.back()->loadModel("../data/duck/duckXML.txt");
-        m_duckSwarm.back()->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-2000*i,2000*i),1);
+        m_duckSwarm.back()->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-1000*i,1000*i),1);
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
     }
 
@@ -358,6 +358,8 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_C))
         m_activeCroc = !m_activeCroc;
 
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+        m_character->setLookingDirection(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
         m_character->askToAttack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
 

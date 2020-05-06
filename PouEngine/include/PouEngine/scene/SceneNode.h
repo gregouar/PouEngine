@@ -36,9 +36,11 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         SceneNode* createChildNode(const NodeTypeId id);
 
         void attachObject(SceneObject *);
-        void attachSound(SoundObject *, int);
         void detachObject(SceneObject *);
-        void detachSound(int);
+
+        void attachSound(SoundObject *, int);
+        void detachSound(SoundObject *, int);
+
         void detachAllObjects();
 
         void colorize(const glm::vec4 &c);
@@ -72,7 +74,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         std::list<LightEntity *>    m_attachedLights;
         std::list<ShadowCaster *>   m_attachedShadowCasters;
 
-        std::map<int, SoundObject *> m_attachedSounds;
+        std::multimap<int, SoundObject *> m_attachedSounds;
 };
 
 }

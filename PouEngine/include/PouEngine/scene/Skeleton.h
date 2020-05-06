@@ -51,6 +51,7 @@ class Skeleton : public SceneNode
         bool detachAllLimbs(const std::string &boneName);
 
         bool attachSound(SoundObject *object, const std::string &soundName);
+        bool detachSound(SoundObject *object, const std::string &soundName);
 
         bool startAnimation(const std::string &animationName, bool forceStart = false); //Probably could add ForceStart
         //could add pause animation etc

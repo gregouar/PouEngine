@@ -375,6 +375,9 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
 
     VkDescriptorSet descriptorSets[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
                                         VTexturesManager::descriptorSet(m_curFrameIndex) };
+    VkDescriptorSet descriptorSets_nearest[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
+                                        VTexturesManager::descriptorSet(m_curFrameIndex,true) };
+
 
     VkCommandBuffer cmb = m_renderGraph.startRecording(m_deferredPass, imageIndex, m_curFrameIndex);
 
@@ -414,7 +417,7 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
         }
 
         vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                m_deferredSpritesPipeline.getLayout(),0,2, descriptorSets, 0, nullptr);
+                                m_deferredSpritesPipeline.getLayout(),0,2, descriptorSets_nearest, 0, nullptr);
 
         if(spritesVboSize != 0)
         {

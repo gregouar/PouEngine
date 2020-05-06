@@ -49,6 +49,9 @@ bool ItemModelAsset::removeFromCharacter(Character *character)
             if(!character->removeLimbFromSkeleton(&limb, skeleton.first))
                 r = false;
 
+        for(auto &sound : *(skeleton.second.getSounds()))
+            if(!character->removeSoundFromSkeleton(&sound, skeleton.first))
+                r = false;
     }
 
     return (r);

@@ -19,7 +19,9 @@
 		
 		
 		<sound name="hurtSound" path="event:/DuckHurt" type="event" />
+		<sound name="hurtSound" path="event:/SwordHitOrg" type="event" />
 		<sound name="deathSound" path="event:/DuckDeath" type="event" />
+		<sound name="deathSound" path="event:/SwordHitOrg" type="event" />
 	</skeleton>
 	
 	<hitboxes>

@@ -162,7 +162,8 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
         return (false);
 
     //skeleton->second.get()->detachSound(soundModel->node, sound->second.get());
-    skeleton->second.get()->detachObject(sound->second.get());
+    //skeleton->second.get()->detachObject(sound->second.get());
+    skeleton->second.get()->detachSound(sound->second.get(),soundModel->name);
     m_sounds.erase(sound);
 
     return (true);
@@ -178,6 +179,11 @@ void Character::setRotationRadius(float radius)
 {
     if(radius >= 0)
         m_rotationRadius = radius;
+}
+
+void Character::setLookingDirection(glm::vec2 direction)
+{
+    m_lookingDirection = direction;
 }
 
 void Character::setDestination(glm::vec2 destination)

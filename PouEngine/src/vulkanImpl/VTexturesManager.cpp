@@ -263,8 +263,10 @@ void VTexturesManager::updateCleaningLists(bool cleanAll)
     }
 }
 
-VkSampler VTexturesManager::sampler()
+VkSampler VTexturesManager::sampler(bool nearest)
 {
+    if(nearest)
+        return VTexturesManager::instance()->m_sampler_nearest;
     return VTexturesManager::instance()->m_sampler;
 }
 
@@ -273,14 +275,14 @@ VkDescriptorSetLayout VTexturesManager::descriptorSetLayout()
     return VTexturesManager::instance()->getDescriptorSetLayout();
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet()
+VkDescriptorSet VTexturesManager::descriptorSet(bool nearest)
 {
-    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex);
+    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex,nearest);
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex)
+VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex, bool nearest)
 {
-    return VTexturesManager::instance()->getDescriptorSet(frameIndex);
+    return VTexturesManager::instance()->getDescriptorSet(frameIndex, nearest);
 }
 
 VkDescriptorSet VTexturesManager::imgDescriptorSet(size_t imageIndex)
@@ -303,9 +305,9 @@ VkDescriptorSetLayout VTexturesManager::getDescriptorSetLayout()
     return m_descriptorSetLayout;
 }
 
-VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex)
+VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex, bool nearest)
 {
-    return m_descriptorSets[frameIndex];
+    return nearest ? m_descriptorSets_nearest[frameIndex] : m_descriptorSets[frameIndex];
 }
 
 
@@ -365,14 +367,20 @@ bool VTexturesManager::createDescriptorSetLayouts()
     return (vkCreateDescriptorSetLayout(VInstance::device(), &layoutInfo, nullptr, &m_descriptorSetLayout) == VK_SUCCESS);
 }
 
-bool VTexturesManager::createSampler()
+bool VTexturesManager::createSampler(bool nearest)
 {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    ///samplerInfo.magFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
-    ///samplerInfo.minFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
-    samplerInfo.magFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_NEAREST; ///VK_FILTER_LINEAR;
+
+    if(nearest)
+    {
+        samplerInfo.magFilter = VK_FILTER_NEAREST;
+        samplerInfo.minFilter = VK_FILTER_NEAREST;
+    } else {
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+    }
+
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -387,23 +395,24 @@ bool VTexturesManager::createSampler()
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    return (vkCreateSampler(VInstance::device(), &samplerInfo, nullptr, &m_sampler) == VK_SUCCESS);
+    auto *sampler = nearest ? &m_sampler_nearest : &m_sampler;
+    return (vkCreateSampler(VInstance::device(), &samplerInfo, nullptr, sampler) == VK_SUCCESS);
 }
 
 bool VTexturesManager::createDescriptorPool(size_t framesCount, size_t imagesCount)
 {
     VkDescriptorPoolSize poolSize[2];
     poolSize[0].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount+imagesCount);
+    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount*2+imagesCount);
     poolSize[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount+imagesCount);
+    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount*2+imagesCount);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 2;
     poolInfo.pPoolSizes = poolSize;
 
-    poolInfo.maxSets = static_cast<uint32_t>(framesCount+imagesCount);
+    poolInfo.maxSets = static_cast<uint32_t>(framesCount*2+imagesCount);
 
     return (vkCreateDescriptorPool(VInstance::device(), &poolInfo, nullptr, &m_descriptorPool) == VK_SUCCESS);
 }
@@ -417,11 +426,15 @@ bool VTexturesManager::createDescriptorSets(size_t framesCount, size_t imagesCou
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = m_descriptorPool;
     allocInfo.pSetLayouts = layouts.data();
-
     allocInfo.descriptorSetCount = static_cast<uint32_t>(framesCount);
+
     m_descSetVersion = std::vector<size_t> (framesCount, 0);
     m_descriptorSets.resize(framesCount);
     if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets.data()) != VK_SUCCESS)
+        return (false);
+
+    m_descriptorSets_nearest.resize(framesCount);
+    if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_nearest.data()) != VK_SUCCESS)
         return (false);
 
     allocInfo.descriptorSetCount = static_cast<uint32_t>(imagesCount);
@@ -442,6 +455,7 @@ bool VTexturesManager::createDescriptorSets(size_t framesCount, size_t imagesCou
 void VTexturesManager::updateDescriptorSet(size_t frameIndex)
 {
     this->writeDescriptorSet(m_descriptorSets[frameIndex]);
+    this->writeDescriptorSet(m_descriptorSets_nearest[frameIndex],true);
     m_needToUpdateDescSet[frameIndex] = false;
     ++m_descSetVersion[frameIndex];
 }
@@ -453,12 +467,12 @@ void VTexturesManager::updateImgDescriptorSet(size_t imageIndex)
     ++m_imgDescSetVersion[imageIndex];
 }
 
-void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet)
+void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest)
 {
     VkWriteDescriptorSet setWrites[2];
 
 	VkDescriptorImageInfo samplerInfo = {};
-	samplerInfo.sampler = m_sampler;
+	samplerInfo.sampler = nearest ? m_sampler_nearest : m_sampler;
 
 	setWrites[0] = {};
 	setWrites[0].sType              = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -513,6 +527,8 @@ bool VTexturesManager::init(size_t framesCount, size_t imagesCount)
         return (false);
     if(!this->createSampler())
         return (false);
+    if(!this->createSampler(true))
+        return (false);
     if(!this->createDescriptorPool(framesCount,imagesCount))
         return (false);
     if(!this->createDescriptorSets(framesCount,imagesCount))
@@ -528,6 +544,7 @@ void VTexturesManager::cleanup()
     this->updateCleaningLists(true);
 
     vkDestroySampler(device, m_sampler, nullptr);
+    vkDestroySampler(device, m_sampler_nearest, nullptr);
     vkDestroyDescriptorPool(device,m_descriptorPool,nullptr);
     vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 

@@ -91,6 +91,15 @@ bool Skeleton::attachSound(SoundObject *soundObject, const std::string &soundNam
     return (true);
 }
 
+bool Skeleton::detachSound(SoundObject *object, const std::string &soundName)
+{
+    if(m_model == nullptr)
+        return (false);
+
+    SceneNode::detachSound(object,m_model->getSoundId(soundName));
+    return (true);
+}
+
 bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
 {
     if(m_curAnimation != nullptr && m_curAnimation->getName() == animationName)

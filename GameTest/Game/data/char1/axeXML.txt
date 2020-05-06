@@ -4,6 +4,8 @@
 	
 	<skeleton name="mainSkeleton">
 		<limb node="weapon" sprite="axe" spritesheet="mainSpriteSheet" />
+		
+		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
 	</skeleton>
 	
 	<hitboxes>

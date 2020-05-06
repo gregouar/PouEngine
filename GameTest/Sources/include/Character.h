@@ -36,6 +36,7 @@ class Character : public pou::SceneNode
         virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
 
+        void setLookingDirection(glm::vec2 direction);
         void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");

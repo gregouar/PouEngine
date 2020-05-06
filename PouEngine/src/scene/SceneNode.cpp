@@ -108,14 +108,22 @@ void SceneNode::detachObject(SceneObject *e)
     e->setParentNode(nullptr);
 }
 
-void SceneNode::detachSound(int id)
+void SceneNode::detachSound(SoundObject *e,int id)
 {
-    auto founded = m_attachedSounds.find(id);
+    /*auto founded = m_attachedSounds.find(id);
     if(founded == m_attachedSounds.end())
         return;
 
     this->detachObject(founded->second);
-    m_attachedSounds.erase(founded);
+    m_attachedSounds.erase(founded);*/
+
+    auto founded = m_attachedSounds.equal_range(id);
+    for(auto &s = founded.first ; s != founded.second ; ++s)
+    if(s->second == e)
+    {
+        this->detachObject(e);
+        m_attachedSounds.erase(s);
+    }
 }
 
 
@@ -123,6 +131,8 @@ void SceneNode::detachAllObjects()
 {
     while(!m_attachedObjects.empty())
         this->detachObject(m_attachedObjects.back());
+
+    m_attachedSounds.clear();
 }
 
 Scene* SceneNode::getScene()
@@ -183,11 +193,19 @@ void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
 
 bool SceneNode::playSound(int id)
 {
-    auto sound = m_attachedSounds.find(id);
+    /*auto sound = m_attachedSounds.find(id);
     if(sound == m_attachedSounds.end())
         return (false);
 
-    return sound->second->play();
+    return sound->second->play();*/
+
+    bool r = true;
+
+    auto founded = m_attachedSounds.equal_range(id);
+    for(auto &s = founded.first ; s != founded.second ; ++s)
+        if(!s->second->play()) r = false;
+
+    return r;
 }
 
 SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
