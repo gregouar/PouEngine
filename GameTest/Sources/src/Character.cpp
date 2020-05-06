@@ -127,6 +127,47 @@ bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &
     return (true);
 }
 
+bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &skeletonName)
+{
+    auto skeleton = m_skeletons.find(skeletonName);
+
+    if(skeleton == m_skeletons.end())
+        return (false);
+
+    //auto *skelPtr = skeleton->second.get();
+
+    auto *soundObject = this->addSound(soundModel);
+    skeleton->second.get()->attachSound(soundObject,soundModel->name);
+    //skelPtr->attachSound(soundObject,skelPtr->getModel()->getSoundId(soundModel.name));
+
+   // skeleton->attachSound(targetCharacter->addSound(&sound),
+   //                       skeletonModel.second.skeleton->getSoundId(sound.name));
+
+    return (true);
+}
+
+bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeletonName)
+{
+    if(soundModel == nullptr)
+        return (false);
+
+    auto skeleton = m_skeletons.find(skeletonName);
+
+    if(skeleton == m_skeletons.end())
+        return (false);
+
+    auto sound = m_sounds.find(soundModel);
+
+    if(sound == m_sounds.end())
+        return (false);
+
+    //skeleton->second.get()->detachSound(soundModel->node, sound->second.get());
+    skeleton->second.get()->detachObject(sound->second.get());
+    m_sounds.erase(sound);
+
+    return (true);
+}
+
 void Character::setWalkingSpeed(float speed)
 {
     if(speed >= 0)

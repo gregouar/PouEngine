@@ -35,7 +35,10 @@ class SpriteSheetAsset : public Asset, public NotificationListener
 
     private:
         TextureAsset *m_texture;
+        glm::vec2     m_textureScale;
+
         std::map<std::string, std::unique_ptr<SpriteModel> > m_sprites;
+
 };
 
 }

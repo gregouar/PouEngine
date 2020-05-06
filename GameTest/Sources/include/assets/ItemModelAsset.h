@@ -47,7 +47,9 @@ class ItemModelAsset : public pou::Asset
     private:
         std::map<std::string, pou::SpriteSheetAsset*> m_spriteSheets;
 
-        std::map<std::string, std::list<LimbModel> > m_limbs;
+        //std::map<std::string, std::list<LimbModel> > m_limbs;
+        //std::map<std::string, std::list<SoundModel> > m_sounds;
+        std::map<std::string, AssetsForSkeletonModel> m_skeletonAssetsModels;
 
         ItemAttributes m_attributes;
 

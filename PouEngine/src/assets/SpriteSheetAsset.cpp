@@ -23,6 +23,7 @@ SpriteSheetAsset::SpriteSheetAsset(const AssetTypeId id) : Asset(id)
     m_allowLoadFromMemory   = false;
 
     m_texture = nullptr;
+    m_textureScale = glm::vec2(1.0f,1.0f);
 }
 
 SpriteSheetAsset::~SpriteSheetAsset()
@@ -58,10 +59,18 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
     if(hdl == nullptr)
         return (false);
 
-    if(hdl->Element()->Attribute("texture") == nullptr)
+    auto textureAtt = hdl->Element()->Attribute("texture");
+    if(textureAtt == nullptr)
         return (false);
+    std::string textureName = std::string(textureAtt);
 
-    std::string textureName = std::string(hdl->Element()->Attribute("texture"));
+    auto scaleXAtt = hdl->Element()->Attribute("scaleX");
+    if(scaleXAtt != nullptr)
+        m_textureScale.x = Parser::parseFloat(scaleXAtt);
+
+    auto scaleYAtt = hdl->Element()->Attribute("scaleY");
+    if(scaleYAtt != nullptr)
+        m_textureScale.y = Parser::parseFloat(scaleYAtt);
 
     m_texture = TexturesHandler::instance()
                     ->loadAssetFromFile(m_fileDirectory+textureName,LoadType_InThread/**m_loadType**/);
@@ -126,6 +135,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
 
         if(!customSize && m_texture->isLoaded())
             spriteSize = m_texture->getExtent();
+
         if(!customCenter)
             spriteCenter = {spriteSize.x*0.5,
                             spriteSize.y*0.5};
@@ -134,7 +144,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
         spriteModel->setCenter(spriteCenter);
 
         if(customPosition)
-            spriteModel->setTextureRect(spritePosition,spriteSize,false);
+            spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);
 
         if(!m_sprites.insert(std::make_pair(spriteName,std::move(spriteModel))).second)
             Logger::warning("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);

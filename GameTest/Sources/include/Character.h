@@ -29,6 +29,8 @@ class Character : public pou::SceneNode
 
         virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
         virtual bool removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeleton);
+        virtual bool addSoundToSkeleton(SoundModel *soundModel, const std::string &skeleton);
+        virtual bool removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeleton);
         //virtual bool removeLimbFromSkeleton(pou::SpriteEntity limb*, const std::string &skeleton);
 
         virtual void setWalkingSpeed(float speed);

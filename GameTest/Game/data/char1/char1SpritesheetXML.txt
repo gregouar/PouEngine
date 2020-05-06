@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="char1spritesheet_scale.png">
+<spritesheet texture="char1spritesheet.png" scaleX=2 scaleY=2>
 	<sprite name="body">
 		<size 		x="26" 	y="16" 	/>
 		<center 	x="12" 	y="6" 	/>

@@ -33,11 +33,27 @@ struct SoundModel
     bool isEvent;
 };
 
-struct SkeletonWithLimbs
+class AssetsForSkeletonModel
+{
+    public:
+        AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets);
+
+        bool loadFromXML(TiXmlElement *element);
+
+        std::list<LimbModel> *getLimbs();
+        std::list<SoundModel> *getSounds();
+
+    protected:
+        std::list<LimbModel>  m_limbs;
+        std::list<SoundModel> m_sounds;
+
+        const std::map<std::string, pou::SpriteSheetAsset*> *m_spriteSheets;
+};
+
+struct SkeletonModelWithAssets
 {
     pou::SkeletonModelAsset* skeleton;
-    std::list<LimbModel> limbs;
-    std::list<SoundModel> sounds;
+    AssetsForSkeletonModel   assetsModel;
 };
 
 struct CharacterAttributes
@@ -82,8 +98,8 @@ class CharacterModelAsset : public pou::Asset
         bool loadAttributes(TiXmlElement *element);
 
     private:
-        std::map<std::string, pou::SpriteSheetAsset*> m_spriteSheets;
-        std::map<std::string, SkeletonWithLimbs> m_skeletonModels;
+        std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
+        std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;
 
         std::list<Hitbox> m_hitboxes, m_hurtboxes;
 

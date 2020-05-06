@@ -38,10 +38,18 @@ bool ItemModelAsset::removeFromCharacter(Character *character)
 
     bool r = true;
 
-    for(auto skeleton : m_limbs)
+    /*for(auto skeleton : m_limbs)
     for(auto limb : skeleton.second)
         if(!character->removeLimbFromSkeleton(&limb, skeleton.first))
-            r = false;
+            r = false;*/
+
+    for(auto &skeleton :  m_skeletonAssetsModels)
+    {
+        for(auto &limb : *(skeleton.second.getLimbs()))
+            if(!character->removeLimbFromSkeleton(&limb, skeleton.first))
+                r = false;
+
+    }
 
     return (r);
 }
@@ -53,10 +61,21 @@ bool ItemModelAsset::generateOnCharacter(Character *character)
 
     bool r = true;
 
-    for(auto skeleton : m_limbs)
+    /*for(auto skeleton : m_limbs)
     for(auto limb : skeleton.second)
         if(!character->addLimbToSkeleton(&limb, skeleton.first))
-            r = false;
+            r = false;*/
+
+    for(auto &skeleton :  m_skeletonAssetsModels)
+    {
+        for(auto &limb : *(skeleton.second.getLimbs()))
+            if(!character->addLimbToSkeleton(&limb, skeleton.first))
+                r = false;
+
+        for(auto &sound : *(skeleton.second.getSounds()))
+            if(!character->addSoundToSkeleton(&sound, skeleton.first))
+                r = false;
+    }
 
     return (r);
 }
@@ -160,7 +179,7 @@ bool ItemModelAsset::loadSpriteSheet(TiXmlElement *element)
 
 bool ItemModelAsset::loadSkeleton(TiXmlElement *element)
 {
-    std::string skeletonName = "skeleton"+std::to_string(m_limbs.size());
+    std::string skeletonName = "skeleton"+std::to_string(m_skeletonAssetsModels.size());
 
     /*auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)
@@ -170,11 +189,13 @@ bool ItemModelAsset::loadSkeleton(TiXmlElement *element)
     if(nameAtt != nullptr)
         skeletonName = std::string(nameAtt);
 
-    auto skelPair = m_limbs.insert({skeletonName, std::list<LimbModel> ()});
+    auto skelPair = m_skeletonAssetsModels.insert({skeletonName, AssetsForSkeletonModel (&m_spriteSheets)});
     if(!skelPair.second)
         pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in item model:"+m_filePath);
 
-    auto &limbs = skelPair.first->second;
+    skelPair.first->second.loadFromXML(element);
+
+    /*auto &limbs = skelPair.first->second;
 
     auto limbChild = element->FirstChildElement("limb");
     while(limbChild != nullptr)
@@ -200,10 +221,10 @@ bool ItemModelAsset::loadSkeleton(TiXmlElement *element)
             } else
                 pou::Logger::warning("Spritesheet named \""+std::string(nodeAtt)+"\" not found in: "+m_filePath);
         } else
-            pou::Logger::warning("Incomplete limb in itel model: "+m_filePath);
+            pou::Logger::warning("Incomplete limb in item model: "+m_filePath);
 
         limbChild = limbChild->NextSiblingElement("limb");
-    }
+    }*/
 
     return (true);
 }

@@ -82,6 +82,14 @@ bool Skeleton::detachAllLimbs(const std::string &boneName)
     return (true);
 }
 
+bool Skeleton::attachSound(SoundObject *soundObject, const std::string &soundName)
+{
+    if(m_model == nullptr)
+        return (false);
+
+    SceneNode::attachSound(soundObject, m_model->getSoundId(soundName));
+    return (true);
+}
 
 bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
 {

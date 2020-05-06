@@ -68,17 +68,16 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
     for(auto &skeletonModel : m_skeletonModels)
     {
         std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
-        for(auto &limb : skeletonModel.second.limbs)
+        for(auto &limb : *(skeletonModel.second.assetsModel.getLimbs()))
         {
             auto *spriteEntity = targetCharacter->addLimb(&limb);
             skeleton->attachLimb(limb.node,spriteEntity);
         }
 
-        for(auto &sound : skeletonModel.second.sounds)
+        for(auto &sound : *(skeletonModel.second.assetsModel.getSounds()))
         {
             //targetCharacter->addSound(&sound);
-            skeleton->attachSound(targetCharacter->addSound(&sound),
-                                  skeletonModel.second.skeleton->getSoundId(sound.name));
+            skeleton->attachSound(targetCharacter->addSound(&sound), sound.name);
         }
 
         targetCharacter->addChildNode(skeleton.get());
@@ -219,7 +218,6 @@ bool CharacterModelAsset::loadSoundBank(TiXmlElement *element)
     return (true);
 }
 
-
 bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
 {
 
@@ -233,16 +231,22 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
     if(nameAtt != nullptr)
         skeletonName = std::string(nameAtt);
 
-    auto skelPair = m_skeletonModels.insert({skeletonName, SkeletonWithLimbs ()});
+
+
+    auto skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
+    AssetsForSkeletonModel  assetsModel(&m_spriteSheets);
+
+    auto skelPair = m_skeletonModels.insert({skeletonName, {skeleton, assetsModel}});
     if(!skelPair.second)
         pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in character model:"+m_filePath);
 
+    skelPair.first->second.assetsModel.loadFromXML(element);
+
     //m_skeletonModels.push_back(SkeletonWithLimbs ());
-    auto &skeletonWithLimbs = skelPair.first->second;//m_skeletonModels.back();
 
-    skeletonWithLimbs.skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
+   // auto &skeletonModelWithAssets = skelPair.first->second;//m_skeletonModels.back();
 
-    auto limbChild = element->FirstChildElement("limb");
+    /*auto limbChild = element->FirstChildElement("limb");
     while(limbChild != nullptr)
     {
         auto limbElement = limbChild->ToElement();
@@ -296,7 +300,7 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
         }
 
         soundChild = soundChild->NextSiblingElement("sound");
-    }
+    }*/
 
     return (true);
 }
@@ -345,4 +349,86 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 
     return (true);
 }
+
+
+
+/// AssetsForSkeletonModel ///
+
+
+AssetsForSkeletonModel::AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets) :
+    m_spriteSheets(spriteSheets)
+{
+
+}
+
+std::list<LimbModel> *AssetsForSkeletonModel::getLimbs()
+{
+    return &m_limbs;
+}
+
+std::list<SoundModel> *AssetsForSkeletonModel::getSounds()
+{
+    return &m_sounds;
+}
+
+bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
+{
+    auto limbChild = element->FirstChildElement("limb");
+    while(limbChild != nullptr)
+    {
+        auto limbElement = limbChild->ToElement();
+
+        auto nodeAtt        = limbElement->Attribute("node");
+        auto spriteAtt      = limbElement->Attribute("sprite");
+        auto spriteSheetAtt = limbElement->Attribute("spritesheet");
+
+        if(nodeAtt != nullptr && spriteAtt != nullptr && spriteSheetAtt != nullptr)
+        {
+            auto spritesheetIt = m_spriteSheets->find(std::string(spriteSheetAtt));
+            if(spritesheetIt != m_spriteSheets->end())
+            {
+                auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
+                m_limbs.push_back({std::string(nodeAtt), spriteModel});
+                if(spriteModel == nullptr)
+                    pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
+                                    +std::string(spriteSheetAtt)+"\"");
+
+            } else
+                pou::Logger::warning("Spritesheet named \""+std::string(nodeAtt)+"\" not found");
+        } else
+            pou::Logger::warning("Incomplete limb");
+
+        limbChild = limbChild->NextSiblingElement("limb");
+    }
+
+
+    auto soundChild = element->FirstChildElement("sound");
+    while(soundChild != nullptr)
+    {
+        auto soundElement = soundChild->ToElement();
+
+        auto nameAtt    = soundElement->Attribute("name");
+        auto pathAtt    = soundElement->Attribute("path");
+        auto typeAtt    = soundElement->Attribute("type");
+
+        if(nameAtt != nullptr && pathAtt != nullptr)
+        {
+            m_sounds.push_back(SoundModel ());
+            m_sounds.back().name = nameAtt;
+            m_sounds.back().path = pathAtt;
+
+            if(typeAtt != nullptr && std::string(typeAtt) != "event")
+                m_sounds.back().isEvent = false;
+            else
+                m_sounds.back().isEvent = true;
+        }
+
+        soundChild = soundChild->NextSiblingElement("sound");
+    }
+
+    return (true);
+}
+
+
+
 

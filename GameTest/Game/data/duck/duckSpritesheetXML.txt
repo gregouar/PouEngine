@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="duck_spritesheet.png">
+<spritesheet texture="duck_spritesheet.png" scaleX=2 scaleY=2>
 	<sprite name="head">
 		<size 		x="22" 	y="46" 	/>
 		<center 	x="11" 	y="35" 	/>

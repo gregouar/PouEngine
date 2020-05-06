@@ -17,7 +17,7 @@
 		
 		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
 		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
-		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
+		<!--<sound name="attackSound" path="event:/CharacterAttack" type="event" />-->
 		<sound name="deathSound" path="event:/CharacterDeath" type="event" />
 		<sound name="dashSound" path="event:/CharacterDash" type="event" />
 		<!--<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" /> -->

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="croco_spritesheet_scaled.png">
+<spritesheet texture="croco_spritesheet.png" scaleX=2 scaleY=2>
 	<sprite name="head">
 		<size 		x="54" 	y="92" 	/>
 		<center 	x="26" 	y="90" 	/>
