@@ -12,6 +12,8 @@
 #include "PouEngine/assets/SoundBankAsset.h"
 #include "PouEngine/audio/AudioEngine.h"
 
+#include "PouEngine/renderers/UiRenderer.h"
+
 #include "PouEngine/Types.h"
 
 #include <glm/gtc/random.hpp>
@@ -233,6 +235,15 @@ void TestingState::init()
         buf2<<"vec3("<<v.x<<","<<v.y<<","<<v.z<<"),";
         Logger::write(buf2);
     }*/
+
+
+
+
+    m_mainInterface = new pou::UiElement(0);
+    m_uiPictureTest = new pou::UiPicture(1);
+    m_uiPictureTest->setPosition(64,64);
+    m_uiPictureTest->setSize(128,42);
+    m_mainInterface->addChildNode(m_uiPictureTest);
 }
 
 void TestingState::entered()
@@ -452,9 +463,15 @@ void TestingState::draw(pou::RenderWindow *renderWindow)
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-
         m_scene->render(renderer, m_camera);
     }
+
+    if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
+    {
+        pou::UiRenderer *renderer = dynamic_cast<pou::UiRenderer*>(renderWindow->getRenderer(pou::Renderer_Ui));
+        m_mainInterface->render(renderer);
+    }
+
 }
 
 

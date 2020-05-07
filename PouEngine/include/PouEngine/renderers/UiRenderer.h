@@ -11,11 +11,17 @@
 namespace pou
 {
 
+struct RenderableUiDatum;
+
 class UiRenderer : public AbstractRenderer
 {
     public:
         UiRenderer(RenderWindow *targetWindow, RendererName name, RenderereOrder order);
         virtual ~UiRenderer();
+
+
+        void addToUiElementsVbo(const RenderableUiDatum &datum);
+        void addOrderedUiElements(const RenderableUiDatum &datum, float weight);
 
 
     protected:
@@ -28,6 +34,7 @@ class UiRenderer : public AbstractRenderer
     private:
         VGraphicsPipeline   m_graphicPipeline;
 
+        std::multimap<float, RenderableUiDatum>     m_orderedUiElements;
         std::vector<DynamicVBO<RenderableUiDatum>*> m_uiElementsVbos;
 
         static const char *UIRENDERING_VERTSHADERFILE;

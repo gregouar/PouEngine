@@ -47,6 +47,15 @@ void UiRenderer::cleanup()
     AbstractRenderer::cleanup();
 }
 
+void UiRenderer::addToUiElementsVbo(const RenderableUiDatum &datum)
+{
+    m_uiElementsVbos[m_curFrameIndex]->push_back(datum);
+}
+
+void UiRenderer::addOrderedUiElements(const RenderableUiDatum &datum, float weight)
+{
+    m_orderedUiElements.insert({weight,datum});
+}
 
 
 bool UiRenderer::createGraphicsPipeline()
@@ -79,8 +88,13 @@ bool UiRenderer::createGraphicsPipeline()
 
 bool UiRenderer::recordPrimaryCmb(uint32_t imageIndex)
 {
-    //this->uploadVbos();
+    for(auto it : m_orderedUiElements)
+        this->addToUiElementsVbo(it.second);
+    m_orderedUiElements.clear();
+
     m_uiElementsVbos[m_curFrameIndex]->uploadVBO();
+
+    /////////////////////////////
 
     size_t  uiVboSize      = m_uiElementsVbos[m_curFrameIndex]->getUploadedSize();
     VBuffer uiInstancesVB  = m_uiElementsVbos[m_curFrameIndex]->getBuffer();
@@ -99,7 +113,9 @@ bool UiRenderer::recordPrimaryCmb(uint32_t imageIndex)
 
             m_graphicPipeline.bind(cmb);
 
-            //m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
+            ViewInfo viewInfo = {};
+            viewInfo.viewportExtent = {1.0f,1.0f};
+            m_renderView.setupViewport(viewInfo, cmb);
 
             /*vkCmdDraw(cmb, 4, renderingInstance->getSpritesVboSize(),
                            0, renderingInstance->getSpritesVboOffset());*/

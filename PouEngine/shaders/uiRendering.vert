@@ -42,8 +42,9 @@ void main()
     gl_Position = viewUbo.view * (inModel * vec4(vertPos[gl_VertexIndex],0.0,1.0));
     gl_Position = vec4(gl_Position.xyz/gl_Position.w, 1.0);
 
-    gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
-                        + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
+    gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y);
+	gl_Position.xy -= vec2(1.0);
+//                        + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
 
     fragTexCoord = inTexExtent * vertPos[gl_VertexIndex] + inTexCoord;
     fragColor    = inColor;

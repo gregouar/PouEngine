@@ -8,6 +8,8 @@
 namespace pou
 {
 
+class UiElement;
+
 struct RenderableUiDatum
 {
     glm::vec4 modelMat0;
@@ -27,12 +29,25 @@ struct RenderableUiDatum
 class RenderableUiElement : public UiElement
 {
     public:
-        RenderableUiElement();
+        RenderableUiElement(const NodeTypeId);
         virtual ~RenderableUiElement();
 
+        void setColor(const glm::vec4 &c);
+
+        virtual void render(UiRenderer *renderer);
+
+        virtual void notify(NotificationSender* , NotificationType,
+                            size_t dataSize = 0, char* data = nullptr) override;
+
+
     protected:
+        virtual void updateDatum();
+
+    protected:
+        RenderableUiDatum   m_datum;
 
     private:
+        glm::vec4           m_color;
 };
 
 }
