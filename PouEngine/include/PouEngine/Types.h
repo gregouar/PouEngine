@@ -32,9 +32,10 @@ class Timer;
 
 enum RendererName
 {
-    Renderer_Default,
+    //Renderer_Default,
     Renderer_Scene,
-    Renderer_Instancing,
+    //Renderer_Instancing,
+    Renderer_Ui,
 };
 
 enum RenderereOrder

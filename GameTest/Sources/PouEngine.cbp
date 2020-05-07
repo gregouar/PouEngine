@@ -23,6 +23,8 @@
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
 					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -41,6 +43,8 @@
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
 					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -63,6 +67,8 @@
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
 					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -83,6 +89,8 @@
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="PouEngine/include/PouEngine/audio" />
 					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -136,6 +144,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingData.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingInstance.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/UiRenderer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/CameraObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/LightEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/MeshEntity.h" />
@@ -148,6 +157,8 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
@@ -217,6 +228,7 @@
 		<Unit filename="../../PouEngine/src/renderers/SceneRenderer.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/SceneRenderingData.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/SceneRenderingInstance.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/UiRenderer.cpp" />
 		<Unit filename="../../PouEngine/src/scene/CameraObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/LightEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/MeshEntity.cpp" />
@@ -229,6 +241,8 @@
 		<Unit filename="../../PouEngine/src/scene/SoundObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
+		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
 		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />

@@ -89,7 +89,7 @@ class Character : public pou::SceneNode
         //float m_walkingSpeed;
         CharacterAttributes m_attributes;
 
-        std::list<Character*>   m_nearbyCharacters;
+        std::set<Character*>    m_nearbyCharacters;
         std::set<Character*>    m_alreadyHitCharacters;
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 

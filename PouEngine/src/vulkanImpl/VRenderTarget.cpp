@@ -90,8 +90,8 @@ void VRenderTarget::setClearValue(size_t attachmentIndex, glm::vec4 color, glm::
     if(attachmentIndex >= m_clearValues.size())
         m_clearValues.resize(attachmentIndex+1, VkClearValue{});
 
-    m_clearValues[attachmentIndex].color        = {color.r, color.g, color.b, color.a};
     m_clearValues[attachmentIndex].depthStencil = {depth.x, static_cast<uint32_t>(depth.y)};
+    m_clearValues[attachmentIndex].color        = {color.r, color.g, color.b, color.a};
 }
 
 VkExtent2D VRenderTarget::getExtent()

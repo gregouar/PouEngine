@@ -168,7 +168,7 @@ class SceneRenderer : public AbstractRenderer
         ///I should maybe sort by material (?)
         /*std::vector<DynamicVBO<SpriteShadowGenerationDatum>*>   m_spriteShadowGenerationVbos;
         std::vector<DynamicVBO<SpriteShadowDatum>*>          m_spriteShadowsVbos;*/
-        std::vector<DynamicVBO<SpriteDatum>*>                m_spritesVbos;
+        std::vector<DynamicVBO<SpriteDatum>*>                   m_spritesVbos;
         std::vector<std::map<VMesh* ,DynamicVBO<MeshDatum>*> >  m_meshesVbos;
         std::vector<DynamicVBO<LightDatum>*>                    m_lightsVbos;
 

@@ -10,6 +10,7 @@
 #include "PouEngine/vulkanImpl/VBuffersAllocator.h"
 
 #include "PouEngine/renderers/SceneRenderer.h"
+#include "PouEngine/renderers/UiRenderer.h"
 
 #include "PouEngine/audio/AudioEngine.h"
 #include "PouEngine/audio/FMODAudioImpl.h"
@@ -140,7 +141,11 @@ bool VApp::createRenderers()
         delete renderer;
     m_renderers.clear();
 
-    m_renderers.push_back(new SceneRenderer(&m_renderWindow, Renderer_Scene, Renderer_Unique));
+
+    //m_renderers.push_back(new SceneRenderer(&m_renderWindow, Renderer_Scene, Renderer_Unique));
+
+    m_renderers.push_back(new SceneRenderer(&m_renderWindow, Renderer_Scene, Renderer_First));
+    m_renderers.push_back(new UiRenderer(&m_renderWindow, Renderer_Ui, Renderer_Last));
     //m_renderWindow.attachRenderer(m_renderers.back());
 
     return (true);

@@ -432,7 +432,7 @@ void Character::update(const pou::Time& elapsedTime)
             this->startAnimation("stand");
     }
 
-    m_nearbyCharacters.clear();
+    //m_nearbyCharacters.clear();
 
     SceneNode::update(elapsedTime);
 
@@ -570,7 +570,7 @@ void Character::startAnimation(const std::string &name, bool forceStart)
 
 void Character::addToNearbyCharacters(Character *character)
 {
-    m_nearbyCharacters.push_back(character);
+    m_nearbyCharacters.insert(character);
 }
 
 

@@ -366,8 +366,6 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_DOWN))
         m_camVelocity.z = 1.0;*/
 
-
-
     if(eventsManager->keyPressed(GLFW_KEY_1))
         m_character->loadItem("../data/char1/swordXML.txt");
     if(eventsManager->keyPressed(GLFW_KEY_2))
@@ -386,7 +384,6 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
         m_character->askToDash(charDirection);
-
 
     m_character->walk(charDirection);
 
@@ -429,14 +426,18 @@ void TestingState::update(const pou::Time &elapsedTime)
     }
 
     for(auto tree : m_trees)
-    {
         m_character->addToNearbyCharacters(tree);
+
+
+    pou::Time remainingTime = elapsedTime;
+    pou::Time maxTickTime(.03);
+
+    while(remainingTime > maxTickTime)
+    {
+        m_scene->update(maxTickTime);
+        remainingTime -= maxTickTime;
     }
-
-
-    //m_testChar->rotate(1.0*elapsedTime.count());
-
-    m_scene->update(elapsedTime);
+    m_scene->update(remainingTime);
 
     if(m_totalTime.count() > 1)
     {

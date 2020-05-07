@@ -113,7 +113,7 @@ void RenderGraph::addNewAttachments(size_t renderPassIndex, const VFramebufferAt
 void RenderGraph::addNewAttachments(size_t renderPassIndex, const std::vector<VFramebufferAttachment> &attachments,
                                  VkAttachmentStoreOp storeOp, VkAttachmentLoadOp loadOp)
 {
-    m_renderPasses[renderPassIndex]->addAttachments(attachments, storeOp, loadOp, true);
+    m_renderPasses[renderPassIndex]->addAttachments(attachments, storeOp, loadOp, false);
 }
 
 void RenderGraph::addNewUniforms(size_t renderPassIndex, const std::vector<VBuffer> &buffers)

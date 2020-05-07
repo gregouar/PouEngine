@@ -68,8 +68,12 @@ void AbstractRenderer::prepareRenderPass()
     m_defaultPass = m_renderGraph.addRenderPass(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     ///Could add something to change loadOp/storeOp depending on RendererOrder
-    m_renderGraph.addNewAttachments(m_defaultPass, m_targetWindow->getSwapchainAttachments(), VK_ATTACHMENT_STORE_OP_STORE);
-    m_renderGraph.addNewAttachments(m_defaultPass, m_targetWindow->getSwapchainDepthAttachments(), VK_ATTACHMENT_STORE_OP_STORE);
+    VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    if(m_order == Renderer_First || m_order == Renderer_Unique)
+         loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+
+    m_renderGraph.addNewAttachments(m_defaultPass, m_targetWindow->getSwapchainAttachments(), VK_ATTACHMENT_STORE_OP_STORE,loadOp);
+    m_renderGraph.addNewAttachments(m_defaultPass, m_targetWindow->getSwapchainDepthAttachments(), VK_ATTACHMENT_STORE_OP_STORE,loadOp);
 }
 
 bool AbstractRenderer::initRenderGraph()
