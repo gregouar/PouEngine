@@ -7,7 +7,7 @@
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/LightEntity.h"
 
-#include "PouEngine/ui/UiElement.h"
+#include "PouEngine/ui/UserInterface.h"
 #include "PouEngine/ui/UiPicture.h"
 
 #include "Character.h"
@@ -65,8 +65,9 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         //glm::vec3            m_camVelocity;
         //glm::vec2            m_charVelocity;
 
-        pou::UiElement *m_mainInterface;
-        pou::UiPicture *m_uiPictureTest;
+        pou::UserInterface  *m_mainInterface;
+        pou::UiPicture      *m_uiPictureTest;
+        pou::UiProgressBar   *m_lifeBar;
 };
 
 #endif // TESTINGSTATE_H

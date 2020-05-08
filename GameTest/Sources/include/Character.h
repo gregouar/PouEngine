@@ -59,6 +59,8 @@ class Character : public pou::SceneNode
 
         const CharacterModelAsset *getModel() const;
 
+        const CharacterAttributes &getAttributes() const;
+
     protected:
         void cleanup();
 

@@ -29,7 +29,7 @@ struct RenderableUiDatum
 class RenderableUiElement : public UiElement
 {
     public:
-        RenderableUiElement(const NodeTypeId);
+        RenderableUiElement(const NodeTypeId, UserInterface *interface);
         virtual ~RenderableUiElement();
 
         void setColor(const glm::vec4 &c);

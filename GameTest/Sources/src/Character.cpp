@@ -598,3 +598,8 @@ const CharacterModelAsset *Character::getModel() const
     return m_model;
 }
 
+const CharacterAttributes &Character::getAttributes() const
+{
+    return m_attributes;
+}
+

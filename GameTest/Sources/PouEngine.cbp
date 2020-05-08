@@ -160,6 +160,8 @@
 		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiPicture.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UiProgressBar.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UserInterface.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
@@ -245,6 +247,8 @@
 		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiPicture.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UiProgressBar.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UserInterface.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
 		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />

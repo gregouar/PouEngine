@@ -239,11 +239,26 @@ void TestingState::init()
 
 
 
-    m_mainInterface = new pou::UiElement(0);
-    m_uiPictureTest = new pou::UiPicture(1);
-    m_uiPictureTest->setPosition(64,64);
-    m_uiPictureTest->setSize(128,42);
-    m_mainInterface->addChildNode(m_uiPictureTest);
+    m_mainInterface = new pou::UserInterface();
+
+    m_lifeBar = m_mainInterface->createProgressBar(true);
+    m_lifeBar->setPosition(17,0);
+    m_lifeBar->setSize({288-34,32});
+    m_lifeBar->setTextureRect({17,0},{288-34,32},false);
+    m_lifeBar->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
+
+    m_uiPictureTest = m_mainInterface->createUiPicture(false);
+    m_uiPictureTest->setPosition(-17,0,-1);
+    m_uiPictureTest->setSize(288,32);
+    m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
+    m_lifeBar->addChildNode(m_uiPictureTest);
+
+    /*m_uiPictureTest = m_mainInterface->createUiPicture(false);
+    m_uiPictureTest->setPosition(12,12,0);
+    m_uiPictureTest->setSize(288,32);
+    m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
+    m_lifeBar->setBarElement(m_uiPictureTest);*/
+
 }
 
 void TestingState::entered()
@@ -256,6 +271,9 @@ void TestingState::entered()
 
 void TestingState::leaving()
 {
+    delete m_mainInterface;
+    m_mainInterface = nullptr;
+
     delete m_scene;
     m_scene = nullptr;
 
@@ -292,6 +310,8 @@ void TestingState::obscuring()
 
 void TestingState::handleEvents(const EventsManager *eventsManager)
 {
+    m_mainInterface->handleEvents(eventsManager);
+
     if(eventsManager->keyReleased(GLFW_KEY_ESCAPE))
         m_manager->stop();
 
@@ -427,6 +447,9 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     //m_cameraNode->move(glm::vec3(0,0,elapsedTime.count()));
 
+    m_lifeBar->setMinMaxValue(0,m_character->getAttributes().maxLife);
+    m_lifeBar->setValue(m_character->getAttributes().life);
+
     m_character->addToNearbyCharacters(m_duck);
     m_duck->addToNearbyCharacters(m_character);
 
@@ -445,9 +468,11 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     while(remainingTime > maxTickTime)
     {
+        m_mainInterface->update(maxTickTime);
         m_scene->update(maxTickTime);
         remainingTime -= maxTickTime;
     }
+    m_mainInterface->update(remainingTime);
     m_scene->update(remainingTime);
 
     if(m_totalTime.count() > 1)
