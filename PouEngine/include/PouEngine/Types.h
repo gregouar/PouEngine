@@ -9,6 +9,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+#define PLATFORM_WINDOWS  1
+#define PLATFORM_MAC      2
+#define PLATFORM_UNIX     3
+
+#if defined(_WIN32)
+#define PLATFORM PLATFORM_WINDOWS
+#elif defined(__APPLE__)
+#define PLATFORM PLATFORM_MAC
+#else
+#define PLATFORM PLATFORM_UNIX
+#endif
+
+
 namespace pou
 {
 
@@ -122,6 +135,13 @@ enum CommandPoolName
     COMMANDPOOL_TEXTURESLOADING, //for texture loading thread
     COMMANDPOOL_MESHESLOADING, //for meshes loading thread
     COMMANDPOOL_NBR_NAMES,
+};
+
+enum ConnectionStatus
+{
+    ConnectionStatus_Disconnected,
+    ConnectionStatus_Connecting,
+    ConnectionStatus_Connected,
 };
 
 typedef std::chrono::duration<double, std::chrono::seconds::period> Time;

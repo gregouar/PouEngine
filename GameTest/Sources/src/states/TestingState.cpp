@@ -39,6 +39,12 @@ void TestingState::init()
 {
     m_firstEntering = false;
 
+
+
+    m_gameServer.create();
+    m_gameClient.create();
+    m_gameClient.connect(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
+
     //m_camVelocity = glm::vec3(0);
     m_activeCroc = false;
     m_activeDuck = false;
@@ -259,6 +265,7 @@ void TestingState::init()
     m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
     m_lifeBar->setBarElement(m_uiPictureTest);*/
 
+
 }
 
 void TestingState::entered()
@@ -271,6 +278,8 @@ void TestingState::entered()
 
 void TestingState::leaving()
 {
+    m_gameClient.disconnect();
+
     delete m_mainInterface;
     m_mainInterface = nullptr;
 

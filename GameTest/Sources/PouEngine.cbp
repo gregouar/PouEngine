@@ -25,6 +25,8 @@
 					<Add directory="PouEngine/src/assets" />
 					<Add directory="PouEngine/include/PouEngine/renderers" />
 					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -45,6 +47,8 @@
 					<Add directory="PouEngine/src/assets" />
 					<Add directory="PouEngine/include/PouEngine/renderers" />
 					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -69,6 +73,8 @@
 					<Add directory="PouEngine/src/assets" />
 					<Add directory="PouEngine/include/PouEngine/renderers" />
 					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -91,6 +97,8 @@
 					<Add directory="PouEngine/src/assets" />
 					<Add directory="PouEngine/include/PouEngine/renderers" />
 					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -102,6 +110,7 @@
 			<Add option="-std=c17" />
 			<Add option="-std=c++1z" />
 			<Add option="-fexceptions" />
+			<Add option="-D_WIN32" />
 			<Add directory="../../PouEngine/include" />
 			<Add directory="GameTest/Sources/include/states" />
 			<Add directory="include" />
@@ -113,6 +122,7 @@
 			<Add library="glfw3dll" />
 			<Add library="fmodstudio_vc" />
 			<Add library="fmod_vc" />
+			<Add library="wsock32" />
 			<Add directory="../../PouEngine/libs" />
 		</Linker>
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
@@ -136,6 +146,15 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationSender.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractClient.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractNetImpl.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractServer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/NetAddress.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/NetEngine.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/UdpServer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/UdpSocket.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/AbstractRenderer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/FullRenderPass.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderGraph.h" />
@@ -223,6 +242,14 @@
 		<Unit filename="../../PouEngine/src/core/NotificationSender.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
+		<Unit filename="../../PouEngine/src/net/AbstractClient.cpp" />
+		<Unit filename="../../PouEngine/src/net/AbstractServer.cpp" />
+		<Unit filename="../../PouEngine/src/net/NetAddress.cpp" />
+		<Unit filename="../../PouEngine/src/net/NetEngine.cpp" />
+		<Unit filename="../../PouEngine/src/net/UdpClient.cpp" />
+		<Unit filename="../../PouEngine/src/net/UdpNetImpl.cpp" />
+		<Unit filename="../../PouEngine/src/net/UdpServer.cpp" />
+		<Unit filename="../../PouEngine/src/net/UdpSocket.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/AbstractRenderer.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/FullRenderPass.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/RenderGraph.cpp" />
@@ -279,6 +306,8 @@
 		<Unit filename="include/Types.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
+		<Unit filename="include/net/GameClient.h" />
+		<Unit filename="include/net/GameServer.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Character.cpp" />
@@ -286,6 +315,8 @@
 		<Unit filename="src/PlayableCharacter.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
+		<Unit filename="src/net/GameClient.cpp" />
+		<Unit filename="src/net/GameServer.cpp" />
 		<Unit filename="src/states/TestingState.cpp" />
 		<Extensions />
 	</Project>

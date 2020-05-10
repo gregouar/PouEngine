@@ -243,7 +243,7 @@ bool Character::damage(float damages, glm::vec2 direction)
 
     bool isFatal = false;
     m_attributes.life -= damages;
-    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
+//    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
 
     if(m_attributes.life <= 0)
     {

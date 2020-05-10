@@ -10,6 +10,9 @@
 #include "PouEngine/ui/UserInterface.h"
 #include "PouEngine/ui/UiPicture.h"
 
+#include "net/GameServer.h"
+#include "net/GameClient.h"
+
 #include "Character.h"
 #include "PlayableCharacter.h"
 
@@ -68,6 +71,9 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         pou::UserInterface  *m_mainInterface;
         pou::UiPicture      *m_uiPictureTest;
         pou::UiProgressBar   *m_lifeBar;
+
+        GameServer m_gameServer;
+        GameClient m_gameClient;
 };
 
 #endif // TESTINGSTATE_H

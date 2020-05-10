@@ -15,6 +15,9 @@
 #include "PouEngine/audio/AudioEngine.h"
 #include "PouEngine/audio/FMODAudioImpl.h"
 
+#include "PouEngine/net/NetEngine.h"
+#include "PouEngine/net/UdpNetImpl.h"
+
 #include "PouEngine/utils/Profiler.h"
 
 namespace pou
@@ -118,6 +121,11 @@ bool VApp::init()
     Profiler::pushClock("Init audio engine");
     if(!AudioEngine::instance()->init(std::make_unique<FMODAudioImpl> ()))
         throw std::runtime_error("Cannot initialize audio engine");
+
+
+    Profiler::pushClock("Init net engine");
+    if(!NetEngine::init(std::make_unique<UdpNetImpl> ()))
+        throw std::runtime_error("Cannot initialize net engine");
 
     AudioEngine::set3DSettings(1.0f,100.0f,1.0f);
     Profiler::popClock();
