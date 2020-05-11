@@ -37,7 +37,11 @@ bool UdpSocket::open(unsigned short port)
 
     if (handle <= 0)
     {
-        Logger::error("Failed to create udp socket");
+        #if PLATFORM == PLATFORM_WINDOWS
+            Logger::warning("Failed to create udp socket: error "+std::to_string(WSAGetLastError()));
+        #else
+            Logger::warning("Failed to create udp socket");
+        #endif
         return (false);
     }
 
@@ -48,7 +52,11 @@ bool UdpSocket::open(unsigned short port)
 
     if(bind(handle, (const sockaddr*) &address, sizeof(sockaddr_in)) < 0)
     {
-        Logger::error("Failed to bind udp socket");
+        #if PLATFORM == PLATFORM_WINDOWS
+            Logger::warning("Failed to bind udp socket: error "+std::to_string(WSAGetLastError()));
+        #else
+            Logger::warning("Failed to bind udp socket");
+        #endif
         return (false);
     }
 
@@ -69,13 +77,13 @@ bool UdpSocket::open(unsigned short port)
         DWORD nonBlocking = 1;
         if(ioctlsocket(handle, FIONBIO, &nonBlocking) != 0)
         {
-            Logger::error("Failed to set udp socket to non-blocking");
+            Logger::error("Failed to set udp socket to non-blocking: error "+std::to_string(WSAGetLastError()));
             return (false);
         }
     #endif
 
     m_isOpen    = true;
-    handle      = m_handle;
+    m_handle    = handle;
 
     return (true);
 }
@@ -110,16 +118,21 @@ bool UdpSocket::send(const NetAddress &address, size_t data_size, const void *da
 
     if ((size_t)sent_bytes != data_size)
     {
-        Logger::warning("Failed to send packet");
+        #if PLATFORM == PLATFORM_WINDOWS
+            Logger::warning("Failed to send packet: error "+std::to_string(WSAGetLastError()));
+        #else
+            Logger::warning("Failed to send packet");
+        #endif
         return (false);
     }
+
     return (true);
 }
 
-int UdpSocket::receive(NetAddress &address, size_t data_size, const void *data)
+int UdpSocket::receive(NetAddress &address, size_t data_size, const void *packet_data)
 {
-    unsigned char packet_data[256];
-    unsigned int max_packet_size = sizeof(packet_data);
+    //unsigned char packet_data[256];
+    //unsigned int max_packet_size = sizeof(packet_data);
 
     #if PLATFORM == PLATFORM_WINDOWS
         typedef int socklen_t;
@@ -128,7 +141,7 @@ int UdpSocket::receive(NetAddress &address, size_t data_size, const void *data)
     sockaddr_in from;
     socklen_t fromLength = sizeof(from);
 
-    int bytes = recvfrom(m_handle, (char*)packet_data, max_packet_size, 0, (sockaddr*)&from, &fromLength);
+    int bytes = recvfrom(m_handle, (char*)packet_data, data_size/*max_packet_size*/, 0, (sockaddr*)&from, &fromLength);
     address = NetAddress(ntohl(from.sin_addr.s_addr), ntohs(from.sin_port));
 
     return (bytes);

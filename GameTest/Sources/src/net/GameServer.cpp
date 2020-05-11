@@ -10,10 +10,10 @@ GameServer::~GameServer()
     this->cleanup();
 }
 
-bool GameServer::create()
+bool GameServer::create(unsigned short port)
 {
     m_server = std::move(pou::NetEngine::createServer());
-    m_server.get()->start(8);
+    m_server.get()->start(8,port);
 
     return (true);
 }
@@ -25,6 +25,14 @@ void GameServer::cleanup()
         m_server.get()->shutdown();
         m_server.release();
     }
+}
+
+void GameServer::update(const pou::Time &elapsedTime)
+{
+    if(!m_server)
+        return;
+
+    m_server.get()->update(elapsedTime);
 }
 
 /*const pou::NetAddress *GameServer::getAddress() const

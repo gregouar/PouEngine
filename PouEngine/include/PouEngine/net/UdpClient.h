@@ -3,6 +3,7 @@
 
 #include "PouEngine/net/AbstractClient.h"
 #include "PouEngine/net/UdpSocket.h"
+#include "PouEngine/utils/Timer.h"
 
 namespace pou
 {
@@ -19,11 +20,24 @@ class UdpClient : public AbstractClient
         virtual bool connect(const NetAddress &serverAddress);
         virtual bool disconnect();
 
+        virtual void update(const Time &elapsedTime);
+
+
     protected:
         virtual void receivePackets();
+        virtual void processMessages();
+
+        virtual void tryToConnect();
 
     protected:
         UdpSocket m_socket;
+
+    private:
+        Timer m_connectingAttemptTimer;
+        Timer m_connectingTimer;
+
+    static const float CONNECTING_ATTEMPT_DELAY;
+    static const float CONNECTING_MAX_TIME;
 };
 
 }

@@ -1,6 +1,8 @@
 #ifndef NETADDRESS_H
 #define NETADDRESS_H
 
+#include <string>
+
 namespace pou
 {
 
@@ -22,6 +24,8 @@ class NetAddress
         unsigned char getD() const;
 
         unsigned short getPort() const;
+
+        std::string getAddressString() const;
 
     private:
 

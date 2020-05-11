@@ -1,6 +1,7 @@
 #ifndef GAMECLIENT_H
 #define GAMECLIENT_H
 
+#include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
 
 class GameClient
@@ -9,10 +10,12 @@ class GameClient
         GameClient();
         virtual ~GameClient();
 
-        bool create();
+        bool create(unsigned short port = 0);
 
         bool connect(const pou::NetAddress &address);
         bool disconnect();
+
+        void update(const pou::Time &elapsedTime);
 
         //const pou::NetAddress &getAddress() const;
         unsigned short getPort() const;

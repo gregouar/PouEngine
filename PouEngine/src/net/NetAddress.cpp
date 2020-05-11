@@ -53,6 +53,15 @@ unsigned short NetAddress::getPort() const
     return m_port;
 }
 
+std::string NetAddress::getAddressString() const
+{
+    return std::move(std::to_string((int)getA())+"."+
+                     std::to_string((int)getB())+"."+
+                     std::to_string((int)getC())+"."+
+                     std::to_string((int)getD())+"."+
+                     std::to_string(getPort()));
+}
+
 };
 
 

@@ -10,10 +10,10 @@ GameClient::~GameClient()
     this->cleanup();
 }
 
-bool GameClient::create()
+bool GameClient::create(unsigned short port)
 {
     m_client = std::move(pou::NetEngine::createClient());
-    m_client.get()->create();
+    m_client.get()->create(port);
 
     return (true);
 }
@@ -42,4 +42,15 @@ bool GameClient::disconnect()
 
     return m_client.get()->disconnect();
 }
+
+
+void GameClient::update(const pou::Time &elapsedTime)
+{
+    if(!m_client)
+        return;
+
+    m_client.get()->update(elapsedTime);
+}
+
+
 

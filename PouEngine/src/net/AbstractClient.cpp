@@ -13,6 +13,13 @@ AbstractClient::~AbstractClient()
     //dtor
 }
 
+void AbstractClient::update(const Time &elapsedTime)
+{
+    this->receivePackets();
+    this->processMessages();
+}
+
+
 bool AbstractClient::isConnected() const
 {
     return m_connectionStatus;

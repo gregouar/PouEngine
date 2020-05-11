@@ -19,6 +19,8 @@ class AbstractClient
         virtual bool connect(const NetAddress &serverAddress) = 0;
         virtual bool disconnect() = 0;
 
+        virtual void update(const Time &elapsedTime);
+
         bool isConnected() const;
         const NetAddress &getServerAddress() const;
         unsigned short getPort() const;
@@ -26,7 +28,7 @@ class AbstractClient
 
     protected:
         virtual void receivePackets() = 0;
-        //virtual void processMessages() = 0;
+        virtual void processMessages() = 0;
 
     protected:
         ConnectionStatus m_connectionStatus;

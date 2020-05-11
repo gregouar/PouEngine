@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
 
 class GameServer
@@ -11,7 +12,9 @@ class GameServer
         GameServer();
         virtual ~GameServer();
 
-        bool create();
+        bool create(unsigned short port = 0);
+
+        void update(const pou::Time &elapsedTime);
 
         //const pou::NetAddress *getAddress() const;
         unsigned short getPort() const;

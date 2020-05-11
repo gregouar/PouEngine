@@ -16,11 +16,15 @@ UdpServer::~UdpServer()
 
 bool UdpServer::start(uint16_t maxNbrClients, unsigned short port)
 {
+    if(maxNbrClients <= 0)
+        return (false);
+
     if(!m_socket.open(port))
         return (false);
 
     m_port = m_socket.getPort();
-    std::cout<<"PORT:"<<m_socket.getPort()<<std::endl;
+
+    m_clients.resize(maxNbrClients,{NetAddress(), ConnectionStatus_Disconnected});
 
     return (true);
 }
@@ -33,19 +37,24 @@ bool UdpServer::shutdown()
     return (true);
 }
 
+void UdpServer::receivePackets()
+{
+    NetAddress sender;
+    unsigned char buffer[256];
 
-    /*while ( true )
+    while(true)
     {
-        Address sender;
-        unsigned char buffer[256];
-        int bytes_read =
-            socket.Receive( sender,
-                            buffer,
-                            sizeof( buffer ) );
-        if ( !bytes_read )
+        int bytes_read = m_socket.receive(sender, sizeof(buffer), buffer);
+        if (bytes_read < 0)
             break;
 
-        // process packet
-    }*/
+        std::cout<<"Server received packet: "<<buffer<<std::endl;
+    }
+}
+
+void UdpServer::processMessages()
+{
+
+}
 
 }

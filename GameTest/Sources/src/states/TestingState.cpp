@@ -41,8 +41,8 @@ void TestingState::init()
 
 
 
-    m_gameServer.create();
-    m_gameClient.create();
+    m_gameServer.create(46969);
+    m_gameClient.create(42420);
     m_gameClient.connect(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
 
     //m_camVelocity = glm::vec3(0);
@@ -470,6 +470,14 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     for(auto tree : m_trees)
         m_character->addToNearbyCharacters(tree);
+
+
+
+
+    m_gameServer.update(elapsedTime);
+    m_gameClient.update(elapsedTime);
+
+
 
 
     pou::Time remainingTime = elapsedTime;

@@ -16,15 +16,15 @@ class AbstractServer
         virtual bool start(uint16_t maxNbrClients, unsigned short port = 0) = 0;
         virtual bool shutdown() = 0;
 
-        bool isRunning() const;
-        bool update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime);
 
+        bool isRunning() const;
         unsigned short getPort() const;
         //const NetAddress &getAddress() const;
 
     protected:
-        void receivePackets();
-        void processMessages();
+        virtual void receivePackets() = 0;
+        virtual void processMessages() = 0;
 
     protected:
         uint16_t    m_maxNbrClients;

@@ -13,6 +13,12 @@ AbstractServer::~AbstractServer()
     //dtor
 }
 
+void AbstractServer::update(const Time &elapsedTime)
+{
+    this->receivePackets();
+    this->processMessages();
+}
+
 
 bool AbstractServer::isRunning() const
 {
