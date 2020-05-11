@@ -24,7 +24,7 @@ class AbstractServer
 
     protected:
         virtual void receivePackets() = 0;
-        virtual void processMessages() = 0;
+        //virtual void processMessages() = 0;
 
     protected:
         uint16_t    m_maxNbrClients;

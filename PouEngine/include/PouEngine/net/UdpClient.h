@@ -38,6 +38,8 @@ class UdpClient : public AbstractClient
 
     static const float CONNECTING_ATTEMPT_DELAY;
     static const float CONNECTING_MAX_TIME;
+
+    static const int DEFAULT_MAX_PACKETSIZE;
 };
 
 }

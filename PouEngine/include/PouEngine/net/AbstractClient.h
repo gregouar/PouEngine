@@ -28,7 +28,7 @@ class AbstractClient
 
     protected:
         virtual void receivePackets() = 0;
-        virtual void processMessages() = 0;
+        //virtual void processMessages() = 0;
 
     protected:
         ConnectionStatus m_connectionStatus;

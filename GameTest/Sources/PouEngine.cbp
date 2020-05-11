@@ -125,6 +125,7 @@
 			<Add library="wsock32" />
 			<Add directory="../../PouEngine/libs" />
 		</Linker>
+		<Unit filename="../../PouEngine/include/CRCpp/CRC.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/Asset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/AssetHandler.h" />
@@ -153,9 +154,6 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetEngine.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpServer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpSocket.h" />

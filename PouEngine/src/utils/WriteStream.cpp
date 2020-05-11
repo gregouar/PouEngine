@@ -9,7 +9,7 @@ namespace pou
 /// BitWriter
 
 
-BitWriter::BitWriter(uint32_t *buffer, int bytes) : m_buffer(buffer), m_bytes(bytes),
+BitWriter::BitWriter(uint8_t *buffer, int bytes) : m_buffer(buffer), m_bytes(bytes),
     m_scratch(0), m_scratch_bits(0), m_word_index(0)
 {
 
@@ -23,7 +23,7 @@ BitWriter::~BitWriter()
 
 bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
 {
-    if(m_word_index >= m_bytes)
+    if(m_word_index*4 >= m_bytes)
         return (false);
 
     unsigned_value = (unsigned_value << (32 - bits)) >> (32 - bits);
@@ -33,11 +33,16 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
 
     if(m_scratch_bits >= 32)
     {
-        m_buffer[m_word_index++] = (uint32_t)m_scratch;
+        m_buffer[m_word_index*4] = (uint8_t)m_scratch;
+        m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
+        m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
+        m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
+        m_word_index++;
+
         m_scratch_bits -= 32;
         m_scratch = m_scratch >> 32;
 
-        if(m_word_index >= m_bytes && m_scratch_bits > 0)
+        if(m_word_index*4 >= m_bytes && m_scratch_bits > 0)
             return (false);
     }
 
@@ -49,7 +54,10 @@ void BitWriter::flush()
     m_scratch = m_scratch << (32 - m_scratch_bits);
     m_scratch = m_scratch >> (32 - m_scratch_bits);
 
-    m_buffer[m_word_index] = (uint32_t)m_scratch;
+    m_buffer[m_word_index*4] = (uint8_t)m_scratch;
+    m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
+    m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
+    m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
 }
 
 void BitWriter::printBitCode(uint8_t v)
@@ -95,7 +103,7 @@ WriteStream::~WriteStream()
     //dtor
 }
 
-void WriteStream::setBuffer(uint32_t *buffer, int bytes)
+void WriteStream::setBuffer(uint8_t *buffer, int bytes)
 {
     m_writer = std::make_unique<BitWriter> (buffer, bytes);
 }
@@ -105,7 +113,7 @@ int WriteStream::computeBytes(int bits)
     if(m_writer)
         m_writer.get()->flush();
 
-    return (int)((bits/8) + ((bits % 8) ? 1 : 0));
+    return (int)((bits/32) + ((bits % 32) ? 1 : 0))*4;
 }
 
 int WriteStream::bitsRequired(int32_t min, int32_t max)

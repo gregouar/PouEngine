@@ -10,7 +10,7 @@ namespace pou
 class BitWriter
 {
     public:
-        BitWriter(uint32_t *buffer, int bytes);
+        BitWriter(uint8_t *buffer, int bytes);
         virtual ~BitWriter();
 
         bool writeBits(uint32_t unsigned_value, int bits);
@@ -22,7 +22,7 @@ class BitWriter
         void printBitCode(uint64_t v);
 
     private:
-        uint32_t *m_buffer;
+        uint8_t *m_buffer;
         int m_bytes;
 
         uint64_t m_scratch;
@@ -39,7 +39,7 @@ class WriteStream
         WriteStream();
         virtual ~WriteStream();
 
-        void setBuffer(uint32_t *buffer, int bytes);
+        void setBuffer(uint8_t *buffer, int bytes);
 
         int computeBytes(int bits);
         int bitsRequired(int32_t min, int32_t max);

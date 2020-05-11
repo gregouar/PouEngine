@@ -23,6 +23,8 @@
 namespace pou
 {
 
+const char *VApp::APP_VERSION = "0.0.1";
+
 const char *VApp::DEFAULT_APP_NAME = "VALAGEngine";
 const char *VApp::DEFAULT_CONFIG_FILE = "config.ini";
 const char *VApp::DEFAULT_SCREENSHOTPATH = "../screenshots/";

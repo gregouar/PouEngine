@@ -7,8 +7,8 @@ namespace pou
 
 /// BitReader
 
-BitReader::BitReader(const uint32_t *buffer, int bytes) : m_buffer(buffer), m_bytes(bytes),
-    m_scratch(0), m_scratch_bits(0), m_total_bits(bytes*8), m_num_bits_read(0), m_word_index(0)
+BitReader::BitReader(const uint8_t *buffer, int bytes) : m_buffer(buffer), m_bytes(bytes),
+    m_scratch(0), m_scratch_bits(0), /*m_total_bits(bytes*8), m_num_bits_read(0),*/ m_word_index(0)
 {
 }
 
@@ -28,7 +28,11 @@ uint32_t BitReader::readBits(int bits)
     {
         assert(m_word_index < m_bytes);
 
-        m_scratch |= (uint64_t)(m_buffer[m_word_index++]) << m_scratch_bits;
+        m_scratch |= (uint64_t)(m_buffer[m_word_index*4]) << m_scratch_bits;
+        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+1]) << (m_scratch_bits+8);
+        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+2]) << (m_scratch_bits+16);
+        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+3]) << (m_scratch_bits+24);
+        m_word_index++;
         m_scratch_bits += 32;
     }
 
@@ -53,7 +57,7 @@ ReadStream::~ReadStream()
     //dtor
 }
 
-void ReadStream::setBuffer(const uint32_t *buffer, int bytes)
+void ReadStream::setBuffer(const uint8_t *buffer, int bytes)
 {
     m_reader = std::make_unique<BitReader> (buffer, bytes);
 }
@@ -62,7 +66,7 @@ int ReadStream::computeBytes(int bits)
 {
    // if(m_reader)
      //   m_reader.get()->flush();
-    return (int)((bits/8) + ((bits % 8) ? 1 : 0));
+    return (int)((bits/32) + ((bits % 32) ? 1 : 0))*4;
 }
 
 int ReadStream::bitsRequired(int32_t min, int32_t max)

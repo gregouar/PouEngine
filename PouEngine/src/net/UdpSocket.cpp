@@ -106,7 +106,7 @@ bool UdpSocket::isOpen()
     return m_isOpen;
 }
 
-bool UdpSocket::send(const NetAddress &address, size_t data_size, const void *data)
+bool UdpSocket::send(const NetAddress &address, const void *data, size_t data_size)
 {
     sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -129,7 +129,7 @@ bool UdpSocket::send(const NetAddress &address, size_t data_size, const void *da
     return (true);
 }
 
-int UdpSocket::receive(NetAddress &address, size_t data_size, const void *packet_data)
+int UdpSocket::receive(NetAddress &address, const void *packet_data, size_t data_size)
 {
     //unsigned char packet_data[256];
     //unsigned int max_packet_size = sizeof(packet_data);

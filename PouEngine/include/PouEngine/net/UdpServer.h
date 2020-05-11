@@ -28,12 +28,14 @@ class UdpServer : public AbstractServer
 
     protected:
         virtual void receivePackets();
-        virtual void processMessages();
+        virtual void processMessages(NetAddress sender, std::vector<uint8_t> &buffer);
 
     private:
         UdpSocket m_socket;
 
         std::vector<ClientInfos> m_clients;
+
+        static const int DEFAULT_MAX_PACKETSIZE;
 };
 
 }

@@ -55,6 +55,8 @@ class VApp
         unsigned int m_sceenshotNbr;
 
     public:
+        static const char *APP_VERSION;
+
         static const char *DEFAULT_APP_NAME;
         static const char *DEFAULT_CONFIG_FILE;
         static const char *DEFAULT_SCREENSHOTPATH;

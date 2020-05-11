@@ -10,20 +10,20 @@ namespace pou
 class BitReader
 {
     public:
-        BitReader(const uint32_t *buffer, int bytes);
+        BitReader(const uint8_t *buffer, int bytes);
         virtual ~BitReader();
 
         bool wouldReadPastEnd(int bits);
         uint32_t readBits(int bits);
 
     private:
-        const uint32_t *m_buffer;
+        const uint8_t *m_buffer;
         int m_bytes;
 
         uint64_t m_scratch;
         int m_scratch_bits;
-        int m_total_bits;
-        int m_num_bits_read;
+        //int m_total_bits;
+        //int m_num_bits_read;
         int m_word_index;
 };
 
@@ -36,7 +36,7 @@ class ReadStream
         ReadStream();
         virtual ~ReadStream();
 
-        void setBuffer(const uint32_t *buffer, int bytes);
+        void setBuffer(const uint8_t *buffer, int bytes);
 
         int computeBytes(int bits);
         int bitsRequired(int32_t min, int32_t max);

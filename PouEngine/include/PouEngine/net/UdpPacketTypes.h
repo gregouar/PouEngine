@@ -16,23 +16,17 @@ enum PacketType
     NBR_PacketTypes,
 };
 
-struct UdpPacket_AskConnection
+struct UdpPacket_Header
 {
     int crc32;
-
-    PacketType type;
-
-    bool test;
-    char charTest;
+    int type;
 
     template <typename Stream> int Serialize(Stream &stream)
     {
         return stream.computeBytes(
             stream.serializeBits(crc32, 32) +
-            stream.serializeBool(test) +
-            stream.serializeChar(charTest)
+            stream.serializeInteger(type, 0, NBR_PacketTypes)
                                    );
-
     }
 };
 

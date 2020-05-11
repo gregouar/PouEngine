@@ -16,7 +16,7 @@ AbstractServer::~AbstractServer()
 void AbstractServer::update(const Time &elapsedTime)
 {
     this->receivePackets();
-    this->processMessages();
+    //this->processMessages();
 }
 
 
