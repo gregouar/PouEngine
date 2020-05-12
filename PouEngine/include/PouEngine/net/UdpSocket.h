@@ -19,8 +19,8 @@ class UdpSocket
 
         bool isOpen();
 
-        bool send(const NetAddress &address, const void *data, size_t data_size);
-        int receive(NetAddress &address, const void *data, size_t data_size);
+        bool    send(const NetAddress &address, const void *data, size_t data_size);
+        int     receive(NetAddress &address, const void *data, size_t data_size);
 
         //const NetAddress &getAddress() const;
         unsigned short getPort() const;

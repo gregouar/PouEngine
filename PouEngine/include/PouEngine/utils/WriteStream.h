@@ -4,6 +4,8 @@
 #include <memory>
 #include <cstdint>
 
+#include "PouEngine/utils/Stream.h"
+
 namespace pou
 {
 
@@ -14,6 +16,7 @@ class BitWriter
         virtual ~BitWriter();
 
         bool writeBits(uint32_t unsigned_value, int bits);
+        void memcpy(uint8_t *data, int data_size);
         void flush();
 
         void printBitCode(uint8_t v);
@@ -30,24 +33,24 @@ class BitWriter
         int m_word_index;
 };
 
-class WriteStream
+class WriteStream : public Stream
 {
     public:
-        enum {IsWriting = 1};
-        enum {IsReading = 0};
-
         WriteStream();
         virtual ~WriteStream();
 
-        void setBuffer(uint8_t *buffer, int bytes);
+        virtual bool isWriting();
+        virtual bool isReading();
 
-        int computeBytes(int bits);
-        int bitsRequired(int32_t min, int32_t max);
+        virtual void setBuffer(uint8_t *buffer, int bytes);
 
-        int serializeBits(int32_t value, int bits);
-        int serializeInteger(int32_t value, int32_t min, int32_t max);
-        int serializeBool(bool value);
-        int serializeChar(char value);
+        virtual void flush();
+
+        virtual void memcpy(uint8_t *data, int data_size);
+        virtual void serializeBits(int32_t &value, int bits);
+        virtual void serializeInteger(int32_t &value, int32_t min, int32_t max);
+        virtual void serializeBool(bool &value);
+        virtual void serializeChar(char &value);
 
     protected:
 

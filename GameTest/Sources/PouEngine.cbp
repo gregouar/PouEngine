@@ -111,6 +111,7 @@
 			<Add option="-std=c++1z" />
 			<Add option="-fexceptions" />
 			<Add option="-D_WIN32" />
+			<Add option="-Wno-unknown-pragmas" />
 			<Add directory="../../PouEngine/include" />
 			<Add directory="GameTest/Sources/include/states" />
 			<Add directory="include" />
@@ -155,6 +156,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketsExchanger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpServer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpSocket.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/AbstractRenderer.h" />
@@ -184,6 +186,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiProgressBar.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UserInterface.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Hasher.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
@@ -192,6 +195,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SimpleNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/Stream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/WriteStream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/XMLLoader.h" />
@@ -252,6 +256,7 @@
 		<Unit filename="../../PouEngine/src/net/NetEngine.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpNetImpl.cpp" />
+		<Unit filename="../../PouEngine/src/net/UdpPacketsExchanger.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpServer.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpSocket.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/AbstractRenderer.cpp" />
@@ -281,6 +286,7 @@
 		<Unit filename="../../PouEngine/src/ui/UiProgressBar.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UserInterface.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Hasher.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
 		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />
@@ -288,6 +294,7 @@
 		<Unit filename="../../PouEngine/src/utils/ReadStream.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
+		<Unit filename="../../PouEngine/src/utils/Stream.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/utils/WriteStream.cpp" />
 		<Unit filename="../../PouEngine/src/utils/XMLLoader.cpp" />

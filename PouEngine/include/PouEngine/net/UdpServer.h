@@ -2,7 +2,7 @@
 #define UDPSERVER_H
 
 #include "PouEngine/net/AbstractServer.h"
-#include "PouEngine/net/UdpSocket.h"
+#include "PouEngine/net/UdpPacketsExchanger.h"
 
 #include <vector>
 
@@ -28,14 +28,13 @@ class UdpServer : public AbstractServer
 
     protected:
         virtual void receivePackets();
-        virtual void processMessages(NetAddress sender, std::vector<uint8_t> &buffer);
+        virtual void processMessages(UdpBuffer &buffer);
 
     private:
-        UdpSocket m_socket;
+       //UdpSocket m_socket;
+        UdpPacketsExchanger m_packetsExchanger;
 
         std::vector<ClientInfos> m_clients;
-
-        static const int DEFAULT_MAX_PACKETSIZE;
 };
 
 }

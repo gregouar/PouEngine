@@ -2,9 +2,10 @@
 
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/utils/Logger.h"
+#include "PouEngine/utils/Hasher.h"
+
 
 #include "PouEngine/core/VApp.h"
-#include "CRCpp/CRC.h"
 
 #include <vector>
 
@@ -13,7 +14,6 @@ namespace pou
 
 const float UdpClient::CONNECTING_ATTEMPT_DELAY = 1.0f;
 const float UdpClient::CONNECTING_MAX_TIME = 5.0f;
-const int UdpClient::DEFAULT_MAX_PACKETSIZE = 256;
 
 
 UdpClient::UdpClient()
@@ -29,18 +29,17 @@ UdpClient::~UdpClient()
 
 bool UdpClient::create(unsigned short port)
 {
-    if(!m_socket.open(port))
+    if(!m_packetsExchanger.createSocket(port))
         return (false);
 
-    m_port = m_socket.getPort();
+    m_port = m_packetsExchanger.getPort();
 
     return (true);
 }
 
 bool UdpClient::destroy()
 {
-    if(m_socket.isOpen())
-        m_socket.close();
+    m_packetsExchanger.destroy();
 
     return (true);
 }
@@ -79,12 +78,14 @@ void UdpClient::update(const Time &elapsedTime)
             Logger::warning("Could not connect to "+m_serverAddress.getAddressString());
         }
     }
+
+    AbstractClient::update(elapsedTime);
 }
 
 
 void UdpClient::receivePackets()
 {
-    NetAddress sender;
+    /*NetAddress sender;
     std::vector<uint8_t> buffer(DEFAULT_MAX_PACKETSIZE);
 
     while(true)
@@ -94,26 +95,34 @@ void UdpClient::receivePackets()
             break;
 
         std::cout<<"Server received packet from"<<sender.getAddressString()<<std::endl;
-    }
+    }*/
+
+    std::vector<UdpBuffer> packet_buffers;
+    m_packetsExchanger.receivePackets(packet_buffers);
+    for(auto &buffer : packet_buffers)
+        this->processMessages(buffer);
 }
 
-void UdpClient::processMessages()
+void UdpClient::processMessages(UdpBuffer &buffer)
 {
 
 }
 
 void UdpClient::tryToConnect()
 {
+    Logger::write("Attempting to connect to "+m_serverAddress.getAddressString());
+
     UdpPacket_Header connectionPacket;
-    connectionPacket.crc32 = CRC::Calculate(VApp::APP_VERSION, sizeof(VApp::APP_VERSION), CRC::CRC_32());
+    connectionPacket.crc32 = m_packetsExchanger.hashPacket();
     connectionPacket.type = PacketType_Connection;
 
-    //std::cout<<"Sent CRC32:"<<connectionPacket.crc32<<std::endl;
+    UdpBuffer buffer;
 
     WriteStream stream;
-    auto buffer = std::vector<uint8_t>(connectionPacket.Serialize<WriteStream>(stream));
-    stream.setBuffer(buffer.data(), buffer.size());
-    connectionPacket.Serialize<WriteStream>(stream);
+    buffer.buffer.resize(connectionPacket.Serialize(&stream));
+    stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
+    connectionPacket.Serialize(&stream);
+    buffer.sender = m_serverAddress;
 
     /*int i = 1;
     std::cout<<(bool)(buffer[i] & (uint8_t)128);
@@ -131,7 +140,7 @@ void UdpClient::tryToConnect()
     testPacket.Serialize<ReadStream>(rstream);
     std::cout<<"Buffer CRC32:"<<testPacket.crc32<<std::endl;*/
 
-    m_socket.send(m_serverAddress, buffer.data(), buffer.size());
+    m_packetsExchanger.sendPacket(buffer);
 }
 
 

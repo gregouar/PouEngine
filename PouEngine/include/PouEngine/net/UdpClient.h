@@ -2,7 +2,7 @@
 #define UDPCLIENT_H
 
 #include "PouEngine/net/AbstractClient.h"
-#include "PouEngine/net/UdpSocket.h"
+#include "PouEngine/net/UdpPacketsExchanger.h"
 #include "PouEngine/utils/Timer.h"
 
 namespace pou
@@ -25,12 +25,13 @@ class UdpClient : public AbstractClient
 
     protected:
         virtual void receivePackets();
-        virtual void processMessages();
+        virtual void processMessages(UdpBuffer &buffer);
 
         virtual void tryToConnect();
 
     protected:
-        UdpSocket m_socket;
+        //UdpSocket m_socket;
+        UdpPacketsExchanger m_packetsExchanger;
 
     private:
         Timer m_connectingAttemptTimer;
@@ -38,8 +39,6 @@ class UdpClient : public AbstractClient
 
     static const float CONNECTING_ATTEMPT_DELAY;
     static const float CONNECTING_MAX_TIME;
-
-    static const int DEFAULT_MAX_PACKETSIZE;
 };
 
 }

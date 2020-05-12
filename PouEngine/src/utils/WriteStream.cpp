@@ -49,6 +49,13 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
     return (true);
 }
 
+void BitWriter::memcpy(uint8_t *data, int data_size)
+{
+    assert(m_word_index + data_size < m_bytes);
+    ///This secure buffer but not data !!! => maybe replace data by vector
+    std::memcpy( m_buffer + m_word_index, data, data_size);
+}
+
 void BitWriter::flush()
 {
     m_scratch = m_scratch << (32 - m_scratch_bits);
@@ -95,7 +102,6 @@ void BitWriter::printBitCode(uint64_t v)
 
 WriteStream::WriteStream()
 {
-    //ctor
 }
 
 WriteStream::~WriteStream()
@@ -103,44 +109,50 @@ WriteStream::~WriteStream()
     //dtor
 }
 
+
+bool WriteStream::isWriting()
+{
+    return m_writer ? 1 : 0;
+}
+
+bool WriteStream::isReading()
+{
+    return (false);
+}
+
+
 void WriteStream::setBuffer(uint8_t *buffer, int bytes)
 {
     m_writer = std::make_unique<BitWriter> (buffer, bytes);
 }
 
-int WriteStream::computeBytes(int bits)
+
+void WriteStream::flush()
 {
     if(m_writer)
         m_writer.get()->flush();
-
-    return (int)((bits/32) + ((bits % 32) ? 1 : 0))*4;
 }
 
-int WriteStream::bitsRequired(int32_t min, int32_t max)
+
+void WriteStream::memcpy(uint8_t *data, int data_size)
 {
-    int bits = 1;
-    uint32_t cur = max-min;
+    Stream::padZeroes();
 
-    while(cur/2 > 0)
-    {
-        cur = cur/2;
-        bits++;
-    }
+    m_bits += data_size*8;
 
-    return bits;
+    if(m_writer)
+        m_writer.get()->memcpy(data, data_size);
 }
 
-
-int WriteStream::serializeBits(int32_t value, int bits)
+void WriteStream::serializeBits(int32_t &value, int bits)
 {
-    if(!m_writer)
-        return bits;
+    m_bits += bits;
 
-    m_writer.get()->writeBits(value, bits);
-    return (1);
+    if(m_writer)
+        m_writer.get()->writeBits(value, bits);
 }
 
-int WriteStream::serializeInteger(int32_t value, int32_t min, int32_t max)
+void WriteStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
 {
     assert(min < max);
     assert(value >= min);
@@ -148,22 +160,26 @@ int WriteStream::serializeInteger(int32_t value, int32_t min, int32_t max)
 
     const int bits = bitsRequired(min, max);
 
-    if(!m_writer)
-        return bits;
+    m_bits += bits;
 
     uint32_t unsigned_value = value - min;
-    m_writer.get()->writeBits(unsigned_value, bits);
-    return (1);
+
+    if(m_writer)
+        m_writer.get()->writeBits(unsigned_value, bits);
 }
 
-int WriteStream::serializeBool(bool value)
+void WriteStream::serializeBool(bool &value)
 {
-    return this->serializeBits((int32_t)value, 1);
+    int32_t temp;
+    this->serializeBits(temp, 1);
+    value = (bool)temp;
 }
 
-int WriteStream::serializeChar(char value)
+void WriteStream::serializeChar(char &value)
 {
-    return this->serializeBits((int32_t)value, 8);
+    int32_t temp;
+    this->serializeBits(temp, 8);
+    value = (char)temp;
 }
 
 

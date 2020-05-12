@@ -43,7 +43,12 @@ uint32_t BitReader::readBits(int bits)
     return value;
 }
 
-
+void BitReader::memcpy(uint8_t *data, int data_size)
+{
+    assert(m_word_index + data_size < m_bytes);
+    ///This secure buffer but not data !!! => maybe replace data by vector
+    std::memcpy(data, m_buffer + m_word_index, data_size);
+}
 
 /// ReadStream
 
@@ -57,75 +62,75 @@ ReadStream::~ReadStream()
     //dtor
 }
 
-void ReadStream::setBuffer(const uint8_t *buffer, int bytes)
+bool ReadStream::isWriting()
+{
+    return false;
+}
+
+bool ReadStream::isReading()
+{
+    return m_reader ? 1 : 0;
+}
+
+
+void ReadStream::setBuffer(uint8_t *buffer, int bytes)
 {
     m_reader = std::make_unique<BitReader> (buffer, bytes);
 }
 
-int ReadStream::computeBytes(int bits)
+void ReadStream::memcpy(uint8_t *data, int data_size)
 {
-   // if(m_reader)
-     //   m_reader.get()->flush();
-    return (int)((bits/32) + ((bits % 32) ? 1 : 0))*4;
+    Stream::padZeroes();
+
+    m_bits += data_size*8;
+
+    if(m_reader)
+        m_reader.get()->memcpy(data, data_size);
 }
 
-int ReadStream::bitsRequired(int32_t min, int32_t max)
+void ReadStream::serializeBits(int32_t &value, int bits)
 {
-    int bits = 1;
-    uint32_t cur = max-min;
+    m_bits += bits;
 
-    while(cur/2 > 0)
-    {
-        cur = cur/2;
-        bits++;
-    }
-
-    return bits;
-}
-
-int ReadStream::serializeBits(int32_t &value, int bits)
-{
     if(!m_reader)
-        return bits;
+        return;
 
     if(m_reader.get()->wouldReadPastEnd(bits))
-        return (0);
+        return;
 
     value = m_reader.get()->readBits(bits);
-
-    return (1);
 }
 
-int ReadStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
+void ReadStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
 {
     assert(min < max);
     const int bits = bitsRequired(min, max);
 
+    /*m_bits += bits;
+
     if(!m_reader)
-        return bits;
+        return;
 
     if(m_reader.get()->wouldReadPastEnd(bits))
-        return (0);
+        return;*/
 
-    uint32_t unsigned_value = m_reader.get()->readBits(bits);
+    int32_t unsigned_value = 0;
+    this->serializeBits(unsigned_value,bits);
     value = (int32_t)unsigned_value + min;
-    return (1);
 }
 
-int ReadStream::serializeBool(bool &value)
+void ReadStream::serializeBool(bool &value)
 {
     int32_t v = 0;
-    int bits = this->serializeBits(v,1);
+    this->serializeBits(v,1);
     value = (bool)v;
-    return bits;
 }
 
-int ReadStream::serializeChar(char &value)
+void ReadStream::serializeChar(char &value)
 {
     int32_t v = 0;
-    int bits = this->serializeBits(v,8);
+    this->serializeBits(v,8);
     value = (char)v;
-    return bits;
 }
 
 

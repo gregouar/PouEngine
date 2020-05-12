@@ -2,7 +2,8 @@
 #define READSTREAM_H
 
 #include <memory>
-#include <cstdint>
+
+#include "PouEngine/utils/Stream.h"
 
 namespace pou
 {
@@ -15,6 +16,7 @@ class BitReader
 
         bool wouldReadPastEnd(int bits);
         uint32_t readBits(int bits);
+        void memcpy(uint8_t *data, int data_size);
 
     private:
         const uint8_t *m_buffer;
@@ -27,24 +29,22 @@ class BitReader
         int m_word_index;
 };
 
-class ReadStream
+class ReadStream : public Stream
 {
     public:
-        enum {IsWriting = 0};
-        enum {IsReading = 1};
-
         ReadStream();
         virtual ~ReadStream();
 
-        void setBuffer(const uint8_t *buffer, int bytes);
+        virtual bool isWriting();
+        virtual bool isReading();
 
-        int computeBytes(int bits);
-        int bitsRequired(int32_t min, int32_t max);
+        virtual void setBuffer(uint8_t *buffer, int bytes);
 
-        int serializeBits(int32_t &value, int bits);
-        int serializeInteger(int32_t &value, int32_t min, int32_t max);
-        int serializeBool(bool &value);
-        int serializeChar(char &value);
+        virtual void memcpy(uint8_t *data, int data_size);
+        virtual void serializeBits(int32_t &value, int bits);
+        virtual void serializeInteger(int32_t &value, int32_t min, int32_t max);
+        virtual void serializeBool(bool &value);
+        virtual void serializeChar(char &value);
 
     protected:
 
