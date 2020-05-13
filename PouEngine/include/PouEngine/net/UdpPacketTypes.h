@@ -12,6 +12,7 @@ namespace pou
 static const int MAX_PACKETSIZE = 1024;
 static const int MAX_PACKETFRAGS = 256;
 static const int SERIAL_CHECK = 69420;
+static const int SALT_SIZE = 8;
 
 enum PacketType
 {
@@ -29,6 +30,7 @@ enum ConnectionMessage
     ConnectionMessage_ConnectionAccepted,
     ConnectionMessage_ConnectionDenied,
     ConnectionMessage_Disconnection,
+    ConnectionMessage_Ping,
     NBR_ConnectionMessages,
 };
 
@@ -88,15 +90,23 @@ struct UdpPacket_Fragment : UdpPacket
 struct UdpPacket_ConnectionMsg : UdpPacket
 {
     int connectionMessage;
+    int salt;
 
+    int connectionData;
 
     void serializeImpl(Stream *stream)
     {
+        for(auto i = 0 ; i < 600 ; ++i)
+        stream->serializeBits(connectionData, 16);
+
         stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
                                                 NBR_ConnectionMessages-1);
+        stream->serializeBits(salt, SALT_SIZE);
+
+        for(auto i = 0 ; i <  500 ; ++i)
+        stream->serializeBits(connectionData, 16);
     }
 };
-
 
 
 

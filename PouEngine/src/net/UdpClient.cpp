@@ -8,16 +8,20 @@
 #include "PouEngine/core/VApp.h"
 
 #include <vector>
+#include <glm/gtc/random.hpp>
 
 namespace pou
 {
 
 const float UdpClient::CONNECTING_ATTEMPT_DELAY = 1.0f;
 const float UdpClient::CONNECTING_MAX_TIME = 10.0f;
-const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 60.0f * 5;
+const float UdpClient::DEFAULT_PINGDELAY = .5f;
+const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 5.0f;
 
 
-UdpClient::UdpClient() : m_deconnectionPingDelay(UdpClient::DEFAULT_DECONNECTIONPINGDELAY)
+UdpClient::UdpClient() :
+    m_pingDelay(UdpClient::DEFAULT_PINGDELAY),
+    m_deconnectionPingDelay(UdpClient::DEFAULT_DECONNECTIONPINGDELAY)
 {
     //ctor
 }
@@ -49,6 +53,7 @@ bool UdpClient::connectToServer(const NetAddress &serverAddress)
 {
     m_connectionStatus  = ConnectionStatus_Connecting;
     m_serverAddress     = serverAddress;
+    m_salt              = glm::linearRand(0, (int)pow(2,SALT_SIZE));
 
     m_connectingTimer.reset(CONNECTING_MAX_TIME);
 
@@ -57,10 +62,14 @@ bool UdpClient::connectToServer(const NetAddress &serverAddress)
 
 bool UdpClient::disconnectFromServer()
 {
-    m_connectionStatus = ConnectionStatus_Disconnected;
+    if(m_connectionStatus != ConnectionStatus_Disconnected)
+    {
+        Logger::write("Disconnected from server: "+m_serverAddress.getAddressString());
+        for(auto i = 0 ; i < 5 ; ++i)
+            this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
+    }
 
-    for(auto i = 0 ; i < 5 ; ++i)
-        this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
+    m_connectionStatus = ConnectionStatus_Disconnected;
 
     return (true);
 }
@@ -68,26 +77,44 @@ bool UdpClient::disconnectFromServer()
 
 void UdpClient::update(const Time &elapsedTime)
 {
+
+    if(m_connectionStatus != ConnectionStatus_Connected
+    && m_connectingTimer.update(elapsedTime))
+    {
+        m_connectionStatus = ConnectionStatus_Disconnected;
+        Logger::warning("Could not connect to: "+m_serverAddress.getAddressString());
+    }
+
     if(m_connectionStatus == ConnectionStatus_Connecting)
     {
-        if(m_connectingAttemptTimer.update(elapsedTime) || !m_connectingAttemptTimer.isActive())
+        if(m_connectingAttemptTimer.update(elapsedTime)
+        || !m_connectingAttemptTimer.isActive())
         {
-            /*const char data[] = "hello world!";
-            m_socket.send(m_serverAddress, sizeof(data), data);*/
             this->tryToConnect();
             m_connectingAttemptTimer.reset(CONNECTING_ATTEMPT_DELAY);
         }
+    }
 
-        if(m_connectingTimer.update(elapsedTime))
+    if(m_connectionStatus == ConnectionStatus_Challenging)
+    {
+        if(m_connectingAttemptTimer.update(elapsedTime)
+        || !m_connectingAttemptTimer.isActive())
         {
-            m_connectionStatus = ConnectionStatus_Disconnected;
-            Logger::warning("Could not connect to: "+m_serverAddress.getAddressString());
+            this->tryToChallenge();
+            m_connectingAttemptTimer.reset(CONNECTING_ATTEMPT_DELAY);
         }
     }
 
     if(m_connectionStatus == ConnectionStatus_Connected)
-        if(m_lastServerPingTime + m_deconnectionPingDelay < m_curLocalTime)
+        if(m_lastServerAnswerPingTime + m_deconnectionPingDelay < m_curLocalTime)
+        {
+            Logger::write("Server connection timed out");
             this->disconnectFromServer();
+        }
+
+    if(m_connectionStatus != ConnectionStatus_Disconnected
+    && m_lastServerPingTime + m_pingDelay < m_curLocalTime)
+        this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Ping);
 
     m_packetsExchanger.update(elapsedTime);
 
@@ -121,7 +148,7 @@ void UdpClient::processMessages(UdpBuffer &buffer)
 
     if(m_connectionStatus != ConnectionStatus_Disconnected
     && buffer.address == m_serverAddress)
-        m_lastServerPingTime = m_curLocalTime;
+        m_lastServerAnswerPingTime = m_curLocalTime;
 
     if(packetType == PacketType_ConnectionMsg)
         this->processConnectionMessages(buffer);
@@ -136,11 +163,19 @@ void UdpClient::processConnectionMessages(UdpBuffer &buffer)
 
     if(packet.connectionMessage == ConnectionMessage_ConnectionAccepted)
     {
-        Logger::write("Connected to server: "+buffer.address.getAddressString());
+        if(m_connectionStatus != ConnectionStatus_Connected)
+            Logger::write("Connected to server: "+buffer.address.getAddressString());
         m_connectionStatus = ConnectionStatus_Connected;
         return;
     }
-    if(packet.connectionMessage == ConnectionMessage_ConnectionDenied)
+    if(packet.connectionMessage == ConnectionMessage_Challenge)
+    {
+        m_connectionStatus = ConnectionStatus_Challenging;
+        m_serverSalt       = packet.salt;
+        m_connectingTimer.reset(CONNECTING_MAX_TIME);
+    }
+    if(packet.connectionMessage == ConnectionMessage_ConnectionDenied
+    && m_connectionStatus != ConnectionStatus_Connected)
     {
         Logger::write("Connection denied to server: "+buffer.address.getAddressString());
         m_connectionStatus = ConnectionStatus_Disconnected;
@@ -148,8 +183,9 @@ void UdpClient::processConnectionMessages(UdpBuffer &buffer)
     }
     if(packet.connectionMessage == ConnectionMessage_Disconnection)
     {
-        Logger::write("Disconnected from server: "+buffer.address.getAddressString());
-        m_connectionStatus = ConnectionStatus_Disconnected;
+        this->disconnectFromServer();
+        //Logger::write("Disconnected from server: "+buffer.address.getAddressString());
+        //m_connectionStatus = ConnectionStatus_Disconnected;
         return;
     }
 }
@@ -159,24 +195,37 @@ void UdpClient::sendConnectionMsg(NetAddress &address, ConnectionMessage msg)
     UdpPacket_ConnectionMsg packet;
     packet.type = PacketType_ConnectionMsg;
     packet.connectionMessage = msg;
+    packet.salt = m_salt ^ m_serverSalt;
+
+    if(msg == ConnectionMessage_ConnectionRequest)
+        packet.salt = m_salt;
+
     m_packetsExchanger.sendPacket(address,packet);
+
+    m_lastServerPingTime = m_curLocalTime;
 }
 
 void UdpClient::tryToConnect()
 {
-    Logger::write("Attempting to connect to "+m_serverAddress.getAddressString());
+    Logger::write("Attempting to connect to: "+m_serverAddress.getAddressString());
 
     UdpPacket_ConnectionMsg connectionPacket;
-    //m_packetsExchanger.generatePacketHeader(connectionPacket, PacketType_Connection);
     connectionPacket.type = PacketType_ConnectionMsg;
     connectionPacket.connectionMessage = ConnectionMessage_ConnectionRequest;
+    connectionPacket.salt = m_salt;
 
-    /*UdpBuffer buffer;
-    WriteStream stream;
-    buffer.buffer.resize(connectionPacket.serialize(&stream));
-    stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
-    connectionPacket.serialize(&stream);
-    buffer.address = m_serverAddress;*/
+    m_packetsExchanger.sendPacket(m_serverAddress, connectionPacket);
+}
+
+
+void UdpClient::tryToChallenge()
+{
+    Logger::write("Attempting to challenge: "+m_serverAddress.getAddressString());
+
+    UdpPacket_ConnectionMsg connectionPacket;
+    connectionPacket.type = PacketType_ConnectionMsg;
+    connectionPacket.connectionMessage = ConnectionMessage_Challenge;
+    connectionPacket.salt = m_salt ^ m_serverSalt;
 
     m_packetsExchanger.sendPacket(m_serverAddress, connectionPacket);
 }

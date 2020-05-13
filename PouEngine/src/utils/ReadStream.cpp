@@ -10,7 +10,7 @@ namespace pou
 /// BitReader
 
 BitReader::BitReader(const uint8_t *buffer, int bytes) : m_buffer(buffer), m_bytes(bytes),
-    m_scratch(0), m_scratch_bits(0), /*m_total_bits(bytes*8), m_num_bits_read(0),*/ m_word_index(0)
+    m_scratch(0), m_scratch_bits(0), /*m_total_bits(bytes*8), m_num_bits_read(0),*/ m_byte_index(0)
 {
 }
 
@@ -28,16 +28,16 @@ uint32_t BitReader::readBits(int bits)
 {
     if(m_scratch_bits - bits < 0)
     {
-        assert(m_word_index < m_bytes);
+        assert(m_byte_index < m_bytes);
 
-        m_scratch |= (uint64_t)(m_buffer[m_word_index*4]) << m_scratch_bits;
-        if(m_word_index*4+1 < m_bytes)
-            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+1]) << (m_scratch_bits+8);
-        if(m_word_index*4+2 < m_bytes)
-            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+2]) << (m_scratch_bits+16);
-        if(m_word_index*4+3 < m_bytes)
-            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+3]) << (m_scratch_bits+24);
-        m_word_index++;
+        m_scratch |= (uint64_t)(m_buffer[m_byte_index]) << m_scratch_bits;
+        if(m_byte_index+1 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_byte_index+1]) << (m_scratch_bits+8);
+        if(m_byte_index+2 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_byte_index+2]) << (m_scratch_bits+16);
+        if(m_byte_index+3 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_byte_index+3]) << (m_scratch_bits+24);
+        m_byte_index += 4;
         m_scratch_bits += 32;
     }
 
@@ -50,12 +50,17 @@ uint32_t BitReader::readBits(int bits)
 
 void BitReader::memcpy(uint8_t *data, int data_size, int bytes_shift)
 {
-    int index = m_word_index - (bytes_shift == 0 ? 0 : 1) + 1;
+    m_byte_index = m_byte_index - 4 * (bytes_shift == 0 ? 0 : 1) + bytes_shift ;
+    //std::cout<<"Read Index:"<<index * 4 + bytes_shift<<std::endl;
     //std::cout<<"Read:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
 
-    assert(index * 4 + bytes_shift + data_size <= m_bytes);
+    assert(m_byte_index + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
-    std::memcpy(data, m_buffer + index * 4 + bytes_shift, data_size);
+    std::memcpy(data, m_buffer + m_byte_index, data_size);
+
+    m_byte_index += data_size;
+    m_scratch = 0;
+    m_scratch_bits = 0;
 }
 
 /// ReadStream
@@ -90,10 +95,10 @@ void ReadStream::memcpy(uint8_t *data, int data_size)
 {
     Stream::padZeroes();
 
-    m_bits += data_size*8;
-
     if(m_reader)
         m_reader.get()->memcpy(data, data_size, (m_bits%32)/8);
+
+    m_bits += data_size*8;
 }
 
 void ReadStream::serializeBits(int32_t &value, int bits)

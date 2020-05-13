@@ -4,15 +4,18 @@
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Hasher.h"
 #include "PouEngine/net/UdpPacketTypes.h"
+
 #include <vector>
+#include <glm/gtc/random.hpp>
 
 namespace pou
 {
 
 
-const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 60.0f * 5;
+const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 5.0f;
+const float UdpServer::DEFAULT_PINGDELAY = .5f;
 
-UdpServer::UdpServer() : m_deconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)
+UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_deconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)
 {
     //ctor
 }
@@ -33,7 +36,7 @@ bool UdpServer::start(uint16_t maxNbrClients, unsigned short port)
 
     m_port = m_packetsExchanger.getPort();
 
-    m_clients.resize(maxNbrClients,{NetAddress(), ConnectionStatus_Disconnected, 0});
+    m_clients.resize(maxNbrClients,{NetAddress(), ConnectionStatus_Disconnected, 0, 0});
 
     return (true);
 }
@@ -48,11 +51,16 @@ bool UdpServer::shutdown()
 void UdpServer::update(const Time &elapsedTime)
 {
     for(uint16_t i = 0 ; i < m_clients.size() ; ++i)
-        if(m_clients[i].status != ConnectionStatus_Disconnected
-        && m_clients[i].lastPingTime + m_deconnectionPingDelay < m_curLocalTime)
+        if(m_clients[i].status != ConnectionStatus_Disconnected)
         {
-            Logger::write("Client timed out from: "+m_clients[i].address.getAddressString());
-            this->disconnectClient(i);
+            if(m_clients[i].lastPingAnswerTime + m_deconnectionPingDelay < m_curLocalTime)
+            {
+                Logger::write("Client timed out from: "+m_clients[i].address.getAddressString());
+                this->disconnectClient(i);
+            }
+
+            if(m_clients[i].lastPingTime + m_pingDelay < m_curLocalTime)
+                this->sendConnectionMsg(i,ConnectionMessage_Ping);
         }
 
     m_packetsExchanger.update(elapsedTime);
@@ -71,9 +79,11 @@ void UdpServer::processMessages(UdpBuffer &buffer)
 {
     PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
-    uint16_t clientNbr = findClientIndex(buffer.address);
+    /*uint16_t clientNbr = findClientIndex(buffer.address);
     if(clientNbr != m_clients.size())
-        m_clients[clientNbr].lastPingTime = m_curLocalTime;
+        m_clients[clientNbr].lastPingAnswerTime = m_curLocalTime;*/
+
+   // std::cout<<"Server received packet of type: "<<packetType<<std::endl;
 
     if(packetType == PacketType_ConnectionMsg)
         this->processConnectionMessages(buffer);
@@ -86,16 +96,19 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer)
     if(!m_packetsExchanger.readPacket(packet, buffer))
         return;
 
+    uint16_t clientNbr = findClientIndex(buffer.address, packet.salt);
+    if(clientNbr != m_clients.size())
+        m_clients[clientNbr].lastPingAnswerTime = m_curLocalTime;
+
+
     if(packet.connectionMessage == ConnectionMessage_ConnectionRequest)
     {
         Logger::write("Client is trying to connect from: "+buffer.address.getAddressString());
 
-        uint16_t clientNbr = findClientIndex(buffer.address);
-
         if(clientNbr != m_clients.size())
             if(m_clients[clientNbr].status != ConnectionStatus_Disconnected)
             {
-                this->allowConnectionFrom(buffer.address);
+                this->challengeConnexionFrom(buffer.address, m_clients[clientNbr].serverSalt);
                 return;
             }
 
@@ -112,41 +125,76 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer)
             return;
         }
 
-        m_clients[clientNbr].status     = ConnectionStatus_Connected; //ConnectionStatus_Connecting
+        m_clients[clientNbr].status     = ConnectionStatus_Challenging; //ConnectionStatus_Connecting
         m_clients[clientNbr].address    = std::move(buffer.address);
-        m_clients[clientNbr].lastPingTime = m_curLocalTime;
+        m_clients[clientNbr].lastPingAnswerTime = m_curLocalTime;
+        m_clients[clientNbr].lastPingTime       = m_curLocalTime;
+        m_clients[clientNbr].clientSalt = packet.salt;
+        m_clients[clientNbr].serverSalt = glm::linearRand(0, (int)pow(2,SALT_SIZE));
 
-        this->allowConnectionFrom(buffer.address);
+        this->challengeConnexionFrom(buffer.address, m_clients[clientNbr].serverSalt);
     }
+
+    if(packet.connectionMessage == ConnectionMessage_Challenge)
+    {
+        if(clientNbr == m_clients.size())
+            return;
+
+        this->allowConnectionFrom(clientNbr);
+    }
+
     if(packet.connectionMessage == ConnectionMessage_Disconnection)
     {
-        uint16_t clientNbr = findClientIndex(buffer.address);
         if(clientNbr != m_clients.size()
         && m_clients[clientNbr].status != ConnectionStatus_Disconnected)
         {
             m_clients[clientNbr].status = ConnectionStatus_Disconnected;
             Logger::write("Client disconnected from: "+buffer.address.getAddressString());
         }
-
     }
 }
 
-void UdpServer::sendConnectionMsg(NetAddress &address, ConnectionMessage msg)
+void UdpServer::sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg)
+{
+    if(clientNbr > m_clients.size())
+        return;
+
+    int salt = m_clients[clientNbr].serverSalt ^ m_clients[clientNbr].clientSalt;
+
+    if(msg == ConnectionMessage_Challenge)
+        salt = m_clients[clientNbr].serverSalt;
+
+    this->sendConnectionMsg(m_clients[clientNbr].address, msg, salt);
+
+    m_clients[clientNbr].lastPingTime = m_curLocalTime;
+}
+
+void UdpServer::sendConnectionMsg(NetAddress &address, ConnectionMessage msg, int salt)
 {
     UdpPacket_ConnectionMsg packet;
     packet.type = PacketType_ConnectionMsg;
     packet.connectionMessage = msg;
+    packet.salt = salt;
     m_packetsExchanger.sendPacket(address,packet);
 }
 
 void UdpServer::denyConnectionFrom(NetAddress &address)
 {
-    this->sendConnectionMsg(address, ConnectionMessage_Disconnection);
+    this->sendConnectionMsg(address, ConnectionMessage_Disconnection, 0);
 }
 
-void UdpServer::allowConnectionFrom(NetAddress &address)
+void UdpServer::challengeConnexionFrom(NetAddress &address, int salt)
 {
-    this->sendConnectionMsg(address, ConnectionMessage_ConnectionAccepted);
+    this->sendConnectionMsg(address, ConnectionMessage_Challenge, salt);
+}
+
+void UdpServer::allowConnectionFrom(uint16_t clientNbr)
+{
+    if(clientNbr == m_clients.size())
+        return;
+
+    m_clients[clientNbr].status = ConnectionStatus_Connected; //ConnectionStatus_Connecting
+    this->sendConnectionMsg(clientNbr, ConnectionMessage_ConnectionAccepted);
 }
 
 void UdpServer::disconnectClient(uint16_t clientNbr)
@@ -155,14 +203,22 @@ void UdpServer::disconnectClient(uint16_t clientNbr)
         return;
 
     m_clients[clientNbr].status = ConnectionStatus_Disconnected;
-    this->sendConnectionMsg(m_clients[clientNbr].address, ConnectionMessage_Disconnection);
+    this->sendConnectionMsg(clientNbr, ConnectionMessage_Disconnection);
 }
 
-uint16_t UdpServer::findClientIndex(NetAddress &address)
+uint16_t UdpServer::findClientIndex(NetAddress &address, int salt)
 {
     for(auto i = 0 ; i < (int)m_clients.size() ; ++i)
         if(m_clients[i].address == address)
-            return i;
+        {
+            if(m_clients[i].status != ConnectionStatus_Connecting
+            && (m_clients[i].clientSalt^m_clients[i].serverSalt) == salt)
+                return i;
+
+            if(m_clients[i].status == ConnectionStatus_Connecting
+            && m_clients[i].clientSalt == salt)
+                return i;
+        }
     return m_clients.size();
 }
 

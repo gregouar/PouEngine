@@ -30,7 +30,7 @@ class BitWriter
 
         uint64_t m_scratch;
         int m_scratch_bits;
-        int m_word_index;
+        int m_byte_index;
 };
 
 class WriteStream : public Stream

@@ -80,6 +80,19 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
           & detectSegmentCollision(glm::vec2(minP.y, maxP.y), glm::vec2(-box1.center.y, box1.size.y-box1.center.y)) );
 }
 
+
+int intLog2(int v)
+{
+    int r = 1;
+    while(v > 0)
+    {
+        v = v/2;
+        ++r;
+    }
+    return r;
+}
+
+
 }
 
 

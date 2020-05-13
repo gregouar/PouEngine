@@ -26,7 +26,7 @@ class BitReader
         int m_scratch_bits;
         //int m_total_bits;
         //int m_num_bits_read;
-        int m_word_index;
+        int m_byte_index;
 };
 
 class ReadStream : public Stream

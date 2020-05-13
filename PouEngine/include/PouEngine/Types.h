@@ -141,6 +141,7 @@ enum ConnectionStatus
 {
     ConnectionStatus_Disconnected,
     ConnectionStatus_Connecting,
+    ConnectionStatus_Challenging,
     ConnectionStatus_Connected,
 };
 

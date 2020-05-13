@@ -14,6 +14,9 @@ struct ClientInfos
     NetAddress          address;
     ConnectionStatus    status;
     float               lastPingTime;
+    float               lastPingAnswerTime;
+    int                 serverSalt;
+    int                 clientSalt;
 };
 
 class UdpServer : public AbstractServer
@@ -32,13 +35,15 @@ class UdpServer : public AbstractServer
         virtual void processMessages(UdpBuffer &buffer);
         virtual void processConnectionMessages(UdpBuffer &buffer);
 
-        virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg);
+        virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);
+        virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg, int salt);
 
         virtual void disconnectClient(uint16_t clientNbr);
         virtual void denyConnectionFrom(NetAddress &address);
-        virtual void allowConnectionFrom(NetAddress &address);
+        virtual void challengeConnexionFrom(NetAddress &address, int salt);
+        virtual void allowConnectionFrom(uint16_t clientNbr);
 
-        uint16_t findClientIndex(NetAddress &address);
+        uint16_t findClientIndex(NetAddress &address, int salt);
 
     private:
        //UdpSocket m_socket;
@@ -46,9 +51,11 @@ class UdpServer : public AbstractServer
 
         std::vector<ClientInfos> m_clients;
 
+        float m_pingDelay;
         float m_deconnectionPingDelay;
 
     public:
+        static const float DEFAULT_PINGDELAY;
         static const float DEFAULT_DECONNECTIONPINGDELAY;
 };
 
