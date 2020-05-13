@@ -16,7 +16,7 @@ class BitReader
 
         bool wouldReadPastEnd(int bits);
         uint32_t readBits(int bits);
-        void memcpy(uint8_t *data, int data_size);
+        void memcpy(uint8_t *data, int data_size, int bytes_shift);
 
     private:
         const uint8_t *m_buffer;

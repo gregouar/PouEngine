@@ -24,7 +24,7 @@ class UdpServer : public AbstractServer
         virtual bool start(uint16_t maxNbrClients, unsigned short port = 0);
         virtual bool shutdown();
 
-        //virtual void update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime);
 
     protected:
         virtual void receivePackets();

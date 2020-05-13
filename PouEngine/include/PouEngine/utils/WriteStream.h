@@ -16,7 +16,7 @@ class BitWriter
         virtual ~BitWriter();
 
         bool writeBits(uint32_t unsigned_value, int bits);
-        void memcpy(uint8_t *data, int data_size);
+        void memcpy(uint8_t *data, int data_size, int bytes_shift);
         void flush();
 
         void printBitCode(uint8_t v);

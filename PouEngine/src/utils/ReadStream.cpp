@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "PouEngine/utils/Logger.h"
+
 namespace pou
 {
 
@@ -29,9 +31,12 @@ uint32_t BitReader::readBits(int bits)
         assert(m_word_index < m_bytes);
 
         m_scratch |= (uint64_t)(m_buffer[m_word_index*4]) << m_scratch_bits;
-        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+1]) << (m_scratch_bits+8);
-        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+2]) << (m_scratch_bits+16);
-        m_scratch |= (uint64_t)(m_buffer[m_word_index*4+3]) << (m_scratch_bits+24);
+        if(m_word_index*4+1 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+1]) << (m_scratch_bits+8);
+        if(m_word_index*4+2 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+2]) << (m_scratch_bits+16);
+        if(m_word_index*4+3 < m_bytes)
+            m_scratch |= (uint64_t)(m_buffer[m_word_index*4+3]) << (m_scratch_bits+24);
         m_word_index++;
         m_scratch_bits += 32;
     }
@@ -43,11 +48,14 @@ uint32_t BitReader::readBits(int bits)
     return value;
 }
 
-void BitReader::memcpy(uint8_t *data, int data_size)
+void BitReader::memcpy(uint8_t *data, int data_size, int bytes_shift)
 {
-    assert(m_word_index + data_size < m_bytes);
+    int index = m_word_index - (bytes_shift == 0 ? 0 : 1);
+    //std::cout<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<std::endl;
+
+    assert(index * 4 + bytes_shift + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
-    std::memcpy(data, m_buffer + m_word_index, data_size);
+    std::memcpy(data, m_buffer + index * 4 + bytes_shift, data_size);
 }
 
 /// ReadStream
@@ -85,7 +93,7 @@ void ReadStream::memcpy(uint8_t *data, int data_size)
     m_bits += data_size*8;
 
     if(m_reader)
-        m_reader.get()->memcpy(data, data_size);
+        m_reader.get()->memcpy(data, data_size, (m_bits%32)/8);
 }
 
 void ReadStream::serializeBits(int32_t &value, int bits)

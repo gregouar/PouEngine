@@ -13,7 +13,7 @@ namespace pou
 {
 
 const float UdpClient::CONNECTING_ATTEMPT_DELAY = 1.0f;
-const float UdpClient::CONNECTING_MAX_TIME = 5.0f;
+const float UdpClient::CONNECTING_MAX_TIME = 10.0f;
 
 
 UdpClient::UdpClient()
@@ -79,6 +79,8 @@ void UdpClient::update(const Time &elapsedTime)
         }
     }
 
+    m_packetsExchanger.update(elapsedTime);
+
     AbstractClient::update(elapsedTime);
 }
 
@@ -112,17 +114,19 @@ void UdpClient::tryToConnect()
 {
     Logger::write("Attempting to connect to "+m_serverAddress.getAddressString());
 
+    //UdpPacket_BigPacketTest connectionPacket;
     UdpPacket_Header connectionPacket;
     connectionPacket.crc32 = m_packetsExchanger.hashPacket();
     connectionPacket.type = PacketType_Connection;
 
-    UdpBuffer buffer;
+    //connectionPacket.dummy = 'h';
 
+    UdpBuffer buffer;
     WriteStream stream;
-    buffer.buffer.resize(connectionPacket.Serialize(&stream));
+    buffer.buffer.resize(connectionPacket.serialize(&stream));
     stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
-    connectionPacket.Serialize(&stream);
-    buffer.sender = m_serverAddress;
+    connectionPacket.serialize(&stream);
+    buffer.address = m_serverAddress;
 
     /*int i = 1;
     std::cout<<(bool)(buffer[i] & (uint8_t)128);

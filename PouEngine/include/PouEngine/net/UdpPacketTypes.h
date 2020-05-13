@@ -4,7 +4,7 @@
 #include "PouEngine/utils/ReadStream.h"
 #include "PouEngine/utils/WriteStream.h"
 
-#include <any>
+#include <vector>
 
 namespace pou
 {
@@ -24,12 +24,12 @@ enum PacketType
 
 struct UdpPacket
 {
-    virtual void SerializeImpl(Stream *stream) = 0;
+    virtual void serializeImpl(Stream *stream) = 0;
 
-    int Serialize(Stream *stream)
+    int serialize(Stream *stream)
     {
         //int bits = this->SerializeImpl(stream);
-        this->SerializeImpl(stream);
+        this->serializeImpl(stream);
         if(stream->isWriting()) stream->flush();
         return stream->computeBytes();
     }
@@ -41,20 +41,43 @@ struct UdpPacket_Header : UdpPacket
     int sequence;
     int type;
 
-    char ctest;
+   // char ctest;
 
-    void SerializeImpl(Stream *stream)
+    void serializeImpl(Stream *stream)
     {
         //int bits = (
                     stream->serializeBits(crc32, 32); // +
                     stream->serializeBits(sequence, 16); // +
-                    stream->serializeInteger(type, 0, NBR_PacketTypes);
+                    stream->serializeInteger(type, 0, NBR_PacketTypes-1);
                    // );
-        for(auto i = 0 ; i < 1800 ; ++i)
+        //for(auto i = 0 ; i < 1800 ; ++i)
                     //bits +=
-                    stream->serializeChar(ctest);
+          //          stream->serializeChar(ctest);
 
        // return (true);
+    }
+};
+
+
+struct UdpPacket_BigPacketTest : UdpPacket
+{
+    UdpPacket_Header header;
+
+    char ctest;
+
+    char dummy;
+
+    void serializeImpl(Stream *stream)
+    {
+        header.serializeImpl(stream);
+
+        for(auto i = 0 ; i < 1800 ; ++i)
+                    stream->serializeChar(ctest);
+
+        stream->serializeChar(dummy);
+
+        for(auto i = 0 ; i < 1800 ; ++i)
+                    stream->serializeChar(ctest);
     }
 };
 
@@ -65,12 +88,14 @@ struct UdpPacket_Fragment : UdpPacket
     int frag_id;
     int nbr_frags;
 
-    uint8_t frag_data[MAX_PACKETSIZE];
+    //uint8_t frag_data[MAX_PACKETSIZE];
+    std::vector<uint8_t> frag_data;
 
-    void SerializeImpl(Stream *stream)
+    void serializeImpl(Stream *stream)
     {
+        frag_data.resize(MAX_PACKETSIZE);
         //int bits = (
-            header.SerializeImpl(stream); // +
+            header.serializeImpl(stream); // +
             stream->serializeBits(frag_id, 8); // +
             stream->serializeBits(nbr_frags, 8);
              //   );
@@ -94,7 +119,7 @@ struct UdpPacket_Fragment : UdpPacket
         //return bits;
 
 
-         stream->memcpy(frag_data, MAX_PACKETSIZE);
+         stream->memcpy(frag_data.data(), frag_data.size());
 
     }
 };

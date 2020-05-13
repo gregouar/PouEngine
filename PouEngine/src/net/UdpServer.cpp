@@ -42,6 +42,13 @@ bool UdpServer::shutdown()
     return (true);
 }
 
+void UdpServer::update(const Time &elapsedTime)
+{
+    m_packetsExchanger.update(elapsedTime);
+
+    AbstractServer::update(elapsedTime);
+}
+
 void UdpServer::receivePackets()
 {
     std::vector<UdpBuffer> packet_buffers;
@@ -52,27 +59,15 @@ void UdpServer::receivePackets()
 
 void UdpServer::processMessages(UdpBuffer &buffer)
 {
-    UdpPacket_Header receivedPacket;
-    ReadStream stream;
-    stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
-    receivedPacket.Serialize(&stream);
-
-    /*uint32_t crc32 = Hasher::crc32(VApp::APP_VERSION);//CRC::Calculate(VApp::APP_VERSION, sizeof(VApp::APP_VERSION), CRC::CRC_32());
-    if(crc32 != (uint32_t)receivedPacket.crc32)
-    {
-        Logger::warning("Wrong CRC32, packet dropped");
-        return;
-    }*/
-
-    PacketType packetType = (PacketType)receivedPacket.type;
+    PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
     if(packetType == PacketType_Connection)
     {
-        Logger::write("Client is trying to connect from: "+buffer.sender.getAddressString());
+        Logger::write("Client is trying to connect from: "+buffer.address.getAddressString());
     }
     else if (packetType == PacketType_Diconnection)
     {
-        Logger::write("Client is disconnected from: "+buffer.sender.getAddressString());
+        Logger::write("Client is disconnected from: "+buffer.address.getAddressString());
     }
 }
 

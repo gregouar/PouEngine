@@ -4,6 +4,7 @@
 #include "PouEngine/net/NetAddress.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/net/UdpSocket.h"
+#include "PouEngine/utils/Timer.h"
 
 
 #include <vector>
@@ -19,7 +20,7 @@ struct UdpBuffer
 {
     UdpBuffer();
 
-    NetAddress  sender;
+    NetAddress  address;
     std::vector<uint8_t> buffer;
 };
 
@@ -27,12 +28,14 @@ struct FragmentedPacket
 {
     FragmentedPacket();
 
+    bool needToBeCleaned;
     uint16_t sequence;
     int nbr_frags;
-    Timer timer;
+    float birthday;
 
-    const int MAX_FRAGPACKET_LIFESPAN;
-
+    std::vector< std::vector<uint8_t> > fragmentBuffers;
+    std::vector< bool > receivedFrags;
+    int nbr_receivedFrags;
 };
 
 /*struct SequenceBuffer
@@ -54,26 +57,33 @@ class UdpPacketsExchanger
         bool createSocket(unsigned short port = 0);
         void destroy();
 
-        unsigned short getPort() const;
+        virtual void update(const Time &elapsedTime);
 
-        virtual void sendPacket(const UdpBuffer &packetBuffer);
+        virtual void sendPacket(UdpBuffer &packetBuffer, bool forceNonFragSend = false);
         virtual void receivePackets(std::vector<UdpBuffer> &packetBuffers);
 
         uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
 
-    protected:
         PacketType readPacketType(UdpBuffer &packetBuffer);
-        void fragmentPacket(const UdpBuffer &packetBuffer);
+        unsigned short getPort() const;
+
+    protected:
+        void fragmentPacket(UdpBuffer &packetBuffer);
         bool reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &destBuffer);
+
+        int getMaxPacketSize();
 
     private:
         UdpSocket m_socket;
 
-        uint16_t m_curSequence;
-        std::vector<std::map<NetAddress, FragmentedPacket> > m_fragPacketsBuffer;
+        uint16_t    m_curSequence;
+        float       m_curLocalTime;
+        std::map< NetAddress, std::pair<float, std::vector<FragmentedPacket> > > m_fragPacketsBuffer;
 
-
+    public:
         static const int MAX_FRAGBUFFER_ENTRIES;
+        static const float MAX_FRAGPACKET_LIFESPAN;
+        static const float MAX_KEEPFRAGPACKETSPERCLIENT_TIME;
 
 };
 

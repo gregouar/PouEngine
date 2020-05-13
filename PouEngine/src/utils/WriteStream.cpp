@@ -34,9 +34,12 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
     if(m_scratch_bits >= 32)
     {
         m_buffer[m_word_index*4] = (uint8_t)m_scratch;
-        m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
-        m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
-        m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
+        if(m_word_index*4+1 < m_bytes)
+            m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
+        if(m_word_index*4+2 < m_bytes)
+            m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
+        if(m_word_index*4+3 < m_bytes)
+            m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
         m_word_index++;
 
         m_scratch_bits -= 32;
@@ -49,11 +52,12 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
     return (true);
 }
 
-void BitWriter::memcpy(uint8_t *data, int data_size)
+void BitWriter::memcpy(uint8_t *data, int data_size, int bytes_shift)
 {
-    assert(m_word_index + data_size < m_bytes);
+    assert(m_word_index*4 + bytes_shift + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
-    std::memcpy( m_buffer + m_word_index, data, data_size);
+
+    std::memcpy( m_buffer + m_word_index * 4 + bytes_shift, data, data_size);
 }
 
 void BitWriter::flush()
@@ -62,9 +66,12 @@ void BitWriter::flush()
     m_scratch = m_scratch >> (32 - m_scratch_bits);
 
     m_buffer[m_word_index*4] = (uint8_t)m_scratch;
-    m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
-    m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
-    m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
+    if(m_word_index*4+1 < m_bytes)
+        m_buffer[m_word_index*4+1] = (uint8_t)(m_scratch>>8);
+    if(m_word_index*4+2 < m_bytes)
+        m_buffer[m_word_index*4+2] = (uint8_t)(m_scratch>>16);
+    if(m_word_index*4+3 < m_bytes)
+        m_buffer[m_word_index*4+3] = (uint8_t)(m_scratch>>24);
 }
 
 void BitWriter::printBitCode(uint8_t v)
@@ -137,11 +144,10 @@ void WriteStream::flush()
 void WriteStream::memcpy(uint8_t *data, int data_size)
 {
     Stream::padZeroes();
-
+    this->flush();
     m_bits += data_size*8;
-
     if(m_writer)
-        m_writer.get()->memcpy(data, data_size);
+        m_writer.get()->memcpy(data, data_size, (m_bits%32)/8);
 }
 
 void WriteStream::serializeBits(int32_t &value, int bits)
@@ -170,16 +176,14 @@ void WriteStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
 
 void WriteStream::serializeBool(bool &value)
 {
-    int32_t temp;
+    int32_t temp = (int32_t)value;
     this->serializeBits(temp, 1);
-    value = (bool)temp;
 }
 
 void WriteStream::serializeChar(char &value)
 {
-    int32_t temp;
+    int32_t temp = (int32_t)value;
     this->serializeBits(temp, 8);
-    value = (char)temp;
 }
 
 
