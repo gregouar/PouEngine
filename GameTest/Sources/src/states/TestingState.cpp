@@ -440,6 +440,12 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         //m_character->startAnimation("attack",true);
         m_character->askToAttack();
     }
+
+
+    if(eventsManager->keyIsPressed(GLFW_KEY_Z))
+        m_gameClient.disconnectFromServer();
+    if(eventsManager->keyIsPressed(GLFW_KEY_X))
+        m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
 }
 
 void TestingState::update(const pou::Time &elapsedTime)

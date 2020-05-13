@@ -18,9 +18,9 @@ Stream::~Stream()
 
 int Stream::computeBytes()
 {
-   // std::cout<<m_bits<<" "<<(int)((m_bits/32) + ((m_bits % 32) ? 1 : 0))*4<<std::endl;
     int bits = m_bits;
     m_bits = 0;
+    //std::cout<<"NBR BYTES:"<<(int)((bits/8) + ((bits % 8) ? 1 : 0))<<std::endl;
     return (int)((bits/8) + ((bits % 8) ? 1 : 0));//(int)((bits/32) + ((bits % 32) ? 1 : 0))*4;
 }
 

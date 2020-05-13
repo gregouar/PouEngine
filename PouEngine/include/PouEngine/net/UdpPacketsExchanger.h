@@ -68,6 +68,7 @@ class UdpPacketsExchanger
         int getMaxPacketSize();
 
     private:
+        int m_maxPacketSize;
         UdpSocket m_socket;
 
         uint16_t    m_curSequence;

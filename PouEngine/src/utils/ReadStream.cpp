@@ -30,7 +30,9 @@ uint32_t BitReader::readBits(int bits)
     {
         assert(m_byte_index < m_bytes);
 
-        m_scratch |= (uint64_t)(m_buffer[m_byte_index]) << m_scratch_bits;
+        //m_scratch <<= 32;
+
+        m_scratch |= (uint64_t)(m_buffer[m_byte_index]) << m_scratch_bits ;
         if(m_byte_index+1 < m_bytes)
             m_scratch |= (uint64_t)(m_buffer[m_byte_index+1]) << (m_scratch_bits+8);
         if(m_byte_index+2 < m_bytes)
@@ -42,7 +44,7 @@ uint32_t BitReader::readBits(int bits)
     }
 
     uint32_t value = (uint32_t)((m_scratch << (64-bits)) >> (64-bits));
-    m_scratch = m_scratch >> bits;
+    m_scratch >>= bits;
     m_scratch_bits -= bits;
 
     return value;

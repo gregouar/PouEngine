@@ -40,7 +40,7 @@ class UdpServer : public AbstractServer
 
         virtual void disconnectClient(uint16_t clientNbr);
         virtual void denyConnectionFrom(NetAddress &address);
-        virtual void challengeConnexionFrom(NetAddress &address, int salt);
+        virtual void challengeConnexionFrom(uint16_t clientNbr);
         virtual void allowConnectionFrom(uint16_t clientNbr);
 
         uint16_t findClientIndex(NetAddress &address, int salt);

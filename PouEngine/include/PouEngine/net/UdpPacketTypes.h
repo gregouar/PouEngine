@@ -92,19 +92,19 @@ struct UdpPacket_ConnectionMsg : UdpPacket
     int connectionMessage;
     int salt;
 
-    int connectionData;
+    //int connectionData;
 
     void serializeImpl(Stream *stream)
     {
-        for(auto i = 0 ; i < 600 ; ++i)
-        stream->serializeBits(connectionData, 16);
+        //for(auto i = 0 ; i < 600 ; ++i)
+        //stream->serializeBits(connectionData, 16);
 
         stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
                                                 NBR_ConnectionMessages-1);
         stream->serializeBits(salt, SALT_SIZE);
 
-        for(auto i = 0 ; i <  500 ; ++i)
-        stream->serializeBits(connectionData, 16);
+        //for(auto i = 0 ; i <  500 ; ++i)
+        //stream->serializeBits(connectionData, 16);
     }
 };
 

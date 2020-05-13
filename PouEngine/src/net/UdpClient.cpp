@@ -51,6 +51,9 @@ bool UdpClient::destroy()
 
 bool UdpClient::connectToServer(const NetAddress &serverAddress)
 {
+    if(m_connectionStatus == ConnectionStatus_Connected)
+        this->disconnectFromServer();
+
     m_connectionStatus  = ConnectionStatus_Connecting;
     m_serverAddress     = serverAddress;
     m_salt              = glm::linearRand(0, (int)pow(2,SALT_SIZE));
@@ -64,7 +67,8 @@ bool UdpClient::disconnectFromServer()
 {
     if(m_connectionStatus != ConnectionStatus_Disconnected)
     {
-        Logger::write("Disconnected from server: "+m_serverAddress.getAddressString());
+        Logger::write("Disconnected from server: "+m_serverAddress.getAddressString()
+                      +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
         for(auto i = 0 ; i < 5 ; ++i)
             this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
     }
@@ -77,7 +81,6 @@ bool UdpClient::disconnectFromServer()
 
 void UdpClient::update(const Time &elapsedTime)
 {
-
     if(m_connectionStatus != ConnectionStatus_Connected
     && m_connectingTimer.update(elapsedTime))
     {
@@ -108,7 +111,7 @@ void UdpClient::update(const Time &elapsedTime)
     if(m_connectionStatus == ConnectionStatus_Connected)
         if(m_lastServerAnswerPingTime + m_deconnectionPingDelay < m_curLocalTime)
         {
-            Logger::write("Server connection timed out");
+            Logger::write("Server connection timed out ("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
             this->disconnectFromServer();
         }
 
@@ -161,10 +164,12 @@ void UdpClient::processConnectionMessages(UdpBuffer &buffer)
     if(!m_packetsExchanger.readPacket(packet, buffer))
         return;
 
-    if(packet.connectionMessage == ConnectionMessage_ConnectionAccepted)
+    if(packet.connectionMessage == ConnectionMessage_ConnectionAccepted &&
+       (m_salt ^ m_serverSalt) == packet.salt)
     {
         if(m_connectionStatus != ConnectionStatus_Connected)
-            Logger::write("Connected to server: "+buffer.address.getAddressString());
+            Logger::write("Connected to server: "+buffer.address.getAddressString()
+                          +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
         m_connectionStatus = ConnectionStatus_Connected;
         return;
     }
@@ -181,7 +186,8 @@ void UdpClient::processConnectionMessages(UdpBuffer &buffer)
         m_connectionStatus = ConnectionStatus_Disconnected;
         return;
     }
-    if(packet.connectionMessage == ConnectionMessage_Disconnection)
+    if(packet.connectionMessage == ConnectionMessage_Disconnection &&
+       (m_salt ^ m_serverSalt) == packet.salt)
     {
         this->disconnectFromServer();
         //Logger::write("Disconnected from server: "+buffer.address.getAddressString());
@@ -207,7 +213,8 @@ void UdpClient::sendConnectionMsg(NetAddress &address, ConnectionMessage msg)
 
 void UdpClient::tryToConnect()
 {
-    Logger::write("Attempting to connect to: "+m_serverAddress.getAddressString());
+    Logger::write("Attempting to connect to: "+m_serverAddress.getAddressString()
+                  +"("+std::to_string(m_salt)+")");
 
     UdpPacket_ConnectionMsg connectionPacket;
     connectionPacket.type = PacketType_ConnectionMsg;
@@ -220,7 +227,8 @@ void UdpClient::tryToConnect()
 
 void UdpClient::tryToChallenge()
 {
-    Logger::write("Attempting to challenge: "+m_serverAddress.getAddressString());
+    Logger::write("Attempting to challenge: "+m_serverAddress.getAddressString()
+                  +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
 
     UdpPacket_ConnectionMsg connectionPacket;
     connectionPacket.type = PacketType_ConnectionMsg;
