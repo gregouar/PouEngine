@@ -144,13 +144,9 @@ int UdpSocket::receive(NetAddress &address, const void *packet_data, size_t data
     int bytes = recvfrom(m_handle, (char*)packet_data, data_size/*max_packet_size*/, 0, (sockaddr*)&from, &fromLength);
     address = NetAddress(ntohl(from.sin_addr.s_addr), ntohs(from.sin_port));
 
-
     #if PLATFORM == PLATFORM_WINDOWS
         if(bytes < 0 && WSAGetLastError() != 10035) //Error 10035 always triggers because we use non-blocking sockets
-        {
             Logger::warning("Failed to receive packet: error "+std::to_string(WSAGetLastError()));
-            std::cout<<data_size<<std::endl;
-        }
     #endif
 
     return (bytes);

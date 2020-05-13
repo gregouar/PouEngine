@@ -50,8 +50,8 @@ uint32_t BitReader::readBits(int bits)
 
 void BitReader::memcpy(uint8_t *data, int data_size, int bytes_shift)
 {
-    int index = m_word_index - (bytes_shift == 0 ? 0 : 1);
-    //std::cout<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<std::endl;
+    int index = m_word_index - (bytes_shift == 0 ? 0 : 1) + 1;
+    //std::cout<<"Read:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
 
     assert(index * 4 + bytes_shift + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
@@ -109,19 +109,10 @@ void ReadStream::serializeBits(int32_t &value, int bits)
     value = m_reader.get()->readBits(bits);
 }
 
-void ReadStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
+void ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)
 {
     assert(min < max);
     const int bits = bitsRequired(min, max);
-
-    /*m_bits += bits;
-
-    if(!m_reader)
-        return;
-
-    if(m_reader.get()->wouldReadPastEnd(bits))
-        return;*/
-
     int32_t unsigned_value = 0;
     this->serializeBits(unsigned_value,bits);
     value = (int32_t)unsigned_value + min;

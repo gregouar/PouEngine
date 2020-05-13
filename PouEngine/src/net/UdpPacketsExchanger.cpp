@@ -4,6 +4,8 @@
 #include "PouEngine/utils/Hasher.h"
 #include "PouEngine/core/VApp.h"
 
+#include <string>
+
 namespace pou
 {
 
@@ -47,11 +49,6 @@ void UdpPacketsExchanger::destroy()
     m_socket.close();
 }
 
-unsigned short UdpPacketsExchanger::getPort() const
-{
-    return m_socket.getPort();
-}
-
 void UdpPacketsExchanger::update(const Time &elapsedTime)
 {
     m_curLocalTime += elapsedTime.count();
@@ -67,8 +64,6 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
 
 void UdpPacketsExchanger::receivePackets(std::vector<UdpBuffer> &packetBuffers)
 {
-    //NetAddress sender;
-    //std::vector<uint8_t> buffer(DEFAULT_MAX_PACKETSIZE);
     UdpBuffer tempBuffer;
     tempBuffer.buffer.resize(getMaxPacketSize());
 
@@ -79,10 +74,7 @@ void UdpPacketsExchanger::receivePackets(std::vector<UdpBuffer> &packetBuffers)
                                           tempBuffer.buffer.size());
 
         if (bytes_read <= 0)
-        //{
-            //packetBuffers.pop_back();
             break;
-        //}
 
         //std::cout<<"Received packet from"<<tempBuffer.address.getAddressString()<<std::endl;
 
@@ -103,7 +95,21 @@ uint32_t UdpPacketsExchanger::hashPacket(std::vector<uint8_t> *data)
     uint32_t s = 0;
     if(data)
         s = Hasher::crc32(data->data(),data->size(),s);
-    return Hasher::crc32(VApp::APP_VERSION,s);
+    return Hasher::crc32((std::string)VApp::APP_VERSION,s);
+}
+
+void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, bool forceNonFragSend)
+{
+    this->generatePacketHeader(packet, (PacketType)packet.type);
+
+    UdpBuffer buffer;
+    WriteStream stream;
+    buffer.buffer.resize(packet.serialize(&stream));
+    stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
+    packet.serialize(&stream);
+    buffer.address = address;
+
+    this->sendPacket(buffer, forceNonFragSend);
 }
 
 void UdpPacketsExchanger::sendPacket(UdpBuffer &packetBuffer, bool forceNonFragSend)
@@ -119,18 +125,54 @@ void UdpPacketsExchanger::sendPacket(UdpBuffer &packetBuffer, bool forceNonFragS
 
 PacketType UdpPacketsExchanger::readPacketType(UdpBuffer &packetBuffer)
 {
-    UdpPacket_Header receivedPacket;
+    UdpPacket receivedPacket;
     ReadStream stream;
     stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
-    receivedPacket.serialize(&stream);
-
-    ///Maybe not good to do it here... it depends on type in general
-    if((uint32_t)receivedPacket.crc32 != hashPacket())
-        return (PacketCorrupted);
+    receivedPacket.serializeHeader(&stream);
 
     return (PacketType)receivedPacket.type;
 }
 
+bool UdpPacketsExchanger::readPacket(UdpPacket &packet, UdpBuffer &packetBuffer)
+{
+    ReadStream stream;
+
+    if((int)packetBuffer.buffer.size() < packet.serialize(&stream))
+        return (false);
+
+    stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
+    packet.serialize(&stream);
+
+    return (this->verifyPacketIntegrity(packet));
+}
+
+
+bool UdpPacketsExchanger::verifyPacketIntegrity(UdpPacket &packet)
+{
+    if((uint32_t)packet.crc32 != hashPacket())
+        packet.type = PacketCorrupted;
+
+    if((uint32_t)packet.serial_check != Hasher::crc32(&SERIAL_CHECK,1))
+        packet.type = PacketCorrupted;
+
+    return (packet.type != PacketCorrupted);
+}
+
+void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType packetType)
+{
+    if(packetType >= NBR_PacketTypes)
+        return;
+
+    packet.crc32    = this->hashPacket();
+    packet.sequence = m_curSequence;
+    packet.type     = packetType;
+    packet.serial_check = Hasher::crc32(&SERIAL_CHECK,1);
+}
+
+unsigned short UdpPacketsExchanger::getPort() const
+{
+    return m_socket.getPort();
+}
 
 void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
 {
@@ -142,41 +184,48 @@ void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
     for(auto i = 0 ; i < nbr_frags ; ++i)
     {
         UdpPacket_Fragment packet_frag;
-        packet_frag.header.crc32    = hashPacket();
+        //this->generatePacketHeader(packet_frag, PacketType_Fragment);
+        /*packet_frag.header.crc32    = hashPacket();
         packet_frag.header.sequence = m_curSequence;
-        packet_frag.header.type     = PacketType_Fragment;
+        packet_frag.header.type     = PacketType_Fragment;*/
 
+        packet_frag.type        = PacketType_Fragment;
         packet_frag.frag_id     = (uint8_t)i;
         packet_frag.nbr_frags   = (uint8_t)nbr_frags;
 
-        auto startIt = packetBuffer.buffer.begin()+ i*MAX_PACKETSIZE;
-        auto endIt = packetBuffer.buffer.end();
+        auto startIt    = packetBuffer.buffer.begin()+ i*MAX_PACKETSIZE;
+        auto endIt      = packetBuffer.buffer.end();
         if((i+1)*MAX_PACKETSIZE < (int)packetBuffer.buffer.size())
             endIt = startIt+MAX_PACKETSIZE;
 
         packet_frag.frag_data.assign(startIt,endIt);   //= std::move(packetBuffer.buffer); // + i*MAX_PACKETSIZE;
         //packet_frag.frag_data = std::vector<uint8_t> (MAX_PACKETSIZE);
 
-        WriteStream stream;
+        /*WriteStream stream;
         UdpBuffer buffer;
         buffer.buffer.resize(packet_frag.serialize(&stream));
         stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
         packet_frag.serialize(&stream);
         buffer.address = packetBuffer.address;
 
-        this->sendPacket(buffer, true);
+        this->sendPacket(buffer, true);*/
+        this->sendPacket(packetBuffer.address, packet_frag, true);
     }
 }
 
 bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &destBuffer)
 {
-    ReadStream stream;
+    UdpPacket_Fragment packet_fragment;
+    if(!this->readPacket(packet_fragment, fragBuffer))
+        return (false);
+
+    /*ReadStream stream;
     UdpPacket_Fragment packet_fragment;
     fragBuffer.buffer.resize(packet_fragment.serialize(&stream));
     stream.setBuffer(fragBuffer.buffer.data(), fragBuffer.buffer.size());
-    packet_fragment.serialize(&stream);
+    packet_fragment.serialize(&stream);*/
 
-    std::cout<<"Packet fragment received : Seq="<<packet_fragment.header.sequence<<" ("<<packet_fragment.frag_id+1<<"/"<<packet_fragment.nbr_frags<<")"<<std::endl;
+    std::cout<<"Packet fragment received : Seq="<<packet_fragment.sequence<<" ("<<packet_fragment.frag_id+1<<"/"<<packet_fragment.nbr_frags<<")"<<std::endl;
 
 
     auto fragPacketsVectorIt = m_fragPacketsBuffer.find(fragBuffer.address);
@@ -185,25 +234,17 @@ bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &des
                                                          {m_curLocalTime,
                                                          std::vector<FragmentedPacket> (MAX_FRAGBUFFER_ENTRIES)}}).first;
 
-    auto &fragmentedPacket = fragPacketsVectorIt->second.second[packet_fragment.header.sequence%MAX_FRAGBUFFER_ENTRIES];
+    auto &fragmentedPacket = fragPacketsVectorIt->second.second[packet_fragment.sequence%MAX_FRAGBUFFER_ENTRIES];
     fragPacketsVectorIt->second.first = m_curLocalTime;
 
-    /*auto &fragPacketsMap = m_fragPacketsBuffer[packet_fragment.header.sequence%MAX_FRAGBUFFER_ENTRIES];
-    auto fragmentedPacketIt = fragPacketsMap.find(fragBuffer.address);
-
-    if(fragmentedPacketIt == fragPacketsMap.end())
-        fragmentedPacketIt = fragPacketsMap.insert({fragBuffer.address, FragmentedPacket ()}).first;
-
-    auto &fragmentedPacket = fragmentedPacketIt->second;*/
-
     if(fragmentedPacket.needToBeCleaned ||
-       fragmentedPacket.sequence != packet_fragment.header.sequence ||
+       fragmentedPacket.sequence != packet_fragment.sequence ||
        fragmentedPacket.birthday + MAX_FRAGPACKET_LIFESPAN < m_curLocalTime)
     {
         fragmentedPacket.needToBeCleaned = false;
         fragmentedPacket.nbr_receivedFrags = 0;
         fragmentedPacket.receivedFrags = std::vector<bool>(fragmentedPacket.receivedFrags.size(), false);
-        fragmentedPacket.sequence = packet_fragment.header.sequence;
+        fragmentedPacket.sequence = packet_fragment.sequence;
         fragmentedPacket.nbr_frags = packet_fragment.nbr_frags;
         fragmentedPacket.birthday = m_curLocalTime;
     }
@@ -212,7 +253,7 @@ bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &des
     {
         fragmentedPacket.nbr_receivedFrags++;
         fragmentedPacket.receivedFrags[packet_fragment.frag_id] = true;
-        fragmentedPacket.fragmentBuffers[packet_fragment.frag_id] = packet_fragment.frag_data;
+        fragmentedPacket.fragmentBuffers[packet_fragment.frag_id] = std::move(packet_fragment.frag_data);
     }
 
     if(fragmentedPacket.nbr_receivedFrags == fragmentedPacket.nbr_frags)
@@ -220,7 +261,7 @@ bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &des
         fragmentedPacket.needToBeCleaned = true;
         destBuffer.address = fragBuffer.address;
         destBuffer.buffer.resize(0);
-        destBuffer.buffer.reserve(MAX_PACKETSIZE*fragmentedPacket.nbr_frags);
+        destBuffer.buffer.reserve(fragmentedPacket.fragmentBuffers[0].size()*fragmentedPacket.nbr_frags);
 
         for(auto i = 0 ; i < fragmentedPacket.nbr_frags ; ++i)
             destBuffer.buffer.insert(destBuffer.buffer.end(),

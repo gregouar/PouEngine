@@ -11,8 +11,9 @@ namespace pou
 
 struct ClientInfos
 {
-    NetAddress          clientAddress;
+    NetAddress          address;
     ConnectionStatus    status;
+    float               lastPingTime;
 };
 
 class UdpServer : public AbstractServer
@@ -29,12 +30,26 @@ class UdpServer : public AbstractServer
     protected:
         virtual void receivePackets();
         virtual void processMessages(UdpBuffer &buffer);
+        virtual void processConnectionMessages(UdpBuffer &buffer);
+
+        virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg);
+
+        virtual void disconnectClient(uint16_t clientNbr);
+        virtual void denyConnectionFrom(NetAddress &address);
+        virtual void allowConnectionFrom(NetAddress &address);
+
+        uint16_t findClientIndex(NetAddress &address);
 
     private:
        //UdpSocket m_socket;
         UdpPacketsExchanger m_packetsExchanger;
 
         std::vector<ClientInfos> m_clients;
+
+        float m_deconnectionPingDelay;
+
+    public:
+        static const float DEFAULT_DECONNECTIONPINGDELAY;
 };
 
 }

@@ -3,7 +3,7 @@
 namespace pou
 {
 
-AbstractServer::AbstractServer() : m_isRunning(false), m_port(0)
+AbstractServer::AbstractServer() : m_isRunning(false), m_port(0), m_curLocalTime(0)
 {
     //ctor
 }
@@ -15,6 +15,7 @@ AbstractServer::~AbstractServer()
 
 void AbstractServer::update(const Time &elapsedTime)
 {
+    m_curLocalTime += elapsedTime.count();
     this->receivePackets();
     //this->processMessages();
 }

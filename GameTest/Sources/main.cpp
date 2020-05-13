@@ -1,3 +1,4 @@
+#include <string>
 #include <iostream>
 
 #include "PouEngine/utils/Logger.h"

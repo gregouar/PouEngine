@@ -14,9 +14,10 @@ namespace pou
 
 const float UdpClient::CONNECTING_ATTEMPT_DELAY = 1.0f;
 const float UdpClient::CONNECTING_MAX_TIME = 10.0f;
+const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 60.0f * 5;
 
 
-UdpClient::UdpClient()
+UdpClient::UdpClient() : m_deconnectionPingDelay(UdpClient::DEFAULT_DECONNECTIONPINGDELAY)
 {
     //ctor
 }
@@ -44,7 +45,7 @@ bool UdpClient::destroy()
     return (true);
 }
 
-bool UdpClient::connect(const NetAddress &serverAddress)
+bool UdpClient::connectToServer(const NetAddress &serverAddress)
 {
     m_connectionStatus  = ConnectionStatus_Connecting;
     m_serverAddress     = serverAddress;
@@ -54,8 +55,13 @@ bool UdpClient::connect(const NetAddress &serverAddress)
     return (true);
 }
 
-bool UdpClient::disconnect()
+bool UdpClient::disconnectFromServer()
 {
+    m_connectionStatus = ConnectionStatus_Disconnected;
+
+    for(auto i = 0 ; i < 5 ; ++i)
+        this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
+
     return (true);
 }
 
@@ -75,9 +81,13 @@ void UdpClient::update(const Time &elapsedTime)
         if(m_connectingTimer.update(elapsedTime))
         {
             m_connectionStatus = ConnectionStatus_Disconnected;
-            Logger::warning("Could not connect to "+m_serverAddress.getAddressString());
+            Logger::warning("Could not connect to: "+m_serverAddress.getAddressString());
         }
     }
+
+    if(m_connectionStatus == ConnectionStatus_Connected)
+        if(m_lastServerPingTime + m_deconnectionPingDelay < m_curLocalTime)
+            this->disconnectFromServer();
 
     m_packetsExchanger.update(elapsedTime);
 
@@ -107,44 +117,68 @@ void UdpClient::receivePackets()
 
 void UdpClient::processMessages(UdpBuffer &buffer)
 {
+    PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
+    if(m_connectionStatus != ConnectionStatus_Disconnected
+    && buffer.address == m_serverAddress)
+        m_lastServerPingTime = m_curLocalTime;
+
+    if(packetType == PacketType_ConnectionMsg)
+        this->processConnectionMessages(buffer);
+}
+
+
+void UdpClient::processConnectionMessages(UdpBuffer &buffer)
+{
+    UdpPacket_ConnectionMsg packet;
+    if(!m_packetsExchanger.readPacket(packet, buffer))
+        return;
+
+    if(packet.connectionMessage == ConnectionMessage_ConnectionAccepted)
+    {
+        Logger::write("Connected to server: "+buffer.address.getAddressString());
+        m_connectionStatus = ConnectionStatus_Connected;
+        return;
+    }
+    if(packet.connectionMessage == ConnectionMessage_ConnectionDenied)
+    {
+        Logger::write("Connection denied to server: "+buffer.address.getAddressString());
+        m_connectionStatus = ConnectionStatus_Disconnected;
+        return;
+    }
+    if(packet.connectionMessage == ConnectionMessage_Disconnection)
+    {
+        Logger::write("Disconnected from server: "+buffer.address.getAddressString());
+        m_connectionStatus = ConnectionStatus_Disconnected;
+        return;
+    }
+}
+
+void UdpClient::sendConnectionMsg(NetAddress &address, ConnectionMessage msg)
+{
+    UdpPacket_ConnectionMsg packet;
+    packet.type = PacketType_ConnectionMsg;
+    packet.connectionMessage = msg;
+    m_packetsExchanger.sendPacket(address,packet);
 }
 
 void UdpClient::tryToConnect()
 {
     Logger::write("Attempting to connect to "+m_serverAddress.getAddressString());
 
-    //UdpPacket_BigPacketTest connectionPacket;
-    UdpPacket_Header connectionPacket;
-    connectionPacket.crc32 = m_packetsExchanger.hashPacket();
-    connectionPacket.type = PacketType_Connection;
+    UdpPacket_ConnectionMsg connectionPacket;
+    //m_packetsExchanger.generatePacketHeader(connectionPacket, PacketType_Connection);
+    connectionPacket.type = PacketType_ConnectionMsg;
+    connectionPacket.connectionMessage = ConnectionMessage_ConnectionRequest;
 
-    //connectionPacket.dummy = 'h';
-
-    UdpBuffer buffer;
+    /*UdpBuffer buffer;
     WriteStream stream;
     buffer.buffer.resize(connectionPacket.serialize(&stream));
     stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
     connectionPacket.serialize(&stream);
-    buffer.address = m_serverAddress;
+    buffer.address = m_serverAddress;*/
 
-    /*int i = 1;
-    std::cout<<(bool)(buffer[i] & (uint8_t)128);
-    std::cout<<(bool)(buffer[i] & (uint8_t)64);
-    std::cout<<(bool)(buffer[i] & (uint8_t)32);
-    std::cout<<(bool)(buffer[i] & (uint8_t)16);
-    std::cout<<(bool)(buffer[i] & (uint8_t)8);
-    std::cout<<(bool)(buffer[i] & (uint8_t)4);
-    std::cout<<(bool)(buffer[i] & (uint8_t)2);
-    std::cout<<(bool)(buffer[i] & (uint8_t)1)<<std::endl;*/
-
-    /*UdpPacket_Header testPacket;
-    ReadStream rstream;
-    rstream.setBuffer(buffer.data(), buffer.size());
-    testPacket.Serialize<ReadStream>(rstream);
-    std::cout<<"Buffer CRC32:"<<testPacket.crc32<<std::endl;*/
-
-    m_packetsExchanger.sendPacket(buffer);
+    m_packetsExchanger.sendPacket(m_serverAddress, connectionPacket);
 }
 
 

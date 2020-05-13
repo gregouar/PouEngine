@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <string>
 #include <iostream>
 #include <map>
 #include "PouEngine/utils/singleton.h"

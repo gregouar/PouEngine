@@ -1,13 +1,13 @@
 
-#ifndef   POUENGINE_TYPES
-#define   POUENGINE_TYPES
-
-#include <iostream>
+#include <string>
+//#include <iostream>
 #include <chrono>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifndef   POUENGINE_TYPES
+#define   POUENGINE_TYPES
 
 #define PLATFORM_WINDOWS  1
 #define PLATFORM_MAC      2

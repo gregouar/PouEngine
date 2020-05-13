@@ -3,7 +3,7 @@
 namespace pou
 {
 
-AbstractClient::AbstractClient() : m_connectionStatus(ConnectionStatus_Disconnected), m_port(0)
+AbstractClient::AbstractClient() : m_connectionStatus(ConnectionStatus_Disconnected), m_port(0), m_curLocalTime(0)
 {
     //ctor
 }
@@ -15,6 +15,7 @@ AbstractClient::~AbstractClient()
 
 void AbstractClient::update(const Time &elapsedTime)
 {
+    m_curLocalTime += elapsedTime.count();
     this->receivePackets();
     //this->processMessages();
 }

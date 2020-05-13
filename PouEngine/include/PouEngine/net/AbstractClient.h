@@ -16,8 +16,8 @@ class AbstractClient
         virtual bool create(unsigned short port = 0) = 0;
         virtual bool destroy() = 0;
 
-        virtual bool connect(const NetAddress &serverAddress) = 0;
-        virtual bool disconnect() = 0;
+        virtual bool connectToServer(const NetAddress &serverAddress) = 0;
+        virtual bool disconnectFromServer() = 0;
 
         virtual void update(const Time &elapsedTime);
 
@@ -34,6 +34,7 @@ class AbstractClient
         ConnectionStatus m_connectionStatus;
         NetAddress m_serverAddress;
         unsigned short m_port;
+        float m_curLocalTime;
         //NetAddress m_address;
 
 };

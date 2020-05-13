@@ -43,7 +43,7 @@ void TestingState::init()
 
     m_gameServer.create(46969);
     m_gameClient.create(42420);
-    m_gameClient.connect(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
+    m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
 
     //m_camVelocity = glm::vec3(0);
     m_activeCroc = false;
@@ -278,7 +278,7 @@ void TestingState::entered()
 
 void TestingState::leaving()
 {
-    m_gameClient.disconnect();
+    m_gameClient.disconnectFromServer();
 
     delete m_mainInterface;
     m_mainInterface = nullptr;

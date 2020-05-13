@@ -68,10 +68,15 @@ bool NetAddress::operator<(const NetAddress &address) const
         (m_address == address.m_address && m_port < address.m_port);
 }
 
-bool NetAddress::operator() (const NetAddress& lhs, const NetAddress& rhs) const
+/*bool NetAddress::operator() (const NetAddress& lhs, const NetAddress& rhs) const
 {
     return (lhs.m_address < rhs.m_address) ||
         (lhs.m_address == rhs.m_address && lhs.m_port < rhs.m_port);
+}*/
+
+bool NetAddress::operator==(const NetAddress &address) const
+{
+    return (m_address == address.m_address && m_port == address.m_port);
 }
 
 

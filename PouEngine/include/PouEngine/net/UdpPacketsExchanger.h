@@ -1,11 +1,10 @@
 #ifndef UDPPACKETSEXCHANGER_H
 #define UDPPACKETSEXCHANGER_H
 
+#include "PouEngine/Types.h"
 #include "PouEngine/net/NetAddress.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/net/UdpSocket.h"
-#include "PouEngine/utils/Timer.h"
-
 
 #include <vector>
 #include <map>
@@ -38,16 +37,6 @@ struct FragmentedPacket
     int nbr_receivedFrags;
 };
 
-/*struct SequenceBuffer
-{
-    static const int MAX_ENTRIES = 256;
-
-    SequenceBuffer() : sequences(auto (MAX_ENTRIES)), entries(auto (MAX_ENTRIES))
-
-    std::vector<uint32_t> sequences;
-    std::vector<FragmentedPacket> entries;
-};*/
-
 class UdpPacketsExchanger
 {
     public:
@@ -57,19 +46,24 @@ class UdpPacketsExchanger
         bool createSocket(unsigned short port = 0);
         void destroy();
 
-        virtual void update(const Time &elapsedTime);
+        virtual void update(const pou::Time &elapsedTime);
 
+        virtual void sendPacket(NetAddress &address, UdpPacket &packet, bool forceNonFragSend = false);
         virtual void sendPacket(UdpBuffer &packetBuffer, bool forceNonFragSend = false);
         virtual void receivePackets(std::vector<UdpBuffer> &packetBuffers);
 
-        uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
 
+        void generatePacketHeader(UdpPacket &packet, PacketType packetType);
         PacketType readPacketType(UdpBuffer &packetBuffer);
+        bool readPacket(UdpPacket &packet, UdpBuffer &packetBuffer);
         unsigned short getPort() const;
 
     protected:
         void fragmentPacket(UdpBuffer &packetBuffer);
         bool reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &destBuffer);
+
+        uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
+        bool verifyPacketIntegrity(UdpPacket &packet);
 
         int getMaxPacketSize();
 

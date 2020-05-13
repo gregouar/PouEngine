@@ -27,20 +27,20 @@ void GameClient::cleanup()
     }
 }
 
-bool GameClient::connect(const pou::NetAddress &address)
+bool GameClient::connectToServer(const pou::NetAddress &address)
 {
     if(!m_client)
         return (false);
 
-    return m_client.get()->connect(address);
+    return m_client.get()->connectToServer(address);
 }
 
-bool GameClient::disconnect()
+bool GameClient::disconnectFromServer()
 {
     if(!m_client)
         return (false);
 
-    return m_client.get()->disconnect();
+    return m_client.get()->disconnectFromServer();
 }
 
 

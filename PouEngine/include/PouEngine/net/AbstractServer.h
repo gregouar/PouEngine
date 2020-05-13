@@ -27,10 +27,11 @@ class AbstractServer
         //virtual void processMessages() = 0;
 
     protected:
-        uint16_t    m_maxNbrClients;
+        //uint16_t    m_maxNbrClients;
         bool        m_isRunning;
 
         unsigned short m_port;
+        float m_curLocalTime;
         //NetAddress m_address;
 };
 

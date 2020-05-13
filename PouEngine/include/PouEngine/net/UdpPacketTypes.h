@@ -11,66 +11,102 @@ namespace pou
 
 static const int MAX_PACKETSIZE = 1024;
 static const int MAX_PACKETFRAGS = 256;
+static const int SERIAL_CHECK = 69420;
 
 enum PacketType
 {
-    PacketType_Fragment = 0,
-    PacketType_Connection,
-    PacketType_Diconnection,
-    PacketType_CustomData,
+    PacketType_Fragment,
+    PacketType_ConnectionMsg,
+    PacketType_Data,
     NBR_PacketTypes,
     PacketCorrupted,
 };
 
+enum ConnectionMessage
+{
+    ConnectionMessage_ConnectionRequest,
+    ConnectionMessage_Challenge,
+    ConnectionMessage_ConnectionAccepted,
+    ConnectionMessage_ConnectionDenied,
+    ConnectionMessage_Disconnection,
+    NBR_ConnectionMessages,
+};
+
 struct UdpPacket
 {
-    virtual void serializeImpl(Stream *stream) = 0;
+    int crc32;
+    int sequence;
+    int type;
+    int serial_check;
+
+    virtual void serializeImpl(Stream *stream){}
+
+    int serializeHeader(Stream *stream, bool flush = true)
+    {
+        stream->serializeBits(crc32, 32);
+        stream->serializeBits(sequence, 16);
+        stream->serializeInt(type, 0, NBR_PacketTypes-1);
+
+        if(flush)
+        {
+            stream->flush();
+            return stream->computeBytes();
+        }
+        return 0;
+    }
 
     int serialize(Stream *stream)
     {
-        //int bits = this->SerializeImpl(stream);
+        this->serializeHeader(stream, false);
         this->serializeImpl(stream);
+        stream->serializeBits(serial_check, 32);
+
         if(stream->isWriting()) stream->flush();
         return stream->computeBytes();
     }
 };
 
-struct UdpPacket_Header : UdpPacket
-{
-    int crc32;
-    int sequence;
-    int type;
 
-   // char ctest;
+struct UdpPacket_Fragment : UdpPacket
+{
+    int frag_id;
+    int nbr_frags;
+
+    std::vector<uint8_t> frag_data;
 
     void serializeImpl(Stream *stream)
     {
-        //int bits = (
-                    stream->serializeBits(crc32, 32); // +
-                    stream->serializeBits(sequence, 16); // +
-                    stream->serializeInteger(type, 0, NBR_PacketTypes-1);
-                   // );
-        //for(auto i = 0 ; i < 1800 ; ++i)
-                    //bits +=
-          //          stream->serializeChar(ctest);
+        frag_data.resize(MAX_PACKETSIZE);
 
-       // return (true);
+        stream->serializeBits(frag_id, 8);
+        stream->serializeBits(nbr_frags, 8);
+
+        stream->memcpy(frag_data.data(), frag_data.size());
+    }
+};
+
+struct UdpPacket_ConnectionMsg : UdpPacket
+{
+    int connectionMessage;
+
+
+    void serializeImpl(Stream *stream)
+    {
+        stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
+                                                NBR_ConnectionMessages-1);
     }
 };
 
 
+
+
 struct UdpPacket_BigPacketTest : UdpPacket
 {
-    UdpPacket_Header header;
-
     char ctest;
-
     char dummy;
 
     void serializeImpl(Stream *stream)
     {
-        header.serializeImpl(stream);
-
         for(auto i = 0 ; i < 1800 ; ++i)
                     stream->serializeChar(ctest);
 
@@ -81,51 +117,7 @@ struct UdpPacket_BigPacketTest : UdpPacket
     }
 };
 
-
-struct UdpPacket_Fragment : UdpPacket
-{
-    UdpPacket_Header header;
-    int frag_id;
-    int nbr_frags;
-
-    //uint8_t frag_data[MAX_PACKETSIZE];
-    std::vector<uint8_t> frag_data;
-
-    void serializeImpl(Stream *stream)
-    {
-        frag_data.resize(MAX_PACKETSIZE);
-        //int bits = (
-            header.serializeImpl(stream); // +
-            stream->serializeBits(frag_id, 8); // +
-            stream->serializeBits(nbr_frags, 8);
-             //   );
-
-        /*int zeroes = 0;
-        int rem_bits = 8 - bits%8;
-
-        bits += stream->serializeBits(zeroes, rem_bits);*/
-
-        /*if(stream->isWriting())
-        {
-
-            memcpy(buffer,frag_data,MAX_PACKETSIZE);
-        } else if(stream->isReading()) {
-            memcpy(frag_data,buffer,MAX_PACKETSIZE);
-        }
-
-        bits += MAX_PACKETSIZE*8;*/
-        //bits +=
-
-        //return bits;
-
-
-         stream->memcpy(frag_data.data(), frag_data.size());
-
-    }
-};
-
 }
-
 
 #endif // UDPPACKETTYPES_H
 

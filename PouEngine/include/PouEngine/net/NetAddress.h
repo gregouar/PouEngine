@@ -28,7 +28,8 @@ class NetAddress
         std::string getAddressString() const;
 
         bool operator<(const NetAddress &address) const;
-        bool operator() (const NetAddress& lhs, const NetAddress& rhs) const;
+        bool operator==(const NetAddress &address) const;
+        //bool operator() (const NetAddress& lhs, const NetAddress& rhs) const;
 
     private:
 

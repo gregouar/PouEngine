@@ -1,6 +1,8 @@
 #include "PouEngine/utils/WriteStream.h"
 
 #include <glm/glm.hpp>
+
+#include <string>
 #include <iostream>
 
 namespace pou
@@ -54,10 +56,14 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
 
 void BitWriter::memcpy(uint8_t *data, int data_size, int bytes_shift)
 {
-    assert(m_word_index*4 + bytes_shift + data_size <= m_bytes);
+    int index = m_word_index+1;
+
+    assert(index*4 + bytes_shift + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
 
-    std::memcpy( m_buffer + m_word_index * 4 + bytes_shift, data, data_size);
+    //std::cout<<"Write:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
+
+    std::memcpy( m_buffer + index * 4 + bytes_shift, data, data_size);
 }
 
 void BitWriter::flush()
@@ -158,7 +164,7 @@ void WriteStream::serializeBits(int32_t &value, int bits)
         m_writer.get()->writeBits(value, bits);
 }
 
-void WriteStream::serializeInteger(int32_t &value, int32_t min, int32_t max)
+void WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
 {
     assert(min < max);
     assert(value >= min);

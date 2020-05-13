@@ -15,7 +15,7 @@ class Timer
 
         virtual void reset(float time, bool looping = false);
         virtual int update(float elapsedTime);
-        virtual int update(const pou::Time &elapsedTime);
+        virtual int update(const Time &elapsedTime);
 
         bool isActive();
 
