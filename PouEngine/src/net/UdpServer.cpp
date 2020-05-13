@@ -36,7 +36,7 @@ bool UdpServer::start(uint16_t maxNbrClients, unsigned short port)
 
     m_port = m_packetsExchanger.getPort();
 
-    m_clients.resize(maxNbrClients,{NetAddress(), ConnectionStatus_Disconnected, 0, 0});
+    m_clients.resize(maxNbrClients);
 
     return (true);
 }

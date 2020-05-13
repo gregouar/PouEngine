@@ -37,6 +37,14 @@ struct FragmentedPacket
     int nbr_receivedFrags;
 };
 
+struct ReliableMessagesList
+{
+    ReliableMessagesList() : curId(0){}
+
+    std::list< std::shared_ptr<ReliableMessage> > msgList;
+    int curId;
+};
+
 class UdpPacketsExchanger
 {
     public:
@@ -52,6 +60,7 @@ class UdpPacketsExchanger
         virtual void sendPacket(UdpBuffer &packetBuffer, bool forceNonFragSend = false);
         virtual void receivePackets(std::vector<UdpBuffer> &packetBuffers);
 
+        virtual void sendReliableMessage(NetAddress &address, std::shared_ptr<ReliableMessage> msg);
 
         void generatePacketHeader(UdpPacket &packet, PacketType packetType);
         PacketType readPacketType(UdpBuffer &packetBuffer);
@@ -74,6 +83,7 @@ class UdpPacketsExchanger
         uint16_t    m_curSequence;
         float       m_curLocalTime;
         std::map< NetAddress, std::pair<float, std::vector<FragmentedPacket> > > m_fragPacketsBuffer;
+        std::map< NetAddress, ReliableMessagesList > m_reliableMsgLists;
 
     public:
         static const int MAX_FRAGBUFFER_ENTRIES;

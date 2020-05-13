@@ -442,10 +442,13 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     }
 
 
-    if(eventsManager->keyIsPressed(GLFW_KEY_Z))
+    if(eventsManager->keyPressed(GLFW_KEY_Z))
         m_gameClient.disconnectFromServer();
-    if(eventsManager->keyIsPressed(GLFW_KEY_X))
+    if(eventsManager->keyPressed(GLFW_KEY_X))
         m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
+
+    if(eventsManager->keyPressed(GLFW_KEY_I))
+        m_gameClient.sendReliableMsgTest();
 }
 
 void TestingState::update(const pou::Time &elapsedTime)

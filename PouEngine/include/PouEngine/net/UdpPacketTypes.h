@@ -4,6 +4,8 @@
 #include "PouEngine/utils/ReadStream.h"
 #include "PouEngine/utils/WriteStream.h"
 
+#include "PouEngine/net/NetEngine.h"
+
 #include <vector>
 
 namespace pou
@@ -41,6 +43,19 @@ struct UdpPacket
     int type;
     int serial_check;
 
+    int nbrReliableMessages;
+    std::vector< std::shared_ptr<ReliableMessage> > reliableMessages;
+
+    /*~UdpPacket()
+    {
+        while(!reliableMessages.empty())
+        {
+            delete reliableMessages.back();
+            reliableMessages.pop_back();
+        }
+    }*/
+    UdpPacket() : nbrReliableMessages(0){}
+
     virtual void serializeImpl(Stream *stream){}
 
     int serializeHeader(Stream *stream, bool flush = true)
@@ -61,13 +76,32 @@ struct UdpPacket
     {
         this->serializeHeader(stream, false);
         this->serializeImpl(stream);
+
+        stream->serializeBits(nbrReliableMessages, 8);
+
+        if(stream->isReading()) reliableMessages.resize(0);
+
+        for(int i = 0 ; i < nbrReliableMessages ; ++i)
+        {
+            int msg_type;
+
+            if((int)reliableMessages.size() > i)
+                msg_type = reliableMessages[i].get()->type;
+
+            stream->serializeInt(msg_type, 0, NetEngine::getNbrReliableMsgTypes());
+
+            if(stream->isReading())
+                reliableMessages.push_back(std::move(NetEngine::createReliableMessage(msg_type)));
+
+            reliableMessages[i]->serialize(stream, false);
+        }
+
         stream->serializeBits(serial_check, 32);
 
         if(stream->isWriting()) stream->flush();
         return stream->computeBytes();
     }
 };
-
 
 struct UdpPacket_Fragment : UdpPacket
 {

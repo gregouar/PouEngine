@@ -1,5 +1,7 @@
 #include "net/GameClient.h"
 
+#include "net/ReliableMessageTypes.h"
+
 GameClient::GameClient()
 {
     //ctor
@@ -50,6 +52,15 @@ void GameClient::update(const pou::Time &elapsedTime)
         return;
 
     m_client.get()->update(elapsedTime);
+}
+
+
+void GameClient::sendReliableMsgTest()
+{
+    auto testMsg = std::dynamic_pointer_cast<ReliableMessage_test>(pou::NetEngine::createReliableMessage(ReliableMessageType_Test));//std::make_shared<ReliableMessage_test> ();
+    testMsg.get()->test_value = 42;
+
+    m_client.get()->sendReliableMessage(std::move(testMsg));
 }
 
 

@@ -11,6 +11,8 @@ namespace pou
 
 struct ClientInfos
 {
+    ClientInfos() : address(), status(ConnectionStatus_Disconnected){};
+
     NetAddress          address;
     ConnectionStatus    status;
     float               lastPingTime;

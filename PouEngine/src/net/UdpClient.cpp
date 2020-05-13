@@ -125,6 +125,12 @@ void UdpClient::update(const Time &elapsedTime)
 }
 
 
+void UdpClient::sendReliableMessage(std::shared_ptr<ReliableMessage> msg)
+{
+    m_packetsExchanger.sendReliableMessage(m_serverAddress, std::move(msg));
+}
+
+
 void UdpClient::receivePackets()
 {
     /*NetAddress sender;

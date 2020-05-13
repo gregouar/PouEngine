@@ -103,6 +103,28 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     UdpBuffer buffer;
     WriteStream stream;
+
+    auto curPacketSize = packet.serialize(&stream);
+
+    if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
+    {
+        auto &reliableMsgList = m_reliableMsgLists[address];
+
+        /// Add messages in remaining size
+       // for(auto it = reliableMsgList.msgList.begin() ; it != reliableMsgList.msgList.end() ; ++it)
+        for(auto &it : reliableMsgList.msgList)
+        {
+            auto msgSize = it->serialize(&stream);
+            if(curPacketSize + msgSize > MAX_PACKETSIZE)
+                break;
+
+            packet.reliableMessages.push_back(it);
+            packet.nbrReliableMessages++;
+        }
+
+         //packet.nbrReliableMessages
+    }
+
     buffer.buffer.resize(packet.serialize(&stream));
     stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
     packet.serialize(&stream);
@@ -122,6 +144,13 @@ void UdpPacketsExchanger::sendPacket(UdpBuffer &packetBuffer, bool forceNonFragS
         m_curSequence++;
 }
 
+void UdpPacketsExchanger::sendReliableMessage(NetAddress &address, std::shared_ptr<ReliableMessage> msg)
+{
+    auto &reliableMsgList = m_reliableMsgLists[address];
+    msg.get()->id = reliableMsgList.curId++;
+    reliableMsgList.msgList.push_back(std::move(msg));
+}
+
 PacketType UdpPacketsExchanger::readPacketType(UdpBuffer &packetBuffer)
 {
     UdpPacket receivedPacket;
@@ -136,8 +165,8 @@ bool UdpPacketsExchanger::readPacket(UdpPacket &packet, UdpBuffer &packetBuffer)
 {
     ReadStream stream;
 
-    if((int)packetBuffer.buffer.size() < packet.serialize(&stream))
-        return (false);
+    //if((int)packetBuffer.buffer.size() < packet.serialize(&stream))
+    //    return (false);
 
     stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
     packet.serialize(&stream);
@@ -156,7 +185,7 @@ bool UdpPacketsExchanger::verifyPacketIntegrity(UdpPacket &packet)
 
     if((uint32_t)packet.serial_check != Hasher::crc32(&SERIAL_CHECK,1))
     {
-        //std::cout<<"Serial check failed !"<<std::endl;
+        std::cout<<"Serial check failed !"<<std::endl;
         packet.type = PacketCorrupted;
     }
 
@@ -172,6 +201,7 @@ void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType pac
     packet.sequence = m_curSequence;
     packet.type     = packetType;
     packet.serial_check = Hasher::crc32(&SERIAL_CHECK,1);
+    packet.nbrReliableMessages = 0;
 }
 
 unsigned short UdpPacketsExchanger::getPort() const

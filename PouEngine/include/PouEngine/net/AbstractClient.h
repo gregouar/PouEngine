@@ -2,7 +2,10 @@
 #define ABSTRACTCLIENT_H
 
 #include "PouEngine/net/NetAddress.h"
+#include "PouEngine/net/ReliableMessagesFactory.h"
 #include "PouEngine/Types.h"
+
+#include <memory>
 
 namespace pou
 {
@@ -20,6 +23,8 @@ class AbstractClient
         virtual bool disconnectFromServer() = 0;
 
         virtual void update(const Time &elapsedTime);
+
+        virtual void sendReliableMessage(std::shared_ptr<ReliableMessage> msg) = 0;
 
         bool isConnected() const;
         const NetAddress &getServerAddress() const;

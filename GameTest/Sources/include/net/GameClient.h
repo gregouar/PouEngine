@@ -20,6 +20,8 @@ class GameClient
         //const pou::NetAddress &getAddress() const;
         unsigned short getPort() const;
 
+        void sendReliableMsgTest();
+
     protected:
         void cleanup();
 

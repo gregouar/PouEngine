@@ -22,6 +22,9 @@ class UdpClient : public AbstractClient
 
         virtual void update(const Time &elapsedTime);
 
+        virtual void sendReliableMessage(std::shared_ptr<ReliableMessage> msg);
+
+
     protected:
         virtual void receivePackets();
         virtual void processMessages(UdpBuffer &buffer);

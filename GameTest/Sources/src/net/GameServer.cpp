@@ -1,8 +1,12 @@
 #include "net/GameServer.h"
 
+#include "net/ReliableMessageTypes.h"
+
 GameServer::GameServer()
 {
-    //ctor
+    auto testMsg = std::make_unique<ReliableMessage_test> ();
+    testMsg.get()->type = ReliableMessageType_Test;
+    pou::NetEngine::addReliableMessageModel(std::move(testMsg));
 }
 
 GameServer::~GameServer()
@@ -47,5 +51,10 @@ unsigned short GameServer::getPort() const
     if(!m_server)
         return 0;
     return m_server.get()->getPort();
+}
+
+void GameServer::sendReliableMsgTest()
+{
+
 }
 
