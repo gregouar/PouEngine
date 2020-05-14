@@ -6,6 +6,8 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
 
+///Need to keep track of clients connected to the server somehow
+
 class GameServer
 {
     public:
@@ -19,10 +21,12 @@ class GameServer
         //const pou::NetAddress *getAddress() const;
         unsigned short getPort() const;
 
-        void sendReliableMsgTest();
+        void sendMsgTest(bool reliable, bool forceSend);
 
     protected:
         void cleanup();
+
+        void processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg);
 
     private:
         std::unique_ptr<pou::AbstractServer> m_server;

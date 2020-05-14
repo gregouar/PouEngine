@@ -46,10 +46,10 @@ struct UdpPacket
     int salt;
     int serial_check;
 
-    int nbrReliableMessages;
-    std::vector< std::shared_ptr<ReliableMessage> > reliableMessages;
+    int nbrNetMessages;
+    std::vector< std::shared_ptr<NetMessage> > netMessages;
 
-    UdpPacket() : nbrReliableMessages(0){}
+    UdpPacket() : nbrNetMessages(0){}
 
     virtual void serializeImpl(Stream *stream){}
 
@@ -74,18 +74,18 @@ struct UdpPacket
     {
         this->serializeHeader(stream, false);
 
-        stream->serializeBits(nbrReliableMessages, 8);
-        if(stream->isReading()) reliableMessages.resize(0);
-        for(int i = 0 ; i < nbrReliableMessages ; ++i)
+        stream->serializeBits(nbrNetMessages, 8);
+        if(stream->isReading()) netMessages.resize(0);
+        for(int i = 0 ; i < nbrNetMessages ; ++i)
         {
             int msg_type;
-            if((int)reliableMessages.size() > i)
-                msg_type = reliableMessages[i].get()->type;
-            stream->serializeInt(msg_type, 0, NetEngine::getNbrReliableMsgTypes());
+            if((int)netMessages.size() > i)
+                msg_type = netMessages[i].get()->type;
+            stream->serializeInt(msg_type, 0, NetEngine::getNbrNetMsgTypes());
             if(stream->isReading())
-                reliableMessages.push_back(NetEngine::createReliableMessage(msg_type));
-            if(reliableMessages[i])
-                reliableMessages[i]->serialize(stream, false);
+                netMessages.push_back(NetEngine::createNetMessage(msg_type));
+            if(netMessages[i])
+                netMessages[i]->serialize(stream, false);
         }
 
         stream->serializeBits(serial_check, 32);

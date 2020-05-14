@@ -125,22 +125,22 @@ void UdpClient::update(const Time &elapsedTime)
 }
 
 
-void UdpClient::sendReliableMessage(std::shared_ptr<ReliableMessage> msg)
+void UdpClient::sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend)
 {
     if(m_connectionStatus != ConnectionStatus_Connected)
     {
-        Logger::warning("Client cannot send reliable message if not connected");
+        Logger::warning("Client cannot send message if not connected");
         return;
     }
     ClientAddress clientAddress = {m_serverAddress, m_serverSalt^m_salt};
-    m_packetsExchanger.sendReliableMessage(clientAddress, std::move(msg));
+    m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
 }
 
 
-void UdpClient::receivePackets()
+void UdpClient::receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages)
 {
     std::list<UdpBuffer> packet_buffers;
-    std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > reliableMessages;
+    std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > reliableMessages;
 
     m_packetsExchanger.receivePackets(packet_buffers,reliableMessages);
 
@@ -148,7 +148,12 @@ void UdpClient::receivePackets()
         this->processPacket(buffer);
 
     for(auto &msg : reliableMessages)
-        this->processMessage(msg);
+    {
+        if(msg.first.address == m_serverAddress &&
+           msg.first.salt == (m_salt ^ m_serverSalt))
+            netMessages.push_back(msg.second);
+        //this->processMessage(msg);
+    }
 }
 
 void UdpClient::processPacket(UdpBuffer &buffer)
@@ -163,14 +168,14 @@ void UdpClient::processPacket(UdpBuffer &buffer)
         this->processConnectionMessages(buffer);
 }
 
-void UdpClient::processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage)
+/*void UdpClient::processMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage)
 {
     if(!(addressAndMessage.first.address == m_serverAddress) ||
        addressAndMessage.first.salt != (m_salt ^ m_serverSalt))
         return;
 
     std::cout<<"The client has got a reliable message dude ! Id:"<<addressAndMessage.second->id<<std::endl;
-}
+}*/
 
 void UdpClient::processConnectionMessages(UdpBuffer &buffer)
 {

@@ -68,10 +68,34 @@ void UdpServer::update(const Time &elapsedTime)
     AbstractServer::update(elapsedTime);
 }
 
-void UdpServer::receivePackets()
+
+void UdpServer::sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend)
+{
+    /*if(m_connectionStatus != ConnectionStatus_Connected)
+    {
+        Logger::warning("Client cannot send message if not connected");
+        return;
+    }
+    ClientAddress clientAddress = {m_serverAddress, m_serverSalt^m_salt};
+    m_packetsExchanger.sendMessage(clientAddress, msg);*/
+
+    if(clientNbr >= m_clients.size())
+        return;
+
+    auto &client = m_clients[clientNbr];
+
+    if(client.status != ConnectionStatus_Connected)
+        return;
+
+    ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
+    m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
+}
+
+
+void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages)
 {
     std::list<UdpBuffer> packet_buffers;
-    std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > reliableMessages;
+    std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > reliableMessages;
 
     m_packetsExchanger.receivePackets(packet_buffers,reliableMessages);
 
@@ -79,18 +103,25 @@ void UdpServer::receivePackets()
         this->processPacket(buffer);
 
     for(auto &msg : reliableMessages)
-        this->processMessage(msg);
+    {
+        auto clientNbr = findClientIndex(msg.first.address,
+                                         msg.first.salt);
+        if(clientNbr < m_clients.size());
+            netMessages.push_back({clientNbr, msg.second});
+    }
+        //this->processMessage(msg);
 }
 
-void UdpServer::processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage)
+/*void UdpServer::verifyMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage)
 {
     auto clientNbr = findClientIndex(addressAndMessage.first.address,
                                      addressAndMessage.first.salt);
     if(clientNbr >= m_clients.size())
         return;
 
+
     std::cout<<"The server has got a reliable message dude ! Id:"<<addressAndMessage.second->id<<std::endl;
-}
+}*/
 
 
 void UdpServer::processPacket(UdpBuffer &buffer)
@@ -239,6 +270,12 @@ uint16_t UdpServer::findClientIndex(NetAddress &address, int salt)
             && (m_clients[i].clientSalt == salt || (m_clients[i].clientSalt^m_clients[i].serverSalt) == salt) )
                 return i;
         }
+    return m_clients.size();
+}
+
+
+uint16_t UdpServer::getMaxNbrClients() const
+{
     return m_clients.size();
 }
 

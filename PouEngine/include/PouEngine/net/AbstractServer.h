@@ -2,7 +2,10 @@
 #define ABSTRACTSERVER_H
 
 #include "PouEngine/net/NetAddress.h"
+#include "PouEngine/net/NetMessagesFactory.h"
 #include "PouEngine/Types.h"
+
+#include <list>
 
 namespace pou
 {
@@ -18,12 +21,15 @@ class AbstractServer
 
         virtual void update(const Time &elapsedTime);
 
+        virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend = false) = 0;
+        virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages) = 0;
+
         bool isRunning() const;
         unsigned short getPort() const;
+        virtual uint16_t getMaxNbrClients() const = 0;
         //const NetAddress &getAddress() const;
 
     protected:
-        virtual void receivePackets() = 0;
         //virtual void processMessages() = 0;
 
     protected:

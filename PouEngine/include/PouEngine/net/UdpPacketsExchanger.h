@@ -50,11 +50,12 @@ struct FragmentedPacket
     int nbr_receivedFrags;
 };
 
-struct ReliableMessagesList
+struct NetMessagesList
 {
-    ReliableMessagesList() : curId(0), last_ack(-1), ack_bits(0){}
+    NetMessagesList() : curId(0), last_ack(-1), ack_bits(0){}
 
-    std::map<int, std::shared_ptr<ReliableMessage> > msgList;
+    std::map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
+    std::list<std::shared_ptr<NetMessage> > nonReliableMsgList;
     int curId;
 
     int last_ack;
@@ -68,8 +69,10 @@ struct ReliableMessagesBuffer
     ReliableMessagesBuffer() : last_id(-1){}
 
     int last_id;
-    std::map<int, std::shared_ptr<ReliableMessage> > msgMap;
+    std::map<int, std::shared_ptr<NetMessage> > msgMap;
 };
+
+///Need to add cleaning of old m_fragPacketsBuffer, m_reliableMsgLists, m_reliableMsgBuffers
 
 class UdpPacketsExchanger
 {
@@ -85,9 +88,9 @@ class UdpPacketsExchanger
         virtual void sendPacket(NetAddress &address, UdpPacket &packet, bool forceNonFragSend = false);
         virtual void sendPacket(UdpBuffer &packetBuffer, bool forceNonFragSend = false);
         virtual void receivePackets(std::list<UdpBuffer> &packetBuffers,
-                                    std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > &reliableMessages);
+                                    std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages);
 
-        virtual void sendReliableMessage(ClientAddress &address, std::shared_ptr<ReliableMessage> msg);
+        virtual void sendMessage(ClientAddress &address, std::shared_ptr<NetMessage> msg, bool forceSend = false);
 
         void generatePacketHeader(UdpPacket &packet, PacketType packetType);
         PacketType readPacketType(UdpBuffer &packetBuffer);
@@ -103,7 +106,8 @@ class UdpPacketsExchanger
 
         int getMaxPacketSize();
 
-        PacketType checkMessagesAndAck(UdpBuffer &packetBuffer);
+        PacketType retrieveMessagesAndAck(UdpBuffer &packetBuffer,
+                                std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages);
 
     private:
         int m_maxPacketSize;
@@ -112,7 +116,7 @@ class UdpPacketsExchanger
         uint16_t    m_curSequence;
         float       m_curLocalTime;
         std::map< ClientAddress, std::pair<float, std::vector<FragmentedPacket> > > m_fragPacketsBuffer;
-        std::map< ClientAddress, ReliableMessagesList > m_reliableMsgLists;
+        std::map< ClientAddress, NetMessagesList > m_netMsgLists;
         std::map< ClientAddress, ReliableMessagesBuffer > m_reliableMsgBuffers;
 
     public:

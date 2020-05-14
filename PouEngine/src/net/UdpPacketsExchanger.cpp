@@ -62,7 +62,7 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
 }
 
 void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
-                                         std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > &reliableMessages)
+                                         std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages)
 {
     UdpBuffer tempBuffer;
     tempBuffer.buffer.resize(m_maxPacketSize);
@@ -78,7 +78,7 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
 
         //std::cout<<"Received packet from"<<tempBuffer.address.getAddressString()<<std::endl;
 
-        auto packetType = checkMessagesAndAck(tempBuffer);
+        auto packetType = retrieveMessagesAndAck(tempBuffer, netMessages);
 
         if(packetType == PacketType_Fragment)
         {
@@ -96,7 +96,7 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
         if(!reliableMsgBuffer.msgMap.empty())
         while(reliableMsgBuffer.last_id+1 == reliableMsgBuffer.msgMap.begin()->first)
         {
-            reliableMessages.push_back({it.first, reliableMsgBuffer.msgMap.begin()->second});
+            netMessages.push_back({it.first, reliableMsgBuffer.msgMap.begin()->second});
             reliableMsgBuffer.msgMap.erase(reliableMsgBuffer.msgMap.begin());
             reliableMsgBuffer.last_id++;
         }
@@ -122,22 +122,45 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     //if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
     {
-        auto &reliableMsgList = m_reliableMsgLists[{address, packet.salt}];
+        auto &netMsgList = m_netMsgLists[{address, packet.salt}];
 
-        packet.last_ack = reliableMsgList.last_ack;
-        packet.ack_bits = reliableMsgList.ack_bits;
+        packet.last_ack = netMsgList.last_ack;
+        packet.ack_bits = netMsgList.ack_bits;
 
-        for(auto &it : reliableMsgList.msgList)
+        for(auto &it : netMsgList.reliableMsgMap)
         {
             auto msgSize = it.second->serialize(&stream) + 2;
-            if(curPacketSize + msgSize > MAX_PACKETSIZE)
+            if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
                 break;
             curPacketSize += msgSize;
 
-            packet.reliableMessages.push_back(it.second);
-            packet.nbrReliableMessages++;
+            packet.netMessages.push_back(it.second);
+            packet.nbrNetMessages++;
 
-            reliableMsgList.msgPerPacket.insert({packet.sequence, it.first});
+            netMsgList.msgPerPacket.insert({packet.sequence, it.first});
+
+            if(curPacketSize > MAX_PACKETSIZE)
+                break;
+        }
+
+        //for(auto &it : netMsgList.nonReliableMsgList)
+        for(auto it = netMsgList.nonReliableMsgList.begin() ;
+            it != netMsgList.nonReliableMsgList.end() ; ++it)
+        {
+            auto msgSize = (*it)->serialize(&stream) + 2;
+
+            if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
+                break;
+
+            curPacketSize += msgSize;
+
+            packet.netMessages.push_back((*it));
+            packet.nbrNetMessages++;
+
+            it = netMsgList.nonReliableMsgList.erase(it);
+
+            if(curPacketSize > MAX_PACKETSIZE)
+                break;
         }
     }
 
@@ -160,12 +183,32 @@ void UdpPacketsExchanger::sendPacket(UdpBuffer &packetBuffer, bool forceNonFragS
         m_curSequence++;
 }
 
-void UdpPacketsExchanger::sendReliableMessage(ClientAddress &address, std::shared_ptr<ReliableMessage> msg)
+void UdpPacketsExchanger::sendMessage(ClientAddress &address, std::shared_ptr<NetMessage> msg, bool forceSend)
 {
-    auto &reliableMsgList = m_reliableMsgLists[address];
-    msg.get()->id = reliableMsgList.curId++;
-    std::cout<<"Sending reliable message with id: "<<msg.get()->id<<std::endl;
-    reliableMsgList.msgList.insert({msg.get()->id, std::move(msg)});
+    auto &netMsgList = m_netMsgLists[address];
+
+    if(msg->isReliable)
+    {
+        msg->id = netMsgList.curId++;
+        std::cout<<"Sending reliable message with id: "<<msg->id<<std::endl;
+        netMsgList.reliableMsgMap.insert({msg->id, msg});
+    } else {
+        msg->id = -1;
+        if(forceSend)
+            netMsgList.nonReliableMsgList.push_front(msg);
+        else
+            netMsgList.nonReliableMsgList.push_back(msg);
+    }
+
+    if(forceSend)
+    {
+        /** build empty dataPacket and send it, at least one message will be added ! **/
+        /** need to be careful how we choose the message ; add bool in sendPacket for that ? for the moment we send at least one of each if possible **/
+        UdpPacket packet;
+        packet.type = PacketType_Data;
+        packet.salt = address.salt;
+        this->sendPacket(address.address,packet);
+    }
 }
 
 PacketType UdpPacketsExchanger::readPacketType(UdpBuffer &packetBuffer)
@@ -222,7 +265,7 @@ void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType pac
 
     packet.type     = packetType;
     packet.serial_check = Hasher::crc32(&SERIAL_CHECK,1);
-    packet.nbrReliableMessages = 0;
+    packet.nbrNetMessages = 0;
 }
 
 unsigned short UdpPacketsExchanger::getPort() const
@@ -317,7 +360,8 @@ int UdpPacketsExchanger::getMaxPacketSize()
     return packet_frag.serialize(&stream);
 }
 
-PacketType UdpPacketsExchanger::checkMessagesAndAck(UdpBuffer &packetBuffer)
+PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
+                                std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages)
 {
     UdpPacket packet;
     ReadStream stream;
@@ -328,40 +372,42 @@ PacketType UdpPacketsExchanger::checkMessagesAndAck(UdpBuffer &packetBuffer)
         return PacketCorrupted;
 
     ClientAddress clientAddress = {packetBuffer.address, packet.salt};
-    auto &reliableMsgList = m_reliableMsgLists[clientAddress];
+    auto &netMsgList = m_netMsgLists[clientAddress];
 
     //We remove from the msgList the messages that have been ack
     for(auto i = 0 ; i < 32 ; ++i)
     if(packet.ack_bits & ((int)1 << i))
     {
         auto packet_seq = packet.last_ack - i;
-        auto msg_ids = reliableMsgList.msgPerPacket.equal_range(packet_seq);
+        auto msg_ids = netMsgList.msgPerPacket.equal_range(packet_seq);
         //for(auto id : msg_ids)
         for(auto id = msg_ids.first ; id != msg_ids.second ; ++id)
-            reliableMsgList.msgList.erase(id->second);
-        reliableMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);
+            netMsgList.reliableMsgMap.erase(id->second);
+        netMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);
     }
-
 
     //We update the last_ack received and ack_bit
     auto seq = packet.sequence;
-
-    //auto prec_ack = reliableMsgList.last_ack;
-    if(reliableMsgList.last_ack < seq)
+    if(netMsgList.last_ack < seq)
     {
-        reliableMsgList.ack_bits <<= seq - reliableMsgList.last_ack;
-        reliableMsgList.last_ack = seq;
+        netMsgList.ack_bits <<= seq - netMsgList.last_ack;
+        netMsgList.last_ack = seq;
     }
+    netMsgList.ack_bits |= (((int)1) << (netMsgList.last_ack - seq));
 
-    reliableMsgList.ack_bits |= (((int)1) << (reliableMsgList.last_ack - seq));
-
+    //We retrieve the messages
     auto &reliableMsgBuffer = m_reliableMsgBuffers[clientAddress];
-    for(auto msg : packet.reliableMessages)
+    for(auto msg : packet.netMessages)
     if(msg)
     {
-        //std::cout<<"I have got a reliable message dude, id:"<<msg->id<<std::endl;
-        if(reliableMsgBuffer.last_id < msg->id)
-            reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
+        if(msg->isReliable)
+        {
+            //std::cout<<"I have got a reliable message dude, id:"<<msg->id<<std::endl;
+            if(reliableMsgBuffer.last_id < msg->id)
+                reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
+        } else {
+            netMessages.push_back({clientAddress, msg});
+        }
     }
 
     return (PacketType)packet.type;

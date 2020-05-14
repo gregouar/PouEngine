@@ -447,8 +447,10 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_X))
         m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
 
-    if(eventsManager->keyIsPressed(GLFW_KEY_I))
-        m_gameClient.sendReliableMsgTest();
+    if(eventsManager->keyPressed(GLFW_KEY_I))
+        m_gameClient.sendMsgTest(false,true);
+    if(eventsManager->keyPressed(GLFW_KEY_O))
+        m_gameServer.sendMsgTest(true,false);
 }
 
 void TestingState::update(const pou::Time &elapsedTime)

@@ -16,7 +16,7 @@ AbstractServer::~AbstractServer()
 void AbstractServer::update(const Time &elapsedTime)
 {
     m_curLocalTime += elapsedTime.count();
-    this->receivePackets();
+    //this->receivePackets();
     //this->processMessages();
 }
 

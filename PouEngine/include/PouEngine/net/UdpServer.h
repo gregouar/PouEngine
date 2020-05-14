@@ -32,10 +32,14 @@ class UdpServer : public AbstractServer
 
         virtual void update(const Time &elapsedTime);
 
+        virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend);
+        virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
+
+        virtual uint16_t getMaxNbrClients() const;
+
     protected:
-        virtual void receivePackets();
         virtual void processPacket(UdpBuffer &buffer);
-        virtual void processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage);
+        //virtual int  verifyMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage);
         virtual void processConnectionMessages(UdpBuffer &buffer);
 
         virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);

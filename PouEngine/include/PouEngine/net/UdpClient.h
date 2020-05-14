@@ -22,13 +22,12 @@ class UdpClient : public AbstractClient
 
         virtual void update(const Time &elapsedTime);
 
-        virtual void sendReliableMessage(std::shared_ptr<ReliableMessage> msg);
-
+        virtual void sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend);
+        virtual void receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages);
 
     protected:
-        virtual void receivePackets();
         virtual void processPacket(UdpBuffer &buffer);
-        virtual void processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage);
+        //virtual void processMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage);
         virtual void processConnectionMessages(UdpBuffer &buffer);
 
         virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg);

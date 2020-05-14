@@ -44,19 +44,19 @@ std::unique_ptr<AbstractClient> NetEngine::createClient()
 }
 
 
-void NetEngine::addReliableMessageModel(std::unique_ptr<ReliableMessage> msgModel)
+void NetEngine::addNetMessageModel(std::unique_ptr<NetMessage> msgModel)
 {
-    instance()->m_reliableMsgFactory.addReliableMessageModel(std::move(msgModel));
+    instance()->m_netMsgFactory.addMessageModel(std::move(msgModel));
 }
 
-std::shared_ptr<ReliableMessage> NetEngine::createReliableMessage(int type)
+std::shared_ptr<NetMessage> NetEngine::createNetMessage(int type)
 {
-    return std::move(instance()->m_reliableMsgFactory.createReliableMessage(type));
+    return std::move(instance()->m_netMsgFactory.createMessage(type));
 }
 
-int NetEngine::getNbrReliableMsgTypes()
+int NetEngine::getNbrNetMsgTypes()
 {
-    return instance()->m_reliableMsgFactory.getNbrReliableMsgTypes();
+    return instance()->m_netMsgFactory.getNbrMsgTypes();
 }
 
 }

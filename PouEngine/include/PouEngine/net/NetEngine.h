@@ -5,7 +5,7 @@
 
 #include "PouEngine/utils/Singleton.h"
 #include "PouEngine/net/AbstractNetImpl.h"
-#include "PouEngine/net/ReliableMessagesFactory.h"
+#include "PouEngine/net/NetMessagesFactory.h"
 
 namespace pou
 {
@@ -24,15 +24,15 @@ class NetEngine  : public Singleton<NetEngine>
         static std::unique_ptr<AbstractServer> createServer();
         static std::unique_ptr<AbstractClient> createClient();
 
-        static void addReliableMessageModel(std::unique_ptr<ReliableMessage> msgModel);
-        static std::shared_ptr<ReliableMessage> createReliableMessage(int type);
-        static int getNbrReliableMsgTypes();
+        static void addNetMessageModel(std::unique_ptr<NetMessage> msgModel);
+        static std::shared_ptr<NetMessage> createNetMessage(int type);
+        static int getNbrNetMsgTypes();
 
     protected:
 
     private:
         std::unique_ptr<AbstractNetImpl> m_impl;
-        ReliableMessagesFactory m_reliableMsgFactory;
+        NetMessagesFactory m_netMsgFactory;
 };
 
 }

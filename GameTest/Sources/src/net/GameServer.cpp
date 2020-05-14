@@ -1,12 +1,12 @@
 #include "net/GameServer.h"
 
-#include "net/ReliableMessageTypes.h"
+#include "net/NetMessageTypes.h"
 
 GameServer::GameServer()
 {
-    auto testMsg = std::make_unique<ReliableMessage_test> ();
-    testMsg.get()->type = ReliableMessageType_Test;
-    pou::NetEngine::addReliableMessageModel(std::move(testMsg));
+    auto testMsg = std::make_unique<NetMessage_test> ();
+    testMsg.get()->type = NetMessageType_Test;
+    pou::NetEngine::addNetMessageModel(std::move(testMsg));
 }
 
 GameServer::~GameServer()
@@ -36,7 +36,13 @@ void GameServer::update(const pou::Time &elapsedTime)
     if(!m_server)
         return;
 
-    m_server.get()->update(elapsedTime);
+    m_server->update(elapsedTime);
+
+    std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
+    m_server->receivePackets(netMessages);
+
+    for(auto &clientAndMsg : netMessages)
+        this->processMessage(clientAndMsg.first, clientAndMsg.second);
 }
 
 /*const pou::NetAddress *GameServer::getAddress() const
@@ -53,8 +59,28 @@ unsigned short GameServer::getPort() const
     return m_server.get()->getPort();
 }
 
-void GameServer::sendReliableMsgTest()
+void GameServer::sendMsgTest(bool reliable, bool forceSend)
 {
+    for(auto i = 0 ; i < m_server->getMaxNbrClients() ; ++i)
+    {
+        auto testMsg = std::dynamic_pointer_cast<NetMessage_test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
+        testMsg->test_value = 36;
+        testMsg->isReliable = reliable;
 
+        m_server->sendMessage(i,testMsg, forceSend);
+    }
+}
+
+
+void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg)
+{
+    if(!msg)
+        return;
+
+    if(msg->type == NetMessageType_Test)
+    {
+        auto castMsg = std::dynamic_pointer_cast<NetMessage_test>(msg);
+        std::cout<<"Server received test message from client #"<<clientNbr<<" with value="<<castMsg->test_value<<" and id "<<castMsg->id<<std::endl;
+    }
 }
 
