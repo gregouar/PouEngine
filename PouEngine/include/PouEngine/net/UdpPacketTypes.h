@@ -43,19 +43,12 @@ struct UdpPacket
     int type;
     int last_ack;
     int ack_bits;
+    int salt;
     int serial_check;
 
     int nbrReliableMessages;
     std::vector< std::shared_ptr<ReliableMessage> > reliableMessages;
 
-    /*~UdpPacket()
-    {
-        while(!reliableMessages.empty())
-        {
-            delete reliableMessages.back();
-            reliableMessages.pop_back();
-        }
-    }*/
     UdpPacket() : nbrReliableMessages(0){}
 
     virtual void serializeImpl(Stream *stream){}
@@ -63,6 +56,7 @@ struct UdpPacket
     int serializeHeader(Stream *stream, bool flush = true)
     {
         stream->serializeBits(crc32, 32);
+        stream->serializeBits(salt, SALT_SIZE);
         stream->serializeBits(sequence, 16);
         stream->serializeBits(last_ack, 16);
         stream->serializeBits(ack_bits, 32);
@@ -89,9 +83,12 @@ struct UdpPacket
                 msg_type = reliableMessages[i].get()->type;
             stream->serializeInt(msg_type, 0, NetEngine::getNbrReliableMsgTypes());
             if(stream->isReading())
-                reliableMessages.push_back(std::move(NetEngine::createReliableMessage(msg_type)));
-            reliableMessages[i]->serialize(stream, false);
+                reliableMessages.push_back(NetEngine::createReliableMessage(msg_type));
+            if(reliableMessages[i])
+                reliableMessages[i]->serialize(stream, false);
         }
+
+        stream->serializeBits(serial_check, 32);
 
         if(flush)
         {
@@ -104,9 +101,7 @@ struct UdpPacket
     int serialize(Stream *stream)
     {
         this->serializeHeaderAndMessages(stream, false);
-
         this->serializeImpl(stream);
-
         stream->serializeBits(serial_check, 32);
 
         if(stream->isWriting()) stream->flush();
@@ -135,7 +130,6 @@ struct UdpPacket_Fragment : UdpPacket
 struct UdpPacket_ConnectionMsg : UdpPacket
 {
     int connectionMessage;
-    int salt;
 
     //int connectionData;
 
@@ -146,7 +140,6 @@ struct UdpPacket_ConnectionMsg : UdpPacket
 
         stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
                                                 NBR_ConnectionMessages-1);
-        stream->serializeBits(salt, SALT_SIZE);
 
         //for(auto i = 0 ; i <  500 ; ++i)
         //stream->serializeBits(connectionData, 16);

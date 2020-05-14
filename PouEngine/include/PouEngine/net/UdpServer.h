@@ -34,7 +34,8 @@ class UdpServer : public AbstractServer
 
     protected:
         virtual void receivePackets();
-        virtual void processMessages(UdpBuffer &buffer);
+        virtual void processPacket(UdpBuffer &buffer);
+        virtual void processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage);
         virtual void processConnectionMessages(UdpBuffer &buffer);
 
         virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);

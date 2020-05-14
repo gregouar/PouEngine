@@ -10,7 +10,7 @@ void ReliableMessage::serializeImpl(Stream *stream)
 
 std::shared_ptr<ReliableMessage> ReliableMessage::msgAllocator()
 {
-    return std::move(std::make_shared<ReliableMessage>());
+    return std::make_shared<ReliableMessage>();
 }
 
 int ReliableMessage::serializeHeader(Stream *stream/*, bool flush = true*/)
@@ -60,7 +60,7 @@ std::shared_ptr<ReliableMessage> ReliableMessagesFactory::createReliableMessage(
     if(type < 0 || type >= (int)m_msgModels.size())
         return (nullptr);
     auto ptr = m_msgModels[type].get()->msgAllocator();
-    ptr.get()->type = type;
+    ptr->type = type;
     return ptr;
 }
 

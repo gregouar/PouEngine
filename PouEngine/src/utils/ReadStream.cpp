@@ -21,6 +21,8 @@ BitReader::~BitReader()
 
 bool BitReader::wouldReadPastEnd(int bits)
 {
+    if(m_scratch_bits - bits < 0 && m_byte_index+1 >= m_bytes)
+        return (true);
     return (false);
 }
 

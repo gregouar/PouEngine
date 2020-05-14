@@ -30,7 +30,7 @@ FragmentedPacket::FragmentedPacket() :
 
 UdpPacketsExchanger::UdpPacketsExchanger() : m_curLocalTime(0)
 {
-    m_maxPacketSize = getMaxPacketSize();
+    m_maxPacketSize = getMaxPacketSize()*1.5;
 }
 
 UdpPacketsExchanger::~UdpPacketsExchanger()
@@ -61,7 +61,8 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
     }
 }
 
-void UdpPacketsExchanger::receivePackets(std::vector<UdpBuffer> &packetBuffers)
+void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
+                                         std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > &reliableMessages)
 {
     UdpBuffer tempBuffer;
     tempBuffer.buffer.resize(m_maxPacketSize);
@@ -83,14 +84,21 @@ void UdpPacketsExchanger::receivePackets(std::vector<UdpBuffer> &packetBuffers)
         {
             UdpBuffer reassembledBuffer;
             if(this->reassemblePacket(tempBuffer, reassembledBuffer))
-            {
-                //checkMessagesAndAck(reassembledBuffer);
                 packetBuffers.push_back(std::move(reassembledBuffer));
-            }
         }
-        else
-        {
+        else if(packetType != PacketCorrupted)
             packetBuffers.push_back(std::move(tempBuffer));
+    }
+
+    for(auto &it : m_reliableMsgBuffers)
+    {
+        auto &reliableMsgBuffer = it.second;
+        if(!reliableMsgBuffer.msgMap.empty())
+        while(reliableMsgBuffer.last_id+1 == reliableMsgBuffer.msgMap.begin()->first)
+        {
+            reliableMessages.push_back({it.first, reliableMsgBuffer.msgMap.begin()->second});
+            reliableMsgBuffer.msgMap.erase(reliableMsgBuffer.msgMap.begin());
+            reliableMsgBuffer.last_id++;
         }
     }
 }
@@ -114,21 +122,22 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     //if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
     {
-        auto &reliableMsgList = m_reliableMsgLists[address];
+        auto &reliableMsgList = m_reliableMsgLists[{address, packet.salt}];
 
         packet.last_ack = reliableMsgList.last_ack;
         packet.ack_bits = reliableMsgList.ack_bits;
 
         for(auto &it : reliableMsgList.msgList)
         {
-            auto msgSize = it->serialize(&stream);
+            auto msgSize = it.second->serialize(&stream) + 2;
             if(curPacketSize + msgSize > MAX_PACKETSIZE)
                 break;
+            curPacketSize += msgSize;
 
-            packet.reliableMessages.push_back(it);
+            packet.reliableMessages.push_back(it.second);
             packet.nbrReliableMessages++;
 
-            reliableMsgList.msgPerPacket.insert({packet.sequence, it->id});
+            reliableMsgList.msgPerPacket.insert({packet.sequence, it.first});
         }
     }
 
@@ -151,11 +160,12 @@ void UdpPacketsExchanger::sendPacket(UdpBuffer &packetBuffer, bool forceNonFragS
         m_curSequence++;
 }
 
-void UdpPacketsExchanger::sendReliableMessage(NetAddress &address, std::shared_ptr<ReliableMessage> msg)
+void UdpPacketsExchanger::sendReliableMessage(ClientAddress &address, std::shared_ptr<ReliableMessage> msg)
 {
     auto &reliableMsgList = m_reliableMsgLists[address];
     msg.get()->id = reliableMsgList.curId++;
-    reliableMsgList.msgList.push_back(std::move(msg));
+    std::cout<<"Sending reliable message with id: "<<msg.get()->id<<std::endl;
+    reliableMsgList.msgList.insert({msg.get()->id, std::move(msg)});
 }
 
 PacketType UdpPacketsExchanger::readPacketType(UdpBuffer &packetBuffer)
@@ -192,7 +202,7 @@ bool UdpPacketsExchanger::verifyPacketIntegrity(UdpPacket &packet)
 
     if((uint32_t)packet.serial_check != Hasher::crc32(&SERIAL_CHECK,1))
     {
-        std::cout<<"Serial check failed !"<<std::endl;
+        //std::cout<<"Serial check failed !"<<std::endl;
         packet.type = PacketCorrupted;
     }
 
@@ -253,9 +263,10 @@ bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &des
 
    // std::cout<<"Packet fragment received : Seq="<<packet_fragment.sequence<<" ("<<packet_fragment.frag_id+1<<"/"<<packet_fragment.nbr_frags<<")"<<std::endl;
 
-    auto fragPacketsVectorIt = m_fragPacketsBuffer.find(fragBuffer.address);
+    ClientAddress clientAddress = {fragBuffer.address,packet_fragment.salt};
+    auto fragPacketsVectorIt = m_fragPacketsBuffer.find(clientAddress);
     if(fragPacketsVectorIt == m_fragPacketsBuffer.end())
-        fragPacketsVectorIt = m_fragPacketsBuffer.insert({fragBuffer.address,
+        fragPacketsVectorIt = m_fragPacketsBuffer.insert({clientAddress,
                                                          {m_curLocalTime,
                                                          std::vector<FragmentedPacket> (MAX_FRAGBUFFER_ENTRIES)}}).first;
 
@@ -313,11 +324,44 @@ PacketType UdpPacketsExchanger::checkMessagesAndAck(UdpBuffer &packetBuffer)
     stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
     packet.serializeHeaderAndMessages(&stream);
 
-    for(auto msg : packet.reliableMessages)
-    {
-        /** do something **/
-        std::cout<<"I have got a reliable message dude !"<<std::endl;
+    if(!verifyPacketIntegrity(packet))
+        return PacketCorrupted;
 
+    ClientAddress clientAddress = {packetBuffer.address, packet.salt};
+    auto &reliableMsgList = m_reliableMsgLists[clientAddress];
+
+    //We remove from the msgList the messages that have been ack
+    for(auto i = 0 ; i < 32 ; ++i)
+    if(packet.ack_bits & ((int)1 << i))
+    {
+        auto packet_seq = packet.last_ack - i;
+        auto msg_ids = reliableMsgList.msgPerPacket.equal_range(packet_seq);
+        //for(auto id : msg_ids)
+        for(auto id = msg_ids.first ; id != msg_ids.second ; ++id)
+            reliableMsgList.msgList.erase(id->second);
+        reliableMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);
+    }
+
+
+    //We update the last_ack received and ack_bit
+    auto seq = packet.sequence;
+
+    //auto prec_ack = reliableMsgList.last_ack;
+    if(reliableMsgList.last_ack < seq)
+    {
+        reliableMsgList.ack_bits <<= seq - reliableMsgList.last_ack;
+        reliableMsgList.last_ack = seq;
+    }
+
+    reliableMsgList.ack_bits |= (((int)1) << (reliableMsgList.last_ack - seq));
+
+    auto &reliableMsgBuffer = m_reliableMsgBuffers[clientAddress];
+    for(auto msg : packet.reliableMessages)
+    if(msg)
+    {
+        //std::cout<<"I have got a reliable message dude, id:"<<msg->id<<std::endl;
+        if(reliableMsgBuffer.last_id < msg->id)
+            reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
     }
 
     return (PacketType)packet.type;

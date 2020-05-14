@@ -21,7 +21,7 @@ struct ReliableMessage_test : pou::ReliableMessage
 
     virtual std::shared_ptr<pou::ReliableMessage> msgAllocator()
     {
-        return std::move(std::make_shared<ReliableMessage_test>());
+        return std::make_shared<ReliableMessage_test>();
     }
 };
 

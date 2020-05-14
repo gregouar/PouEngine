@@ -70,13 +70,30 @@ void UdpServer::update(const Time &elapsedTime)
 
 void UdpServer::receivePackets()
 {
-    std::vector<UdpBuffer> packet_buffers;
-    m_packetsExchanger.receivePackets(packet_buffers);
+    std::list<UdpBuffer> packet_buffers;
+    std::list<std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > > reliableMessages;
+
+    m_packetsExchanger.receivePackets(packet_buffers,reliableMessages);
+
     for(auto &buffer : packet_buffers)
-        this->processMessages(buffer);
+        this->processPacket(buffer);
+
+    for(auto &msg : reliableMessages)
+        this->processMessage(msg);
 }
 
-void UdpServer::processMessages(UdpBuffer &buffer)
+void UdpServer::processMessage(std::pair<ClientAddress, std::shared_ptr<ReliableMessage> > addressAndMessage)
+{
+    auto clientNbr = findClientIndex(addressAndMessage.first.address,
+                                     addressAndMessage.first.salt);
+    if(clientNbr >= m_clients.size())
+        return;
+
+    std::cout<<"The server has got a reliable message dude ! Id:"<<addressAndMessage.second->id<<std::endl;
+}
+
+
+void UdpServer::processPacket(UdpBuffer &buffer)
 {
     PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
