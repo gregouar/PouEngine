@@ -77,15 +77,21 @@ void UdpPacketsExchanger::receivePackets(std::vector<UdpBuffer> &packetBuffers)
 
         //std::cout<<"Received packet from"<<tempBuffer.address.getAddressString()<<std::endl;
 
-        if(readPacketType(tempBuffer) == PacketType_Fragment)
+        auto packetType = checkMessagesAndAck(tempBuffer);
+
+        if(packetType == PacketType_Fragment)
         {
             UdpBuffer reassembledBuffer;
             if(this->reassemblePacket(tempBuffer, reassembledBuffer))
-                packetBuffers.push_back(reassembledBuffer);
+            {
+                //checkMessagesAndAck(reassembledBuffer);
+                packetBuffers.push_back(std::move(reassembledBuffer));
+            }
         }
         else
-            packetBuffers.push_back(tempBuffer);
-
+        {
+            packetBuffers.push_back(std::move(tempBuffer));
+        }
     }
 }
 
@@ -106,12 +112,13 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     auto curPacketSize = packet.serialize(&stream);
 
-    if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
+    //if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
     {
         auto &reliableMsgList = m_reliableMsgLists[address];
 
-        /// Add messages in remaining size
-       // for(auto it = reliableMsgList.msgList.begin() ; it != reliableMsgList.msgList.end() ; ++it)
+        packet.last_ack = reliableMsgList.last_ack;
+        packet.ack_bits = reliableMsgList.ack_bits;
+
         for(auto &it : reliableMsgList.msgList)
         {
             auto msgSize = it->serialize(&stream);
@@ -120,9 +127,9 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
             packet.reliableMessages.push_back(it);
             packet.nbrReliableMessages++;
-        }
 
-         //packet.nbrReliableMessages
+            reliableMsgList.msgPerPacket.insert({packet.sequence, it->id});
+        }
     }
 
     buffer.buffer.resize(packet.serialize(&stream));
@@ -198,7 +205,11 @@ void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType pac
         return;
 
     packet.crc32    = this->hashPacket();
+
     packet.sequence = m_curSequence;
+    packet.last_ack = -1;
+    packet.ack_bits = 0;
+
     packet.type     = packetType;
     packet.serial_check = Hasher::crc32(&SERIAL_CHECK,1);
     packet.nbrReliableMessages = 0;
@@ -294,6 +305,25 @@ int UdpPacketsExchanger::getMaxPacketSize()
     UdpPacket_Fragment packet_frag;
     return packet_frag.serialize(&stream);
 }
+
+PacketType UdpPacketsExchanger::checkMessagesAndAck(UdpBuffer &packetBuffer)
+{
+    UdpPacket packet;
+    ReadStream stream;
+    stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
+    packet.serializeHeaderAndMessages(&stream);
+
+    for(auto msg : packet.reliableMessages)
+    {
+        /** do something **/
+        std::cout<<"I have got a reliable message dude !"<<std::endl;
+
+    }
+
+    return (PacketType)packet.type;
+}
+
+
 
 }
 

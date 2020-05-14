@@ -39,10 +39,15 @@ struct FragmentedPacket
 
 struct ReliableMessagesList
 {
-    ReliableMessagesList() : curId(0){}
+    ReliableMessagesList() : curId(0), last_ack(-1), ack_bits(0){}
 
     std::list< std::shared_ptr<ReliableMessage> > msgList;
     int curId;
+
+    int last_ack;
+    int ack_bits;
+
+    std::multimap<int, int> msgPerPacket;
 };
 
 class UdpPacketsExchanger
@@ -76,6 +81,8 @@ class UdpPacketsExchanger
 
         int getMaxPacketSize();
 
+        PacketType checkMessagesAndAck(UdpBuffer &packetBuffer);
+
     private:
         int m_maxPacketSize;
         UdpSocket m_socket;
@@ -84,6 +91,7 @@ class UdpPacketsExchanger
         float       m_curLocalTime;
         std::map< NetAddress, std::pair<float, std::vector<FragmentedPacket> > > m_fragPacketsBuffer;
         std::map< NetAddress, ReliableMessagesList > m_reliableMsgLists;
+        std::map< NetAddress, std::map<int, std::shared_ptr<ReliableMessage> > > m_reliableMsgBuffer;
 
     public:
         static const int MAX_FRAGBUFFER_ENTRIES;

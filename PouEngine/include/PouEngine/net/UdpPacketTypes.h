@@ -41,6 +41,8 @@ struct UdpPacket
     int crc32;
     int sequence;
     int type;
+    int last_ack;
+    int ack_bits;
     int serial_check;
 
     int nbrReliableMessages;
@@ -62,7 +64,34 @@ struct UdpPacket
     {
         stream->serializeBits(crc32, 32);
         stream->serializeBits(sequence, 16);
+        stream->serializeBits(last_ack, 16);
+        stream->serializeBits(ack_bits, 32);
         stream->serializeInt(type, 0, NBR_PacketTypes-1);
+
+        if(flush)
+        {
+            stream->flush();
+            return stream->computeBytes();
+        }
+        return 0;
+    }
+
+    int serializeHeaderAndMessages(Stream *stream, bool flush = true)
+    {
+        this->serializeHeader(stream, false);
+
+        stream->serializeBits(nbrReliableMessages, 8);
+        if(stream->isReading()) reliableMessages.resize(0);
+        for(int i = 0 ; i < nbrReliableMessages ; ++i)
+        {
+            int msg_type;
+            if((int)reliableMessages.size() > i)
+                msg_type = reliableMessages[i].get()->type;
+            stream->serializeInt(msg_type, 0, NetEngine::getNbrReliableMsgTypes());
+            if(stream->isReading())
+                reliableMessages.push_back(std::move(NetEngine::createReliableMessage(msg_type)));
+            reliableMessages[i]->serialize(stream, false);
+        }
 
         if(flush)
         {
@@ -74,27 +103,9 @@ struct UdpPacket
 
     int serialize(Stream *stream)
     {
-        this->serializeHeader(stream, false);
+        this->serializeHeaderAndMessages(stream, false);
+
         this->serializeImpl(stream);
-
-        stream->serializeBits(nbrReliableMessages, 8);
-
-        if(stream->isReading()) reliableMessages.resize(0);
-
-        for(int i = 0 ; i < nbrReliableMessages ; ++i)
-        {
-            int msg_type;
-
-            if((int)reliableMessages.size() > i)
-                msg_type = reliableMessages[i].get()->type;
-
-            stream->serializeInt(msg_type, 0, NetEngine::getNbrReliableMsgTypes());
-
-            if(stream->isReading())
-                reliableMessages.push_back(std::move(NetEngine::createReliableMessage(msg_type)));
-
-            reliableMessages[i]->serialize(stream, false);
-        }
 
         stream->serializeBits(serial_check, 32);
 
