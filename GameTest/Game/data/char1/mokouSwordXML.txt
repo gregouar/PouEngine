@@ -3,16 +3,15 @@
 	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
 	
 	<skeleton name="mainSkeleton">
-		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
-		<limb node="weaponTrail" sprite="swordTrail" state="attack" spritesheet="mainSpriteSheet" />
+		<limb node="weapon" sprite="mokouSword" spritesheet="mainSpriteSheet" />
 		
 		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
 	</skeleton>
 	
 	<hitboxes>
 		<box skeleton="mainSkeleton" node="weaponHB" >
-			<size 		x="14" 	y="72" 	/>
-			<center 	x="7" 	y="90" 	/>
+			<size 		x="14" 	y="32" 	/>
+			<center 	x="7" 	y="50" 	/>
 			<factor 	type="cut"> 1 </factor>
 		</box>
 	</hitboxes>
@@ -20,6 +19,6 @@
 	<attributes>
 		<type>weapon</type>
 		<attackDelay>0</attackDelay>
-		<attackDamages>25</attackDamages>
+		<attackDamages>100</attackDamages>
 	</attributes>
 </item>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
+	
+	<soundbank path="char1SoundBank.bank" />
+	
+	<skeleton name="mainSkeleton" path="char1SkeletonXML.txt">
+		<limb node="body" sprite="body" spritesheet="mainSpriteSheet" />
+		<limb node="head" sprite="sithHead" spritesheet="mainSpriteSheet" />
+		<limb node="bag" sprite="sithBag" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="sithShoulderL" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="sithShoulderR" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
+		
+		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
+		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
+		<!--<sound name="attackSound" path="event:/CharacterAttack" type="event" />-->
+		<sound name="deathSound" path="event:/CharacterDeath" type="event" />
+		<sound name="dashSound" path="event:/CharacterDash" type="event" />
+		<!--<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" /> -->
+		
+		<!--<limb node="weaponHB" sprite="swordHBTest" spritesheet="mainSpriteSheet" />
+		<limb node="bodyHB" sprite="bodyHBTest" spritesheet="mainSpriteSheet" />-->
+	</skeleton>
+	
+	<!--<hitboxes>
+		<box skeleton="mainSkeleton" node="weaponHB" >
+			<size 		x="14" 	y="72" 	/>
+			<center 	x="7" 	y="90" 	/>
+			<factor type="cut">1</factor>
+		</box>
+	</hitboxes>-->
+	
+	<hurtboxes>
+		<box skeleton="mainSkeleton" node="bodyHB" >
+			<size 		x="26" 	y="20" 	/>
+			<center 	x="12" 	y="10" 	/>
+			<factor>1</factor>
+		</box>
+	</hurtboxes>
+	
+	<attributes>
+		<walkingSpeed>250</walkingSpeed>
+		<attackDelay>0</attackDelay>
+		<life>1000</life>
+		<!--<attackDamages>25</attackDamages>-->
+	</attributes>
+</character>

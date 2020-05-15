@@ -8,6 +8,8 @@
 			<node name="handL" x="-8" y="-8" z=".3" />
 			<node name="handR" x="10" y="-8" z=".3" />
 			<node name="weapon" x="-2" y="-10" z=".2" state="standing">
+					<!--<rotate z=45 />-->
+				<node name="weaponTrail"  z="-.001" state="standing" />
 				<node name="weaponHB" z="1">
 					<rotate z=45 />
 				</node>
@@ -36,6 +38,7 @@
 			<!--<tag value="hurtSound">playSound</tag>-->
 			<sound>hurtSound</sound>
 			<state node="weapon">standing</state>
+			<state node="weaponTrail">standing</state>
 			<command type="rotateTo" node="body" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderL" z="0" rate="400" />
 			<command type="rotateTo" node="shoulderR" z="0" rate="400" />
@@ -67,6 +70,7 @@
 			<!--<tag value="deathSound">playSound</tag>-->
 			<sound>deathSound</sound>
 			<state node="weapon">standing</state>
+			<state node="weaponTrail">standing</state>
 			<command type="moveTo" node="body" z=-1 rate=5 />
 			<command type="rotateTo" node="weapon" z=-90 rate=400 />
 			<command type="moveTo" node="weapon" x=30 y=-30  rate=100 />
@@ -195,6 +199,7 @@
 			<tag>attack</tag>
 			<sound>attackSound</sound>
 			<state node="weapon">attack</state>
+			<state node="weaponTrail">attack</state>
 			<command type="rotateTo" node="body" z="-30"  />
 			<command type="rotateTo" node="weapon" z="-90" />
 			<command type="rotateTo" node="handR" z="-90"/>
@@ -210,6 +215,7 @@
 			<command type="rotateTo" node="shoulderR" z="0"  />
 			<command type="moveTo" node="head" y="0"  />
 			<state node="weapon">standing</state>
+			<state node="weaponTrail">standing</state>
 		</frame>
 		<!--<frame speedFactor="1.5" >
 			<command type="rotateTo" node="body" z="10" rate="50" />

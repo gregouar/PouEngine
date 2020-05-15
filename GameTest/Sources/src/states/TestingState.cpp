@@ -61,9 +61,10 @@ void TestingState::init()
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
-    m_character2 = new Character();
-    m_character2->loadModel("../data/char1/char1XML.txt");
+    m_character2 = new PlayableCharacter();
+    m_character2->loadModel("../data/char1/sithXML.txt");
     m_character2->setPosition(-700,-700,1);
+    m_character2->loadItem("../data/char1/laserSwordXML.txt");
     m_scene->getRootNode()->addChildNode(m_character2);
 
     m_croco = new Character();
@@ -409,6 +410,10 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_character->loadItem("../data/char1/swordXML.txt");
     if(eventsManager->keyPressed(GLFW_KEY_2))
         m_character->loadItem("../data/char1/axeXML.txt");
+    if(eventsManager->keyPressed(GLFW_KEY_3))
+        m_character->loadItem("../data/char1/mokouSwordXML.txt");
+    if(eventsManager->keyPressed(GLFW_KEY_4))
+        m_character->loadItem("../data/char1/laserSwordXML.txt");
 
     glm::vec2 charDirection = {0,0};
 
@@ -437,7 +442,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
     {
         //m_character->startAnimation("attack",true);
-        m_character->askToAttack();
+        m_character2->askToAttack();
     }
 
 
@@ -470,11 +475,13 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_lifeBar->setValue(m_character->getAttributes().life);
 
     m_character->addToNearbyCharacters(m_duck);
+    m_character2->addToNearbyCharacters(m_duck);
     m_duck->addToNearbyCharacters(m_character);
 
     for(auto duck : m_duckSwarm)
     {
         m_character->addToNearbyCharacters(duck);
+        m_character2->addToNearbyCharacters(duck);
         duck->addToNearbyCharacters(m_character);
     }
 

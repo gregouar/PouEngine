@@ -52,9 +52,9 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         pou::SceneNode     *m_testNode;
         pou::SpriteEntity *m_testChar;
 
-        PlayableCharacter *m_character;
+        PlayableCharacter *m_character, *m_character2;
 
-        Character  *m_character2, *m_croco, *m_duck;
+        Character  *m_croco, *m_duck;
         std::list<Character *> m_duckSwarm;
         std::list<Character *> m_trees;
 

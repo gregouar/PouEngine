@@ -45,20 +45,66 @@
 		<center 	x="2" 	y="10" 	/>
 		<position 	x="24" 	y="48" 	/>
 	</sprite>
+	
 	<sprite name="sword">
 		<size 		x="64" 	y="64" 	/>
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="92" 	y="4" 	/>
 	</sprite>
-	<sprite name="swordAttack">
-		<size 		x="80" 	y="64" 	/>
+	<sprite name="swordTrail">
+		<size 		x="82" 	y="64" 	/>
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="160" y="4" 	/>
 	</sprite>
+	<sprite name="swordVerticalTest">
+		<size 		x="36" 	y="88" 	/>
+		<center 	x="18" 	y="86" 	/>
+		<position 	x="52" 	y="68" 	/>
+	</sprite>
+	
 	<sprite name="axe">
 		<size 		x="64" 	y="64" 	/>
 		<center 	x="14" 	y="48" 	/>
 		<position 	x="92" 	y="68" 	/>
+	</sprite>
+	
+	<sprite name="mokouSword">
+		<size 		x="64" 	y="64" 	/>
+		<center 	x="0" 	y="62" 	/>
+		<position 	x="92" 	y="132" 	/>
+	</sprite>
+	
+	
+	<sprite name="laserSword">
+		<size 		x="64" 	y="64" 	/>
+		<center 	x="0" 	y="62" 	/>
+		<position 	x="160" y="132" 	/>
+	</sprite>
+	<sprite name="laserSwordTrail">
+		<size 		x="86" 	y="64" 	/>
+		<center 	x="0" 	y="62" 	/>
+		<position 	x="160" y="68" 	/>
+	</sprite>
+	
+	<sprite name="sithHead">
+		<size 		x="34" 	y="30" 	/>
+		<center 	x="16" 	y="18" 	/>
+		<position 	x="0" 	y="180" 	/>
+	</sprite>
+	<sprite name="sithBag">
+		<size 		x="26" 	y="14" 	/>
+		<center 	x="12" 	y="0" 	/>
+		<position 	x="26" 	y="212" 	/>
+	</sprite>
+	<sprite name="sithShoulderL">
+		<size 		x="24" 	y="28" 	/>
+		<center 	x="16" 	y="12" 	/>
+		<position 	x="36" 	y="182" 	/>
+	</sprite>
+	<sprite name="sithShoulderR">
+		<size 		x="24" 	y="28" 	/>
+		<center 	x="6" 	y="12" 	/>
+		<position 	x="62" 	y="182" 	/>
 	</sprite>
 	
 	<sprite name="swordHBTest">

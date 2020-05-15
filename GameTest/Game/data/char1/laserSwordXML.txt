@@ -3,10 +3,10 @@
 	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
 	
 	<skeleton name="mainSkeleton">
-		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
-		<limb node="weaponTrail" sprite="swordTrail" state="attack" spritesheet="mainSpriteSheet" />
+		<limb node="weapon" sprite="laserSword" spritesheet="mainSpriteSheet" />
+		<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />
 		
-		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
+		<sound name="attackSound" path="event:/LightSaberAttack" type="event" />
 	</skeleton>
 	
 	<hitboxes>
@@ -20,6 +20,6 @@
 	<attributes>
 		<type>weapon</type>
 		<attackDelay>0</attackDelay>
-		<attackDamages>25</attackDamages>
+		<attackDamages>50</attackDamages>
 	</attributes>
 </item>
