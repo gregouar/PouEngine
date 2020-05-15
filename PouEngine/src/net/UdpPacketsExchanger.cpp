@@ -139,6 +139,10 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
         packet.last_ack = netMsgList.last_ack;
         packet.ack_bits = netMsgList.ack_bits;
 
+        auto &sendedPacketContent = netMsgList.sendedPacketContents[packet.sequence];
+        sendedPacketContent.messageIds.clear();
+        sendedPacketContent.sendTime = m_curLocalTime;
+
         //std::cout<<"ListSize:"<<netMsgList.reliableMsgMap.size()<<std::endl;
         //std::cout<<"Sending packet seq:"<<packet.sequence<<std::endl;
 
@@ -152,7 +156,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
             packet.netMessages.push_back(it.second);
             packet.nbrNetMessages++;
 
-            netMsgList.msgPerPacket.insert({packet.sequence, it.first});
+            //netMsgList.msgPerPacket.insert({packet.sequence, it.first});
+            sendedPacketContent.messageIds.push_back(it.first);
 
             //std::cout<<"Trying to send msgid:"<<it.second->id<<std::endl;
 
@@ -409,12 +414,25 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
 
         //std::cout<<"Client has acked packet seq:"<<packet_seq<<std::endl;
 
+        /*
        // std::cout<<"Ack packet:"<<packet_seq<<" (last_ack:"<<packet.last_ack<<std::endl;
         auto msg_ids = netMsgList.msgPerPacket.equal_range(packet_seq);
         //for(auto id : msg_ids)
         for(auto id = msg_ids.first ; id != msg_ids.second ; ++id)
             netMsgList.reliableMsgMap.erase(id->second);
-        netMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);
+        netMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);*/
+
+        auto &sendedPacketContent = netMsgList.sendedPacketContents[packet_seq];
+        for(auto id : sendedPacketContent.messageIds)
+            netMsgList.reliableMsgMap.erase(id);
+        sendedPacketContent.messageIds.clear();
+
+        if(sendedPacketContent.sendTime != -1)
+        {
+            netMsgList.avrgRTT = netMsgList.avrgRTT*0.9 + (m_curLocalTime - sendedPacketContent.sendTime)*0.1;
+            std::cout<<"Average RTT: "<<netMsgList.avrgRTT<<std::endl;
+            sendedPacketContent.sendTime = -1;
+        }
     }
 
     //We don't want to ack for frag part

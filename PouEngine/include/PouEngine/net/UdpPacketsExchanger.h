@@ -50,9 +50,15 @@ struct FragmentedPacket
     int nbr_receivedFrags;
 };
 
+struct SendedPacketContent
+{
+    std::list<int> messageIds;
+    float sendTime;
+};
+
 struct NetMessagesList
 {
-    NetMessagesList() : curId(0), last_ack(-1), ack_bits(0){}
+    NetMessagesList() : curId(0), last_ack(-1), ack_bits(0), avrgRTT(0){}
 
     std::map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
     std::list<std::shared_ptr<NetMessage> > nonReliableMsgList;
@@ -61,7 +67,10 @@ struct NetMessagesList
     int last_ack;
     int ack_bits;
 
-    std::multimap<int, int> msgPerPacket;
+    float avrgRTT;
+
+    //std::multimap<int, int> msgPerPacket;
+    std::map<int, SendedPacketContent> sendedPacketContents;
 };
 
 struct ReliableMessagesBuffer
