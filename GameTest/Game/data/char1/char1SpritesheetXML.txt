@@ -50,6 +50,11 @@
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="92" 	y="4" 	/>
 	</sprite>
+	<sprite name="swordAttack">
+		<size 		x="80" 	y="64" 	/>
+		<center 	x="0" 	y="62" 	/>
+		<position 	x="160" y="4" 	/>
+	</sprite>
 	<sprite name="axe">
 		<size 		x="64" 	y="64" 	/>
 		<center 	x="14" 	y="48" 	/>

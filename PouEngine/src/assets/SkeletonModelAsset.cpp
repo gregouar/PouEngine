@@ -78,7 +78,7 @@ bool SkeletonModelAsset::loadFromXML(TiXmlHandle *hdl)
 
 void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
 {
-    std::string nodeName;
+    std::string nodeName, nodeState;
     glm::vec3 nodePos(0,0,0);
 
     auto nameAtt = element->Attribute("name");
@@ -88,11 +88,14 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
         rootNode->setName(nodeName);
     }
 
+    int nodeId = -1;
     if(!nodeName.empty())
     {
         if(!m_nodesByName.insert({nodeName,rootNode}).second)
             Logger::warning("Multiple nodes with the same name \"" + nodeName + "\" in Skeleton Asset : "+m_filePath);
-        m_nodesById.insert({this->generateNodeId(nodeName), rootNode});
+
+        nodeId = this->generateNodeId(nodeName);
+        m_nodesById.insert({nodeId, rootNode});
     }
 
     auto attribute = element->Attribute("x");
@@ -106,6 +109,14 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     attribute = element->Attribute("z");
     if(attribute != nullptr)
         nodePos.z = Parser::parseFloat(std::string(attribute));
+
+
+    attribute = element->Attribute("state");
+    if(attribute != nullptr)
+    {
+        int stateId = this->generateStateId(std::string(attribute));
+        m_initialStates.push_back({nodeId, stateId});
+    }
 
     attribute = element->Attribute("rigidity");
     if(attribute != nullptr)
@@ -186,6 +197,10 @@ const std::map<int, SimpleNode*> *SkeletonModelAsset::getNodesById()
     return &m_nodesById;
 }
 
+const std::list<std::pair<int,int> > *SkeletonModelAsset::getInitialStates() const
+{
+    return &m_initialStates;
+}
 
 SkeletalAnimationModel* SkeletonModelAsset::findAnimation(const std::string &name)
 {
@@ -204,63 +219,107 @@ SkeletalAnimationModel* SkeletonModelAsset::findAnimation(int id)
 }
 
 
-int SkeletonModelAsset::generateNodeId(const std::string nodeName)
+int SkeletonModelAsset::generateNodeId(const std::string &nodeName)
 {
-    int id = 0;
+    /*int id = 0;
     if(!m_nodeIdByName.empty())
         id = m_nodeIdByName.size();//(--m_nodeIdByName.end())->second++;
     m_nodeIdByName.insert({nodeName,id});
-    return id;
+    return id;*/
+    return this->generateId(nodeName, m_nodeIdByName);
 }
 
-int SkeletonModelAsset::generateAnimationId(const std::string animationName)
+int SkeletonModelAsset::generateAnimationId(const std::string &animationName)
 {
-    int id = 0;
+    /*int id = 0;
     if(!m_animationIdByName.empty())
         id = m_animationIdByName.size();//(--m_animationIdByName.end())->second++;
     m_animationIdByName.insert({animationName,id});
-    return id;
+    return id;*/
+    return this->generateId(animationName, m_animationIdByName);
 }
 
-int SkeletonModelAsset::generateSoundId(const std::string soundName)
+int SkeletonModelAsset::generateSoundId(const std::string &soundName)
 {
-    int id = 0;
+    /*int id = 0;
     if(!m_soundIdByName.empty())
     {
         auto founded = m_soundIdByName.find(soundName);
         if(founded != m_soundIdByName.end())
-            return id = founded->second;
+            return founded->second;
 
-        id = m_soundIdByName.size();//(--m_soundIdByName.end())->second++;
+    }
+    id = m_soundIdByName.size();//(--m_soundIdByName.end())->second++;
+    m_soundIdByName.insert({soundName,id});
+    return id;*/
+    return this->generateId(soundName, m_soundIdByName);
+}
+
+
+int SkeletonModelAsset::generateStateId(const std::string &stateName)
+{
+    return this->generateId(stateName, m_stateIdByName);
+}
+
+
+int SkeletonModelAsset::generateId(const std::string &name, std::map<std::string, int> &namesMap)
+{
+    int id = 0;
+    if(!namesMap.empty())
+    {
+        auto founded = namesMap.find(name);
+        if(founded != namesMap.end())
+            return founded->second;
     }
 
-    m_soundIdByName.insert({soundName,id});
+    id = namesMap.size();//(--m_soundIdByName.end())->second++;
+    namesMap.insert({name,id});
     return id;
 }
 
 
-int SkeletonModelAsset::getNodeId(const std::string nodeName) const
+int SkeletonModelAsset::getNodeId(const std::string &nodeName) const
 {
-    auto founded = m_nodeIdByName.find(nodeName);
+    /*auto founded = m_nodeIdByName.find(nodeName);
     if(founded == m_nodeIdByName.end())
         return (-1);
 
-    return founded->second;
+    return founded->second;*/
+    return this->getId(nodeName, m_nodeIdByName);
 }
 
-int SkeletonModelAsset::getAnimationId(const std::string animationName) const
+int SkeletonModelAsset::getAnimationId(const std::string &animationName) const
 {
-    auto founded = m_animationIdByName.find(animationName);
+    /*auto founded = m_animationIdByName.find(animationName);
     if(founded == m_animationIdByName.end())
         return (-1);
 
-    return founded->second;
+    return founded->second;*/
+    return this->getId(animationName, m_animationIdByName);
 }
 
-int SkeletonModelAsset::getSoundId(const std::string soundName) const
+int SkeletonModelAsset::getSoundId(const std::string &soundName) const
 {
-    auto founded = m_soundIdByName.find(soundName);
+    /*auto founded = m_soundIdByName.find(soundName);
     if(founded == m_soundIdByName.end())
+        return (-1);
+
+    return founded->second;*/
+    return this->getId(soundName, m_soundIdByName);
+}
+
+
+int SkeletonModelAsset::getStateId(const std::string &stateName) const
+{
+    return this->getId(stateName, m_stateIdByName);
+}
+
+
+int SkeletonModelAsset::getId(const std::string &name, const std::map<std::string, int> &namesMap) const
+{
+
+    auto founded = namesMap.find(name);
+    if(founded == namesMap.end())
         return (-1);
 
     return founded->second;
@@ -386,6 +445,21 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std
         commandElement = commandElement->NextSiblingElement("sound");
     }
 
+    commandElement = element->FirstChildElement("state");
+    while(commandElement != nullptr)
+    {
+        auto att = commandElement->ToElement()->Attribute("node");
+        if(att != nullptr)
+        {
+            int nodeId  = this->m_skeletonModel->getNodeId(std::string(att));
+            int stateId = this->m_skeletonModel->generateStateId(commandElement->GetText());
+            m_states.push_back({nodeId,stateId});
+        }
+        else {}
+            /** generate state for each node in mapOfNodes **/
+        commandElement = commandElement->NextSiblingElement("state");
+    }
+
     commandElement = element->FirstChildElement("command");
     while(commandElement != nullptr)
     {
@@ -445,6 +519,11 @@ const std::list<SkeletalAnimationCommandModel> *SkeletalAnimationFrameModel::get
 const std::list<int> *SkeletalAnimationFrameModel::getSounds() const
 {
     return &m_sounds;
+}
+
+const std::list<std::pair<int,int> > *SkeletalAnimationFrameModel::getStates() const
+{
+    return &m_states;
 }
 
 float SkeletalAnimationFrameModel::getSpeedFactor() const

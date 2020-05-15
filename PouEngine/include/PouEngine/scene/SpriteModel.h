@@ -59,12 +59,14 @@ struct SpriteShadowGenerationDatum
     static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions();
 };*/
 
+class SpriteSheetAsset;
+
 class SpriteModel : public NotificationListener, public NotificationSender
 {
     friend class SpriteEntity;
 
     public:
-        SpriteModel();
+        SpriteModel(SpriteSheetAsset *spriteSheet);
         virtual ~SpriteModel();
 
         SpriteModel( const SpriteModel& ) = delete;
@@ -78,6 +80,7 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void setSize(glm::vec2 size);
         void setCenter(glm::vec2 pos);
         void setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelative = true);
+        void setNextSprite(int spriteId, float delay);
 
 
         void setColor(Color color);
@@ -92,6 +95,9 @@ class SpriteModel : public NotificationListener, public NotificationSender
         glm::vec2 getTextureExtent();
         glm::vec2 getTexturePosition();
         bool      isReady();
+
+        float           getNextSpriteDelay();
+        SpriteModel*    getNextSpriteModel();
 
         /*VTexture getDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction);
         void updateDirectionnalShadow(glm::vec3 oldDirection, glm::vec3 newDirection);
@@ -111,11 +117,16 @@ class SpriteModel : public NotificationListener, public NotificationSender
         TextureAsset *m_texture;
         std::vector<bool>   m_needToCheckLoading;
 
+        SpriteSheetAsset *m_spriteSheet;
+
         glm::vec2 m_size;
         glm::vec2 m_center;
         glm::vec2 m_texturePosition;
         glm::vec2 m_textureExtent;
         bool      m_useRelativeTextureRect;
+
+        float   m_nextSpriteDelay;
+        int     m_nextSprite;
 
         glm::vec4 m_color;
         //glm::vec4 m_rmt;

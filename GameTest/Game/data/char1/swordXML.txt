@@ -4,6 +4,7 @@
 	
 	<skeleton name="mainSkeleton">
 		<limb node="weapon" sprite="sword" spritesheet="mainSpriteSheet" />
+		<limb node="weapon" sprite="swordAttack" state="attack" spritesheet="mainSpriteSheet" />
 		
 		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
 	</skeleton>

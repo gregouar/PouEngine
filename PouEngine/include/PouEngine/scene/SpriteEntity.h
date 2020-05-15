@@ -81,6 +81,8 @@ class SpriteEntity : public ShadowCaster
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
         ///virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
+        virtual void update(const Time &elapsedTime);
+
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
 
@@ -100,6 +102,8 @@ class SpriteEntity : public ShadowCaster
         glm::vec4   m_color;
         SpriteOrdering  m_ordering;
         bool            m_inheritRotation; ///Rename this to inheritsTransformations
+
+        float   m_nextSpriteElapsedTime;
 };
 
 }

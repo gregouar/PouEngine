@@ -46,9 +46,14 @@ class Skeleton : public SceneNode
         Skeleton(SkeletonModelAsset *model);
         virtual ~Skeleton();
 
-        bool attachLimb(const std::string &boneName, SceneObject *object);
-        bool detachLimb(const std::string &boneName, SceneObject *object);
-        bool detachAllLimbs(const std::string &boneName);
+        bool attachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object);
+        bool detachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object);
+
+        void attachLimbsOfState(int nodeId, int stateId);
+        void detachLimbsOfDifferentState(int nodeId, int stateId);
+        /*void attachLimbsOfState(const std::string &boneName, const std::string &stateName);
+        void detachLimbsOfDifferentState(const std::string &boneName, const std::string &stateName);*/
+        //bool detachAllLimbs(const std::string &boneName);
 
         bool attachSound(SoundObject *object, const std::string &soundName);
         bool detachSound(SoundObject *object, const std::string &soundName);
@@ -66,6 +71,8 @@ class Skeleton : public SceneNode
         const SceneNode* findNode(const std::string &name) const;
         const SceneNode* findNode(int id) const;
 
+        int getNodeState(int nodeId);
+
         virtual void update(const Time &elapsedTime);
 
     protected:
@@ -78,6 +85,9 @@ class Skeleton : public SceneNode
         std::map<std::string, SceneNode*> m_nodesByName;
         std::map<int, SceneNode*> m_nodesById;
         std::map<SceneNode*, SkeletalNodeState> m_nodeStates;
+
+        std::multimap<std::pair<int,int>, SceneObject*> m_limbsPerNodeState;
+        std::map<int, int> m_nodesLastState;
 
     private:
         SkeletonModelAsset *m_model;

@@ -71,7 +71,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         for(auto &limb : *(skeletonModel.second.assetsModel.getLimbs()))
         {
             auto *spriteEntity = targetCharacter->addLimb(&limb);
-            skeleton->attachLimb(limb.node,spriteEntity);
+            skeleton->attachLimb(limb.node, limb.state, spriteEntity);
         }
 
         for(auto &sound : *(skeletonModel.second.assetsModel.getSounds()))
@@ -79,6 +79,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
             //targetCharacter->addSound(&sound);
             skeleton->attachSound(targetCharacter->addSound(&sound), sound.name);
         }
+
 
         targetCharacter->addChildNode(skeleton.get());
         targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
@@ -379,22 +380,27 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
         auto limbElement = limbChild->ToElement();
 
         auto nodeAtt        = limbElement->Attribute("node");
+        auto stateAtt       = limbElement->Attribute("state");
         auto spriteAtt      = limbElement->Attribute("sprite");
         auto spriteSheetAtt = limbElement->Attribute("spritesheet");
 
         if(nodeAtt != nullptr && spriteAtt != nullptr && spriteSheetAtt != nullptr)
         {
+            std::string state;
+            if(stateAtt != nullptr)
+                state = std::string(stateAtt);
+
             auto spritesheetIt = m_spriteSheets->find(std::string(spriteSheetAtt));
             if(spritesheetIt != m_spriteSheets->end())
             {
                 auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
-                m_limbs.push_back({std::string(nodeAtt), spriteModel});
+                m_limbs.push_back({std::string(nodeAtt), state, spriteModel});
                 if(spriteModel == nullptr)
                     pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
                                     +std::string(spriteSheetAtt)+"\"");
 
             } else
-                pou::Logger::warning("Spritesheet named \""+std::string(nodeAtt)+"\" not found");
+                pou::Logger::warning("Spritesheet named \""+std::string(spriteSheetAtt)+"\" not found");
         } else
             pou::Logger::warning("Incomplete limb");
 

@@ -529,6 +529,7 @@ NodeTypeId SimpleNode::generateId()
 
 void SimpleNode::update(const Time &elapsedTime)
 {
+    //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
 

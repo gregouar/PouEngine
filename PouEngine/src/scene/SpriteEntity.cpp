@@ -186,7 +186,8 @@ SpriteEntity::SpriteEntity() :
     m_rotation(0.0f),
     m_color(1.0,1.0,1.0,1.0),
     m_ordering(NOT_ORDERED),
-    m_inheritRotation(false)
+    m_inheritRotation(false),
+    m_nextSpriteElapsedTime(0)
     //m_rmt(1.0,1.0,1.0)
 {
     this->updateDatum();
@@ -354,6 +355,32 @@ void SpriteEntity::generateRenderingData(SceneRenderingInstance *renderingInstan
 
     return viewLightDirectionXY;
 }*/
+
+void SpriteEntity::update(const Time &elapsedTime)
+{
+    ShadowCaster::update(elapsedTime);
+
+    m_nextSpriteElapsedTime += elapsedTime.count();
+
+    if(!m_spriteModel)
+        return;
+
+    float nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
+
+    std::cout<<"NextSpriteDelay: "<<nextSpriteDelay<<" for "<<m_nextSpriteElapsedTime<<std::endl;
+
+    /*while(nextSpriteDelay != -1 && m_spriteModel->getNextSpriteModel() != nullptr
+       && m_nextSpriteElapsedTime >= nextSpriteDelay)
+    {
+        m_nextSpriteElapsedTime -= nextSpriteDelay;
+        this->setSpriteModel(m_spriteModel->getNextSpriteModel());
+
+        if(m_spriteModel == nullptr)
+            break;
+
+        nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
+    }*/
+}
 
 void SpriteEntity::notify(NotificationSender *sender, NotificationType notification,
                              size_t dataSize, char* data)

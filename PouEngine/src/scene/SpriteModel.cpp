@@ -2,6 +2,7 @@
 
 #include <Vulkan/vulkan.h>
 
+#include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/AssetHandler.h"
 
@@ -67,13 +68,16 @@ std::array<VkVertexInputAttributeDescription, 6> SpriteShadowGenerationDatum::ge
     return attributeDescriptions;
 }*/
 
-SpriteModel::SpriteModel() :
+SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_texture(0),
+    m_spriteSheet(spriteSheet),
     m_size({1.0f,1.0f}),
     m_center({0.0f,0.0f}),
     m_texturePosition({0.0f,0.0f}),
     m_textureExtent({1.0f,1.0f}),
     m_useRelativeTextureRect(true),
+    m_nextSpriteDelay(-1),
+    m_nextSprite(-1),
     m_isReady(true)
    // m_shadowMapExtent(0.0,0.0)
 {
@@ -136,6 +140,15 @@ void SpriteModel::setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelativ
     }
 }
 
+void SpriteModel::setNextSprite(int spriteId, float delay)
+{
+    if(delay <= 0 && delay != -1)
+        return;
+
+    m_nextSprite        = spriteId;
+    m_nextSpriteDelay   = delay;
+}
+
 void SpriteModel::setColor(Color color)
 {
     if(m_color != color)
@@ -144,6 +157,8 @@ void SpriteModel::setColor(Color color)
         this->sendNotification(Notification_ModelChanged);
     }
 }
+
+
 
 /*void SpriteModel::setRmt(Color rmt)
 {
@@ -239,6 +254,22 @@ void SpriteModel::cleanup()
     /*for(auto &shadowMap : m_directionnalShadows)
         VTexturesManager::freeTexture(shadowMap.second.first);
     m_directionnalShadows.clear();*/
+}
+
+float SpriteModel::getNextSpriteDelay()
+{
+    return m_nextSpriteDelay;
+}
+
+SpriteModel* SpriteModel::getNextSpriteModel()
+{
+    if(!m_spriteSheet)
+        return (nullptr);
+
+    if(m_nextSprite == -1)
+        return (nullptr);
+
+    m_spriteSheet->getSpriteModel(m_nextSprite);
 }
 
 void SpriteModel::notify(NotificationSender *sender, NotificationType notification,

@@ -24,7 +24,9 @@ class SpriteSheetAsset : public Asset, public NotificationListener
 
 
         SpriteModel* getSpriteModel(const std::string &spriteName);
+        SpriteModel* getSpriteModel(int spriteId);
 
+        int getSpriteId(const std::string &spriteName) const;
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
@@ -33,11 +35,14 @@ class SpriteSheetAsset : public Asset, public NotificationListener
     protected:
         bool loadFromXML(TiXmlHandle *);
 
+        int generateSpriteId(const std::string &spriteName);
+
     private:
         TextureAsset *m_texture;
         glm::vec2     m_textureScale;
 
-        std::map<std::string, std::unique_ptr<SpriteModel> > m_sprites;
+        std::map<std::string, int>                      m_spritesIdByName;
+        std::map<int, std::unique_ptr<SpriteModel> >    m_spritesById;
 
 };
 

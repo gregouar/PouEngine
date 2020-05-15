@@ -61,6 +61,7 @@ class SkeletalAnimationFrameModel
         const SkeletonModelAsset *getSkeletonModel() const;
         const std::list<SkeletalAnimationCommandModel> *getCommands() const;
         const std::list<int> *getSounds() const;
+        const std::list<std::pair<int,int> > *getStates() const; //return list of NodeId,StateId
         float getFrameTime() const;
         float getSpeedFactor() const;
 
@@ -78,6 +79,7 @@ class SkeletalAnimationFrameModel
         std::list<SkeletalAnimationCommandModel> m_commands;
         std::multimap<std::string, FrameTag> m_tags;
         std::list<int> m_sounds;
+        std::list<std::pair<int, int> > m_states;
 
         float m_speedFactor;
         float m_frameTime;
@@ -118,31 +120,40 @@ class SkeletonModelAsset : public Asset
         const SimpleNode *getRootNode() const;
         std::map<std::string, SimpleNode*> getNodesByName();
         const std::map<int, SimpleNode*> *getNodesById();
+        const std::list<std::pair<int,int> > *getInitialStates() const;
 
         SkeletalAnimationModel* findAnimation(int id);
         SkeletalAnimationModel* findAnimation(const std::string &name);
 
-        int generateNodeId(const std::string nodeName);
-        int generateAnimationId(const std::string animationName);
-        int generateSoundId(const std::string soundName);
+        int generateNodeId(const std::string &nodeName);
+        int generateAnimationId(const std::string &animationName);
+        int generateSoundId(const std::string &soundName);
+        int generateStateId(const std::string &stateName);
 
-        int getNodeId(const std::string nodeName) const;
-        int getAnimationId(const std::string animationName) const;
-        int getSoundId(const std::string soundName) const;
+        int getNodeId(const std::string &nodeName) const;
+        int getAnimationId(const std::string &animationName) const;
+        int getSoundId(const std::string &soundName) const;
+        int getStateId(const std::string &stateName) const;
 
     protected:
         bool loadFromXML(TiXmlHandle *);
         void loadNode(SimpleNode* rootNode, TiXmlElement *element);
         void loadAnimation(TiXmlElement *element);
 
+        int generateId(const std::string &name, std::map<std::string, int> &namesMap);
+        int getId(const std::string &name, const std::map<std::string, int> &namesMap) const;
+
     private:
         SimpleNode m_rootNode;
         std::map<std::string, SimpleNode*> m_nodesByName;
         std::map<int, SimpleNode*> m_nodesById;
 
+        std::list<std::pair<int,int> > m_initialStates;
+
         std::map<std::string, int> m_nodeIdByName;
         std::map<std::string, int> m_animationIdByName;
         std::map<std::string, int> m_soundIdByName;
+        std::map<std::string, int> m_stateIdByName;
 
         std::multimap<std::string, std::string> m_joints;
 

@@ -56,6 +56,8 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         void generateRenderingData(SceneRenderingInstance *renderingInstance);
         bool playSound(int id);
 
+        virtual void update(const Time &elapsedTime);
+
         /*virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;*/
 

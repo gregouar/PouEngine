@@ -7,7 +7,7 @@
 			<node name="shoulderR" x="16" y="-4" z=".4" />
 			<node name="handL" x="-8" y="-8" z=".3" />
 			<node name="handR" x="10" y="-8" z=".3" />
-			<node name="weapon" x="-2" y="-10" z=".2">
+			<node name="weapon" x="-2" y="-10" z=".2" state="standing">
 				<node name="weaponHB" z="1">
 					<rotate z=45 />
 				</node>
@@ -192,6 +192,7 @@
 			<!--<tag value="attackSound">playSound</tag>-->
 			<tag>attack</tag>
 			<sound>attackSound</sound>
+			<state node="weapon">attack</state>
 			<command type="rotateTo" node="body" z="-30"  />
 			<command type="rotateTo" node="weapon" z="-90" />
 			<command type="rotateTo" node="handR" z="-90"/>
@@ -206,6 +207,7 @@
 			<command type="moveTo" node="handR" x="0" y="0" />
 			<command type="rotateTo" node="shoulderR" z="0"  />
 			<command type="moveTo" node="head" y="0"  />
+			<state node="weapon">standing</state>
 		</frame>
 		<!--<frame speedFactor="1.5" >
 			<command type="rotateTo" node="body" z="10" rate="50" />

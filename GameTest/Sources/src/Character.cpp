@@ -101,7 +101,9 @@ bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skele
         return (false);
 
     auto *spriteEntity = this->addLimb(limbModel);
-    skeleton->second.get()->attachLimb(limbModel->node,spriteEntity);
+    skeleton->second.get()->attachLimb(limbModel->node,
+                                       limbModel->state,
+                                       spriteEntity);
 
     return (true);
 }
@@ -121,7 +123,9 @@ bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &
     if(limb == m_limbs.end())
         return (false);
 
-    skeleton->second.get()->detachLimb(limbModel->node, limb->second.get());
+    skeleton->second.get()->detachLimb(limbModel->node,
+                                       limbModel->state,
+                                       limb->second.get());
     m_limbs.erase(limb);
 
     return (true);

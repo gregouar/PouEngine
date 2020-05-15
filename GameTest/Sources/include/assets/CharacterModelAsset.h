@@ -21,6 +21,7 @@ class Character;
 struct LimbModel
 {
     std::string node;
+    std::string state;
     pou::SpriteModel* spriteModel;
 };
 

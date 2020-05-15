@@ -42,6 +42,20 @@
 	</sprite>	
 	
 	
+	<sprite name="headAttack">
+		<size 		x="22" 	y="46" 	/>
+		<center 	x="11" 	y="35" 	/>
+		<position 	x="80" 	y="0"	/>
+		<nextSprite name="headAttack2" delay=.2 />
+	</sprite>
+	<sprite name="headAttack2">
+		<size 		x="22" 	y="46" 	/>
+		<center 	x="11" 	y="35" 	/>
+		<position 	x="12" 	y="50"	/>
+		<nextSprite name="headAttack"  delay=.2 />
+	</sprite>
+	
+	
 	<sprite name="bodyHBTest">
 		<size 		x="46" 	y="60" 	/>
 		<center 	x="23" 	y="25" 	/>

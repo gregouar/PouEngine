@@ -38,7 +38,7 @@ Skeleton::~Skeleton()
         delete m_rootNode;*/
 }
 
-bool Skeleton::attachLimb(const std::string &boneName, SceneObject *object)
+bool Skeleton::attachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -47,12 +47,20 @@ bool Skeleton::attachLimb(const std::string &boneName, SceneObject *object)
         return (false);
     }
 
-    bone->second->attachObject(object);
+    int nodeId      = m_model->getNodeId(boneName);
+    int stateId     = m_model->getStateId(stateName);
+    int oldStateId  = this->getNodeState(nodeId);
+
+    if(stateName == std::string() ||
+       stateId == oldStateId)
+        bone->second->attachObject(object);
+
+    m_limbsPerNodeState.insert({{nodeId, stateId}, object});
 
     return (true);
 }
 
-bool Skeleton::detachLimb(const std::string &boneName, SceneObject *object)
+bool Skeleton::detachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -63,12 +71,106 @@ bool Skeleton::detachLimb(const std::string &boneName, SceneObject *object)
 
     bone->second->detachObject(object);
 
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({m_model->getNodeId(boneName),
+                                                             m_model->getStateId(stateName)});
+    for(auto it = limbsPerNodeState.first ; it != limbsPerNodeState.second ; ++it)
+        if(it->second == object)
+        {
+            m_limbsPerNodeState.erase(it);
+            break;
+        }
+
     return (true);
+}
+
+/*void Skeleton::attachLimbsOfState(const std::string &boneName, const std::string &stateName)
+{
+    int nodeId  = m_model->getNodeId(boneName);
+    int stateId = m_model->getStateId(stateName);
+    auto node = m_nodesById.find(nodeId);
+
+    if(node == m_nodesById.end())
+        return;
+
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, stateId});
+    for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
+        node->second->attachObject(limbIt->second);
+
+    m_nodesLastState[nodeId] = stateId;
+}
+
+
+void Skeleton::detachLimbsOfDifferentState(const std::string &boneName, const std::string &stateName)
+{
+    int nodeId  = m_model->getNodeId(boneName);
+    int stateId = m_model->getStateId(stateName);
+    auto node = m_nodesById.find(nodeId);
+
+    if(node == m_nodesById.end())
+        return;
+
+    int oldStateId = -1;
+    auto oldState = m_nodesLastState.find(nodeId);
+    if(oldState != m_nodesLastState.end())
+        oldStateId = oldState->second;
+
+    if(oldStateId == stateId)
+        return;
+
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, oldStateId});
+    for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
+        node->second->detachObject(limbIt->second);
+}*/
+
+void Skeleton::attachLimbsOfState(int nodeId, int stateId)
+{
+    auto node = m_nodesById.find(nodeId);
+
+    if(node == m_nodesById.end())
+        return;
+
+    int oldStateId = this->getNodeState(nodeId);
+    /*-1;
+    auto oldState = m_nodesLastState.find(nodeId);
+    if(oldState != m_nodesLastState.end())
+        oldStateId = oldState->second;*/
+
+    if(oldStateId == stateId)
+        return;
+
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, stateId});
+    for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
+        node->second->attachObject(limbIt->second);
+
+    m_nodesLastState[nodeId] = stateId;
+}
+
+
+void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
+{
+    auto node = m_nodesById.find(nodeId);
+
+    if(node == m_nodesById.end())
+        return;
+
+    /*int oldStateId = -1;
+    auto oldState = m_nodesLastState.find(nodeId);
+    if(oldState != m_nodesLastState.end())
+        oldStateId = oldState->second;*/
+
+    int oldStateId = this->getNodeState(nodeId);
+
+    if(oldStateId == -1 || oldStateId == stateId)
+        return;
+
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, oldStateId});
+    for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
+        node->second->detachObject(limbIt->second);
 }
 
 
 
-bool Skeleton::detachAllLimbs(const std::string &boneName)
+/*bool Skeleton::detachAllLimbs(const std::string &boneName)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -79,8 +181,10 @@ bool Skeleton::detachAllLimbs(const std::string &boneName)
 
     bone->second->detachAllObjects();
 
+    /// Add detach limbsPerNodeState
+
     return (true);
-}
+}*/
 
 bool Skeleton::attachSound(SoundObject *soundObject, const std::string &soundName)
 {
@@ -215,6 +319,14 @@ void Skeleton::update(const Time &elapsedTime)
     m_forceNewAnimation = false;
 }
 
+int Skeleton::getNodeState(int nodeId)
+{
+    int oldStateId = -1;
+    auto oldState = m_nodesLastState.find(nodeId);
+    if(oldState != m_nodesLastState.end())
+        oldStateId = oldState->second;
+    return oldStateId;
+}
 
 /// Protected ///
 
@@ -235,6 +347,10 @@ void Skeleton::copyFromModel(SkeletonModelAsset *model)
         m_nodesByName.insert({it.first, node});
         m_nodesById.insert({model->getNodeId(it.first), node});
     }
+
+    auto initStates = model->getInitialStates();
+    for(auto state : *initStates)
+        this->attachLimbsOfState(state.first, state.second);
 
    // m_nodesByName = m_model->getNodesByName();
    // m_rootNode->getChildsByNames(m_nodesByName, true);
@@ -261,6 +377,14 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
     auto sounds = frame->getSounds();
     for(const auto sound : *sounds)
         this->playSound(sound);
+
+
+    auto states = frame->getStates();
+    for(const auto state : *states)
+    {
+        this->detachLimbsOfDifferentState(state.first, state.second);
+        this->attachLimbsOfState(state.first, state.second);
+    }
 }
 
 /**                             **/

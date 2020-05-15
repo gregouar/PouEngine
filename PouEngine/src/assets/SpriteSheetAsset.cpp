@@ -83,7 +83,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
     int i = 0;
     while(spriteElement != nullptr)
     {
-        std::unique_ptr<SpriteModel> spriteModel(new SpriteModel());
+        std::unique_ptr<SpriteModel> spriteModel(new SpriteModel(this));
 
         std::string spriteName = std::to_string(i);
         glm::vec2 spriteSize(0,0);
@@ -131,6 +131,20 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
         }
 
 
+        auto nextSpriteElement = spriteElement->FirstChildElement("nextSprite");
+        if(nextSpriteElement != nullptr)
+        {
+            float delay = -1;
+            int nextSprite = -1;
+            if(nextSpriteElement->Attribute("delay") != nullptr)
+                delay = Parser::parseFloat(std::string(nextSpriteElement->Attribute("delay")));
+            if(nextSpriteElement->Attribute("name") != nullptr)
+                nextSprite = this->generateSpriteId(std::string(nextSpriteElement->Attribute("name")));
+
+            if(nextSprite != -1 && delay != -1)
+                spriteModel->setNextSprite(nextSprite, delay);
+        }
+
         spriteModel->setTexture(m_texture);
 
         if(!customSize && m_texture->isLoaded())
@@ -146,8 +160,9 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
         if(customPosition)
             spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);
 
-        if(!m_sprites.insert(std::make_pair(spriteName,std::move(spriteModel))).second)
-            Logger::warning("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);
+        int spriteId = this->generateSpriteId(spriteName);
+        if(!m_spritesById.insert({spriteId, std::move(spriteModel)}).second)
+              Logger::warning("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);
 
         spriteElement = spriteElement->NextSiblingElement("sprite");
         ++i;
@@ -162,13 +177,54 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
 
 SpriteModel* SpriteSheetAsset::getSpriteModel(const std::string &spriteName)
 {
-    auto spriteModel = m_sprites.find(spriteName);
+    auto founded = m_spritesIdByName.find(spriteName);
+    if(founded == m_spritesIdByName.end())
+        return (nullptr);
+
+    return this->getSpriteModel(founded->second);
+    /*auto spriteModel = m_sprites.find(spriteName);
 
     if(spriteModel == m_sprites.end())
         return (nullptr);
 
-    return spriteModel->second.get();
+    return spriteModel->second.get();*/
 }
+
+
+SpriteModel* SpriteSheetAsset::getSpriteModel(int spriteId)
+{
+    auto founded = m_spritesById.find(spriteId);
+    if(founded == m_spritesById.end())
+        return (nullptr);
+
+    return founded->second.get();
+}
+
+int SpriteSheetAsset::getSpriteId(const std::string &spriteName) const
+{
+    auto founded = m_spritesIdByName.find(spriteName);
+    if(founded == m_spritesIdByName.end())
+        return (-1);
+
+    return founded->second;
+}
+
+int SpriteSheetAsset::generateSpriteId(const std::string &spriteName)
+{
+    int id = 0;
+    if(!m_spritesIdByName.empty())
+    {
+        auto founded = m_spritesIdByName.find(spriteName);
+        if(founded != m_spritesIdByName.end())
+            return founded->second;
+    }
+
+    id = m_spritesIdByName.size();//(--m_soundIdByName.end())->second++;
+    m_spritesIdByName.insert({spriteName,id});
+    return id;
+}
+
+
 
 
 void SpriteSheetAsset::notify(NotificationSender* sender, NotificationType notification,

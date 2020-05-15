@@ -214,6 +214,22 @@ bool SceneNode::playSound(int id)
     return r;
 }
 
+void SceneNode::update(const Time &elapsedTime)
+{
+    //std::cout<<"Update SceneNode: "<<this<<std::endl;
+    SimpleNode::update(elapsedTime);
+
+    int i = 0;
+    for(auto &object : m_attachedObjects)
+    {
+        object->update(elapsedTime);
+        //std::cout<<i++<<std::endl;
+    }
+}
+
+
+///Protected
+
 void SceneNode::updateGlobalPosition()
 {
     glm::vec4 parentColor(1.0f);
