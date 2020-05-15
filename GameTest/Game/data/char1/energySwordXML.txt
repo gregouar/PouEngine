@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<item>
+	<spritesheet name="mainSpriteSheet" path="mokouSpritesheetXML.txt" />
+	
+	<skeleton name="mainSkeleton">
+		<limb node="weapon" sprite="sword" state="standing" spritesheet="mainSpriteSheet" />
+		<limb node="weapon" sprite="swordAttack" state="attack" spritesheet="mainSpriteSheet" />
+		<!--<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />-->
+		
+		<sound name="attackSound" path="event:/LightSaberAttack" type="event" />
+	</skeleton>
+	
+	<hitboxes>
+		<box skeleton="mainSkeleton" node="weaponHB" >
+			<size 		x="14" 	y="72" 	/>
+			<center 	x="7" 	y="90" 	/>
+			<factor 	type="cut"> 1 </factor>
+		</box>
+	</hitboxes>
+	
+	<attributes>
+		<type>weapon</type>
+		<attackDelay>0</attackDelay>
+		<attackDamages>50</attackDamages>
+	</attributes>
+</item>

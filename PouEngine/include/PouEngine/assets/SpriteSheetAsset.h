@@ -41,6 +41,8 @@ class SpriteSheetAsset : public Asset, public NotificationListener
         TextureAsset *m_texture;
         glm::vec2     m_textureScale;
 
+        bool m_waitingForTextureLoading;
+
         std::map<std::string, int>                      m_spritesIdByName;
         std::map<int, std::unique_ptr<SpriteModel> >    m_spritesById;
 

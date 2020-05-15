@@ -57,7 +57,7 @@ void TestingState::init()
     pou::AudioEngine::playEvent(music);
 
     m_character = new PlayableCharacter();
-    m_character->loadModel("../data/char1/char1XML.txt");
+    m_character->loadModel("../data/char1/mokouXML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
@@ -414,6 +414,8 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_character->loadItem("../data/char1/mokouSwordXML.txt");
     if(eventsManager->keyPressed(GLFW_KEY_4))
         m_character->loadItem("../data/char1/laserSwordXML.txt");
+    if(eventsManager->keyPressed(GLFW_KEY_5))
+        m_character->loadItem("../data/char1/energySwordXML.txt");
 
     glm::vec2 charDirection = {0,0};
 
