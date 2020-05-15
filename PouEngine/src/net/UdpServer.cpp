@@ -106,7 +106,7 @@ void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessa
     {
         auto clientNbr = findClientIndex(msg.first.address,
                                          msg.first.salt);
-        if(clientNbr < m_clients.size());
+        if(clientNbr < m_clients.size())
             netMessages.push_back({clientNbr, msg.second});
     }
         //this->processMessage(msg);
@@ -274,9 +274,9 @@ uint16_t UdpServer::findClientIndex(NetAddress &address, int salt)
 }
 
 
-uint16_t UdpServer::getMaxNbrClients() const
+/*uint16_t UdpServer::getMaxNbrClients() const
 {
     return m_clients.size();
-}
+}*/
 
 }

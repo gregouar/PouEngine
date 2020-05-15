@@ -1,6 +1,7 @@
 #include "net/GameClient.h"
 
 #include "net/NetMessageTypes.h"
+#include "PouEngine/Types.h"
 
 GameClient::GameClient()
 {
@@ -64,10 +65,11 @@ void GameClient::update(const pou::Time &elapsedTime)
 void GameClient::sendMsgTest(bool reliable, bool forceSend)
 {
     auto testMsg = std::dynamic_pointer_cast<NetMessage_test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
-    testMsg->test_value = 42;
+    testMsg->test_value = glm::linearRand(0,100);
     testMsg->isReliable = reliable;
 
-    m_client->sendMessage(std::move(testMsg), forceSend);
+    m_client->sendMessage(testMsg, forceSend);
+    std::cout<<"Client send test message with value:"<<testMsg->test_value<<" and id: "<<testMsg->id<<std::endl;
 }
 
 void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
@@ -78,7 +80,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
     if(msg->type == NetMessageType_Test)
     {
         auto castMsg = std::dynamic_pointer_cast<NetMessage_test>(msg);
-        std::cout<<"Client received test message with value="<<castMsg->test_value<<" and id "<<castMsg->id<<std::endl;
+        std::cout<<"Client received test message with value: "<<castMsg->test_value<<" and id: "<<castMsg->id<<std::endl;
     }
 }
 

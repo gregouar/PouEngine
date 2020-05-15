@@ -93,13 +93,25 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
     for(auto &it : m_reliableMsgBuffers)
     {
         auto &reliableMsgBuffer = it.second;
-        if(!reliableMsgBuffer.msgMap.empty())
-        while(reliableMsgBuffer.last_id+1 == reliableMsgBuffer.msgMap.begin()->first)
+        while(!reliableMsgBuffer.msgMap.empty())
+        {
+            auto founded = reliableMsgBuffer.msgMap.find((reliableMsgBuffer.last_id+1)%NetMessagesFactory::NETMESSAGEID_MAX_NBR);
+            if(founded != reliableMsgBuffer.msgMap.end())
+            {
+                netMessages.push_back({it.first, founded->second});
+                reliableMsgBuffer.msgMap.erase(founded);
+                reliableMsgBuffer.last_id++;
+            } else
+                break;
+
+        }
+        /*while((reliableMsgBuffer.last_id+1)%NetMessagesFactory::NETMESSAGEID_MAX_NBR
+              == reliableMsgBuffer.msgMap.begin()->first)
         {
             netMessages.push_back({it.first, reliableMsgBuffer.msgMap.begin()->second});
             reliableMsgBuffer.msgMap.erase(reliableMsgBuffer.msgMap.begin());
             reliableMsgBuffer.last_id++;
-        }
+        }*/
     }
 }
 
@@ -120,12 +132,15 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     auto curPacketSize = packet.serialize(&stream);
 
-    //if(!forceNonFragSend) //Probably don't need this since frag packet are already max size (and otherwise maybe we want to add reliable msg
+    if(!forceNonFragSend)
     {
         auto &netMsgList = m_netMsgLists[{address, packet.salt}];
 
         packet.last_ack = netMsgList.last_ack;
         packet.ack_bits = netMsgList.ack_bits;
+
+        //std::cout<<"ListSize:"<<netMsgList.reliableMsgMap.size()<<std::endl;
+        //std::cout<<"Sending packet seq:"<<packet.sequence<<std::endl;
 
         for(auto &it : netMsgList.reliableMsgMap)
         {
@@ -138,6 +153,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
             packet.nbrNetMessages++;
 
             netMsgList.msgPerPacket.insert({packet.sequence, it.first});
+
+            //std::cout<<"Trying to send msgid:"<<it.second->id<<std::endl;
 
             if(curPacketSize > MAX_PACKETSIZE)
                 break;
@@ -190,7 +207,11 @@ void UdpPacketsExchanger::sendMessage(ClientAddress &address, std::shared_ptr<Ne
     if(msg->isReliable)
     {
         msg->id = netMsgList.curId++;
-        std::cout<<"Sending reliable message with id: "<<msg->id<<std::endl;
+
+        if(netMsgList.curId == NetMessagesFactory::NETMESSAGEID_MAX_NBR)
+            netMsgList.curId = 0;
+
+        //std::cout<<"Sending reliable message with id: "<<msg->id<<std::endl;
         netMsgList.reliableMsgMap.insert({msg->id, msg});
     } else {
         msg->id = -1;
@@ -259,7 +280,7 @@ void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType pac
 
     packet.crc32    = this->hashPacket();
 
-    packet.sequence = m_curSequence;
+    packet.sequence = m_curSequence % UDPPACKET_SEQ_MAX;
     packet.last_ack = -1;
     packet.ack_bits = 0;
 
@@ -278,7 +299,7 @@ void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
     int nbr_frags = (packetBuffer.buffer.size() / MAX_PACKETSIZE) + 1;
     assert(nbr_frags < MAX_PACKETFRAGS);
 
-    //std::cout<<"Big packet split into "<<nbr_frags<<" parts from size:"<<packetBuffer.buffer.size()<<std::endl;
+    std::cout<<"Big packet split into "<<nbr_frags<<" parts from size:"<<packetBuffer.buffer.size()<<std::endl;
 
     for(auto i = 0 ; i < nbr_frags ; ++i)
     {
@@ -374,11 +395,21 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
     ClientAddress clientAddress = {packetBuffer.address, packet.salt};
     auto &netMsgList = m_netMsgLists[clientAddress];
 
+    /*for(int i = 0 ; i < 32 ; ++i)
+        std::cout<<(bool)(packet.ack_bits & (uint32_t)(pow(2,i)));
+    std::cout<<std::endl;*/
+
     //We remove from the msgList the messages that have been ack
     for(auto i = 0 ; i < 32 ; ++i)
-    if(packet.ack_bits & ((int)1 << i))
+    if((packet.ack_bits & ((int)1 << i)))
     {
-        auto packet_seq = packet.last_ack - i;
+        int packet_seq = (packet.last_ack - (int)i) % UDPPACKET_SEQ_MAX;
+        if(packet_seq < 0)
+            packet_seq += UDPPACKET_SEQ_MAX;
+
+        //std::cout<<"Client has acked packet seq:"<<packet_seq<<std::endl;
+
+       // std::cout<<"Ack packet:"<<packet_seq<<" (last_ack:"<<packet.last_ack<<std::endl;
         auto msg_ids = netMsgList.msgPerPacket.equal_range(packet_seq);
         //for(auto id : msg_ids)
         for(auto id = msg_ids.first ; id != msg_ids.second ; ++id)
@@ -386,14 +417,38 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         netMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);
     }
 
+    //We don't want to ack for frag part
+    if(packet.type == PacketType_Fragment)
+        return PacketType_Fragment;
+
     //We update the last_ack received and ack_bit
-    auto seq = packet.sequence;
-    if(netMsgList.last_ack < seq)
+    uint32_t seq = (uint32_t)packet.sequence;
+
+    //std::cout<<"Acking packet seq"<<packet.sequence<<std::endl;
+
+    //std::cout<<"test:"<<(-1)%UDPPACKET_SEQ_MAX<<std::endl;
+
+    int64_t delta = seq - netMsgList.last_ack%UDPPACKET_SEQ_MAX;
+    //std::cout<<"Delta1:"<<delta<<std::endl;
+    if(abs(delta) > UDPPACKET_SEQ_MAX/2)
     {
-        netMsgList.ack_bits <<= seq - netMsgList.last_ack;
-        netMsgList.last_ack = seq;
+        //if(seq < (uint32_t)netMsgList.last_ack)
+        if(delta < 0)
+            delta += UDPPACKET_SEQ_MAX; //seq + UDPPACKET_SEQ_MAX - netMsgList.last_ack;
+        else
+            delta -= UDPPACKET_SEQ_MAX; //  - netMsgList.last_ack + seq - UDPPACKET_SEQ_MAX;
     }
-    netMsgList.ack_bits |= (((int)1) << (netMsgList.last_ack - seq));
+
+   // std::cout<<"Delta2:"<<delta<<std::endl;
+
+    //if(netMsgList.last_ack < seq)
+    if(delta > 0)
+    {
+        netMsgList.ack_bits <<= delta; //seq - netMsgList.last_ack;
+        netMsgList.last_ack = packet.sequence;
+        delta = 0;
+    }
+    netMsgList.ack_bits |= (((int)1) << (-delta));//(netMsgList.last_ack - seq));
 
     //We retrieve the messages
     auto &reliableMsgBuffer = m_reliableMsgBuffers[clientAddress];
@@ -403,8 +458,26 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         if(msg->isReliable)
         {
             //std::cout<<"I have got a reliable message dude, id:"<<msg->id<<std::endl;
-            if(reliableMsgBuffer.last_id < msg->id)
+            int64_t delta = msg->id - reliableMsgBuffer.last_id % NetMessagesFactory::NETMESSAGEID_MAX_NBR;
+            if(abs(delta) > NetMessagesFactory::NETMESSAGEID_MAX_NBR/2)
+            {
+                if(delta < 0)
+                    delta += NetMessagesFactory::NETMESSAGEID_MAX_NBR;
+                else
+                    delta -= NetMessagesFactory::NETMESSAGEID_MAX_NBR;
+            }
+
+            //if(reliableMsgBuffer.last_id % NetMessagesFactory::NETMESSAGEID_MAX_NBR < msg->id)
+
+            if(delta > 0)
                 reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
+
+            /*if(delta > 0)
+            {
+                auto r = reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
+                if(r.second)
+                    std::cout<<"Received reliable msg with id:"<<msg->id<<std::endl;
+            }*/
         } else {
             netMessages.push_back({clientAddress, msg});
         }

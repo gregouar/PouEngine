@@ -1,7 +1,12 @@
 #include "PouEngine/net/NetMessagesFactory.h"
 
+#include "PouEngine/utils/MathTools.h"
+
 namespace pou
 {
+
+const int NetMessagesFactory::NETMESSAGEID_SIZE = 16;
+const int NetMessagesFactory::NETMESSAGEID_MAX_NBR = (int)pow(2,NETMESSAGEID_SIZE);
 
 
 void NetMessage::serializeImpl(Stream *stream)
@@ -17,7 +22,7 @@ int NetMessage::serializeHeader(Stream *stream/*, bool flush = true*/)
 {
     stream->serializeBool(isReliable);
     if(isReliable)
-        stream->serializeBits(id, 16);
+        stream->serializeBits(id, NetMessagesFactory::NETMESSAGEID_SIZE);
 
     /*if(flush)
     {

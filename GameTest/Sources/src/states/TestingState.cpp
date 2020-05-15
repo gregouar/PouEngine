@@ -16,7 +16,6 @@
 
 #include "PouEngine/Types.h"
 
-#include <glm/gtc/random.hpp>
 
 TestingState::TestingState() :
     m_firstEntering(true),
@@ -449,7 +448,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
-    if(eventsManager->keyPressed(GLFW_KEY_O))
+    if(eventsManager->keyIsPressed(GLFW_KEY_O))
         m_gameServer.sendMsgTest(true,false);
 }
 

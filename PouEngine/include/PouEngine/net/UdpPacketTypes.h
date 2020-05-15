@@ -16,6 +16,10 @@ static const int MAX_PACKETFRAGS = 256;
 static const int SERIAL_CHECK = 69420;
 static const int SALT_SIZE = 8;
 
+const int UDPPACKET_SEQ_SIZE = 16;
+const int UDPPACKET_SEQ_MAX = (int)pow(2,UDPPACKET_SEQ_SIZE);
+
+
 enum PacketType
 {
     PacketType_Fragment,
@@ -57,8 +61,8 @@ struct UdpPacket
     {
         stream->serializeBits(crc32, 32);
         stream->serializeBits(salt, SALT_SIZE);
-        stream->serializeBits(sequence, 16);
-        stream->serializeBits(last_ack, 16);
+        stream->serializeBits(sequence, UDPPACKET_SEQ_SIZE);
+        stream->serializeBits(last_ack, UDPPACKET_SEQ_SIZE);
         stream->serializeBits(ack_bits, 32);
         stream->serializeInt(type, 0, NBR_PacketTypes-1);
 

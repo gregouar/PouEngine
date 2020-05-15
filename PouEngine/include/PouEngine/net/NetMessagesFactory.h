@@ -37,6 +37,10 @@ class NetMessagesFactory
 
     private:
         std::vector< std::unique_ptr<NetMessage> > m_msgModels;
+
+    public:
+        static const int NETMESSAGEID_SIZE;
+        static const int NETMESSAGEID_MAX_NBR;
 };
 
 }

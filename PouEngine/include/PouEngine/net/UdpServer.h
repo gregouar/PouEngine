@@ -9,18 +9,6 @@
 namespace pou
 {
 
-struct ClientInfos
-{
-    ClientInfos() : address(), status(ConnectionStatus_Disconnected){};
-
-    NetAddress          address;
-    ConnectionStatus    status;
-    float               lastPingTime;
-    float               lastPingAnswerTime;
-    int                 serverSalt;
-    int                 clientSalt;
-};
-
 class UdpServer : public AbstractServer
 {
     public:
@@ -35,7 +23,7 @@ class UdpServer : public AbstractServer
         virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend);
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
-        virtual uint16_t getMaxNbrClients() const;
+        //virtual uint16_t getMaxNbrClients() const;
 
     protected:
         virtual void processPacket(UdpBuffer &buffer);
@@ -55,8 +43,6 @@ class UdpServer : public AbstractServer
     private:
        //UdpSocket m_socket;
         UdpPacketsExchanger m_packetsExchanger;
-
-        std::vector<ClientInfos> m_clients;
 
         float m_pingDelay;
         float m_deconnectionPingDelay;

@@ -153,7 +153,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractServer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetAddress.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetEngine.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/net/ReliableMessagesFactory.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/NetMessagesFactory.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.h" />
@@ -255,7 +255,7 @@
 		<Unit filename="../../PouEngine/src/net/AbstractServer.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetAddress.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetEngine.cpp" />
-		<Unit filename="../../PouEngine/src/net/ReliableMessagesFactory.cpp" />
+		<Unit filename="../../PouEngine/src/net/NetMessagesFactory.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpNetImpl.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpPacketsExchanger.cpp" />
@@ -323,7 +323,7 @@
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
-		<Unit filename="include/net/ReliableMessageTypes.h" />
+		<Unit filename="include/net/NetMessageTypes.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Character.cpp" />

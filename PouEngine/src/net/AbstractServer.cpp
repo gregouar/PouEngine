@@ -35,6 +35,18 @@ unsigned short AbstractServer::getPort()  const
     return m_port;
 }
 
+uint16_t AbstractServer::getMaxNbrClients() const
+{
+    return m_clients.size();
+}
+
+bool AbstractServer::isClientConnected(uint16_t clientNbr) const
+{
+    if(clientNbr > getMaxNbrClients())
+        return (false);
+    return (m_clients[clientNbr].status == ConnectionStatus_Connected);
+}
+
 
 
 }

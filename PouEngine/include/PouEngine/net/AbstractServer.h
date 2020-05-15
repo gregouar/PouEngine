@@ -10,6 +10,19 @@
 namespace pou
 {
 
+struct ClientInfos
+{
+    ClientInfos() : address(), status(ConnectionStatus_Disconnected){};
+
+    NetAddress          address;
+    ConnectionStatus    status;
+    float               lastPingTime;
+    float               lastPingAnswerTime;
+    int                 serverSalt;
+    int                 clientSalt;
+};
+
+
 class AbstractServer
 {
     public:
@@ -26,8 +39,9 @@ class AbstractServer
 
         bool isRunning() const;
         unsigned short getPort() const;
-        virtual uint16_t getMaxNbrClients() const = 0;
+        virtual uint16_t getMaxNbrClients() const;
         //const NetAddress &getAddress() const;
+        bool isClientConnected(uint16_t clientNbr) const;
 
     protected:
         //virtual void processMessages() = 0;
@@ -39,6 +53,8 @@ class AbstractServer
         unsigned short m_port;
         float m_curLocalTime;
         //NetAddress m_address;
+
+        std::vector<ClientInfos> m_clients;
 };
 
 }

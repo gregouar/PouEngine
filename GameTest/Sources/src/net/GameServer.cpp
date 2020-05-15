@@ -1,6 +1,7 @@
 #include "net/GameServer.h"
 
 #include "net/NetMessageTypes.h"
+#include "PouEngine/types.h"
 
 GameServer::GameServer()
 {
@@ -62,13 +63,15 @@ unsigned short GameServer::getPort() const
 void GameServer::sendMsgTest(bool reliable, bool forceSend)
 {
     for(auto i = 0 ; i < m_server->getMaxNbrClients() ; ++i)
-    {
-        auto testMsg = std::dynamic_pointer_cast<NetMessage_test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
-        testMsg->test_value = 36;
-        testMsg->isReliable = reliable;
+        if(m_server->isClientConnected(i))
+        {
+            auto testMsg = std::dynamic_pointer_cast<NetMessage_test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
+            testMsg->test_value = glm::linearRand(0,100);
+            testMsg->isReliable = reliable;
 
-        m_server->sendMessage(i,testMsg, forceSend);
-    }
+            m_server->sendMessage(i,testMsg, forceSend);
+            std::cout<<"Server send test message with value: "<<testMsg->test_value<<" and id: "<<testMsg->id<<std::endl;
+        }
 }
 
 
