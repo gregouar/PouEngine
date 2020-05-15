@@ -216,7 +216,6 @@ bool SceneNode::playSound(int id)
 
 void SceneNode::update(const Time &elapsedTime)
 {
-    //std::cout<<"Update SceneNode: "<<this<<std::endl;
     SimpleNode::update(elapsedTime);
 
     int i = 0;

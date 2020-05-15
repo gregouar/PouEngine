@@ -269,7 +269,7 @@ SpriteModel* SpriteModel::getNextSpriteModel()
     if(m_nextSprite == -1)
         return (nullptr);
 
-    m_spriteSheet->getSpriteModel(m_nextSprite);
+    return m_spriteSheet->getSpriteModel(m_nextSprite);
 }
 
 void SpriteModel::notify(NotificationSender *sender, NotificationType notification,

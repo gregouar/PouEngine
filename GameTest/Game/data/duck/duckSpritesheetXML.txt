@@ -51,7 +51,7 @@
 	<sprite name="headAttack2">
 		<size 		x="22" 	y="46" 	/>
 		<center 	x="11" 	y="35" 	/>
-		<position 	x="12" 	y="50"	/>
+		<position 	x="80" 	y="50"	/>
 		<nextSprite name="headAttack"  delay=.2 />
 	</sprite>
 	

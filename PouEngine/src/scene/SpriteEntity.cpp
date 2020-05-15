@@ -367,9 +367,7 @@ void SpriteEntity::update(const Time &elapsedTime)
 
     float nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
 
-    std::cout<<"NextSpriteDelay: "<<nextSpriteDelay<<" for "<<m_nextSpriteElapsedTime<<std::endl;
-
-    /*while(nextSpriteDelay != -1 && m_spriteModel->getNextSpriteModel() != nullptr
+    while(nextSpriteDelay != -1 && m_spriteModel->getNextSpriteModel() != nullptr
        && m_nextSpriteElapsedTime >= nextSpriteDelay)
     {
         m_nextSpriteElapsedTime -= nextSpriteDelay;
@@ -379,7 +377,7 @@ void SpriteEntity::update(const Time &elapsedTime)
             break;
 
         nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
-    }*/
+    }
 }
 
 void SpriteEntity::notify(NotificationSender *sender, NotificationType notification,

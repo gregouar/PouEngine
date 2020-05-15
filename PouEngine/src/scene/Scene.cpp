@@ -40,8 +40,6 @@ void Scene::update(const Time &elapsedTime)
 {
     m_rootNode.update(elapsedTime);
     m_renderingData.update();
-
-    std::cout<<"UpdateScene"<<std::endl;
 }
 
 void Scene::render(SceneRenderer *renderer, CameraObject *camera)
