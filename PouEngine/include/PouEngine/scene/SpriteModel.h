@@ -92,6 +92,7 @@ class SpriteModel : public NotificationListener, public NotificationSender
         TextureAsset *getTexture();
         glm::vec2 getSize();
         glm::vec2 getCenter();
+        glm::vec2 getTextureResolution();
         glm::vec2 getTextureExtent();
         glm::vec2 getTexturePosition();
         bool      isReady();

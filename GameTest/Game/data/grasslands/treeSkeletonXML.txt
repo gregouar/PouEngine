@@ -2,6 +2,7 @@
 <skeleton>
 	<node name="root"> 
 		<node name="trunk" z=40>
+			<node name="shadow" z=-39.9 />
 			<node name="foliage1" z=10 >
 				<node name="foliage2" z=10 />
 			</node>
@@ -67,6 +68,7 @@
 			<command type="colorTo" node="trunk" a=-1 />
 			<command type="colorTo" node="foliage2" a=-1 />
 			<command type="colorTo" node="foliage1" a=-1 />
+			<command type="colorTo" node="shadow" a=-1 />
 		</frame>
 	</animation>
 </skeleton>

@@ -799,6 +799,8 @@ bool SceneRenderer::createAttachments()
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_albedoAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_positionAttachments) &
+            VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement)
         )
         return (false);
@@ -872,9 +874,12 @@ void SceneRenderer::prepareDeferredRenderPass()
     m_deferredPass = m_renderGraph.addRenderPass(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     m_renderGraph.addNewAttachments(m_deferredPass, m_albedoAttachment);
+    m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachments);
+
     /*m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachments[0]);
     m_renderGraph.addNewAttachments(m_deferredPass, m_normalAttachments[0]);
     m_renderGraph.addNewAttachments(m_deferredPass, m_rmtAttachments[0]);*/
+
     m_renderGraph.addNewAttachments(m_deferredPass, m_deferredDepthAttachment);
 }
 
@@ -941,6 +946,8 @@ void SceneRenderer::prepareLightingRenderPass()
     m_renderGraph.addNewAttachments(m_lightingPass, m_hdrAttachement);
 
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 1);
+
     /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDetectPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 3);*/
@@ -1225,7 +1232,7 @@ bool SceneRenderer::createDeferredMeshesPipeline()
     m_deferredMeshesPipeline.attachDescriptorSetLayout(m_renderView.getDescriptorSetLayout());
     m_deferredMeshesPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout());
 
-    m_deferredMeshesPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec4));
+    m_deferredMeshesPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(glm::vec4));
 
     m_deferredMeshesPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER);
 
@@ -1566,6 +1573,7 @@ void SceneRenderer::cleanup()
 
     VulkanHelpers::destroyAttachment(m_deferredDepthAttachment);
     VulkanHelpers::destroyAttachment(m_albedoAttachment);
+    VulkanHelpers::destroyAttachment(m_positionAttachments);
     VulkanHelpers::destroyAttachment(m_hdrAttachement);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)

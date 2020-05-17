@@ -146,7 +146,8 @@ class SceneRenderer : public AbstractRenderer
         VFramebufferAttachment m_SSGIBlurLightingAttachments[2];**/
 
         VFramebufferAttachment m_deferredDepthAttachment;
-        VFramebufferAttachment m_albedoAttachment;
+        VFramebufferAttachment m_albedoAttachment,
+                               m_positionAttachments;
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  /*m_spriteShadowsPass,

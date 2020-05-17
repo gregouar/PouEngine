@@ -57,7 +57,7 @@ void TestingState::init()
     pou::AudioEngine::playEvent(music);
 
     m_character = new PlayableCharacter();
-    m_character->loadModel("../data/char1/mokouXML.txt");
+    m_character->loadModel("../data/char1/char1XML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
@@ -91,9 +91,51 @@ void TestingState::init()
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     {
-         pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
-         grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1")));
+        pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+
+        int rd = x+y;//glm::linearRand(0,96);
+        int modulo = 4;
+        if(abs(rd % modulo) == 0)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_2")));
+        else if(abs(rd % modulo) == 1)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_1")));
+        else if(abs(rd % modulo) == 2)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3")));
+        else if(abs(rd % modulo) == 3)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4")));
+
+         /*int rd = glm::linearRand(0,96);
+         int modulo = 7;
+         if(rd % modulo == 0 || rd % modulo == 1 || rd % modulo == 2)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass2_1")));
+        else if(rd % modulo == 3)
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass2_2")));
+        else if(rd % modulo == 4 ||  rd % modulo == 5 )
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass2_3")));
+        else if(rd % modulo == 6 )
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass2_4")));*/
+
+
+         grassNode->setScale(glm::vec3(
+                                glm::linearRand(0,10) > 5 ? 1 : -1,
+                                1,//glm::linearRand(0,10) > 5 ? 1 : -1,
+                                1));
     }
+
+   /* pou::SpriteSheetAsset *rocksSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
+
+    for(auto x = 0 ; x < 3 ; x++)
+    {
+         glm::vec2 p = glm::vec2(glm::linearRand(-500,500), glm::linearRand(-500,500));
+         pou::SceneNode *rockNode = m_scene->getRootNode()->createChildNode(p.x,p.y,.001);
+         if(x % 3 == 0)
+            rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock1")));
+        else if(x % 3 == 1)
+            rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock2")));
+        else if(x % 3 == 2)
+            rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock3")));
+    }*/
+
 
     for(auto x = -3 ; x < 3 ; x++)
     {
@@ -172,13 +214,13 @@ void TestingState::init()
     //m_scene->setCurrentCamera(m_camera);
 
 
-    m_scene->setAmbientLight({1.0,1.0,1.0,1.0});
-    //m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
-    //m_scene->getRootNode()->attachObject(m_sunLight);
+    m_scene->setAmbientLight({.1,.1,.2,.5});
+    auto *sunLight = m_scene->createLightEntity(pou::LightType_Directional);
+    m_scene->getRootNode()->attachObject(sunLight);
 
     ///Day
-   // m_sunLight->setDiffuseColor({1.0,1.0,1.0,1.0});
-   // m_sunLight->setIntensity(20.0);
+    sunLight->setDiffuseColor({1.0,1.0,1.0,1.0});
+    sunLight->setIntensity(1.0);
 
     ///Night
     //m_sunLight.setDiffuseColor({0.7,0.7,1.0,1.0});
@@ -197,13 +239,13 @@ void TestingState::init()
     sunLight->setIntensity(15.0);
     sunLight->enableShadowCasting();*/
 
-   /* pou::LightEntity *cursorLight = m_scene->createLightEntity();
+    pou::LightEntity *cursorLight = m_scene->createLightEntity();
     m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,60);
     m_cursorLightNode->attachObject(cursorLight);
     cursorLight->setDiffuseColor({1.0,1.0,1.0,1.0});
-    cursorLight->setIntensity(20.0);
+    cursorLight->setIntensity(5.0);
     cursorLight->setRadius(400.0);
-    cursorLight->setType(pou::LightType_Omni);*/
+    cursorLight->setType(pou::LightType_Omni);
 
     /*for(size_t i = 3 ; i < 3 ; ++i)
     {
@@ -331,6 +373,8 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         return;
 
     glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera);
+
+    m_cursorLightNode->setPosition(worldMousePos.x, worldMousePos.y);
 
     //if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
        // m_croco->setDestination(worldMousePos);

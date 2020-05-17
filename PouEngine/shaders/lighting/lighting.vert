@@ -2,12 +2,12 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 0, set = 0) uniform ViewUBO {
-    float proj;
     mat4 view;
     mat4 viewInv;
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 
 layout(push_constant) uniform PER_OBJECT
@@ -49,7 +49,8 @@ out gl_PerVertex
 
 void main()
 {
-    vec4 screenPos = viewUbo.view*(inPos-vec4(pc.camPosAndZoom.xyz,0));
+    lightPos = inPos - vec4(pc.camPosAndZoom.xyz, 0.0);
+    vec4 screenPos = viewUbo.view*lightPos;
 
     if(inPos.w == 0.0)
     {
@@ -62,8 +63,6 @@ void main()
                             + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
     }
 
-
-    lightPos    = inPos;
     lightColor  = inColor.rgb*inColor.a;
     lightRadiusInv = 1.0/(inRadius*0.01);
     lightShadowMap      = inShadowMap;

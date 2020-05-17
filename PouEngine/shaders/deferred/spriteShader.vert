@@ -29,7 +29,8 @@ layout(location = 4) in vec4 inColor;
 //layout(location = 5) in vec3 inRmt;
 layout(location = 5) in vec2 inTexCoord;
 layout(location = 6) in vec2 inTexExtent;
-layout(location = 7) in uvec2 inAlbedoTexId;
+layout(location = 7) in uvec2 inTexRes;
+layout(location = 8) in uvec2 inAlbedoTexId;
 /*layout(location = 9) in uvec2 inHeightTexId;
 layout(location = 10) in uvec2 inNormalTexId;
 layout(location = 11) in uvec2 inRmtTexId;*/
@@ -41,7 +42,13 @@ layout(location = 2) flat out uvec2 fragAlbedoTexId;
 /*layout(location = 4) flat out uvec2 fragHeightTexId;
 layout(location = 5) flat out uvec2 fragNormalTexId;
 layout(location = 6) flat out uvec2 fragRmtTexId;*/
-layout(location = 3) out vec3 screenPos;
+layout(location = 3) flat out uvec2 outTexRes;
+layout(location = 4) out vec4 originWorldPos;
+layout(location = 5) out vec4 xBasisVect;
+layout(location = 6) out vec4 yBasisVect;
+layout(location = 7) out vec4 localPos;
+
+//layout(location = 4) out vec3 screenPos;
 
 
 vec2 vertPos[4] = vec2[](
@@ -58,13 +65,31 @@ out gl_PerVertex
 
 void main()
 {
-    gl_Position = viewUbo.view * (inModel * vec4(vertPos[gl_VertexIndex],0.0,1.0) - vec4(pc.camPosAndZoom.xyz,0.0));
+    ///I should put all this in a matrix probably
+    originWorldPos = inModel * vec4(vertPos[1],0.0,1.0);
+    originWorldPos = vec4(originWorldPos.xyz/originWorldPos.w, 1.0);
+
+    xBasisVect = inModel * vec4(vertPos[3],0.0,1.0);
+    xBasisVect = vec4(xBasisVect.xyz/xBasisVect.w, 1.0);
+    xBasisVect -= originWorldPos;
+
+    yBasisVect = inModel * vec4(vertPos[0],0.0,1.0);
+    yBasisVect = vec4(yBasisVect.xyz/yBasisVect.w, 1.0);
+    yBasisVect -= originWorldPos;
+
+    originWorldPos -= vec4(pc.camPosAndZoom.xyz,0.0);
+
+    localPos = vec4(vertPos[gl_VertexIndex],0,1.0);
+
+    //relWorldPos = (inModel * vec4(vertPos[gl_VertexIndex],0.0,1.0) - vec4(pc.camPosAndZoom.xyz,0.0));
+
+    gl_Position = viewUbo.view * (inModel * localPos - vec4(pc.camPosAndZoom.xyz,0.0));
     gl_Position = vec4(gl_Position.xyz/gl_Position.w, 1.0);
 
     //gl_Position.xyz = vec4(viewUbo.view * (vec4(vertPos[gl_VertexIndex],0.0,0.0) * inModel) - vec4(pc.camPosAndZoom.xyz,0.0)) ;
 
-    screenPos = gl_Position.xyz;
-	
+    //screenPos = gl_Position.xyz;
+
 	gl_Position.xy *= (gl_Position.z/viewUbo.proj+1);
 
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
@@ -84,7 +109,9 @@ void main()
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);*/
 
-    fragTexCoord = inTexExtent * vertPos[gl_VertexIndex] + inTexCoord;
+    outTexRes = inTexRes;
+
+    fragTexCoord = inTexExtent * localPos.xy + inTexCoord;
     fragColor    = inColor;
     fragAlbedoTexId    = inAlbedoTexId;
 }

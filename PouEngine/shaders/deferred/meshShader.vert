@@ -69,16 +69,16 @@ void main()
     vec3 N      = normalize(vec4(inModel * vec4(inNormal,    0.0)).xyz);
     fragTBN     = mat3(T, B, N);
 
-    gl_Position = viewUbo.view* (fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0))*vec4(1.0,1.0,1.0,1.0);
+    fragWorldPos = vec4(fragWorldPos.xyz/fragWorldPos.w, 1.0);
+
+    gl_Position = viewUbo.view* (fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
     gl_Position.xyz = gl_Position.xyz/gl_Position.w;
-	
+
 	gl_Position.xy *=  (gl_Position.z/viewUbo.proj+1);
 
     //gl_Position.z = fragWorldPos.z;
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
-
-    fragWorldPos = vec4(fragWorldPos.xyz/*/fragWorldPos.w*/, 1.0);
 
     fragUV      = inUV;
     fragColor   = /*inColor **/ inInstanceColor;

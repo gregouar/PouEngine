@@ -189,6 +189,11 @@ glm::vec2 SpriteModel::getCenter()
     return m_center;
 }
 
+glm::vec2 SpriteModel::getTextureResolution()
+{
+    return m_textureExtent;
+}
+
 glm::vec2 SpriteModel::getTextureExtent()
 {
     if(!m_useRelativeTextureRect)

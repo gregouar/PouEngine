@@ -9,6 +9,13 @@ layout(binding = 0, set = 0) uniform ViewUBO {
     vec2 depthOffsetAndFactor;
     float proj;
 } viewUbo;
+
+layout(push_constant) uniform PER_OBJECT
+{
+    vec4 camPosAndZoom;
+}pc;
+
+
 layout(binding = 0, set = 1) uniform sampler samp;
 layout(binding = 1, set = 1) uniform texture2DArray textures[128];
 
@@ -26,7 +33,7 @@ layout(location = 10)      in vec4  fragWorldPos;
 layout(location = 11) flat in float fragTexThickness;
 
 layout(location = 0) out vec4 outAlbedo;
-//layout(location = 1) out vec4 outPosition;
+layout(location = 1) out vec4 outPosition;
 //layout(location = 2) out vec4 outNormal;
 //layout(location = 3) out vec4 outRmt;
 
@@ -53,7 +60,9 @@ void main()
         gl_FragDepth = gl_FragCoord.z;
     }
 
-    //outPosition     = vec4(fragWorldPos.xy, fragHeight, 0.0);
+
+    vec4 fragRelWorlPos = (fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
+    outPosition = fragRelWorlPos;
 
     //I could add GS to improve quality of normal mapping
 

@@ -2,5 +2,53 @@
 <spritesheet texture="grass3.png" scaleX=2 scaleY=2>
 	<sprite name="grass1">
 		<size 	x=64 y=64 />
+		<position 	x=0 y=0 />
 	</sprite>
+	
+	
+	<sprite name="grass1_1">
+		<size 	x=64 y=64 />
+		<position 	x=64 y=0 />
+	</sprite>
+	<sprite name="grass1_2">
+		<size 	x=64 y=64 />
+		<position 	x=128 y=0 />
+	</sprite>
+	<sprite name="grass1_3">
+		<size 	x=64 y=64 />
+		<position 	x=192 y=0 />
+	</sprite>
+	<sprite name="grass1_4">
+		<size 	x=64 y=64 />
+		<position 	x=256 y=0 />
+	</sprite>
+	<sprite name="grass1_5">
+		<size 	x=64 y=64 />
+		<position 	x=320 y=0 />
+	</sprite>
+	
+	
+	
+	<sprite name="grass2_1">
+		<size 	x=64 y=64 />
+		<position 	x=0 y=64 />
+	</sprite>
+	
+	<sprite name="grass2_2">
+		<size 	x=64 y=64 />
+		<position 	x=64 y=64 />
+	</sprite>
+	<sprite name="grass2_3">
+		<size 	x=64 y=64 />
+		<position 	x=128 y=64 />
+	</sprite>
+	<sprite name="grass2_4">
+		<size 	x=64 y=64 />
+		<position 	x=192 y=64 />
+	</sprite>
+	<sprite name="grass2_5">
+		<size 	x=64 y=64 />
+		<position 	x=256 y=64 />
+	</sprite>
+	
 </spritesheet>

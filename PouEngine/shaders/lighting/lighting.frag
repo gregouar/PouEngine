@@ -21,8 +21,8 @@ layout(set = 1, binding = 0) uniform sampler samp;
 layout(set = 1, binding = 1) uniform texture2DArray textures[128];
 
 layout (set = 2, binding = 0) uniform sampler2D samplerAlbedo;
-/*layout (set = 2, binding = 1) uniform sampler2D samplerPosition;
-layout (set = 2, binding = 2) uniform sampler2D samplerNormal;
+layout (set = 2, binding = 1) uniform sampler2D samplerPosition;
+/*layout (set = 2, binding = 2) uniform sampler2D samplerNormal;
 layout (set = 2, binding = 3) uniform sampler2D samplerRmt;
 layout (set = 2, binding = 4) uniform sampler2D samplerBentNormal;*/
 
@@ -220,11 +220,52 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec4 fragBe
     return lighting;
 }*/
 
+float discretize(float v, uint steps)
+{
+    return floor(v * steps)/steps;
+}
+
+vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos)
+{
+    vec4 lighting = vec4(0.0);
+
+    //if(fragAlbedo.a < .1)
+      //  return lighting;
+
+    float attenuation = 0.0;
+    vec3 lightDirection = vec3(0.0);
+
+    if(lightPos.w == 0.0)
+    {
+        lightDirection = -normalize(lightPos.xyz);
+        attenuation = 1.0;
+    } else {
+        lightDirection = lightPos.xyz - fragPos.xyz;
+        float dist = max(length(lightDirection)*0.01,1.0);
+        float dr = dist*lightRadiusInv;
+        float sqrtnom = 1.0 - dr*dr*dr*dr;
+        if(sqrtnom >= 0.0)
+            attenuation = clamp(sqrtnom*sqrtnom/(dist*dist+1.0),0.0,1.0);
+
+        lightDirection = normalize(lightDirection);
+    }
+
+    //attenuation = discretize(attenuation, 5);
+
+    if(attenuation > 0)
+    {
+        vec3 radiance = attenuation*lightColor.rgb;
+        lighting.rgb += fragAlbedo.rgb * radiance;
+    }
+
+    return lighting;
+}
+
 void main()
 {
     vec4 fragAlbedo = texture(samplerAlbedo, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
-    /*vec3 fragPos    = texture(samplerPosition, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
-    vec4 fragNormal = texture(samplerNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
+    vec3 fragPos    = texture(samplerPosition, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
+    /*vec4 fragNormal = texture(samplerNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
     vec3 fragRmt    = texture(samplerRmt, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
     vec4 fragBentNormal = texture(samplerBentNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
 
@@ -234,7 +275,11 @@ void main()
 
     ///Need to compute fragWorldPos from screenPos and then do 1/r^2 ;
 
-    fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
-    outColor =  vec4(fragAlbedo.rgb,1.0);
+    /*fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
+    outColor =  vec4(fragAlbedo.rgb,1.0);*/
+
+	fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
+    outColor = ComputeLighting(fragAlbedo, fragPos);
+
 }
 

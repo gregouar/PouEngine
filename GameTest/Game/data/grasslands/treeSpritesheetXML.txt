@@ -20,4 +20,9 @@
 		<center 	x="128" y="128" 	/>
 		<position 	x="768" y="0" 	/>
 	</sprite>
+	<sprite name="treeShadow">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="0" y="256" 	/>
+	</sprite>
 </spritesheet>

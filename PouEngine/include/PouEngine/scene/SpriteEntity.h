@@ -31,10 +31,11 @@ struct SpriteDatum
     glm::vec4 albedo_color;
     glm::vec2 texPos;
     glm::vec2 texExtent;
+    glm::uvec2 texRes;
     glm::uvec2 albedo_texId;
 
     static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 8> getAttributeDescriptions();
+    static std::array<VkVertexInputAttributeDescription, 9> getAttributeDescriptions();
 };
 
 /*struct SpriteShadowDatum

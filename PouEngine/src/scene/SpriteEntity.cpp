@@ -20,9 +20,9 @@ VkVertexInputBindingDescription SpriteDatum::getBindingDescription()
     return bindingDescription;
 }
 
-std::array<VkVertexInputAttributeDescription, 8> SpriteDatum::getAttributeDescriptions()
+std::array<VkVertexInputAttributeDescription, 9> SpriteDatum::getAttributeDescriptions()
 {
-    std::array<VkVertexInputAttributeDescription, 8> attributeDescriptions = {};
+    std::array<VkVertexInputAttributeDescription, 9> attributeDescriptions = {};
 
     size_t i = 0;
     /*attributeDescriptions[i].binding = 0;
@@ -98,6 +98,13 @@ std::array<VkVertexInputAttributeDescription, 8> SpriteDatum::getAttributeDescri
     attributeDescriptions[i].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[i].offset = offsetof(SpriteDatum, texExtent);
     ++i;
+
+    attributeDescriptions[i].binding = 0;
+    attributeDescriptions[i].location = i;
+    attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
+    attributeDescriptions[i].offset = offsetof(SpriteDatum, texRes);
+    ++i;
+
 
     attributeDescriptions[i].binding = 0;
     attributeDescriptions[i].location = i;
@@ -186,7 +193,7 @@ SpriteEntity::SpriteEntity() :
     m_rotation(0.0f),
     m_color(1.0,1.0,1.0,1.0),
     m_ordering(NOT_ORDERED),
-    m_inheritRotation(false),
+    m_inheritRotation(true),
     m_nextSpriteElapsedTime(0)
     //m_rmt(1.0,1.0,1.0)
 {
@@ -472,6 +479,7 @@ void SpriteEntity::updateDatum()
 
     m_datum.texPos    = m_spriteModel->getTexturePosition();
     m_datum.texExtent = m_spriteModel->getTextureExtent();
+    m_datum.texRes    = m_spriteModel->getTextureResolution();
 
     /*m_shadowDatum.texPos    = m_datum.texPos;
     m_shadowDatum.texExtent = m_datum.texExtent;*/

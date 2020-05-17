@@ -49,7 +49,8 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         //Maybe this does not really make sense and it should be SpriteAsset
         //pou::SpriteModel *m_charModel;
-        pou::SceneNode     *m_testNode;
+        pou::SceneNode     *m_testNode,
+                            *m_cursorLightNode;
         pou::SpriteEntity *m_testChar;
 
         PlayableCharacter *m_character, *m_character2;
