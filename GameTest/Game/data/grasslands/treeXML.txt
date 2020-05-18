@@ -7,9 +7,10 @@
 	<skeleton name="mainSkeleton" path="treeSkeletonXML.txt">
 		<limb node="baseTrunk" 	sprite="treeBaseTrunk" 	spritesheet="mainSpriteSheet" />
 		<limb node="trunk" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="foliage0" 	sprite="treeFoliage0" 	spritesheet="mainSpriteSheet" />
 		<limb node="foliage1" 	sprite="treeFoliage1" 	spritesheet="mainSpriteSheet" />
 		<limb node="foliage2" 	sprite="treeFoliage2" 	spritesheet="mainSpriteSheet" />
-		<limb node="shadow" 	sprite="treeShadow" 	spritesheet="mainSpriteSheet" />
+		<<limb node="shadow" 	sprite="treeShadow" 	spritesheet="mainSpriteSheet" />
 		
 		<sound name="chopSound" path="event:/ChopTree" type="event" />
 		<sound name="fallSound" path="event:/TreeFall" type="event" />

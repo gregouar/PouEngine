@@ -55,9 +55,9 @@ void main()
         float height = (heightPixel.r + heightPixel.g + heightPixel.b) * 0.33333333;
         fragHeight += height * fragTexThickness * (fragTBN*vec3(0.0,0.0,1.0)).z;
 
-        gl_FragDepth = viewUbo.depthOffsetAndFactor.x + fragHeight*viewUbo.depthOffsetAndFactor.y;
+        //gl_FragDepth = viewUbo.depthOffsetAndFactor.x + fragHeight*viewUbo.depthOffsetAndFactor.y;
     } else {
-        gl_FragDepth = gl_FragCoord.z;
+        //gl_FragDepth = gl_FragCoord.z;
     }
 
 

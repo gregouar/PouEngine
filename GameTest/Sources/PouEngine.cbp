@@ -224,10 +224,14 @@
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlparser.cpp" />
 		<Unit filename="../../PouEngine/shaders/blur.frag" />
 		<Unit filename="../../PouEngine/shaders/blur.vert" />
+		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.frag" />
+		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshShader.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshShader.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShader.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShader.vert" />
+		<Unit filename="../../PouEngine/shaders/deferred/spriteShadow.frag" />
+		<Unit filename="../../PouEngine/shaders/deferred/spriteShadow.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.frag" />
 		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/lighting.frag" />

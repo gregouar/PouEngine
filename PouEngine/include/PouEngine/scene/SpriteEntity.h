@@ -81,7 +81,7 @@ class SpriteEntity : public ShadowCaster
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
-        ///virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
+        virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
         virtual void update(const Time &elapsedTime);
 
@@ -91,7 +91,7 @@ class SpriteEntity : public ShadowCaster
     protected:
         void cleanup();
         void updateDatum();
-        //glm::vec2 generateShadowDatum(glm::vec3 direction);
+        glm::vec2 generateShadowDatum(glm::vec3 direction);
 
     protected:
         SpriteDatum          m_datum;

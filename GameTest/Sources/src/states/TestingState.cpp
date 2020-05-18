@@ -140,6 +140,8 @@ void TestingState::init()
     for(auto x = -3 ; x < 3 ; x++)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        if(x == 0)
+            p = glm::vec2(30,0);
         m_trees.push_back(new Character());
         m_trees.back()->loadModel("../data/grasslands/treeXML.txt");
         m_trees.back()->setPosition(p);
@@ -184,6 +186,7 @@ void TestingState::init()
     //m_shadowBoxEntity->setRmt({0.8,0.0,0.0});
     //wallBoxEntity->setColor({1.0,0.0,0.0,1.0});
     wallBoxEntity->setScale(glm::vec3(20,200,50));
+    wallBoxEntity->setShadowCasting(pou::ShadowCasting_All);
     //m_shadowBoxEntity->setShadowCasting(vlg::ShadowCasting_All);
     //m_shadowBoxNode = m_scene->getRootNode()->createChildNode({0,0,0});
     m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
@@ -192,6 +195,7 @@ void TestingState::init()
     pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
 
     pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
+    quackEntity->setShadowCasting(pou::ShadowCasting_All);
     quackNode->attachObject(quackEntity);
     quackNode->setScale(1.5f);
 
@@ -214,7 +218,7 @@ void TestingState::init()
     //m_scene->setCurrentCamera(m_camera);
 
 
-    m_scene->setAmbientLight({.6,.6,.8,2});
+    m_scene->setAmbientLight({1,1,1,1});
     //m_scene->setAmbientLight({.6,.6,.8,.2});
     auto *sunLight = m_scene->createLightEntity(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(sunLight);
@@ -229,9 +233,9 @@ void TestingState::init()
 
     //sunLight->setType(pou::LightType_Directional);
     //sunLight->setDirection({-1.0,0.0,-1.0});
-    sunLight->setDirection({-.4 , -.4 ,-1.0});
-    /*m_sunLight->setShadowMapExtent({1920,1080});
-    m_sunLight->enableShadowCasting();*/
+    sunLight->setDirection({-.6 , -.6 ,-1.0});
+    sunLight->setShadowMapExtent({1024,1024});
+    sunLight->enableShadowCasting();
 
     /*pou::LightEntity* sunLight = m_scene->createLightEntity(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(sunLight);

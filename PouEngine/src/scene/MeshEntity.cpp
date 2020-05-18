@@ -180,7 +180,7 @@ void MeshEntity::generateRenderingData(SceneRenderingInstance *renderingInstance
         renderingInstance->addToMeshesVbo(m_mesh->getMesh(), this->getMeshDatum());
 }
 
-/**glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
+glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 {
     if(m_mesh == nullptr || !m_mesh->isLoaded())
         return glm::vec2{0.0};
@@ -190,7 +190,7 @@ void MeshEntity::generateRenderingData(SceneRenderingInstance *renderingInstance
 
     ///I should compute bounding box and then maxShadowShift
     return glm::vec2{0.0};
-}**/
+}
 
 /*void MeshEntity::draw(SceneRenderer *renderer)
 {

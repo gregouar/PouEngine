@@ -43,6 +43,11 @@ const char *SceneRenderer::BLUR_VERTSHADERFILE = "smartBlur.vert.spv";
 const char *SceneRenderer::BLUR_FRAGSHADERFILE = "smartBlur.frag.spv";*/
 
 
+const char *SceneRenderer::SPRITE_SHADOW_VERTSHADERFILE = "deferred/spriteShadow.vert.spv";
+const char *SceneRenderer::SPRITE_SHADOW_FRAGSHADERFILE = "deferred/spriteShadow.frag.spv";
+const char *SceneRenderer::MESH_DIRECTSHADOW_VERTSHADERFILE = "deferred/meshDirectShadow.vert.spv";
+const char *SceneRenderer::MESH_DIRECTSHADOW_FRAGSHADERFILE = "deferred/meshDirectShadow.frag.spv";
+
 const char *SceneRenderer::SPRITE_DEFERRED_VERTSHADERFILE = "deferred/spriteShader.vert.spv";
 const char *SceneRenderer::SPRITE_DEFERRED_FRAGSHADERFILE = "deferred/spriteShader.frag.spv";
 const char *SceneRenderer::MESH_DEFERRED_VERTSHADERFILE = "deferred/meshShader.vert.spv";
@@ -83,7 +88,7 @@ void SceneRenderer::addRenderingInstance(SceneRenderingInstance *renderingInstan
     m_renderingInstances.push_back(renderingInstance);
 }
 
-/*void SceneRenderer::addShadowMapToRender(VRenderTarget* shadowMap, const LightDatum &datum)
+void SceneRenderer::addShadowMapToRender(VRenderTarget* shadowMap, const LightDatum &datum)
 {
     m_renderGraph.addDynamicRenderTarget(m_shadowMapsPass,shadowMap);
     m_shadowMapsInstances.push_back(ShadowMapRenderingInstance{});
@@ -92,10 +97,10 @@ void SceneRenderer::addRenderingInstance(SceneRenderingInstance *renderingInstan
     m_shadowMapsInstances.back().shadowShift = datum.shadowShift;
 
     m_shadowMapsInstances.back().spritesVboSize = 0;
-    m_shadowMapsInstances.back().spritesVboOffset = m_spriteShadowsVbos[m_curFrameIndex]->getSize();
+    m_shadowMapsInstances.back().spritesVboOffset = m_spritesVbos[m_curFrameIndex]->getSize();
 }
 
-void SceneRenderer::addSpriteShadowToRender(VRenderTarget* spriteShadow, const SpriteShadowGenerationDatum &datum)
+/*void SceneRenderer::addSpriteShadowToRender(VRenderTarget* spriteShadow, const SpriteShadowGenerationDatum &datum)
 {
     m_spriteShadowBufs[m_curFrameIndex].push_back(VRenderableTexture());
 
@@ -114,25 +119,40 @@ void SceneRenderer::addSpriteShadowToRender(VRenderTarget* spriteShadow, const S
     m_spriteShadowGenerationVbos[m_curFrameIndex]->push_back(filteredDatum);
 
     //m_spriteShadowsToRender.push_back({spriteShadow, datum});
-}
+}*/
 
-void SceneRenderer::addToSpriteShadowsVbo(const IsoSpriteShadowDatum &datum)
+/*void SceneRenderer::addToSpriteShadowsVbo(const IsoSpriteShadowDatum &datum)
 {
     m_spriteShadowsVbos[m_curFrameIndex]->push_back(datum);
+    m_shadowMapsInstances.back().spritesVboSize++;
+}*/
+
+void SceneRenderer::addToSpriteShadowsVbo(const SpriteDatum &datum)
+{
+    /*m_spriteShadowsVbos[m_curFrameIndex]->push_back(datum);
+    m_shadowMapsInstances.back().spritesVboSize++;*/
+
+
+    /*if(m_shadowMapsInstances.back().spritesVboSize == 0)
+        m_shadowMapsInstances.back().spritesVboOffset = this->getSpritesVboSize();*/
+
+    m_spritesVbos[m_curFrameIndex]->push_back(datum);
     m_shadowMapsInstances.back().spritesVboSize++;
 }
 
 void SceneRenderer::addToMeshShadowsVbo(VMesh *mesh, const MeshDatum &datum)
 {
-    auto foundedSize = m_shadowMapsInstances.back().meshesVboSize.find(mesh);
-    if(foundedSize == m_shadowMapsInstances.back().meshesVboSize.end())
+    auto foundedSizeAndOffset = m_shadowMapsInstances.back().meshesVboSizeAndOffset.find(mesh);
+    if(foundedSizeAndOffset == m_shadowMapsInstances.back().meshesVboSizeAndOffset.end())
     {
-        foundedSize = m_shadowMapsInstances.back().meshesVboSize.insert(foundedSize, {mesh,0});
-        m_shadowMapsInstances.back().meshesVboOffset[mesh] = this->getMeshesVboSize(mesh);
+        foundedSizeAndOffset = m_shadowMapsInstances.back().meshesVboSizeAndOffset.insert(
+            foundedSizeAndOffset, {mesh,{0,this->getMeshesVboSize(mesh)}});
+
+        //m_shadowMapsInstances.back().meshesVboOffset[mesh] = this->getMeshesVboSize(mesh);
     }
     this->addToMeshesVbo(mesh,datum);
-    ++foundedSize->second;
-}*/
+    ++foundedSizeAndOffset->second.first;
+}
 
 void SceneRenderer::addToSpritesVbo(const SpriteDatum &datum)
 {
@@ -173,12 +193,12 @@ size_t SceneRenderer::getLightsVboSize()
 /*VRenderPass *SceneRenderer::getSpriteShadowsRenderPass()
 {
     return m_renderGraph.getRenderPass(m_spriteShadowsPass);
-}
+}*/
 
 VRenderPass *SceneRenderer::getShadowMapsRenderPass()
 {
     return m_renderGraph.getRenderPass(m_shadowMapsPass);
-}*/
+}
 
 bool SceneRenderer::recordToneMappingCmb(uint32_t imageIndex)
 {
@@ -196,12 +216,12 @@ bool SceneRenderer::recordToneMappingCmb(uint32_t imageIndex)
 
 bool SceneRenderer::recordPrimaryCmb(uint32_t imageIndex)
 {
-    /*for(auto renderingInstance : m_renderingInstances)
-        renderingInstance->prepareShadowsRendering(this, imageIndex);*/
+    for(auto renderingInstance : m_renderingInstances)
+        renderingInstance->prepareShadowsRendering(this, imageIndex);
 
     this->uploadVbos();
 
-    //this->recordShadowCmb(imageIndex);
+    this->recordShadowCmb(imageIndex);
 
     bool r = true;
 
@@ -231,10 +251,10 @@ void SceneRenderer::uploadVbos()
     m_lightsVbos[m_curFrameIndex]->uploadVBO();
 }
 
-/*bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
+bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
 {
     ///Precomputing of sprites shadows
-    VBuffer spriteShadowGenInstancesVB = m_spriteShadowGenerationVbos[m_curFrameIndex]->getBuffer();
+    /*VBuffer spriteShadowGenInstancesVB = m_spriteShadowGenerationVbos[m_curFrameIndex]->getBuffer();
 
     VkDescriptorSet descriptorSets[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
                                         VTexturesManager::descriptorSet(m_curFrameIndex) };
@@ -271,14 +291,17 @@ void SceneRenderer::uploadVbos()
             }
         }
 
-    m_renderGraph.endRecording(m_spriteShadowsPass);
+    m_renderGraph.endRecording(m_spriteShadowsPass);*/
 
 
     ///Shadow map rendering
-    VBuffer spritesInstancesVB  = m_spriteShadowsVbos[m_curFrameIndex]->getBuffer();
+    VBuffer spritesInstancesVB  = m_spritesVbos[m_curFrameIndex]->getBuffer();
 
     //Start recording
-    cmb = m_renderGraph.startRecording(m_shadowMapsPass, 0, m_curFrameIndex);
+    VkCommandBuffer cmb = m_renderGraph.startRecording(m_shadowMapsPass, 0, m_curFrameIndex);
+
+    VkDescriptorSet descriptorSets[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
+                                        VTexturesManager::descriptorSet(m_curFrameIndex) };
 
         auto shadowMapInstance = m_shadowMapsInstances.begin();
         while(m_renderGraph.nextRenderTarget(m_shadowMapsPass))
@@ -327,16 +350,17 @@ void SceneRenderer::uploadVbos()
                         m_meshDirectShadowsPipeline.updatePushConstant(cmb, 1, (char*)&shadowShift);
                         m_meshDirectShadowsPipeline.updatePushConstant(cmb, 2, (char*)&lightXYonZ);
 
+                        auto &meshSizeAndOffset = shadowMapInstance->meshesVboSizeAndOffset[mesh.first];
                         vkCmdDrawIndexed(cmb, mesh.first->getIndexCount(),
-                                               shadowMapInstance->meshesVboSize[mesh.first],
-                                         0, 0, shadowMapInstance->meshesVboOffset[mesh.first]);
+                                               meshSizeAndOffset.first,
+                                         0, 0, meshSizeAndOffset.second);
                     }
                 }
             }
 
 
             //Sprite shadows drawing
-            if(m_spriteShadowsVbos[m_curFrameIndex]->getUploadedSize() != 0)
+            if(m_spritesVbos[m_curFrameIndex]->getUploadedSize() != 0)
             {
                 vkCmdBindVertexBuffers(cmb, 0, 1, &spritesInstancesVB.buffer, &spritesInstancesVB.offset);
                 m_spriteShadowsPipeline.bind(cmb);
@@ -354,6 +378,7 @@ void SceneRenderer::uploadVbos()
                                                         VK_SHADER_STAGE_VERTEX_BIT);
 
                     m_spriteShadowsPipeline.updatePushConstant(cmb, 1, (char*)&shadowShift);
+                    m_spriteShadowsPipeline.updatePushConstant(cmb, 2, (char*)&lightXYonZ);
 
                     vkCmdDraw(cmb, 4, shadowMapInstance->spritesVboSize,
                                    0, shadowMapInstance->spritesVboOffset);
@@ -366,7 +391,7 @@ void SceneRenderer::uploadVbos()
     m_shadowMapsInstances.clear();
 
     return (true);
-}*/
+}
 
 bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
 {
@@ -701,7 +726,7 @@ bool SceneRenderer::recordAmbientLightingCmb(uint32_t imageIndex)
 
 bool SceneRenderer::init()
 {
-    m_renderView.setDepthFactor(1024*1024);
+    m_renderView.setDepthFactor(1024 /* *1024 */);
     m_renderView.setScreenOffset(glm::vec3(0.0f, 0.0f, 0.5f));
 
     size_t framesCount = m_targetWindow->getFramesCount();
@@ -743,7 +768,7 @@ bool SceneRenderer::init()
 
 void SceneRenderer::prepareRenderPass()
 {
-    /*this->prepareShadowRenderPass();*/
+    this->prepareShadowRenderPass();
     this->prepareDeferredRenderPass();
     /*this->prepareAlphaDetectRenderPass();
     this->prepareAlphaDeferredRenderPass();
@@ -758,11 +783,11 @@ void SceneRenderer::prepareRenderPass()
 bool SceneRenderer::createGraphicsPipeline()
 {
     /*if(!this->createSpriteShadowsGenPipeline())
-        return (false);
+        return (false);*/
     if(!this->createSpriteShadowsPipeline())
         return (false);
     if(!this->createMeshDirectShadowsPipeline())
-        return (false);*/
+        return (false);
     if(!this->createDeferredSpritesPipeline())
         return (false);
     if(!this->createDeferredMeshesPipeline())
@@ -851,16 +876,16 @@ bool SceneRenderer::createAttachments()
     return (true);
 }
 
-/*void SceneRenderer::prepareShadowRenderPass()
+void SceneRenderer::prepareShadowRenderPass()
 {
     ///Sprite  shadows tracing
-    VFramebufferAttachmentType spriteShadowType;
+    /*VFramebufferAttachmentType spriteShadowType;
     spriteShadowType.format = VK_FORMAT_R8G8B8A8_UNORM;
     spriteShadowType.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     m_spriteShadowsPass = m_renderGraph.addDynamicRenderPass();
     m_renderGraph.addAttachmentType(m_spriteShadowsPass, spriteShadowType,
-                                    VK_ATTACHMENT_STORE_OP_STORE, false);
+                                    VK_ATTACHMENT_STORE_OP_STORE, false);*/
 
     ///Shadow maps rendering
     VFramebufferAttachmentType shadowMapType;
@@ -870,7 +895,7 @@ bool SceneRenderer::createAttachments()
     m_shadowMapsPass = m_renderGraph.addDynamicRenderPass();
     m_renderGraph.addAttachmentType(m_shadowMapsPass, shadowMapType,
                                     VK_ATTACHMENT_STORE_OP_STORE, false);
-}*/
+}
 
 void SceneRenderer::prepareDeferredRenderPass()
 {
@@ -1104,7 +1129,7 @@ void SceneRenderer::prepareToneMappingRenderPass()
     }
 
     return (true);
-}
+}*/
 
 bool SceneRenderer::createSpriteShadowsPipeline()
 {
@@ -1115,8 +1140,8 @@ bool SceneRenderer::createSpriteShadowsPipeline()
     m_spriteShadowsPipeline.createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
     m_spriteShadowsPipeline.createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    auto bindingDescription = SpriteShadowDatum::getBindingDescription();
-    auto attributeDescriptions = SpriteShadowDatum::getAttributeDescriptions();
+    auto bindingDescription = SpriteDatum::getBindingDescription();
+    auto attributeDescriptions = SpriteDatum::getAttributeDescriptions();
     m_spriteShadowsPipeline.setVertexInput(1, &bindingDescription,
                                     attributeDescriptions.size(), attributeDescriptions.data());
 
@@ -1126,6 +1151,7 @@ bool SceneRenderer::createSpriteShadowsPipeline()
     m_spriteShadowsPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout());
 
     m_spriteShadowsPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT , sizeof(glm::vec4));
+    m_spriteShadowsPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT , sizeof(glm::vec2));
     m_spriteShadowsPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT , sizeof(glm::vec2));
 
     m_spriteShadowsPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER);
@@ -1174,7 +1200,7 @@ bool SceneRenderer::createMeshDirectShadowsPipeline()
     m_meshDirectShadowsPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER);
 
     return m_meshDirectShadowsPipeline.init(m_renderGraph.getRenderPass(m_shadowMapsPass));
-}*/
+}
 
 bool SceneRenderer::createDeferredSpritesPipeline()
 {
@@ -1603,9 +1629,9 @@ void SceneRenderer::cleanup()
         VulkanHelpers::destroyAttachment(m_SSGIBlurLightingAttachments[i]);*/
 
     /*m_spriteShadowsGenPipeline.destroy();
-    m_spriteShadowFilteringPipeline.destroy();
+    m_spriteShadowFilteringPipeline.destroy();*/
     m_spriteShadowsPipeline.destroy();
-    m_meshDirectShadowsPipeline.destroy();*/
+    m_meshDirectShadowsPipeline.destroy();
     m_deferredSpritesPipeline.destroy();
     m_deferredMeshesPipeline.destroy();
     /*m_alphaDetectPipeline.destroy();

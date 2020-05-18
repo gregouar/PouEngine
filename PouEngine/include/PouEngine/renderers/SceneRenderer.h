@@ -18,15 +18,16 @@
 namespace pou
 {
 
-/*struct ShadowMapRenderingInstance
+struct ShadowMapRenderingInstance
 {
     glm::vec4 lightPosition;
     glm::vec2 shadowShift;
     size_t    spritesVboSize;
     size_t    spritesVboOffset;
-    std::map<VMesh*, size_t>    meshesVboSize; //I would gain perf by pairing them
-    std::map<VMesh*, size_t>    meshesVboOffset;
-};*/
+    std::map<VMesh*, std::pair<size_t,size_t> > meshesVboSizeAndOffset;
+    //std::map<VMesh*, size_t>    meshesVboSize; //I would gain perf by pairing them
+    //std::map<VMesh*, size_t>    meshesVboOffset;
+};
 
 class SceneRenderer : public AbstractRenderer
 {
@@ -39,10 +40,11 @@ class SceneRenderer : public AbstractRenderer
         void addRenderingInstance(SceneRenderingInstance *renderingInstance);
 
         //I'll need light position and so forth (maybe I'll use push constants, it's like cam pos)...
-        /*void addShadowMapToRender(VRenderTarget* shadowMap, const LightDatum &datum);
-        void addSpriteShadowToRender(VRenderTarget* spriteShadow, const SpriteShadowGenerationDatum &datum);
-        void addToSpriteShadowsVbo(const SpriteShadowDatum &datum);
-        void addToMeshShadowsVbo(VMesh *mesh, const MeshDatum &datum);*/
+        void addShadowMapToRender(VRenderTarget* shadowMap, const LightDatum &datum);
+        /*void addSpriteShadowToRender(VRenderTarget* spriteShadow, const SpriteShadowGenerationDatum &datum);
+        void addToSpriteShadowsVbo(const SpriteShadowDatum &datum);*/
+        void addToSpriteShadowsVbo(const SpriteDatum &datum);
+        void addToMeshShadowsVbo(VMesh *mesh, const MeshDatum &datum);
 
         void addToSpritesVbo(const SpriteDatum &datum);
         void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);
@@ -52,8 +54,8 @@ class SceneRenderer : public AbstractRenderer
         size_t getMeshesVboSize(VMesh *mesh);
         size_t getLightsVboSize();
 
-        /*VRenderPass *getSpriteShadowsRenderPass();
-        VRenderPass *getShadowMapsRenderPass();*/
+        //VRenderPass *getSpriteShadowsRenderPass();
+        VRenderPass *getShadowMapsRenderPass();
 
     protected:
         virtual bool init();
@@ -66,7 +68,7 @@ class SceneRenderer : public AbstractRenderer
 
 
         ///Render passes
-        /*void prepareShadowRenderPass();*/
+        void prepareShadowRenderPass();
         //Deferred
         void prepareDeferredRenderPass();
         /*void prepareAlphaDetectRenderPass();
@@ -81,9 +83,9 @@ class SceneRenderer : public AbstractRenderer
         void prepareToneMappingRenderPass();
 
         ///Pipelines
-        /*bool createSpriteShadowsGenPipeline();
+        /*bool createSpriteShadowsGenPipeline();*/
         bool createSpriteShadowsPipeline();
-        bool createMeshDirectShadowsPipeline();*/
+        bool createMeshDirectShadowsPipeline();
         //Deferred
         bool createDeferredSpritesPipeline();
         bool createDeferredMeshesPipeline();
@@ -102,7 +104,7 @@ class SceneRenderer : public AbstractRenderer
 
         virtual void    uploadVbos();
 
-        /*virtual bool    recordShadowCmb(uint32_t imageIndex);*/
+        virtual bool    recordShadowCmb(uint32_t imageIndex);
         virtual bool    recordDeferredCmb(uint32_t imageIndex);
         virtual bool    recordLightingCmb(uint32_t imageIndex);
         /*virtual bool    recordSsgiBnCmb(uint32_t imageIndex);*/
@@ -110,11 +112,11 @@ class SceneRenderer : public AbstractRenderer
         virtual bool    recordToneMappingCmb(uint32_t imageIndex);
 
     private:
-        /*VGraphicsPipeline   m_spriteShadowsGenPipeline,
-                            m_spriteShadowFilteringPipeline,
+        VGraphicsPipeline   /*m_spriteShadowsGenPipeline,
+                            m_spriteShadowFilteringPipeline,*/
                             //m_spriteShadowsBlurPipelines[2],
                             m_spriteShadowsPipeline,
-                            m_meshDirectShadowsPipeline;*/
+                            m_meshDirectShadowsPipeline;
 
         VGraphicsPipeline   m_deferredSpritesPipeline,
                             m_deferredMeshesPipeline/*,
@@ -152,8 +154,8 @@ class SceneRenderer : public AbstractRenderer
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  /*m_spriteShadowsPass,
-                //m_spriteShadowsBlurPasses[2],
-                m_shadowMapsPass,*/
+                //m_spriteShadowsBlurPasses[2],*/
+                m_shadowMapsPass,
                 m_deferredPass,
                 /*m_alphaDetectPass,
                 m_alphaDeferredPass,
@@ -175,7 +177,7 @@ class SceneRenderer : public AbstractRenderer
         std::vector<DynamicVBO<LightDatum>*>                    m_lightsVbos;
 
         std::list<SceneRenderingInstance*>      m_renderingInstances;
-        //std::list<ShadowMapRenderingInstance>   m_shadowMapsInstances;
+        std::list<ShadowMapRenderingInstance>   m_shadowMapsInstances;
 
         /*static const float SSGI_SIZE_FACTOR;
 
@@ -208,6 +210,10 @@ class SceneRenderer : public AbstractRenderer
         static const char *BLUR_VERTSHADERFILE;
         static const char *BLUR_FRAGSHADERFILE;*/
 
+        static const char *SPRITE_SHADOW_VERTSHADERFILE;
+        static const char *SPRITE_SHADOW_FRAGSHADERFILE;
+        static const char *MESH_DIRECTSHADOW_VERTSHADERFILE;
+        static const char *MESH_DIRECTSHADOW_FRAGSHADERFILE;
 
         static const char *SPRITE_DEFERRED_VERTSHADERFILE;
         static const char *SPRITE_DEFERRED_FRAGSHADERFILE;

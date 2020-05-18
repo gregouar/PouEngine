@@ -73,6 +73,8 @@ pou::SpriteEntity *Character::addLimb(LimbModel *limbModel)
     limbEntity->setOrdering(pou::ORDERED_BY_Z);
     limbEntity->setInheritRotation(true);
 
+    limbEntity->setShadowCasting(pou::ShadowCasting_OnlyDirectional);
+
     auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
 
     return (limb.first->second.get());

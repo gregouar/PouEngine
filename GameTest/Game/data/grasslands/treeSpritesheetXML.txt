@@ -2,7 +2,7 @@
 <spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>
 <!--<spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>-->
 <!--<spritesheet texture="tree.png" scaleX=2 scaleY=2>-->
-	<sprite name="treeTrunk">
+	<sprite name="treeFoliage0">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="0" 	y="0" 	/>
@@ -21,6 +21,11 @@
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="768" y="0" 	/>
+	</sprite>
+	<sprite name="treeTrunk">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="768" y="256" 	/>
 	</sprite>
 	<sprite name="treeShadow">
 		<size 		x="256" y="256" 	/>

@@ -225,6 +225,22 @@ float discretize(float v, uint steps)
     return floor(v * steps)/steps;
 }
 
+float sampleShadow(vec2 screenPos, float fragZ)
+{
+    vec2 shadowPos = screenPos - min(lightShadowShift, vec2(0.0));
+    vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
+
+    float shadowMap = texture(sampler2DArray(textures[lightShadowMap.x], samp),
+                               vec3(shadowPos*shadowSizeFactor,lightShadowMap.y)).x;
+
+
+    //return 1.0 - min(1.0,max(0.0, (depth-shadowDepth)*"<<0.1*PBRTextureAsset::DEPTH_BUFFER_NORMALISER_INV<<"));
+
+    float z = viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y;
+    return 1.0 - min(1.0, max(0.0, (shadowMap - z) / (20.0*viewUbo.depthOffsetAndFactor.y)));
+}
+
+
 vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRmt)
 {
     vec4 lighting = vec4(0.0);
@@ -239,6 +255,39 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
     {
         lightDirection = -normalize(lightPos.xyz);
         attenuation = 1.0;
+
+
+        if(lightShadowMap.x != 0)
+        {
+            vec3 v = vec3((fragPos.z/lightDirection.z)*lightDirection.xy,0.0);
+            vec2 projPos;
+
+            projPos      = gl_FragCoord.xy;
+            projPos.y   -= fragPos.z * viewUbo.view[2][1];
+            projPos     -= (viewUbo.view * vec4(v,0.0)).xy;
+
+            //int h = int(gl_FragCoord.x)%4+4*(int(gl_FragCoord.y)%4);
+            int h = int(fragPos.x)%4 + 4*(int(fragPos.y)%4);
+
+            float shadowing = 1.0/6.0 * (sampleShadow(projPos, fragPos.z) * 2.0
+                               + sampleShadow(projPos + hashed[h] * 6.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+1)%16] * 6.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+2)%16] * 6.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+3)%16] * 6.0, fragPos.z));
+
+            if(shadowing > 0.2 && shadowing < 0.8)
+            {
+                shadowing = shadowing * 0.5 + 1.0/8.0 * (
+                               + sampleShadow(projPos + hashed[(h+4)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+5)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+6)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+7)%16] * 4.0, fragPos.z));
+            }
+
+            attenuation *= shadowing * shadowing;
+        }
+
+
     } else {
         lightDirection = lightPos.xyz - fragPos.xyz;
         float dist = max(length(lightDirection)*0.01,1.0);

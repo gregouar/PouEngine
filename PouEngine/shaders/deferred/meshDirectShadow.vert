@@ -7,6 +7,7 @@ layout(binding = 0, set = 0) uniform ViewUBO {
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
+    float proj;
 } viewUbo;
 
 layout(push_constant) uniform PER_OBJECT
@@ -48,6 +49,7 @@ out gl_PerVertex {
 void main()
 {
     vec4 worldPos = inModel * vec4(inPos,1.0);
+    worldPos = vec4(worldPos.xyz/worldPos.w, 1.0);
 
     vec4 projWorldPos = vec4(worldPos.xy - worldPos.z*pc.lightXYonZ,
                              0.0,1.0);

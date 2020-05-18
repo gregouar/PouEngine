@@ -60,7 +60,7 @@ void main()
 
     //outPosition = vec4(relWorldPos.xyz/relWorldPos.w, 0.0);
 
-    gl_FragDepth = viewUbo.depthOffsetAndFactor.x + /*screenPos.z*/ gl_FragCoord.z * viewUbo.depthOffsetAndFactor.y;
+    //gl_FragDepth = viewUbo.depthOffsetAndFactor.x + /*screenPos.z*/ gl_FragCoord.z * viewUbo.depthOffsetAndFactor.y;
 
 
 
