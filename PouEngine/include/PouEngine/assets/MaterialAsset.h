@@ -30,6 +30,7 @@ class MaterialAsset : public Asset, public NotificationListener
 
         float getHeightFactor();
         glm::vec3 getRmtFactor();
+        glm::vec2 getExtent();
 
     protected:
         bool loadFromXML(TiXmlHandle *);

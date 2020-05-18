@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="tree.png" scaleX=2 scaleY=2>
+<spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>
+<!--<spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>-->
+<!--<spritesheet texture="tree.png" scaleX=2 scaleY=2>-->
 	<sprite name="treeTrunk">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>

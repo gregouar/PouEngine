@@ -147,7 +147,8 @@ class SceneRenderer : public AbstractRenderer
 
         VFramebufferAttachment m_deferredDepthAttachment;
         VFramebufferAttachment m_albedoAttachment,
-                               m_positionAttachments;
+                               m_positionAttachment,
+                               m_normalAttachment;
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  /*m_spriteShadowsPass,

@@ -4,6 +4,7 @@
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/TextureAsset.h"
+#include "PouEngine/assets/MaterialAsset.h"
 
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Parser.h"
@@ -22,7 +23,9 @@ SpriteSheetAsset::SpriteSheetAsset(const AssetTypeId id) : Asset(id)
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
 
-    m_texture = nullptr;
+    m_texture   = nullptr;
+    m_material  = nullptr;
+    m_useMaterial = false;
     m_textureScale = glm::vec2(1.0f,1.0f);
 
     m_waitingForTextureLoading = false;
@@ -61,10 +64,19 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
     if(hdl == nullptr)
         return (false);
 
-    auto textureAtt = hdl->Element()->Attribute("texture");
-    if(textureAtt == nullptr)
-        return (false);
-    std::string textureName = std::string(textureAtt);
+    std::string textureName;
+
+    auto materialAtt = hdl->Element()->Attribute("material");
+    if(materialAtt != nullptr)
+    {
+        m_useMaterial = true;
+        textureName = std::string(materialAtt);
+    } else {
+        auto textureAtt = hdl->Element()->Attribute("texture");
+        if(textureAtt == nullptr)
+            return (false);
+        textureName = std::string(textureAtt);
+    }
 
     auto scaleXAtt = hdl->Element()->Attribute("scaleX");
     if(scaleXAtt != nullptr)
@@ -74,9 +86,19 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
     if(scaleYAtt != nullptr)
         m_textureScale.y = Parser::parseFloat(scaleYAtt);
 
-    m_texture = TexturesHandler::instance()
-                    ->loadAssetFromFile(m_fileDirectory+textureName,LoadType_InThread/**m_loadType**/);
-    this->startListeningTo(m_texture);
+    if(!m_waitingForTextureLoading)
+    {
+        if(m_useMaterial)
+        {
+            m_material = MaterialsHandler::instance()
+                            ->loadAssetFromFile(m_fileDirectory+textureName,m_loadType);
+            this->startListeningTo(m_material);
+        } else {
+            m_texture = TexturesHandler::instance()
+                            ->loadAssetFromFile(m_fileDirectory+textureName,LoadType_InThread/**m_loadType**/);
+            this->startListeningTo(m_texture);
+        }
+    }
 
     if(!m_waitingForTextureLoading)
     {
@@ -146,10 +168,13 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                     spriteModel->setNextSprite(nextSprite, delay);
             }
 
-            spriteModel->setTexture(m_texture);
+            if(m_useMaterial)
+                spriteModel->setMaterial(m_material);
+            else
+                spriteModel->setTexture(m_texture);
 
-            if(!customSize && m_texture->isLoaded())
-                spriteSize = m_texture->getExtent();
+            /*if(!customSize && m_texture->isLoaded())
+                spriteSize = m_texture->getExtent();*/
 
             if(!customCenter)
                 spriteCenter = {spriteSize.x*0.5,
@@ -169,8 +194,12 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
             ++i;
         }
     }
-
-    if(!m_texture->isLoaded())
+    if(m_useMaterial && ! m_material->isLoaded())
+    {
+        loaded = false;
+        m_waitingForTextureLoading = true;
+    }
+    else if(!m_useMaterial && !m_texture->isLoaded())
     {
         loaded = false;
         m_waitingForTextureLoading = true;

@@ -3,6 +3,7 @@
 #include <Vulkan/vulkan.h>
 
 #include "PouEngine/assets/SpriteSheetAsset.h"
+#include "PouEngine/assets/MaterialAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/AssetHandler.h"
 
@@ -70,6 +71,8 @@ std::array<VkVertexInputAttributeDescription, 6> SpriteShadowGenerationDatum::ge
 
 SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_texture(0),
+    m_material(0),
+    m_useMaterial(false),
     m_spriteSheet(spriteSheet),
     m_size({1.0f,1.0f}),
     m_center({0.0f,0.0f}),
@@ -96,6 +99,15 @@ void SpriteModel::setTexture(AssetTypeId textureId)
 
 void SpriteModel::setTexture(TextureAsset *texture)
 {
+    if(m_useMaterial)
+    {
+        m_useMaterial = false;
+        if(m_material)
+            this->stopListeningTo(m_material);
+        m_material = nullptr;
+    }
+
+
     if(m_texture != texture)
     {
         this->stopListeningTo(m_texture);
@@ -103,6 +115,36 @@ void SpriteModel::setTexture(TextureAsset *texture)
         this->startListeningTo(m_texture);
 
         if(m_texture != nullptr && !m_texture->isLoaded())
+            m_isReady = false;
+        else
+            m_isReady = true;
+
+        this->sendNotification(Notification_ModelChanged);
+    }
+}
+
+void SpriteModel::setMaterial(AssetTypeId materialId)
+{
+    this->setMaterial(MaterialsHandler::instance()->getAsset(materialId));
+}
+
+void SpriteModel::setMaterial(MaterialAsset *material)
+{
+    if(!m_useMaterial)
+    {
+        m_useMaterial = true;
+        if(m_texture)
+            this->stopListeningTo(m_texture);
+        m_texture = nullptr;
+    }
+
+    if(m_material != material)
+    {
+        this->stopListeningTo(m_material);
+        m_material = material;
+        this->startListeningTo(m_material);
+
+        if(m_material != nullptr && !m_material->isLoaded())
             m_isReady = false;
         else
             m_isReady = true;
@@ -169,10 +211,15 @@ void SpriteModel::setColor(Color color)
     }
 }*/
 
-/*MaterialAsset* SpriteModel::getMaterial()
+bool SpriteModel::isUsingMaterial()
+{
+    return m_useMaterial;
+}
+
+MaterialAsset* SpriteModel::getMaterial()
 {
     return m_material;
-}*/
+}
 
 TextureAsset* SpriteModel::getTexture()
 {
@@ -198,9 +245,13 @@ glm::vec2 SpriteModel::getTextureExtent()
 {
     if(!m_useRelativeTextureRect)
     {
-        if(m_texture == nullptr)
-            return {0,0};
-        auto texExtent = m_texture->getExtent();
+        glm::vec2 texExtent = {0,0};
+
+        if(m_useMaterial && m_material != nullptr)
+            texExtent = m_material->getExtent();
+        else if(!m_useMaterial && m_texture != nullptr)
+            texExtent = m_texture->getExtent();
+
         if(texExtent.x == 0 || texExtent.y == 0)
             return {0,0};
 
@@ -215,9 +266,13 @@ glm::vec2 SpriteModel::getTexturePosition()
 {
     if(!m_useRelativeTextureRect)
     {
-        if(m_texture == nullptr)
-            return {0,0};
-        auto texExtent = m_texture->getExtent();
+        glm::vec2 texExtent = {0,0};
+
+        if(m_useMaterial && m_material != nullptr)
+            texExtent = m_material->getExtent();
+        else if(!m_useMaterial && m_texture != nullptr)
+            texExtent = m_texture->getExtent();
+
         if(texExtent.x == 0 || texExtent.y == 0)
             return {0,0};
 

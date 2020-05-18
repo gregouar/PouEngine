@@ -408,7 +408,8 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
                 for(auto renderingInstance : m_renderingInstances)
                 {
                     m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
-                    renderingInstance->pushCamPosAndZoom(cmb, m_deferredMeshesPipeline.getLayout());
+                    renderingInstance->pushCamPosAndZoom(cmb, m_deferredMeshesPipeline.getLayout(),
+                                                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
 
                     vkCmdDrawIndexed(cmb, mesh.first->getIndexCount(), renderingInstance->getMeshesVboSize(mesh.first),
                                      0, 0, renderingInstance->getMeshesVboOffset(mesh.first));
@@ -529,7 +530,7 @@ bool SceneRenderer::recordLightingCmb(uint32_t imageIndex)
             {
                 m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
                 renderingInstance->pushCamPosAndZoom(cmb, m_lightingPipeline.getLayout(),
-                                                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+                                                    VK_SHADER_STAGE_VERTEX_BIT);
 
 
                 vkCmdDraw(cmb, LIGHT_TRIANGLECOUNT+2, renderingInstance->getLightsVboSize(),
@@ -799,7 +800,9 @@ bool SceneRenderer::createAttachments()
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_albedoAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
-                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_positionAttachments) &
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_positionAttachment) &
+            VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_normalAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement)
         )
@@ -874,7 +877,8 @@ void SceneRenderer::prepareDeferredRenderPass()
     m_deferredPass = m_renderGraph.addRenderPass(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     m_renderGraph.addNewAttachments(m_deferredPass, m_albedoAttachment);
-    m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachments);
+    m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachment);
+    m_renderGraph.addNewAttachments(m_deferredPass, m_normalAttachment);
 
     /*m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachments[0]);
     m_renderGraph.addNewAttachments(m_deferredPass, m_normalAttachments[0]);
@@ -947,6 +951,7 @@ void SceneRenderer::prepareLightingRenderPass()
 
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 1);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
 
     /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDetectPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
@@ -1194,6 +1199,8 @@ bool SceneRenderer::createDeferredSpritesPipeline()
 
     m_deferredSpritesPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER_OR_EQUAL);
     m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,0);
+    m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,1);
+    m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,2);
 
     return m_deferredSpritesPipeline.init(m_renderGraph.getRenderPass(m_deferredPass));
 }
@@ -1401,7 +1408,7 @@ bool SceneRenderer::createLightingPipeline()
     m_lightingPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout());
     m_lightingPipeline.attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_lightingPass));
 
-    m_lightingPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(glm::vec4));
+    m_lightingPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec4));
 
     m_lightingPipeline.setBlendMode(BlendMode_Add,0);
     //m_lightingPipeline.setBlendMode(BlendMode_Add,1);
@@ -1573,7 +1580,8 @@ void SceneRenderer::cleanup()
 
     VulkanHelpers::destroyAttachment(m_deferredDepthAttachment);
     VulkanHelpers::destroyAttachment(m_albedoAttachment);
-    VulkanHelpers::destroyAttachment(m_positionAttachments);
+    VulkanHelpers::destroyAttachment(m_positionAttachment);
+    VulkanHelpers::destroyAttachment(m_normalAttachment);
     VulkanHelpers::destroyAttachment(m_hdrAttachement);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)

@@ -489,7 +489,7 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std
             m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,m_skeletonModel->getNodeId(nodeName)));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,m_skeletonModel->getNodeId(nodeName)));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,m_skeletonModel->getNodeId(nodeName)));
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,m_skeletonModel->getNodeId(nodeName)));
+            //m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,m_skeletonModel->getNodeId(nodeName)));
         }
         else
         for(const auto n : *mapOfNodes)
@@ -497,7 +497,7 @@ bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std
             m_commands.push_back(SkeletalAnimationCommandModel (this,Move_To,n.first));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Rotate_To,n.first));
             m_commands.push_back(SkeletalAnimationCommandModel (this,Scale_To,n.first));
-            m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,n.first));
+            // m_commands.push_back(SkeletalAnimationCommandModel (this,Color_To,n.first));
         }
 
         commandElement = commandElement->NextSiblingElement("reset");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="grass3.png" scaleX=2 scaleY=2>
+<spritesheet material="grassMaterial.txt" scaleX=2 scaleY=2>
 	<sprite name="grass1">
 		<size 	x=64 y=64 />
 		<position 	x=0 y=0 />

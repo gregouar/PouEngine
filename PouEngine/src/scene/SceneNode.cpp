@@ -161,6 +161,8 @@ void SceneNode::colorize(const glm::vec4 &c)
 void SceneNode::setColor(const glm::vec4 &c)
 {
     m_color = c;
+
+    this->updateGlobalPosition();
 }
 
 void SceneNode::setScene(Scene *scene)
@@ -218,7 +220,7 @@ void SceneNode::update(const Time &elapsedTime)
 {
     SimpleNode::update(elapsedTime);
 
-    int i = 0;
+    //int i = 0;
     for(auto &object : m_attachedObjects)
     {
         object->update(elapsedTime);

@@ -1,6 +1,7 @@
 #include "PouEngine/scene/SpriteEntity.h"
 
 #include "PouEngine/assets/AssetHandler.h"
+#include "PouEngine/assets/MaterialAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 #include "PouEngine/scene/SceneNode.h"
@@ -20,9 +21,9 @@ VkVertexInputBindingDescription SpriteDatum::getBindingDescription()
     return bindingDescription;
 }
 
-std::array<VkVertexInputAttributeDescription, 9> SpriteDatum::getAttributeDescriptions()
+std::array<VkVertexInputAttributeDescription, 10> SpriteDatum::getAttributeDescriptions()
 {
-    std::array<VkVertexInputAttributeDescription, 9> attributeDescriptions = {};
+    std::array<VkVertexInputAttributeDescription, 10> attributeDescriptions = {};
 
     size_t i = 0;
     /*attributeDescriptions[i].binding = 0;
@@ -112,16 +113,16 @@ std::array<VkVertexInputAttributeDescription, 9> SpriteDatum::getAttributeDescri
     attributeDescriptions[i].offset = offsetof(SpriteDatum, albedo_texId);
     ++i;
 
-    /*attributeDescriptions[i].binding = 0;
-    attributeDescriptions[i].location = i;
-    attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
-    attributeDescriptions[i].offset = offsetof(SpriteDatum, height_texId);
-    ++i;
-
     attributeDescriptions[i].binding = 0;
     attributeDescriptions[i].location = i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
     attributeDescriptions[i].offset = offsetof(SpriteDatum, normal_texId);
+    ++i;
+
+    /*attributeDescriptions[i].binding = 0;
+    attributeDescriptions[i].location = i;
+    attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
+    attributeDescriptions[i].offset = offsetof(SpriteDatum, height_texId);
     ++i;
 
     attributeDescriptions[i].binding = 0;
@@ -445,14 +446,26 @@ void SpriteEntity::updateDatum()
         //m_datum.rmt_color *= material->getRmtFactor();
     }*/
 
-    if(m_spriteModel->getTexture() != nullptr)
-    {
-        m_datum.albedo_texId = {m_spriteModel->getTexture()->getVTexture().getTextureId(),
-                                m_spriteModel->getTexture()->getVTexture().getTextureLayer()};
-    } else {
-        m_datum.albedo_texId = {0,0};
-    }
+    m_datum.albedo_texId = {0,0};
+    m_datum.normal_texId = {0,0};
 
+    if(m_spriteModel->isUsingMaterial())
+    {
+        MaterialAsset* material = m_spriteModel->getMaterial();
+        if(material != nullptr && material->isLoaded())
+        {
+            m_datum.albedo_texId = {material->getAlbedoMap().getTextureId(),
+                                    material->getAlbedoMap().getTextureLayer()};
+            m_datum.normal_texId = {material->getNormalMap().getTextureId(),
+                                    material->getNormalMap().getTextureLayer()};
+        }
+    } else {
+        if(m_spriteModel->getTexture() != nullptr)
+        {
+            m_datum.albedo_texId = {m_spriteModel->getTexture()->getVTexture().getTextureId(),
+                                    m_spriteModel->getTexture()->getVTexture().getTextureLayer()};
+        }
+    }
 
     /*m_datum.position = m_parentNode->getGlobalPosition();
     m_datum.size = m_spriteModel->getSize();

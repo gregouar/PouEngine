@@ -38,7 +38,10 @@ class SpriteSheetAsset : public Asset, public NotificationListener
         int generateSpriteId(const std::string &spriteName);
 
     private:
-        TextureAsset *m_texture;
+        TextureAsset    *m_texture;
+        MaterialAsset   *m_material;
+        bool m_useMaterial;
+
         glm::vec2     m_textureScale;
 
         bool m_waitingForTextureLoading;

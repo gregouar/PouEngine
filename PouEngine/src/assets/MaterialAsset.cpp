@@ -73,6 +73,12 @@ glm::vec3 MaterialAsset::getRmtFactor()
     return m_rmtFactor;
 }
 
+glm::vec2 MaterialAsset::getExtent()
+{
+    if(m_albedoMap == nullptr)
+        return {0,0};
+    return m_albedoMap->getExtent();
+}
 
 
 bool MaterialAsset::loadFromFile(const std::string &filePath)

@@ -77,6 +77,9 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void setMaterial(MaterialAsset *material);*/
         void setTexture(AssetTypeId textureId);
         void setTexture(TextureAsset *texture);
+        void setMaterial(AssetTypeId materialId);
+        void setMaterial(MaterialAsset *material);
+
         void setSize(glm::vec2 size);
         void setCenter(glm::vec2 pos);
         void setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelative = true);
@@ -88,8 +91,9 @@ class SpriteModel : public NotificationListener, public NotificationSender
 
         //void setShadowMapExtent(glm::vec2 extent);
 
-        //MaterialAsset *getMaterial();
-        TextureAsset *getTexture();
+        bool isUsingMaterial();
+        MaterialAsset   *getMaterial();
+        TextureAsset    *getTexture();
         glm::vec2 getSize();
         glm::vec2 getCenter();
         glm::vec2 getTextureResolution();
@@ -114,8 +118,10 @@ class SpriteModel : public NotificationListener, public NotificationSender
         //VTexture generateDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction);
 
     private:
-        //MaterialAsset *m_material;
-        TextureAsset *m_texture;
+        MaterialAsset   *m_material;
+        TextureAsset    *m_texture;
+        bool m_useMaterial;
+
         std::vector<bool>   m_needToCheckLoading;
 
         SpriteSheetAsset *m_spriteSheet;

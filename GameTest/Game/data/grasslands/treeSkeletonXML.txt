@@ -7,14 +7,17 @@
 				<node name="foliage2" z=10 />
 			</node>
 		</node>
-		<node name="baseTrunk" z=-2 />
+		<node name="baseTrunk" z=0 />
 		<node name="trunkHB" />
 	</node>
 	
 	
 	<animation name="stand" loop=1>
 		<frame frameTime=".1">
-			<reset />
+			<reset node="trunk" />
+			<reset node="foliage1" />
+			<reset node="foliage2" />
+			<command type="colorTo" node="baseTrunk" a=-1 />
 		</frame>
 		<frame frameTime="1">
 			<command type="moveTo" node="foliage1" y=2 x=-1  />
@@ -44,7 +47,9 @@
 			<command type="moveTo" node="foliage2" y=1.5 x=2  />
 		</frame>
 		<frame frameTime=".1">
-			<reset />
+			<reset node="trunk" />
+			<reset node="foliage1" />
+			<reset node="foliage2" />
 		</frame>
 	</animation>
 	
@@ -58,7 +63,8 @@
 			<tag value="fallSound">playSound</tag>-->
 			<sound>chopSound</sound>
 			<sound>fallSound</sound>
-			<command type="moveTo" node="baseTrunk" z=2  />
+			<!--<command type="moveTo" node="baseTrunk" z=2  />-->
+			<command type="colorTo" node="baseTrunk" a=0 />
 		</frame>
 		
 		<frame frameTime=".75">
@@ -66,9 +72,6 @@
 			<command type="moveTo" node="foliage1" y=10 x=10 z=-9  />
 			<command type="moveTo" node="foliage2" y=0 x=0 z=-9  />
 			<command type="colorTo" node="trunk" a=-1 />
-			<command type="colorTo" node="foliage2" a=-1 />
-			<command type="colorTo" node="foliage1" a=-1 />
-			<command type="colorTo" node="shadow" a=-1 />
 		</frame>
 	</animation>
 </skeleton>

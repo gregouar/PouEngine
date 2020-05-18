@@ -122,19 +122,19 @@ void TestingState::init()
                                 1));
     }
 
-   /* pou::SpriteSheetAsset *rocksSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
+    pou::SpriteSheetAsset *rocksSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
 
     for(auto x = 0 ; x < 3 ; x++)
     {
          glm::vec2 p = glm::vec2(glm::linearRand(-500,500), glm::linearRand(-500,500));
          pou::SceneNode *rockNode = m_scene->getRootNode()->createChildNode(p.x,p.y,.001);
-         if(x % 3 == 0)
+         /*if(x % 3 == 0)
             rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock1")));
         else if(x % 3 == 1)
             rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock2")));
-        else if(x % 3 == 2)
-            rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock3")));
-    }*/
+        else if(x % 3 == 2)*/
+            //rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock3")));
+    }
 
 
     for(auto x = -3 ; x < 3 ; x++)
@@ -214,22 +214,23 @@ void TestingState::init()
     //m_scene->setCurrentCamera(m_camera);
 
 
-    m_scene->setAmbientLight({.1,.1,.2,.5});
+    m_scene->setAmbientLight({.6,.6,.8,2});
+    //m_scene->setAmbientLight({.6,.6,.8,.2});
     auto *sunLight = m_scene->createLightEntity(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(sunLight);
 
     ///Day
     sunLight->setDiffuseColor({1.0,1.0,1.0,1.0});
-    sunLight->setIntensity(1.0);
+    sunLight->setIntensity(3.0);
 
     ///Night
     //m_sunLight.setDiffuseColor({0.7,0.7,1.0,1.0});
     //m_sunLight.setIntensity(0.2);
 
     //sunLight->setType(pou::LightType_Directional);
-    //m_sunLight.setDirection({-1.0,0.0,-1.0});
-    /*m_sunLight->setDirection({.2 ,-1.0,-1.0});
-    m_sunLight->setShadowMapExtent({1920,1080});
+    //sunLight->setDirection({-1.0,0.0,-1.0});
+    sunLight->setDirection({-.4 , -.4 ,-1.0});
+    /*m_sunLight->setShadowMapExtent({1920,1080});
     m_sunLight->enableShadowCasting();*/
 
     /*pou::LightEntity* sunLight = m_scene->createLightEntity(pou::LightType_Directional);
@@ -244,7 +245,7 @@ void TestingState::init()
     m_cursorLightNode->attachObject(cursorLight);
     cursorLight->setDiffuseColor({1.0,1.0,1.0,1.0});
     cursorLight->setIntensity(5.0);
-    cursorLight->setRadius(400.0);
+    cursorLight->setRadius(300.0);
     cursorLight->setType(pou::LightType_Omni);
 
     /*for(size_t i = 3 ; i < 3 ; ++i)

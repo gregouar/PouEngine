@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>Char1Material</name>
+	<height>0</height>
+	<texture type="albedo">char1spritesheet.png</texture>
+	<texture type="normal">char1spritesheet_n.png</texture>
+	<roughness>.2</roughness>
+	<metalness>.8</metalness>
+	<translucency>0</translucency>
+</material>

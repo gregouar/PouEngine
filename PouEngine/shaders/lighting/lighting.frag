@@ -22,15 +22,15 @@ layout(set = 1, binding = 1) uniform texture2DArray textures[128];
 
 layout (set = 2, binding = 0) uniform sampler2D samplerAlbedo;
 layout (set = 2, binding = 1) uniform sampler2D samplerPosition;
-/*layout (set = 2, binding = 2) uniform sampler2D samplerNormal;
-layout (set = 2, binding = 3) uniform sampler2D samplerRmt;
+layout (set = 2, binding = 2) uniform sampler2D samplerNormal;
+/*layout (set = 2, binding = 3) uniform sampler2D samplerRmt;
 layout (set = 2, binding = 4) uniform sampler2D samplerBentNormal;*/
 
 
-layout(push_constant) uniform PER_OBJECT
+/*layout(push_constant) uniform PER_OBJECT
 {
     vec4 camPosAndZoom;
-}pc;
+}pc;*/
 
 layout(location = 0) flat in vec4  lightPos;
 layout(location = 1) flat in vec3  lightColor;
@@ -41,7 +41,7 @@ layout(location = 4) flat in vec2   lightShadowShift;
 layout(location = 0) out vec4 outColor;
 
 
-/*vec2 hashed[16] = vec2[](
+vec2 hashed[16] = vec2[](
     vec2(.92, .09),
     vec2(-.51,-.10),
     vec2(-.70,.22),
@@ -98,7 +98,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-float sampleShadow(vec2 screenPos, float fragZ)
+/*float sampleShadow(vec2 screenPos, float fragZ)
 {
     vec2 shadowPos = screenPos - min(lightShadowShift, vec2(0.0));
     vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
@@ -225,7 +225,7 @@ float discretize(float v, uint steps)
     return floor(v * steps)/steps;
 }
 
-vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos)
+vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRmt)
 {
     vec4 lighting = vec4(0.0);
 
@@ -255,7 +255,35 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos)
     if(attenuation > 0)
     {
         vec3 radiance = attenuation*lightColor.rgb;
-        lighting.rgb += fragAlbedo.rgb * radiance;
+        vec3 viewDirection = normalize(/*pc.camPosAndZoom.xyz +*/ vec3(0.0,0.0,500.0) - fragPos);
+        vec3 surfaceReflection0 = vec3(0.04);
+        surfaceReflection0 = mix(surfaceReflection0, fragAlbedo.rgb, fragRmt.g);
+
+        vec3 halfwayVector  = normalize(viewDirection + lightDirection);
+        float NdotL         = max(dot(fragNormal.xyz, lightDirection), 0.0);
+        float NDF   = DistributionGGX(fragNormal.xyz, halfwayVector, fragRmt.r);
+        float G     = GeometrySmith(fragNormal.xyz, viewDirection, lightDirection, fragRmt.r);
+
+        /*NdotL = discretize(NdotL,3);
+        NDF = discretize(NDF,3);
+        G = discretize(G,3);*/
+
+        vec3 F      = FresnelSchlick(max(dot(halfwayVector,  viewDirection), 0.0), surfaceReflection0);
+        vec3 kS     = F;
+        vec3 kD     = vec3(1.0) - kS;
+        kD         *= 1.0 - fragRmt.g;
+        vec3 nominator      = NDF * G * F;
+        float denominator   = 4.0 * max(dot(fragNormal.xyz, viewDirection), 0.0) * NdotL;
+
+        //denominator = discretize(denominator,3);
+
+        //NdotL = discretize(NdotL, 3);
+
+        vec3 specular       = nominator / max(denominator, 0.01);
+        lighting.rgb       += (kD * fragAlbedo.rgb * 0.31830988618 + specular)  * NdotL * radiance /* * occlusion*/;
+
+        /*vec3 radiance = attenuation*lightColor.rgb;
+        lighting.rgb += fragAlbedo.rgb * radiance;*/
     }
 
     return lighting;
@@ -265,9 +293,12 @@ void main()
 {
     vec4 fragAlbedo = texture(samplerAlbedo, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
     vec3 fragPos    = texture(samplerPosition, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
-    /*vec4 fragNormal = texture(samplerNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
-    vec3 fragRmt    = texture(samplerRmt, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
+    vec3 fragNormal = texture(samplerNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
+
+    vec3 fragRmt = vec3(.9,0.0,0.0);
+    /*vec3 fragRmt    = texture(samplerRmt, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
     vec4 fragBentNormal = texture(samplerBentNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
+
 
 	fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
 
@@ -279,7 +310,7 @@ void main()
     outColor =  vec4(fragAlbedo.rgb,1.0);*/
 
 	fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
-    outColor = ComputeLighting(fragAlbedo, fragPos);
+    outColor = ComputeLighting(fragAlbedo, fragPos, fragNormal, fragRmt);
 
 }
 
