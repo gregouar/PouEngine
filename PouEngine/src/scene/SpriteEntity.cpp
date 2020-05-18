@@ -355,7 +355,7 @@ glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 	glm::vec4 r = m_parentNode->getScene()->getViewMatrix() * v;
 	//r.y        -=  m_parentNode->getScene()->getViewMatrix()[2][1];
 	glm::vec2 viewLightDirectionXY = {m_datum.size.z * r.x,
-                                      m_datum.size.z *(r.y  - m_parentNode->getScene()->getViewMatrix()[2][1])};
+                                      m_datum.size.z *(r.y  - m_parentNode->getScene()->getViewMatrix()[2][1])};*/
 
     /*glm::vec2 totalSize = glm::abs(viewLightDirectionXY)+glm::vec2(m_datum.size.x, m_datum.size.y);
 

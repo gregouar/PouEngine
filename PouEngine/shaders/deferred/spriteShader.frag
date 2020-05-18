@@ -52,10 +52,11 @@ void main()
     outAlbedo = fragColor * texture(sampler2DArray(textures[fragAlbedoTexId.x], samp),
                                     vec3(fragTexCoord,fragAlbedoTexId.y));
 
-    if(outAlbedo.a == 0.0)
+    if(outAlbedo.a <= 0.001)
         discard;
 
     outPosition = originWorldPos + xBasisVect * discretize(localPos.x, inTexRes.x) + yBasisVect * discretize(localPos.y, inTexRes.y);
+    outPosition.a = outAlbedo.a;
     //outPosition = originWorldPos + xBasisVect * localPos.x + yBasisVect * localPos.y;
 
     //outPosition = vec4(relWorldPos.xyz/relWorldPos.w, 0.0);

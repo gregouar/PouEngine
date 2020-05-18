@@ -59,6 +59,10 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
         std::list<Character *> m_duckSwarm;
         std::list<Character *> m_trees;
 
+        pou::LightEntity    *m_sunLight;
+        float m_sunAngle, m_sunAngleVelocity;
+        pou::Color m_dayColor, m_nightColor, m_sunsetColor;
+
         pou::SoundAsset     *m_soundTest;
         pou::SoundBankAsset *m_soundBankTest;
 

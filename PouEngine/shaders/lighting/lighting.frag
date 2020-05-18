@@ -267,13 +267,13 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
             projPos     -= (viewUbo.view * vec4(v,0.0)).xy;
 
             //int h = int(gl_FragCoord.x)%4+4*(int(gl_FragCoord.y)%4);
-            int h = int(fragPos.x)%4 + 4*(int(fragPos.y)%4);
+            int h = int(fragPos.x)%4 + 3*(int(fragPos.y)%4);
 
             float shadowing = 1.0/6.0 * (sampleShadow(projPos, fragPos.z) * 2.0
-                               + sampleShadow(projPos + hashed[h] * 6.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+1)%16] * 6.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+2)%16] * 6.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+3)%16] * 6.0, fragPos.z));
+                               + sampleShadow(projPos + hashed[h] * 10.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+1)%16] * 10.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+2)%16] * 10.0, fragPos.z)
+                               + sampleShadow(projPos + hashed[(h+3)%16] * 10.0, fragPos.z));
 
             if(shadowing > 0.2 && shadowing < 0.8)
             {

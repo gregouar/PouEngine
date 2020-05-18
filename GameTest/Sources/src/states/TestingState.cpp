@@ -218,24 +218,29 @@ void TestingState::init()
     //m_scene->setCurrentCamera(m_camera);
 
 
-    m_scene->setAmbientLight({1,1,1,1});
     //m_scene->setAmbientLight({.6,.6,.8,.2});
-    auto *sunLight = m_scene->createLightEntity(pou::LightType_Directional);
-    m_scene->getRootNode()->attachObject(sunLight);
+    m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
+    m_scene->getRootNode()->attachObject(m_sunLight);
 
     ///Day
-    sunLight->setDiffuseColor({1.0,1.0,1.0,1.0});
-    sunLight->setIntensity(3.0);
+    m_sunLight->setDiffuseColor({1.0,1.0,1.0,1.0});
+    m_sunLight->setIntensity(3.0);
+    m_scene->setAmbientLight({1,1,1,1});
 
     ///Night
+    /**m_sunLight->setDiffuseColor({.4,.4,1.0,1.0});
+    m_sunLight->setIntensity(.5);
+    m_scene->setAmbientLight({.4,.4,1.0,1.0});**/
+
     //m_sunLight.setDiffuseColor({0.7,0.7,1.0,1.0});
     //m_sunLight.setIntensity(0.2);
 
     //sunLight->setType(pou::LightType_Directional);
     //sunLight->setDirection({-1.0,0.0,-1.0});
-    sunLight->setDirection({-.6 , -.6 ,-1.0});
-    sunLight->setShadowMapExtent({1024,1024});
-    sunLight->enableShadowCasting();
+    m_sunLight->setDirection({-.6 , -.6 ,-1.0});
+    m_sunLight->setShadowMapExtent({1024,1024});
+    m_sunLight->enableShadowCasting();
+    m_sunAngle = 30;
 
     /*pou::LightEntity* sunLight = m_scene->createLightEntity(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(sunLight);
@@ -245,9 +250,9 @@ void TestingState::init()
     sunLight->enableShadowCasting();*/
 
     pou::LightEntity *cursorLight = m_scene->createLightEntity();
-    m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,60);
+    m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,20);
     m_cursorLightNode->attachObject(cursorLight);
-    cursorLight->setDiffuseColor({1.0,1.0,1.0,1.0});
+    cursorLight->setDiffuseColor({1.0,.6,0.0,1.0});
     cursorLight->setIntensity(5.0);
     cursorLight->setRadius(300.0);
     cursorLight->setType(pou::LightType_Omni);
@@ -412,6 +417,10 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         }
     }
 
+    m_sunAngleVelocity = 0.0;
+    if(eventsManager->keyIsPressed(GLFW_KEY_I))
+        m_sunAngleVelocity = 100.0;
+
 
     if(eventsManager->keyPressed(GLFW_KEY_U))
     {
@@ -521,6 +530,32 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_cameraNode->move(camMove);*/
 
     //m_cameraNode->move(glm::vec3(0,0,elapsedTime.count()));
+    m_sunAngle += m_sunAngleVelocity * elapsedTime.count();
+    m_sunLight->setDirection({glm::cos(m_sunAngle*glm::pi<float>()/180.0f),
+                              glm::sin(m_sunAngle*glm::pi<float>()/180.0f),-1.0});
+
+    float sunAngleMod = (int)m_sunAngle % 360;
+
+    pou::Color dayColor = {1.0,1.0,1.0,1.0},
+               nightColor = {.4,.4,1.0,1.0},
+               sunsetColor = {1.0,.6,0.0,1.0};
+
+    pou::Color sunColor;
+    if(sunAngleMod >= 0 && sunAngleMod < 30)
+        sunColor = glm::mix(sunsetColor, nightColor, sunAngleMod/30.0f);
+    else if(sunAngleMod >= 30 && sunAngleMod <= 150)
+        sunColor = nightColor;
+    else if(sunAngleMod > 150 && sunAngleMod <= 180)
+        sunColor =  glm::mix(nightColor, sunsetColor, (sunAngleMod-150)/30.0f);
+    else if(sunAngleMod > 180 && sunAngleMod < 210)
+        sunColor =  glm::mix(sunsetColor, dayColor, (sunAngleMod-180)/30.0f);
+    else if(sunAngleMod >= 210 && sunAngleMod <= 330)
+        sunColor = dayColor;
+    else
+        sunColor = glm::mix(dayColor,sunsetColor, (sunAngleMod-330)/30.0f);
+    m_scene->setAmbientLight(sunColor);
+    m_sunLight->setDiffuseColor(sunColor);
+
 
     m_lifeBar->setMinMaxValue(0,m_character->getAttributes().maxLife);
     m_lifeBar->setValue(m_character->getAttributes().life);
