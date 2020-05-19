@@ -35,7 +35,7 @@ bool AudioEngine::cleanup()
 void AudioEngine::update()
 {
     if(m_impl != nullptr)
-        m_impl.get()->update();
+        m_impl->update();
 }
 
 bool AudioEngine::set3DSettings(float dopplerscale,  float distancefactor,  float rolloffscale)
@@ -44,35 +44,35 @@ bool AudioEngine::set3DSettings(float dopplerscale,  float distancefactor,  floa
         return (false);
     if(distancefactor <= 0)
         return (false);
-    return instance()->m_impl.get()->set3DSettings(dopplerscale, distancefactor, rolloffscale);
+    return instance()->m_impl->set3DSettings(dopplerscale, distancefactor, rolloffscale);
 }
 
 SoundTypeId AudioEngine::add3DListener()
 {
     if(instance()->m_impl == nullptr)
         return (0);
-    return instance()->m_impl.get()->add3DListener();
+    return instance()->m_impl->add3DListener();
 }
 
 bool AudioEngine::remove3DListener(SoundTypeId id)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->remove3DListener(id);
+    return instance()->m_impl->remove3DListener(id);
 }
 
 bool AudioEngine::set3DListenerOrientation(SoundTypeId id, const glm::vec3 &up, const glm::vec3 &forwrd)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->set3DListenerOrientation(id,up,forwrd);
+    return instance()->m_impl->set3DListenerOrientation(id,up,forwrd);
 }
 
 bool AudioEngine::set3DListenerPosition(SoundTypeId id, const glm::vec3 &pos)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->set3DListenerPosition(id,pos);
+    return instance()->m_impl->set3DListenerPosition(id,pos);
 }
 
 SoundTypeId AudioEngine::loadSound(const std::string &path, bool is3D, bool isLooping, bool isStream)
@@ -80,7 +80,7 @@ SoundTypeId AudioEngine::loadSound(const std::string &path, bool is3D, bool isLo
     if(instance()->m_impl == nullptr)
         return (0);
 
-    auto r =  instance()->m_impl.get()->loadSound(path,is3D,isLooping,isStream);
+    auto r =  instance()->m_impl->loadSound(path,is3D,isLooping,isStream);
     if(r == 0)
         Logger::error("Could not load sound: "+path);
 
@@ -91,14 +91,14 @@ bool AudioEngine::destroySound(SoundTypeId id)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->destroySound(id);
+    return instance()->m_impl->destroySound(id);
 }
 
 bool AudioEngine::playSound(SoundTypeId id, float volume, const glm::vec3 &pos)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->playSound(id,volume,pos);
+    return instance()->m_impl->playSound(id,volume,pos);
 }
 
 bool AudioEngine::playSound(const SoundAsset *soundAsset, float volumeFactor, const glm::vec3 &pos)
@@ -111,7 +111,7 @@ SoundTypeId AudioEngine::loadBank(const std::string &path)
     if(instance()->m_impl == nullptr)
         return (0);
 
-    auto r =  instance()->m_impl.get()->loadBank(path);
+    auto r =  instance()->m_impl->loadBank(path);
     if(r == 0)
         Logger::error("Could not load sounds bank: "+path);
 
@@ -122,7 +122,7 @@ bool AudioEngine::destroyBank(SoundTypeId id)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->destroyBank(id);
+    return instance()->m_impl->destroyBank(id);
 }
 
 SoundTypeId AudioEngine::createEvent(const std::string &eventName)
@@ -130,7 +130,7 @@ SoundTypeId AudioEngine::createEvent(const std::string &eventName)
     if(instance()->m_impl == nullptr)
         return (0);
 
-    auto r =  instance()->m_impl.get()->createEvent(eventName);
+    auto r =  instance()->m_impl->createEvent(eventName);
     if(r == 0)
         Logger::error("Could not load sound event: "+eventName);
 
@@ -141,21 +141,21 @@ bool AudioEngine::destroyEvent(SoundTypeId id)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->destroyEvent(id);
+    return instance()->m_impl->destroyEvent(id);
 }
 
 bool AudioEngine::playEvent(SoundTypeId id)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->playEvent(id);
+    return instance()->m_impl->playEvent(id);
 }
 
 bool AudioEngine::setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos)
 {
     if(instance()->m_impl == nullptr)
         return (false);
-    return instance()->m_impl.get()->setEvent3DPosition(id, pos);
+    return instance()->m_impl->setEvent3DPosition(id, pos);
 }
 
 

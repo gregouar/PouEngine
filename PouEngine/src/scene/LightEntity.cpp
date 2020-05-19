@@ -103,6 +103,7 @@ VTexture LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<Shado
             m_datum.shadowShift.y = shadowShift.y;
     }
 
+    ///I don't really need to return this...
     return m_shadowMap.texture;
 }
 

@@ -6,7 +6,7 @@
 GameServer::GameServer()
 {
     auto testMsg = std::make_unique<NetMessage_test> ();
-    testMsg.get()->type = NetMessageType_Test;
+    testMsg->type = NetMessageType_Test;
     pou::NetEngine::addNetMessageModel(std::move(testMsg));
 }
 
@@ -18,7 +18,7 @@ GameServer::~GameServer()
 bool GameServer::create(unsigned short port)
 {
     m_server = std::move(pou::NetEngine::createServer());
-    m_server.get()->start(8,port);
+    m_server->start(8,port);
 
     return (true);
 }
@@ -27,7 +27,7 @@ void GameServer::cleanup()
 {
     if(m_server)
     {
-        m_server.get()->shutdown();
+        m_server->shutdown();
         m_server.release();
     }
 }
@@ -57,7 +57,7 @@ unsigned short GameServer::getPort() const
 {
     if(!m_server)
         return 0;
-    return m_server.get()->getPort();
+    return m_server->getPort();
 }
 
 void GameServer::sendMsgTest(bool reliable, bool forceSend)

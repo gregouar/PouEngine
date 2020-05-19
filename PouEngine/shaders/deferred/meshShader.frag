@@ -20,7 +20,7 @@ layout(binding = 0, set = 1) uniform sampler samp;
 layout(binding = 1, set = 1) uniform texture2DArray textures[128];
 
 layout(location = 0)      in vec4  fragColor;
-layout(location = 1)      in vec3  fragRmt;
+layout(location = 1)      in vec3  fragRme;
 layout(location = 2)      in vec2  fragUV;
 layout(location = 3)      in mat3  fragTBN; //Use 3
 // 4
@@ -28,14 +28,14 @@ layout(location = 3)      in mat3  fragTBN; //Use 3
 layout(location = 6)  flat in uvec2 fragAlbedoTexId;
 layout(location = 7)  flat in uvec2 fragHeightTexId;
 layout(location = 8)  flat in uvec2 fragNormalTexId;
-layout(location = 9)  flat in uvec2 fragRmtTexId;
+layout(location = 9)  flat in uvec2 fragRmeTexId;
 layout(location = 10)      in vec4  fragWorldPos;
 layout(location = 11) flat in float fragTexThickness;
 
 layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outPosition;
 layout(location = 2) out vec4 outNormal;
-//layout(location = 3) out vec4 outRmt;
+layout(location = 3) out vec4 outRme;
 
 void main()
 {
@@ -72,9 +72,9 @@ void main()
     normal = 2.0*normal - vec3(1.0);
     normal = fragTBN*normal;
 
-    outNormal = vec4(normalize(normal),0.0);
-    //outRmt    = vec4(texture(sampler2DArray(textures[fragRmtTexId.x], samp),
-    //                         vec3(fragUV,fragRmtTexId.y)).xyz  * fragRmt, 1.0);
+    outNormal = vec4(normalize(normal),outAlbedo.a);
+    outRme    = vec4(texture(sampler2DArray(textures[fragRmeTexId.x], samp),
+                             vec3(fragUV,fragRmeTexId.y)).xyz  * fragRme, outAlbedo.a);
 
 }
 

@@ -21,9 +21,9 @@ VkVertexInputBindingDescription SpriteDatum::getBindingDescription()
     return bindingDescription;
 }
 
-std::array<VkVertexInputAttributeDescription, 10> SpriteDatum::getAttributeDescriptions()
+std::array<VkVertexInputAttributeDescription, 12> SpriteDatum::getAttributeDescriptions()
 {
-    std::array<VkVertexInputAttributeDescription, 10> attributeDescriptions = {};
+    std::array<VkVertexInputAttributeDescription, 12> attributeDescriptions = {};
 
     size_t i = 0;
     /*attributeDescriptions[i].binding = 0;
@@ -82,11 +82,11 @@ std::array<VkVertexInputAttributeDescription, 10> SpriteDatum::getAttributeDescr
     attributeDescriptions[i].offset = offsetof(SpriteDatum, albedo_color);
     ++i;
 
-    /*attributeDescriptions[i].binding = 0;
+    attributeDescriptions[i].binding = 0;
     attributeDescriptions[i].location = i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[i].offset = offsetof(SpriteDatum, rmt_color);
-    ++i;*/
+    attributeDescriptions[i].offset = offsetof(SpriteDatum, rme_color);
+    ++i;
 
     attributeDescriptions[i].binding = 0;
     attributeDescriptions[i].location = i;
@@ -123,13 +123,13 @@ std::array<VkVertexInputAttributeDescription, 10> SpriteDatum::getAttributeDescr
     attributeDescriptions[i].location = i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
     attributeDescriptions[i].offset = offsetof(SpriteDatum, height_texId);
-    ++i;
+    ++i;*/
 
     attributeDescriptions[i].binding = 0;
     attributeDescriptions[i].location = i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
-    attributeDescriptions[i].offset = offsetof(SpriteDatum, rmt_texId);
-    ++i;*/
+    attributeDescriptions[i].offset = offsetof(SpriteDatum, rme_texId);
+    ++i;
 
     return attributeDescriptions;
 }
@@ -193,10 +193,10 @@ SpriteEntity::SpriteEntity() :
     m_spriteModel(nullptr),
     m_rotation(0.0f),
     m_color(1.0,1.0,1.0,1.0),
+    m_rme(1.0,1.0,1.0),
     m_ordering(NOT_ORDERED),
     m_inheritRotation(true),
     m_nextSpriteElapsedTime(0)
-    //m_rmt(1.0,1.0,1.0)
 {
     this->updateDatum();
 }
@@ -245,14 +245,14 @@ void SpriteEntity::setInheritRotation(bool inheritRotation)
     }
 }
 
-/*void SpriteEntity::setRmt(glm::vec3 rmt)
+void SpriteEntity::setRme(glm::vec3 rme)
 {
-    if(m_rmt != rmt)
+    if(m_rme != rme)
     {
-        m_rmt = rmt;
+        m_rme = rme;
         this->updateDatum();
     }
-}*/
+}
 
 void SpriteEntity::setSpriteModel(SpriteModel* model)
 {
@@ -260,7 +260,12 @@ void SpriteEntity::setSpriteModel(SpriteModel* model)
     {
         this->stopListeningTo(m_spriteModel);
         m_spriteModel = model;
-        this->startListeningTo(m_spriteModel);
+        if(m_spriteModel != nullptr)
+        {
+            this->startListeningTo(m_spriteModel);
+            this->setRme(m_spriteModel->getRme());
+            this->setShadowCastingType(m_spriteModel->getShadowCastingType());
+        }
         this->updateDatum();
     }
 }
@@ -281,10 +286,10 @@ SpriteOrdering SpriteEntity::getOrdering()
     return m_ordering;
 }
 
-/*glm::vec3 SpriteEntity::getRmt()
+glm::vec3 SpriteEntity::getRme()
 {
-    return m_rmt;
-}*/
+    return m_rme;
+}
 
 SpriteDatum SpriteEntity::getSpriteDatum()
 {
@@ -433,23 +438,7 @@ void SpriteEntity::updateDatum()
     //float heightFactor = 1.0;
 
     m_datum.albedo_color = m_color * m_parentNode->getFinalColor();
-    //m_datum.rmt_color = m_rmt;
-
-    /*MaterialAsset* material = m_spriteModel->getMaterial();
-    if(material != nullptr && material->isLoaded())
-    {
-        m_datum.albedo_texId = {material->getAlbedoMap().getTextureId(),
-                                material->getAlbedoMap().getTextureLayer()};
-        m_datum.height_texId = {material->getHeightMap().getTextureId(),
-                                material->getHeightMap().getTextureLayer()};
-        m_datum.normal_texId = {material->getNormalMap().getTextureId(),
-                                material->getNormalMap().getTextureLayer()};
-        m_datum.rmt_texId    = {material->getRmtMap().getTextureId(),
-                                material->getRmtMap().getTextureLayer()};
-
-        //heightFactor = material->getHeightFactor();
-        //m_datum.rmt_color *= material->getRmtFactor();
-    }*/
+    m_datum.rme_color = m_rme;
 
     m_datum.albedo_texId = {0,0};
     m_datum.normal_texId = {0,0};
@@ -463,6 +452,8 @@ void SpriteEntity::updateDatum()
                                     material->getAlbedoMap().getTextureLayer()};
             m_datum.normal_texId = {material->getNormalMap().getTextureId(),
                                     material->getNormalMap().getTextureLayer()};
+            m_datum.rme_texId = {material->getRmeMap().getTextureId(),
+                                    material->getRmeMap().getTextureLayer()};
         }
     } else {
         if(m_spriteModel->getTexture() != nullptr)

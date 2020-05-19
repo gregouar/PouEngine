@@ -57,7 +57,7 @@ void TestingState::init()
     pou::AudioEngine::playEvent(music);
 
     m_character = new PlayableCharacter();
-    m_character->loadModel("../data/char1/char1XML.txt");
+    m_character->loadModel("../data/char1/mokouXML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
@@ -183,25 +183,17 @@ void TestingState::init()
     pou::MeshAsset *wallBoxModel = pou::MeshesHandler::makeBox({0,0,0},{1,1,1},wallMaterial);
     pou::MeshEntity *wallBoxEntity;
     wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
-    //m_shadowBoxEntity->setRmt({0.8,0.0,0.0});
-    //wallBoxEntity->setColor({1.0,0.0,0.0,1.0});
     wallBoxEntity->setScale(glm::vec3(20,200,50));
-    wallBoxEntity->setShadowCasting(pou::ShadowCasting_All);
-    //m_shadowBoxEntity->setShadowCasting(vlg::ShadowCasting_All);
-    //m_shadowBoxNode = m_scene->getRootNode()->createChildNode({0,0,0});
+    wallBoxEntity->setShadowCastingType(pou::ShadowCasting_All);
     m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
 
     pou::MeshAsset* quackMesh = pou::MeshesHandler::loadAssetFromFile("../data/quackXML.txt",loadType);
     pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
 
     pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
-    quackEntity->setShadowCasting(pou::ShadowCasting_All);
+    quackEntity->setShadowCastingType(pou::ShadowCasting_All);
     quackNode->attachObject(quackEntity);
     quackNode->setScale(1.5f);
-
-    //m_soundTest = pou::SoundsHandler::loadAssetFromFile("../data/hurtSoundXML.txt");
-    //m_soundBankTest = pou::SoundBanksHandler::loadAssetFromFile("../data/char1/char1SoundBank.bank");
-
 
     m_camera = m_scene->createCamera();
     m_listeningCamera = m_scene->createCamera();
@@ -250,7 +242,7 @@ void TestingState::init()
     sunLight->enableShadowCasting();*/
 
     pou::LightEntity *cursorLight = m_scene->createLightEntity();
-    m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,20);
+    m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,60);
     m_cursorLightNode->attachObject(cursorLight);
     cursorLight->setDiffuseColor({1.0,.6,0.0,1.0});
     cursorLight->setIntensity(5.0);
@@ -537,7 +529,7 @@ void TestingState::update(const pou::Time &elapsedTime)
     float sunAngleMod = (int)m_sunAngle % 360;
 
     pou::Color dayColor = {1.0,1.0,1.0,1.0},
-               nightColor = {.4,.4,1.0,1.0},
+               nightColor = {.2,.2,1.0,1.0},
                sunsetColor = {1.0,.6,0.0,1.0};
 
     pou::Color sunColor;
@@ -553,7 +545,7 @@ void TestingState::update(const pou::Time &elapsedTime)
         sunColor = dayColor;
     else
         sunColor = glm::mix(dayColor,sunsetColor, (sunAngleMod-330)/30.0f);
-    m_scene->setAmbientLight(sunColor);
+    m_scene->setAmbientLight(sunColor * glm::vec4(1.0,1.0,1.0,.75));
     m_sunLight->setDiffuseColor(sunColor);
 
 

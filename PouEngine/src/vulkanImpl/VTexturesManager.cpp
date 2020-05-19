@@ -12,6 +12,7 @@ namespace pou
 /// I should turn this into app parameters
 const size_t VTexturesManager::MAX_TEXTURES_ARRAY_SIZE = 128; //Number of texture2DArray
 const size_t VTexturesManager::MAX_LAYER_PER_TEXTURE = 16; //Number of layers in each texture2DArray
+const size_t VTexturesManager::MAX_RENDERABLETEXTURES_ARRAY_SIZE = 32; //Number of texture2DArray of renderable targets
 
 VTexturesManager::VTexturesManager() :
     m_lastFrameIndex(0)
@@ -54,7 +55,7 @@ bool VTexturesManager::allocRenderableTexture(uint32_t width, uint32_t height, V
         aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 
     renderableTexture->attachment.image =
-            VTexturesManager::instance()->m_allocatedTextureArrays[renderableTexture->texture.getTextureId()]->image;
+            VTexturesManager::instance()->m_allocatedTextureArrays_renderable[renderableTexture->texture.getTextureId()]->image;
     renderableTexture->attachment.view  =
             VulkanHelpers::createImageView( renderableTexture->attachment.image.vkImage, format,
                                             aspect, 1, 1, renderableTexture->texture.getTextureLayer(), 0);
@@ -67,6 +68,7 @@ bool VTexturesManager::allocRenderableTexture(uint32_t width, uint32_t height, V
     renderableTexture->attachment.extent.height = height;
     renderableTexture->attachment.type.format = format;
     renderableTexture->attachment.type.layout = (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT) ?
+                                //VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     renderableTexture->renderTarget = new VRenderTarget();
@@ -86,8 +88,11 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
 
     for(auto ar = foundedArrays.first ; ar != foundedArrays.second ; ++ar)
     {
-        if(!m_allocatedTextureArrays[ar->second]->availableLayers.empty())
+        if(!format.renderable && !m_allocatedTextureArrays[ar->second]->availableLayers.empty())
         {
+            chosenArray = ar->second;
+            break;
+        } else if(format.renderable && !m_allocatedTextureArrays_renderable[ar->second]->availableLayers.empty()) {
             chosenArray = ar->second;
             break;
         }
@@ -101,13 +106,14 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
     }
     m_createImageMutex.unlock();
 
-    VTexture2DArray *texture2DArray = m_allocatedTextureArrays[chosenArray];
+    VTexture2DArray *texture2DArray = format.renderable ?  m_allocatedTextureArrays_renderable[chosenArray] : m_allocatedTextureArrays[chosenArray];
     size_t chosenLayer = *texture2DArray->availableLayers.begin();
     texture2DArray->availableLayers.pop_front();
 
     texture->m_textureId = chosenArray;
     texture->m_textureLayer = chosenLayer;
 
+    if(!format.renderable)
     if(source.buffer != VK_NULL_HANDLE)
     {
         texture2DArray->mutex.lock();
@@ -133,7 +139,8 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
 {
    // std::lock_guard<std::mutex> lock(m_createImageMutex);
 
-    if(m_allocatedTextureArrays.size() >= MAX_TEXTURES_ARRAY_SIZE)
+    if((!format.renderable && m_allocatedTextureArrays.size() >= MAX_TEXTURES_ARRAY_SIZE)
+    || (format.renderable && m_allocatedTextureArrays_renderable.size() >= MAX_RENDERABLETEXTURES_ARRAY_SIZE))
     {
         Logger::error("Maximum number of texture arrays allocated");
         return (MAX_TEXTURES_ARRAY_SIZE);
@@ -155,19 +162,19 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
         {
             usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-            layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; //VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
         else
         {
             usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-            layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;//VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         }
     }
 
     if(!VulkanHelpers::createImage(format.width, format.height, MAX_LAYER_PER_TEXTURE, format.vkFormat, VK_IMAGE_TILING_OPTIMAL,
                                    usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                    texture2DArray->image))
-        return (false);
+        return (MAX_TEXTURES_ARRAY_SIZE);
 
     VulkanHelpers::transitionImageLayoutLayers(texture2DArray->image, 0, MAX_LAYER_PER_TEXTURE, VK_IMAGE_LAYOUT_UNDEFINED,
                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,cmdPoolName);
@@ -182,17 +189,25 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
     imageInfo.imageLayout   = layout;
     imageInfo.imageView     = texture2DArray->view;
 
-    m_imageInfos[m_allocatedTextureArrays.size()] = imageInfo;
-
-    m_formatToArray.insert({format, m_allocatedTextureArrays.size()});
-    m_allocatedTextureArrays.push_back(texture2DArray);
-
     for(auto b : m_needToUpdateDescSet)
         b = true;
-    for(auto b : m_needToUpdateImgDescSet)
-        b = true;
+    //for(auto b : m_needToUpdateImgDescSet)
+      //  b = true;
 
-    return m_allocatedTextureArrays.size()-1;
+
+    if(format.renderable)
+    {
+        m_imageInfos_renderable[m_allocatedTextureArrays_renderable.size()] = imageInfo;
+        m_formatToArray.insert({format, m_allocatedTextureArrays_renderable.size()});
+        m_allocatedTextureArrays_renderable.push_back(texture2DArray);
+        return m_allocatedTextureArrays_renderable.size()-1;
+    } else {
+        m_imageInfos[m_allocatedTextureArrays.size()] = imageInfo;
+        m_formatToArray.insert({format, m_allocatedTextureArrays.size()});
+        m_allocatedTextureArrays.push_back(texture2DArray);
+        return m_allocatedTextureArrays.size()-1;
+    }
+
 }
 
 
@@ -212,11 +227,14 @@ void VTexturesManager::freeTexture(VRenderableTexture &renderableTexture)
     renderableTexture.renderTarget.destroy();*/
 }
 
-void VTexturesManager::freeTextureImpl(VTexture &texture)
+void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable)
 {
     if(!(texture.m_textureId == 0 && texture.m_textureLayer == 0))
     {
-        m_allocatedTextureArrays[texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
+        if(isRenderable)
+            m_allocatedTextureArrays_renderable[texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
+        else
+            m_allocatedTextureArrays[texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
         texture.m_textureId = 0;
         texture.m_textureLayer = 0;
     }
@@ -225,7 +243,7 @@ void VTexturesManager::freeTextureImpl(VTexture &texture)
 
 void VTexturesManager::freeTextureImpl(VRenderableTexture &renderableTexture)
 {
-    this->freeTextureImpl(renderableTexture.texture);
+    this->freeTextureImpl(renderableTexture.texture, true);
 
     if(renderableTexture.renderTarget != nullptr)
         m_cleaningList_renderTargets.push_back({m_framesCount, renderableTexture.renderTarget});
@@ -270,61 +288,74 @@ VkSampler VTexturesManager::sampler(bool nearest)
     return VTexturesManager::instance()->m_sampler;
 }
 
-VkDescriptorSetLayout VTexturesManager::descriptorSetLayout()
+VkDescriptorSetLayout VTexturesManager::descriptorSetLayout(bool withRenderableTextures)
 {
-    return VTexturesManager::instance()->getDescriptorSetLayout();
+    return VTexturesManager::instance()->getDescriptorSetLayout(withRenderableTextures);
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet(bool nearest)
+VkDescriptorSet VTexturesManager::descriptorSet(bool nearest, bool withRenderableTextures)
 {
-    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex,nearest);
+    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex,nearest,withRenderableTextures);
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex, bool nearest)
+VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures)
 {
-    return VTexturesManager::instance()->getDescriptorSet(frameIndex, nearest);
+    return VTexturesManager::instance()->getDescriptorSet(frameIndex, nearest, withRenderableTextures);
 }
 
-VkDescriptorSet VTexturesManager::imgDescriptorSet(size_t imageIndex)
+/*VkDescriptorSet VTexturesManager::imgDescriptorSet(size_t imageIndex)
 {
     return VTexturesManager::instance()->getImgDescriptorSet(imageIndex);
-}
+}*/
 
 size_t VTexturesManager::descriptorSetVersion(size_t frameIndex)
 {
     return VTexturesManager::instance()->getDescriptorSetVersion(frameIndex);
 }
 
-size_t VTexturesManager::imgDescriptorSetVersion(size_t imageIndex)
+/*size_t VTexturesManager::imgDescriptorSetVersion(size_t imageIndex)
 {
     return VTexturesManager::instance()->getImgDescriptorSetVersion(imageIndex);
-}
+}*/
 
-VkDescriptorSetLayout VTexturesManager::getDescriptorSetLayout()
+VkDescriptorSetLayout VTexturesManager::getDescriptorSetLayout(bool withRenderableTextures)
 {
+    if(withRenderableTextures)
+        return m_descriptorSetLayout_renderable;
     return m_descriptorSetLayout;
 }
 
-VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex, bool nearest)
+VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures)
 {
-    return nearest ? m_descriptorSets_nearest[frameIndex] : m_descriptorSets[frameIndex];
+    if(!nearest)
+    {
+        if(withRenderableTextures)
+            return m_descriptorSets_renderable[frameIndex];
+        return m_descriptorSets[frameIndex];
+    } else
+    {
+        if(withRenderableTextures)
+            return m_descriptorSets_nearest_renderable[frameIndex];
+        return m_descriptorSets_nearest[frameIndex];
+    }
+    //return nearest ? m_descriptorSets_nearest[frameIndex] : m_descriptorSets[frameIndex];
 }
 
 
-VkDescriptorSet VTexturesManager::getImgDescriptorSet(size_t imageIndex)
+/*VkDescriptorSet VTexturesManager::getImgDescriptorSet(size_t imageIndex)
 {
     return m_imgDescriptorSets[imageIndex];
-}
+}*/
 
 size_t VTexturesManager::getDescriptorSetVersion(size_t frameIndex)
 {
     return m_descSetVersion[frameIndex];
 }
 
-size_t VTexturesManager::getImgDescriptorSetVersion(size_t imageIndex)
+/*size_t VTexturesManager::getImgDescriptorSetVersion(size_t imageIndex)
 {
     return m_imgDescSetVersion[imageIndex];
-}
+}*/
 
 VTexture VTexturesManager::getDummyTexture()
 {
@@ -337,8 +368,8 @@ void VTexturesManager::update(size_t frameIndex, size_t imageIndex)
 {
     if(m_needToUpdateDescSet[frameIndex] == true)
         this->updateDescriptorSet(frameIndex);
-    if(m_needToUpdateImgDescSet[imageIndex] == true)
-        this->updateImgDescriptorSet(imageIndex);
+    //if(m_needToUpdateImgDescSet[imageIndex] == true)
+      //  this->updateImgDescriptorSet(imageIndex);
     m_lastFrameIndex = frameIndex;
 
     this->updateCleaningLists();
@@ -346,7 +377,7 @@ void VTexturesManager::update(size_t frameIndex, size_t imageIndex)
 
 bool VTexturesManager::createDescriptorSetLayouts()
 {
-    VkDescriptorSetLayoutBinding layoutBindings[2];
+    VkDescriptorSetLayoutBinding layoutBindings[3];
     layoutBindings[0].binding = 0;
     layoutBindings[0].descriptorCount = 1;
     layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
@@ -359,12 +390,24 @@ bool VTexturesManager::createDescriptorSetLayouts()
     layoutBindings[1].pImmutableSamplers = nullptr;
     layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 2;
-    layoutInfo.pBindings = layoutBindings;
+    layoutBindings[2].binding = 2;
+    layoutBindings[2].descriptorCount = MAX_RENDERABLETEXTURES_ARRAY_SIZE;
+    layoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    layoutBindings[2].pImmutableSamplers = nullptr;
+    layoutBindings[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    return (vkCreateDescriptorSetLayout(VInstance::device(), &layoutInfo, nullptr, &m_descriptorSetLayout) == VK_SUCCESS);
+    {
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 2;
+        layoutInfo.pBindings = layoutBindings;
+
+        if(vkCreateDescriptorSetLayout(VInstance::device(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
+            return(false);
+
+        layoutInfo.bindingCount = 3;
+        return (vkCreateDescriptorSetLayout(VInstance::device(), &layoutInfo, nullptr, &m_descriptorSetLayout_renderable) == VK_SUCCESS);
+    }
 }
 
 bool VTexturesManager::createSampler(bool nearest)
@@ -403,16 +446,16 @@ bool VTexturesManager::createDescriptorPool(size_t framesCount, size_t imagesCou
 {
     VkDescriptorPoolSize poolSize[2];
     poolSize[0].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount*2+imagesCount);
+    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
     poolSize[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount*2+imagesCount);
+    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 2;
     poolInfo.pPoolSizes = poolSize;
 
-    poolInfo.maxSets = static_cast<uint32_t>(framesCount*2+imagesCount);
+    poolInfo.maxSets = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
 
     return (vkCreateDescriptorPool(VInstance::device(), &poolInfo, nullptr, &m_descriptorPool) == VK_SUCCESS);
 }
@@ -422,6 +465,7 @@ bool VTexturesManager::createDescriptorSets(size_t framesCount, size_t imagesCou
     VkDevice device = VInstance::device();
 
     std::vector<VkDescriptorSetLayout> layouts(imagesCount, m_descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> layouts_renderable(imagesCount, m_descriptorSetLayout_renderable);
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = m_descriptorPool;
@@ -437,17 +481,27 @@ bool VTexturesManager::createDescriptorSets(size_t framesCount, size_t imagesCou
     if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_nearest.data()) != VK_SUCCESS)
         return (false);
 
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(imagesCount);
+    allocInfo.pSetLayouts = layouts_renderable.data();
+
+    m_descriptorSets_renderable.resize(framesCount);
+    if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_renderable.data()) != VK_SUCCESS)
+        return (false);
+
+    m_descriptorSets_nearest_renderable.resize(framesCount);
+    if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_nearest_renderable.data()) != VK_SUCCESS)
+        return (false);
+
+    /*allocInfo.descriptorSetCount = static_cast<uint32_t>(imagesCount);
     m_imgDescSetVersion = std::vector<size_t> (imagesCount, 0);
     m_imgDescriptorSets.resize(imagesCount);
     if (vkAllocateDescriptorSets(device, &allocInfo,m_imgDescriptorSets .data()) != VK_SUCCESS)
-        return (false);
+        return (false);*/
 
     for(size_t i = 0 ; i < framesCount ; ++i)
         this->updateDescriptorSet(i);
 
-    for(size_t i = 0 ; i < imagesCount ; ++i)
-        this->updateImgDescriptorSet(i);
+    //for(size_t i = 0 ; i < imagesCount ; ++i)
+      //  this->updateImgDescriptorSet(i);
 
     return (true);
 }
@@ -456,20 +510,23 @@ void VTexturesManager::updateDescriptorSet(size_t frameIndex)
 {
     this->writeDescriptorSet(m_descriptorSets[frameIndex]);
     this->writeDescriptorSet(m_descriptorSets_nearest[frameIndex],true);
+    this->writeDescriptorSet(m_descriptorSets_renderable[frameIndex],false,true);
+    this->writeDescriptorSet(m_descriptorSets_nearest_renderable[frameIndex],true,true);
     m_needToUpdateDescSet[frameIndex] = false;
     ++m_descSetVersion[frameIndex];
 }
 
-void VTexturesManager::updateImgDescriptorSet(size_t imageIndex)
+/*void VTexturesManager::updateImgDescriptorSet(size_t imageIndex)
 {
     this->writeDescriptorSet(m_imgDescriptorSets[imageIndex]);
     m_needToUpdateImgDescSet[imageIndex] = false;
     ++m_imgDescSetVersion[imageIndex];
-}
+}*/
 
-void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest)
+void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest, bool withRenderableTextures)
 {
-    VkWriteDescriptorSet setWrites[2];
+    VkWriteDescriptorSet setWrites[3];
+    size_t setCounts = withRenderableTextures ? 3 : 2;
 
 	VkDescriptorImageInfo samplerInfo = {};
 	samplerInfo.sampler = nearest ? m_sampler_nearest : m_sampler;
@@ -494,7 +551,17 @@ void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest
 	setWrites[1].dstSet             = descSet;
 	setWrites[1].pImageInfo         = m_imageInfos.data();
 
-    vkUpdateDescriptorSets(VInstance::device(), 2, setWrites, 0, nullptr);
+	setWrites[2] = {};
+	setWrites[2].sType              = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	setWrites[2].dstBinding         = 2;
+	setWrites[2].dstArrayElement    = 0;
+	setWrites[2].descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+	setWrites[2].descriptorCount    = MAX_RENDERABLETEXTURES_ARRAY_SIZE;
+	setWrites[2].pBufferInfo        = 0;
+	setWrites[2].dstSet             = descSet;
+	setWrites[2].pImageInfo         = m_imageInfos_renderable.data();
+
+    vkUpdateDescriptorSets(VInstance::device(), setCounts, setWrites, 0, nullptr);
 }
 
 bool VTexturesManager::createDummyTexture()
@@ -506,21 +573,33 @@ bool VTexturesManager::createDummyTexture()
 bool VTexturesManager::init(size_t framesCount, size_t imagesCount)
 {
     m_imageInfos.resize(MAX_TEXTURES_ARRAY_SIZE);
+    m_imageInfos_renderable.resize(MAX_RENDERABLETEXTURES_ARRAY_SIZE);
     m_framesCount = framesCount;
 
     if(!this->createDummyTexture())
         return (false);
 
-    m_needToUpdateDescSet = std::vector<bool> (framesCount, true);
-    m_needToUpdateImgDescSet = std::vector<bool> (imagesCount, true);
+    m_allocatedTextureArrays_renderable.push_back(nullptr);
 
-    size_t i = 0;
+    m_needToUpdateDescSet = std::vector<bool> (framesCount, true);
+    //m_needToUpdateImgDescSet = std::vector<bool> (imagesCount, true);
+
+   // size_t i = 0;
     for(auto &imageInfo : m_imageInfos)
     {
         imageInfo.sampler       = nullptr;
         imageInfo.imageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView     = m_allocatedTextureArrays[0]->view;
-        i++;
+        //i++;
+    }
+
+    //i = 0;
+    for(auto &imageInfo : m_imageInfos_renderable)
+    {
+        imageInfo.sampler       = nullptr;
+        imageInfo.imageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView     = m_allocatedTextureArrays[0]->view;
+       // i++;
     }
 
     if(!this->createDescriptorSetLayouts())
@@ -547,6 +626,7 @@ void VTexturesManager::cleanup()
     vkDestroySampler(device, m_sampler_nearest, nullptr);
     vkDestroyDescriptorPool(device,m_descriptorPool,nullptr);
     vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout_renderable, nullptr);
 
     for(auto vtexture : m_allocatedTextureArrays)
     {
@@ -555,6 +635,17 @@ void VTexturesManager::cleanup()
         delete vtexture;
     }
     m_allocatedTextureArrays.clear();
+
+    for(auto vtexture : m_allocatedTextureArrays_renderable)
+    {
+        if(vtexture)
+        {
+            vkDestroyImageView(device, vtexture->view, nullptr);
+            VulkanHelpers::destroyImage(vtexture->image);
+            delete vtexture;
+        }
+    }
+    m_allocatedTextureArrays_renderable.clear();
     m_formatToArray.clear();
 }
 

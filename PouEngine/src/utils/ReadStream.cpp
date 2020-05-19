@@ -100,7 +100,7 @@ void ReadStream::memcpy(uint8_t *data, int data_size)
     Stream::padZeroes();
 
     if(m_reader)
-        m_reader.get()->memcpy(data, data_size, (m_bits%32)/8);
+        m_reader->memcpy(data, data_size, (m_bits%32)/8);
 
     m_bits += data_size*8;
 }
@@ -112,10 +112,10 @@ void ReadStream::serializeBits(int32_t &value, int bits)
     if(!m_reader)
         return;
 
-    if(m_reader.get()->wouldReadPastEnd(bits))
+    if(m_reader->wouldReadPastEnd(bits))
         return;
 
-    value = m_reader.get()->readBits(bits);
+    value = m_reader->readBits(bits);
 }
 
 void ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)

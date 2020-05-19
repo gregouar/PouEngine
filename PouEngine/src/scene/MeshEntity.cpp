@@ -62,7 +62,7 @@ std::array<VkVertexInputAttributeDescription, 11> MeshDatum::getAttributeDescrip
     attributeDescriptions[i].binding = b;
     attributeDescriptions[i].location = d+i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[i].offset = offsetof(MeshDatum, rmt_color);
+    attributeDescriptions[i].offset = offsetof(MeshDatum, rme_color);
     ++i;
 
 
@@ -87,7 +87,7 @@ std::array<VkVertexInputAttributeDescription, 11> MeshDatum::getAttributeDescrip
     attributeDescriptions[i].binding = b;
     attributeDescriptions[i].location = d+i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
-    attributeDescriptions[i].offset = offsetof(MeshDatum, rmt_texId);
+    attributeDescriptions[i].offset = offsetof(MeshDatum, rme_texId);
     ++i;
 
     attributeDescriptions[i].binding = b;
@@ -104,7 +104,7 @@ std::array<VkVertexInputAttributeDescription, 11> MeshDatum::getAttributeDescrip
 MeshEntity::MeshEntity() :
     m_mesh(nullptr),
     m_color(1.0,1.0,1.0,1.0),
-    m_rmt(1.0,1.0,1.0),
+    m_rme(1.0,1.0,1.0),
     m_scale(1.0,1.0,1.0)
 {
     this->updateDatum();
@@ -141,11 +141,11 @@ void MeshEntity::setColor(Color color)
     }
 }
 
-void MeshEntity::setRmt(glm::vec3 rmt)
+void MeshEntity::setRme(glm::vec3 rme)
 {
-    if(m_rmt != rmt)
+    if(m_rme != rme)
     {
-        m_rmt = rmt;
+        m_rme = rme;
         this->updateDatum();
     }
 }
@@ -220,13 +220,13 @@ void MeshEntity::updateDatum()
         return;
 
     m_datum.albedo_color  = m_color;
-    m_datum.rmt_color     = m_rmt;
+    m_datum.rme_color     = m_rme;
     m_datum.texThickness  = 0.0;
 
     m_datum.albedo_texId = {};
     m_datum.height_texId = {};
     m_datum.normal_texId = {};
-    m_datum.rmt_texId = {};
+    m_datum.rme_texId = {};
 
     MaterialAsset* material = m_mesh->getMaterial();
     if(material != nullptr && material->isLoaded())
@@ -237,9 +237,9 @@ void MeshEntity::updateDatum()
                                 material->getHeightMap().getTextureLayer()};
         m_datum.normal_texId = {material->getNormalMap().getTextureId(),
                                 material->getNormalMap().getTextureLayer()};
-        m_datum.rmt_texId    = {material->getRmtMap().getTextureId(),
-                                material->getRmtMap().getTextureLayer()};
-        m_datum.rmt_color *= material->getRmtFactor();
+        m_datum.rme_texId    = {material->getRmeMap().getTextureId(),
+                                material->getRmeMap().getTextureLayer()};
+        m_datum.rme_color *= material->getRmeFactor();
 
         if(!(m_datum.normal_texId.x == 0 && m_datum.normal_texId.y == 0))
             m_datum.texThickness = material->getHeightFactor();

@@ -31,11 +31,11 @@ layout(location = 5)  in mat4  inModel; //Use 4
 //7
 //8
 layout(location = 9) in vec4  inInstanceColor;
-layout(location = 10) in vec3  inInstanceRmt;
+layout(location = 10) in vec3  inInstanceRme;
 layout(location = 11) in uvec2 inAlbedoTexId;
 layout(location = 12) in uvec2 inHeightTexId;
 layout(location = 13) in uvec2 inNormalTexId;
-layout(location = 14) in uvec2 inRmtTexId;
+layout(location = 14) in uvec2 inRmeTexId;
 layout(location = 15) in float inTexThickness;
 
 //Out

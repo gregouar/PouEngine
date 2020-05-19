@@ -70,8 +70,8 @@ std::array<VkVertexInputAttributeDescription, 6> SpriteShadowGenerationDatum::ge
 }*/
 
 SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
-    m_texture(0),
-    m_material(0),
+    m_texture(nullptr),
+    m_material(nullptr),
     m_useMaterial(false),
     m_spriteSheet(spriteSheet),
     m_size({1.0f,1.0f}),
@@ -79,8 +79,11 @@ SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_texturePosition({0.0f,0.0f}),
     m_textureExtent({1.0f,1.0f}),
     m_useRelativeTextureRect(true),
+    m_shadowCastingType(ShadowCasting_None),
     m_nextSpriteDelay(-1),
     m_nextSprite(-1),
+    m_color(1.0),
+    m_rme(1.0),
     m_isReady(true)
    // m_shadowMapExtent(0.0,0.0)
 {
@@ -200,16 +203,20 @@ void SpriteModel::setColor(Color color)
     }
 }
 
-
-
-/*void SpriteModel::setRmt(Color rmt)
+void SpriteModel::setRme(glm::vec3 rme)
 {
-    if(m_rmt != rmt)
+    if(m_rme != rme)
     {
-        m_rmt = rmt;
+        m_rme = rme;
         this->sendNotification(Notification_ModelChanged);
     }
-}*/
+}
+
+
+void SpriteModel::setShadowCastingType(ShadowCastingType type)
+{
+    m_shadowCastingType = type;
+}
 
 bool SpriteModel::isUsingMaterial()
 {
@@ -234,6 +241,11 @@ glm::vec2 SpriteModel::getSize()
 glm::vec2 SpriteModel::getCenter()
 {
     return m_center;
+}
+
+glm::vec3 SpriteModel::getRme()
+{
+    return m_rme;
 }
 
 glm::vec2 SpriteModel::getTextureResolution()
@@ -287,6 +299,12 @@ bool SpriteModel::isReady()
 {
     return m_isReady;
 }
+
+ShadowCastingType SpriteModel::getShadowCastingType()
+{
+    return m_shadowCastingType;
+}
+
 
 /*VTexture SpriteModel::getDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction)
 {

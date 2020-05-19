@@ -73,7 +73,7 @@ pou::SpriteEntity *Character::addLimb(LimbModel *limbModel)
     limbEntity->setOrdering(pou::ORDERED_BY_Z);
     limbEntity->setInheritRotation(true);
 
-    limbEntity->setShadowCasting(pou::ShadowCasting_OnlyDirectional);
+    //limbEntity->setShadowCasting(pou::ShadowCasting_OnlyDirectional);
 
     auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
 
@@ -103,9 +103,9 @@ bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skele
         return (false);
 
     auto *spriteEntity = this->addLimb(limbModel);
-    skeleton->second.get()->attachLimb(limbModel->node,
-                                       limbModel->state,
-                                       spriteEntity);
+    skeleton->second->attachLimb(limbModel->node,
+                                 limbModel->state,
+                                 spriteEntity);
 
     return (true);
 }
@@ -125,9 +125,9 @@ bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &
     if(limb == m_limbs.end())
         return (false);
 
-    skeleton->second.get()->detachLimb(limbModel->node,
-                                       limbModel->state,
-                                       limb->second.get());
+    skeleton->second->detachLimb(limbModel->node,
+                                limbModel->state,
+                                limb->second.get());
     m_limbs.erase(limb);
 
     return (true);
@@ -143,7 +143,7 @@ bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &sk
     //auto *skelPtr = skeleton->second.get();
 
     auto *soundObject = this->addSound(soundModel);
-    skeleton->second.get()->attachSound(soundObject,soundModel->name);
+    skeleton->second->attachSound(soundObject,soundModel->name);
     //skelPtr->attachSound(soundObject,skelPtr->getModel()->getSoundId(soundModel.name));
 
    // skeleton->attachSound(targetCharacter->addSound(&sound),
@@ -167,9 +167,9 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     if(sound == m_sounds.end())
         return (false);
 
-    //skeleton->second.get()->detachSound(soundModel->node, sound->second.get());
-    //skeleton->second.get()->detachObject(sound->second.get());
-    skeleton->second.get()->detachSound(sound->second.get(),soundModel->name);
+    //skeleton->second->detachSound(soundModel->node, sound->second.get());
+    //skeleton->second->detachObject(sound->second.get());
+    skeleton->second->detachSound(sound->second.get(),soundModel->name);
     m_sounds.erase(sound);
 
     return (true);

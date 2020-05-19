@@ -17,12 +17,12 @@ struct MeshDatum
     glm::vec4 model_3;
 
     glm::vec4 albedo_color;
-    glm::vec3 rmt_color;
+    glm::vec3 rme_color;
 
     glm::uvec2 albedo_texId;
     glm::uvec2 height_texId;
     glm::uvec2 normal_texId;
-    glm::uvec2 rmt_texId;
+    glm::uvec2 rme_texId;
 
     float texThickness;
 
@@ -42,7 +42,7 @@ class MeshEntity : public ShadowCaster
         void setMesh(MeshAsset* mesh);
 
         void setColor(Color color);
-        void setRmt(glm::vec3 rmt);
+        void setRme(glm::vec3 rme);
 
         void setScale(float scale);
         void setScale(glm::vec3 scale);
@@ -67,7 +67,7 @@ class MeshEntity : public ShadowCaster
         MeshDatum  m_datum;
 
         Color       m_color;
-        glm::vec3   m_rmt;
+        glm::vec3   m_rme;
 
         glm::vec3   m_scale;
 };

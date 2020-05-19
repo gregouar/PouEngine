@@ -17,7 +17,7 @@ class ShadowCaster : public SceneEntity
 
         //void addLightSource();
 
-        void setShadowCasting(ShadowCastingType type);
+        void setShadowCastingType(ShadowCastingType type);
 
         ShadowCastingType getShadowCastingType();
 

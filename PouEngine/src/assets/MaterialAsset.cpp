@@ -21,12 +21,12 @@ MaterialAsset::MaterialAsset(const AssetTypeId id) : Asset(id)
     m_allowLoadFromMemory   = false;
 
     m_heightFactor  = 1;
-    m_rmtFactor     = glm::vec3(1.0,1.0,1.0);
+    m_rmeFactor     = glm::vec3(1.0,0.0,0.0);
 
     m_albedoMap = nullptr;
     m_normalMap = nullptr;
     m_heightMap = nullptr;
-    m_rmtMap    = nullptr;
+    m_rmeMap    = nullptr;
 }
 
 MaterialAsset::~MaterialAsset()
@@ -56,11 +56,11 @@ VTexture MaterialAsset::getHeightMap()
     return m_heightMap->getVTexture();
 }
 
-VTexture MaterialAsset::getRmtMap()
+VTexture MaterialAsset::getRmeMap()
 {
-    if(!m_rmtMap)
+    if(!m_rmeMap)
         return VTexture();
-    return m_rmtMap->getVTexture();
+    return m_rmeMap->getVTexture();
 }
 
 float MaterialAsset::getHeightFactor()
@@ -68,9 +68,9 @@ float MaterialAsset::getHeightFactor()
     return m_heightFactor;
 }
 
-glm::vec3 MaterialAsset::getRmtFactor()
+glm::vec3 MaterialAsset::getRmeFactor()
 {
-    return m_rmtFactor;
+    return m_rmeFactor;
 }
 
 glm::vec2 MaterialAsset::getExtent()
@@ -115,13 +115,13 @@ bool MaterialAsset::loadFromXML(TiXmlHandle *hdl)
         m_heightFactor = Parser::parseFloat(hdl->FirstChildElement("height").Element()->GetText());
 
     if(hdl->FirstChildElement("roughness").Element() != nullptr)
-        m_rmtFactor.r = Parser::parseFloat(hdl->FirstChildElement("roughness").Element()->GetText());
+        m_rmeFactor.r = Parser::parseFloat(hdl->FirstChildElement("roughness").Element()->GetText());
 
     if(hdl->FirstChildElement("metalness").Element() != nullptr)
-        m_rmtFactor.g = Parser::parseFloat(hdl->FirstChildElement("metalness").Element()->GetText());
+        m_rmeFactor.g = Parser::parseFloat(hdl->FirstChildElement("metalness").Element()->GetText());
 
-    if(hdl->FirstChildElement("translucency").Element() != nullptr)
-        m_rmtFactor.b = Parser::parseFloat(hdl->FirstChildElement("translucency").Element()->GetText());
+    if(hdl->FirstChildElement("emissivity").Element() != nullptr)
+        m_rmeFactor.b = Parser::parseFloat(hdl->FirstChildElement("emissivity").Element()->GetText());
 
     TiXmlElement* textElem = hdl->FirstChildElement("texture").Element();
     while(textElem != nullptr)
@@ -147,11 +147,11 @@ bool MaterialAsset::loadFromXML(TiXmlHandle *hdl)
             if(!m_heightMap->isLoaded())
                 loaded = false;
         }
-        else if(std::string(textElem->Attribute("type")).compare("rmt") == 0)
+        else if(std::string(textElem->Attribute("type")).compare("rme") == 0)
         {
-            m_rmtMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
-            this->startListeningTo(m_rmtMap);
-            if(!m_rmtMap->isLoaded())
+            m_rmeMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
+            this->startListeningTo(m_rmeMap);
+            if(!m_rmeMap->isLoaded())
                 loaded = false;
         }
         textElem = textElem->NextSiblingElement("texture");
@@ -169,12 +169,12 @@ void MaterialAsset::notify(NotificationSender* sender, NotificationType notifica
 {
     if(notification == Notification_AssetLoaded)
     if(sender == m_albedoMap || sender == m_heightMap
-       || sender == m_normalMap || sender == m_rmtMap)
+       || sender == m_normalMap || sender == m_rmeMap)
     {
         if(m_albedoMap == nullptr || m_albedoMap->isLoaded())
         if(m_heightMap == nullptr || m_heightMap->isLoaded())
         if(m_normalMap == nullptr || m_normalMap->isLoaded())
-        if(m_rmtMap == nullptr || m_rmtMap->isLoaded())
+        if(m_rmeMap == nullptr || m_rmeMap->isLoaded())
         {
             m_loaded = true, Asset::loadNow();
             Logger::write("Material loaded from file: "+m_filePath);
@@ -189,8 +189,8 @@ void MaterialAsset::notify(NotificationSender* sender, NotificationType notifica
             m_heightMap = nullptr;
         else if(sender == m_normalMap)
             m_normalMap = nullptr;
-        else if(sender == m_rmtMap)
-            m_rmtMap = nullptr;
+        else if(sender == m_rmeMap)
+            m_rmeMap = nullptr;
     }
 }
 

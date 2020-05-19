@@ -53,7 +53,7 @@ struct SpriteShadowGenerationDatum
     glm::uvec2 albedo_texId;
     glm::uvec2 height_texId;
     //glm::uvec2 normal_texId;
-    //glm::uvec2 rmt_texId;
+    //glm::uvec2 rme_texId;
 
     static VkVertexInputBindingDescription getBindingDescription();
     static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions();
@@ -85,9 +85,11 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelative = true);
         void setNextSprite(int spriteId, float delay);
 
+        void setShadowCastingType(ShadowCastingType type);
+
 
         void setColor(Color color);
-        //void setRmt(Color rmt);
+        void setRme(glm::vec3 rme);
 
         //void setShadowMapExtent(glm::vec2 extent);
 
@@ -100,6 +102,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         glm::vec2 getTextureExtent();
         glm::vec2 getTexturePosition();
         bool      isReady();
+        ShadowCastingType getShadowCastingType();
+        glm::vec3 getRme();
 
         float           getNextSpriteDelay();
         SpriteModel*    getNextSpriteModel();
@@ -118,8 +122,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         //VTexture generateDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction);
 
     private:
-        MaterialAsset   *m_material;
         TextureAsset    *m_texture;
+        MaterialAsset   *m_material;
         bool m_useMaterial;
 
         std::vector<bool>   m_needToCheckLoading;
@@ -132,11 +136,13 @@ class SpriteModel : public NotificationListener, public NotificationSender
         glm::vec2 m_textureExtent;
         bool      m_useRelativeTextureRect;
 
+        ShadowCastingType m_shadowCastingType;
+
         float   m_nextSpriteDelay;
         int     m_nextSprite;
 
         glm::vec4 m_color;
-        //glm::vec4 m_rmt;
+        glm::vec3 m_rme;
 
         bool m_isReady;
 

@@ -14,7 +14,7 @@ ShadowCaster::~ShadowCaster()
     //dtor
 }
 
-void ShadowCaster::setShadowCasting(ShadowCastingType type)
+void ShadowCaster::setShadowCastingType(ShadowCastingType type)
 {
     m_shadowCastingType = type;
 }

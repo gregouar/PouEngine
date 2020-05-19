@@ -138,7 +138,7 @@ class SceneRenderer : public AbstractRenderer
         VFramebufferAttachment m_albedoAttachments[NBR_ALPHA_LAYERS],
                                             m_positionAttachments[NBR_ALPHA_LAYERS], //The opac.a contains existence of truly trasparent frag, the alpha.a contains alphaAlbedo.a
                                             m_normalAttachments[NBR_ALPHA_LAYERS], //The opac.a = 0 and alpha.a contains existence of truly transparent frag
-                                            m_rmtAttachments[NBR_ALPHA_LAYERS];
+                                            m_rmeAttachments[NBR_ALPHA_LAYERS];
         VFramebufferAttachment m_hdrAttachements[NBR_ALPHA_LAYERS];
 
         VFramebufferAttachment m_ssgiBentNormalsAttachment;
@@ -150,7 +150,8 @@ class SceneRenderer : public AbstractRenderer
         VFramebufferAttachment m_deferredDepthAttachment;
         VFramebufferAttachment m_albedoAttachment,
                                m_positionAttachment,
-                               m_normalAttachment;
+                               m_normalAttachment,
+                               m_rmeAttachment;
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  /*m_spriteShadowsPass,

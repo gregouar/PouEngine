@@ -19,26 +19,26 @@ layout(push_constant) uniform PER_OBJECT
 }pc;
 
 layout(location = 0) flat in vec4 fragColor;
-//layout(location = 1) flat in vec3 fragRmt;
-layout(location = 1)      in mat3 fragTBN; //Use 3
-//2
+layout(location = 1) flat in vec3 fragRme;
+layout(location = 2)      in mat3 fragTBN; //Use 3
 //3
-layout(location = 4)      in vec2 fragTexCoord;
-layout(location = 5) flat in uvec2 fragAlbedoTexId;
-layout(location = 6) flat in uvec2 fragNormalTexId;
-/*layout(location = 4) flat in uvec2 fragHeightTexId;
-layout(location = 6) flat in uvec2 fragRmtTexId;*/
-layout(location = 7) flat in uvec2 inTexRes;
-layout(location = 8) in vec4 originWorldPos;
-layout(location = 9) in vec4 xBasisVect;
-layout(location = 10) in vec4 yBasisVect;
-layout(location = 11) in vec4 localPos;
+//4
+layout(location = 5)      in vec2 fragTexCoord;
+layout(location = 6) flat in uvec2 fragAlbedoTexId;
+layout(location = 7) flat in uvec2 fragNormalTexId;
+/*layout(location = 4) flat in uvec2 fragHeightTexId;*/
+layout(location = 8) flat in uvec2 fragRmeTexId;
+layout(location = 9) flat in uvec2 inTexRes;
+layout(location = 10) in vec4 originWorldPos;
+layout(location = 11) in vec4 xBasisVect;
+layout(location = 12) in vec4 yBasisVect;
+layout(location = 13) in vec4 localPos;
 //layout(location = 4) in vec3 screenPos;
 
 layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outPosition;
 layout(location = 2) out vec4 outNormal;
-/*layout(location = 3) out vec4 outRmt;*/
+layout(location = 3) out vec4 outRme;
 
 
 
@@ -73,6 +73,7 @@ void main()
 
     //normal = vec4(vec4(normal,0.0)*viewUbo.view).xyz;
     outNormal = vec4(normalize(normal),outAlbedo.a);
-
+    outRme    = vec4(texture(sampler2DArray(textures[fragRmeTexId.x], samp),
+                             vec3(fragTexCoord,fragRmeTexId.y)).xyz  * fragRme, outAlbedo.a);
 }
 

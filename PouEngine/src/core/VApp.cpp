@@ -215,6 +215,8 @@ void VApp::loop()
             m_renderWindow.takeScreenshot("../screenshots/screen.jpg");
     }
 
+
+
     VInstance::waitDeviceIdle();
 }
 

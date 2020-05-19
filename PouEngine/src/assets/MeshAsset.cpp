@@ -113,6 +113,7 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
         }
     }
 
+    if(!m_meshLoaded)
     if(hdl->FirstChildElement("model").Element() != nullptr)
     {
         std::string modelPath = hdl->FirstChildElement("model").Element()->GetText();
@@ -447,7 +448,8 @@ bool MeshAsset::generateModel(  std::vector<MeshVertex> &vertexList,
     else
         commandPoolName = COMMANDPOOL_MESHESLOADING;
 
-    m_meshLoaded = m_mesh->generateMesh(vertexList, indexList,commandPoolName);
+    if(!m_meshLoaded)
+        m_meshLoaded = m_mesh->generateMesh(vertexList, indexList,commandPoolName);
 
     if(m_meshLoaded && m_materialsLoaded)
         m_loaded = true;

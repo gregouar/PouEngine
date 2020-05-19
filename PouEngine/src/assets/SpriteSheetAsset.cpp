@@ -115,9 +115,21 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
             bool customSize = false;
             bool customCenter = false;
             bool customPosition = false;
+            glm::vec3 spriteRme(1.0,0.0,0.0);
 
-            if(spriteElement->Attribute("name") != nullptr)
-                spriteName = std::string(spriteElement->Attribute("name"));
+            auto nameElement = spriteElement->Attribute("name");
+            if(nameElement != nullptr)
+                spriteName = std::string(nameElement);
+
+            auto castShadowElement = spriteElement->Attribute("castShadow");
+            if(castShadowElement != nullptr)
+            {
+                bool castShadow = Parser::parseBool(castShadowElement);
+                if(castShadow)
+                    spriteModel->setShadowCastingType(ShadowCasting_OnlyDirectional);
+                else
+                    spriteModel->setShadowCastingType(ShadowCasting_None);
+            }
 
             auto sizeElement = spriteElement->FirstChildElement("size");
             if(sizeElement != nullptr)
@@ -153,6 +165,23 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                 customPosition = true;
             }
 
+            auto surfaceElement = spriteElement->FirstChildElement("surface");
+            if(surfaceElement != nullptr)
+            {
+                if(surfaceElement->Attribute("roughness") != nullptr)
+                    spriteRme.x = Parser::parseFloat(std::string(surfaceElement->Attribute("roughness")));
+                if(surfaceElement->Attribute("metalness") != nullptr)
+                    spriteRme.y = Parser::parseFloat(std::string(surfaceElement->Attribute("metalness")));
+                if(surfaceElement->Attribute("emissivity") != nullptr)
+                    spriteRme.z = Parser::parseFloat(std::string(surfaceElement->Attribute("emissivity")));
+                if(surfaceElement->Attribute("r") != nullptr)
+                    spriteRme.x = Parser::parseFloat(std::string(surfaceElement->Attribute("r")));
+                if(surfaceElement->Attribute("m") != nullptr)
+                    spriteRme.y = Parser::parseFloat(std::string(surfaceElement->Attribute("m")));
+                if(surfaceElement->Attribute("e") != nullptr)
+                    spriteRme.z = Parser::parseFloat(std::string(surfaceElement->Attribute("e")));
+            }
+
 
             auto nextSpriteElement = spriteElement->FirstChildElement("nextSprite");
             if(nextSpriteElement != nullptr)
@@ -182,6 +211,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
 
             spriteModel->setSize(spriteSize);
             spriteModel->setCenter(spriteCenter);
+            spriteModel->setRme(spriteRme);
 
             if(customPosition)
                 spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);

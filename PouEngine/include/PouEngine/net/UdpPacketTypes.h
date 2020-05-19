@@ -84,7 +84,7 @@ struct UdpPacket
         {
             int msg_type;
             if((int)netMessages.size() > i)
-                msg_type = netMessages[i].get()->type;
+                msg_type = netMessages[i]->type;
             stream->serializeInt(msg_type, 0, NetEngine::getNbrNetMsgTypes());
             if(stream->isReading())
                 netMessages.push_back(NetEngine::createNetMessage(msg_type));

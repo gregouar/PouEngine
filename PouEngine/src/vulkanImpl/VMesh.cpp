@@ -86,7 +86,7 @@ bool VMesh::generateMesh(std::vector<MeshVertex> &vertexList,
 
         if(m_material != nullptr)
         {
-            meshVertexList.back().rmt_color = m_material->getRmtFactor();
+            meshVertexList.back().rme_color = m_material->getRmeFactor();
 
             meshVertexList.back().albedo_texId = {m_material->getAlbedoMap().m_textureId,
                                                   m_material->getAlbedoMap().m_textureLayer};
@@ -97,8 +97,8 @@ bool VMesh::generateMesh(std::vector<MeshVertex> &vertexList,
             meshVertexList.back().normal_texId = {m_material->getNormalMap().m_textureId,
                                                   m_material->getNormalMap().m_textureLayer};
 
-            meshVertexList.back().rmt_texId    = {m_material->getRmtMap().m_textureId,
-                                                  m_material->getRmtMap().m_textureLayer};
+            meshVertexList.back().rme_texId    = {m_material->getRmeMap().m_textureId,
+                                                  m_material->getRmeMap().m_textureLayer};
 
         }*/
   //  }

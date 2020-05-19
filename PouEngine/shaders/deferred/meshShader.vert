@@ -23,11 +23,11 @@ layout(location = 2) in vec3  inNormal;
 layout(location = 3) in vec3  inTangent;
 layout(location = 4) in vec3  inBitangent;
 /*layout(location = 3) in vec4  inColor;
-layout(location = 4) in vec3  inRmt;
+layout(location = 4) in vec3  inRme;
 layout(location = 5) in uvec2 inAlbedoTexId;
 layout(location = 6) in uvec2 inHeightTexId;
 layout(location = 7) in uvec2 inNormalTexId;
-layout(location = 8) in uvec2 inRmtTexId;*/
+layout(location = 8) in uvec2 inRmeTexId;*/
 
 //Instance vertex
 layout(location = 5)  in mat4  inModel; //Use 4
@@ -35,16 +35,16 @@ layout(location = 5)  in mat4  inModel; //Use 4
 //7
 //8
 layout(location = 9) in vec4  inInstanceColor;
-layout(location = 10) in vec3  inInstanceRmt;
+layout(location = 10) in vec3  inInstanceRme;
 layout(location = 11) in uvec2 inAlbedoTexId;
 layout(location = 12) in uvec2 inHeightTexId;
 layout(location = 13) in uvec2 inNormalTexId;
-layout(location = 14) in uvec2 inRmtTexId;
+layout(location = 14) in uvec2 inRmeTexId;
 layout(location = 15) in float inTexThickness;
 
 //Out
 layout(location = 0)      out vec4 fragColor;
-layout(location = 1)      out vec3 fragRmt;
+layout(location = 1)      out vec3 fragRme;
 layout(location = 2)      out vec2 fragUV;
 layout(location = 3)      out mat3 fragTBN; //Use 3
 //4
@@ -52,7 +52,7 @@ layout(location = 3)      out mat3 fragTBN; //Use 3
 layout(location = 6)  flat out uvec2 fragAlbedoTexId;
 layout(location = 7)  flat out uvec2 fragHeightTexId;
 layout(location = 8)  flat out uvec2 fragNormalTexId;
-layout(location = 9)  flat out uvec2 fragRmtTexId;
+layout(location = 9)  flat out uvec2 fragRmeTexId;
 layout(location = 10)      out vec4  fragWorldPos;
 layout(location = 11) flat out float fragTexThickness;
 
@@ -82,11 +82,11 @@ void main()
 
     fragUV      = inUV;
     fragColor   = /*inColor **/ inInstanceColor;
-    fragRmt     = /*inRmt **/ inInstanceRmt;
+    fragRme     = /*inRme **/ inInstanceRme;
     fragAlbedoTexId    = inAlbedoTexId;
     fragHeightTexId    = inHeightTexId;
     fragNormalTexId    = inNormalTexId;
-    fragRmtTexId       = inRmtTexId;
+    fragRmeTexId       = inRmeTexId;
     fragTexThickness   = inTexThickness;
 
 }

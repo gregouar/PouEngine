@@ -75,7 +75,7 @@ void main()
     normal = vec4(vec4(normal,0.0)*viewUbo.view).xyz;
     outNormal = vec4(normal,0.0);
 
-    outRmt = vec4(texture(sampler2DArray(textures[fragRmtTexId.x], samp), vec3(fragTexCoord,fragRmtTexId.y)).xyz  * fragRmt, 1.0);
+    outRme = vec4(texture(sampler2DArray(textures[fragRmeTexId.x], samp), vec3(fragTexCoord,fragRmeTexId.y)).xyz  * fragRme, 1.0);
 
     if(outAlbedo.a < .99f)
         discard;*/

@@ -85,12 +85,12 @@ class VTexturesManager : public Singleton<VTexturesManager>
 
 
         static VkSampler                sampler(bool nearest = false);
-        static VkDescriptorSetLayout    descriptorSetLayout();
-        static VkDescriptorSet          descriptorSet(bool nearest = false); //Use last frame index
-        static VkDescriptorSet          descriptorSet(size_t frameIndex, bool nearest = false);
-        static VkDescriptorSet          imgDescriptorSet(size_t imageIndex);
+        static VkDescriptorSetLayout    descriptorSetLayout(bool withRenderableTextures = false);
+        static VkDescriptorSet          descriptorSet(bool nearest = false, bool withRenderableTextures = false); //Use last frame index
+        static VkDescriptorSet          descriptorSet(size_t frameIndex, bool nearest = false, bool withRenderableTextures = false);
+        //static VkDescriptorSet          imgDescriptorSet(size_t imageIndex);
         static size_t                   descriptorSetVersion(size_t frameIndex);
-        static size_t                   imgDescriptorSetVersion(size_t imageIndex);
+        //static size_t                   imgDescriptorSetVersion(size_t imageIndex);
 
         static VTexture getDummyTexture();
 
@@ -102,7 +102,7 @@ class VTexturesManager : public Singleton<VTexturesManager>
         bool    allocRenderableTextureImpl(VTexture2DArrayFormat format, CommandPoolName cmdPoolName, VTexture *texture);
         size_t  createTextureArray(VTexture2DArrayFormat format,  CommandPoolName cmdPoolName);
 
-        void    freeTextureImpl(VTexture &texture);
+        void    freeTextureImpl(VTexture &texture, bool isRenderable = false);
         void    freeTextureImpl(VRenderableTexture &texture);
         void    updateCleaningLists(bool cleanAll = false);
 
@@ -113,36 +113,40 @@ class VTexturesManager : public Singleton<VTexturesManager>
         bool    createDummyTexture();
 
         void    updateDescriptorSet(size_t frameIndex);
-        void    updateImgDescriptorSet(size_t imageIndex);
-        void    writeDescriptorSet(VkDescriptorSet &descSet, bool nearest = false);
+        //void    updateImgDescriptorSet(size_t imageIndex);
+        void    writeDescriptorSet(VkDescriptorSet &descSet, bool nearest = false, bool withRenderableTextures = false);
 
         bool    init(size_t framesCount, size_t imagesCount);
         void    cleanup();
 
-        VkDescriptorSetLayout   getDescriptorSetLayout();
-        VkDescriptorSet         getDescriptorSet(size_t frameIndex, bool nearest = false);
-        VkDescriptorSet         getImgDescriptorSet(size_t imageIndex);
+        VkDescriptorSetLayout   getDescriptorSetLayout(bool withRenderableTextures = false);
+        VkDescriptorSet         getDescriptorSet(size_t frameIndex, bool nearest = false, bool withRenderableTextures = false);
+        //VkDescriptorSet         getImgDescriptorSet(size_t imageIndex);
         size_t                  getDescriptorSetVersion(size_t frameIndex);
-        size_t                  getImgDescriptorSetVersion(size_t imageIndex);
+        //size_t                  getImgDescriptorSetVersion(size_t imageIndex);
 
     private:
         std::multimap<VTexture2DArrayFormat, size_t> m_formatToArray;
         std::vector<VTexture2DArray*>       m_allocatedTextureArrays;
+        std::vector<VTexture2DArray*>       m_allocatedTextureArrays_renderable;
         std::vector<VkDescriptorImageInfo>  m_imageInfos;
-
+        std::vector<VkDescriptorImageInfo>  m_imageInfos_renderable;
         VTexture m_dummyTexture;
 
         std::mutex m_createImageMutex;
 
         VkSampler                       m_sampler, m_sampler_nearest;
         std::vector<bool>               m_needToUpdateDescSet;
-        std::vector<bool>               m_needToUpdateImgDescSet;
+        //std::vector<bool>               m_needToUpdateImgDescSet;
         std::vector<size_t>             m_descSetVersion;
-        std::vector<size_t>             m_imgDescSetVersion;
+        //std::vector<size_t>             m_imgDescSetVersion;
         std::vector<VkDescriptorSet>    m_descriptorSets;
         std::vector<VkDescriptorSet>    m_descriptorSets_nearest;
-        std::vector<VkDescriptorSet>    m_imgDescriptorSets;
+        std::vector<VkDescriptorSet>    m_descriptorSets_renderable;
+        std::vector<VkDescriptorSet>    m_descriptorSets_nearest_renderable;
+        //std::vector<VkDescriptorSet>    m_imgDescriptorSets;
         VkDescriptorSetLayout           m_descriptorSetLayout;
+        VkDescriptorSetLayout           m_descriptorSetLayout_renderable;
         VkDescriptorPool                m_descriptorPool;
 
         size_t  m_lastFrameIndex;
@@ -153,6 +157,7 @@ class VTexturesManager : public Singleton<VTexturesManager>
 
     public:
         static const size_t MAX_TEXTURES_ARRAY_SIZE;
+        static const size_t MAX_RENDERABLETEXTURES_ARRAY_SIZE; // Need to be smaller or equal than MAX_TEXTURES_ARRAY_SIZE
         static const size_t MAX_LAYER_PER_TEXTURE;
 };
 

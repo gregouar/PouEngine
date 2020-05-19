@@ -2,17 +2,18 @@
 <spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>
 <!--<spritesheet material="treeMaterial.txt" scaleX=2 scaleY=2>-->
 <!--<spritesheet texture="tree.png" scaleX=2 scaleY=2>-->
-	<sprite name="treeFoliage0">
+	<sprite name="treeFoliage0" castShadow="true">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="0" 	y="0" 	/>
 	</sprite>
-	<sprite name="treeFoliage1">
+	<sprite name="treeFoliage1" castShadow="true">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="256" y="0" 	/>
+		<surface roughness=.5 metalness=0.0 emissivity=0.0 />
 	</sprite>
-	<sprite name="treeFoliage2">
+	<sprite name="treeFoliage2" castShadow="true">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="512" y="0" 	/>

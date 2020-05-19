@@ -16,7 +16,7 @@ GameClient::~GameClient()
 bool GameClient::create(unsigned short port)
 {
     m_client = std::move(pou::NetEngine::createClient());
-    m_client.get()->create(port);
+    m_client->create(port);
 
     return (true);
 }
@@ -25,7 +25,7 @@ void GameClient::cleanup()
 {
     if(m_client)
     {
-        m_client.get()->destroy();
+        m_client->destroy();
         m_client.release();
     }
 }
@@ -35,7 +35,7 @@ bool GameClient::connectToServer(const pou::NetAddress &address)
     if(!m_client)
         return (false);
 
-    return m_client.get()->connectToServer(address);
+    return m_client->connectToServer(address);
 }
 
 bool GameClient::disconnectFromServer()
@@ -43,7 +43,7 @@ bool GameClient::disconnectFromServer()
     if(!m_client)
         return (false);
 
-    return m_client.get()->disconnectFromServer();
+    return m_client->disconnectFromServer();
 }
 
 

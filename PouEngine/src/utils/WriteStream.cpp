@@ -147,7 +147,7 @@ void WriteStream::setBuffer(uint8_t *buffer, int bytes)
 void WriteStream::flush()
 {
     if(m_writer)
-        m_writer.get()->flush();
+        m_writer->flush();
 }
 
 
@@ -158,7 +158,7 @@ void WriteStream::memcpy(uint8_t *data, int data_size)
     this->flush();
 
     if(m_writer)
-        m_writer.get()->memcpy(data, data_size, (m_bits%32)/8);
+        m_writer->memcpy(data, data_size, (m_bits%32)/8);
 
     m_bits += data_size*8;
 }
@@ -168,7 +168,7 @@ void WriteStream::serializeBits(int32_t &value, int bits)
     m_bits += bits;
 
     if(m_writer)
-        m_writer.get()->writeBits(value, bits);
+        m_writer->writeBits(value, bits);
 }
 
 void WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
@@ -184,7 +184,7 @@ void WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
     uint32_t unsigned_value = value - min;
 
     if(m_writer)
-        m_writer.get()->writeBits(unsigned_value, bits);
+        m_writer->writeBits(unsigned_value, bits);
 }
 
 void WriteStream::serializeBool(bool &value)

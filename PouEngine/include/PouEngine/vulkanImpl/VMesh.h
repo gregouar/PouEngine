@@ -21,12 +21,12 @@ struct MeshVertex
     glm::vec3 bitangent;
 
     /*glm::vec4 albedo_color;
-    glm::vec3 rmt_color;
+    glm::vec3 rme_color;
 
     glm::uvec2 albedo_texId;
     glm::uvec2 height_texId;
     glm::uvec2 normal_texId;
-    glm::uvec2 rmt_texId;*/
+    glm::uvec2 rme_texId;*/
 
 
     static VkVertexInputBindingDescription getBindingDescription();

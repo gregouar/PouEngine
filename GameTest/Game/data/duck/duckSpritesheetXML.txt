@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <spritesheet material="duckMaterial.txt" scaleX=2 scaleY=2>
-	<sprite name="head">
+	<sprite name="head" castShadow="true">
 		<size 		x="22" 	y="46" 	/>
 		<center 	x="11" 	y="35" 	/>
 		<position 	x="12" 	y="0"	/>
 	</sprite>
-	<sprite name="body">
+	<sprite name="body" castShadow="true">
 		<size 		x="46" 	y="68" 	/>
 		<center 	x="23" 	y="33" 	/>
 		<position 	x="0" 	y="48"	/>
@@ -42,13 +42,13 @@
 	</sprite>	
 	
 	
-	<sprite name="headAttack">
+	<sprite name="headAttack" castShadow="true">
 		<size 		x="22" 	y="46" 	/>
 		<center 	x="11" 	y="35" 	/>
 		<position 	x="80" 	y="0"	/>
 		<nextSprite name="headAttack2" delay=.2 />
 	</sprite>
-	<sprite name="headAttack2">
+	<sprite name="headAttack2" castShadow="true">
 		<size 		x="22" 	y="46" 	/>
 		<center 	x="11" 	y="35" 	/>
 		<position 	x="80" 	y="50"	/>

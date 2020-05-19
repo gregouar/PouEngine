@@ -26,10 +26,10 @@ class MaterialAsset : public Asset, public NotificationListener
         VTexture getAlbedoMap();
         VTexture getNormalMap();
         VTexture getHeightMap();
-        VTexture getRmtMap();
+        VTexture getRmeMap();
 
         float getHeightFactor();
-        glm::vec3 getRmtFactor();
+        glm::vec3 getRmeFactor();
         glm::vec2 getExtent();
 
     protected:
@@ -39,10 +39,10 @@ class MaterialAsset : public Asset, public NotificationListener
         TextureAsset* m_albedoMap; //Color
         TextureAsset* m_normalMap;
         TextureAsset* m_heightMap;
-        TextureAsset* m_rmtMap; // Roughness-Metalness-Translucency
+        TextureAsset* m_rmeMap; // Roughness-Metalness-Emissivity
 
         float       m_heightFactor;
-        glm::vec3   m_rmtFactor;
+        glm::vec3   m_rmeFactor;
 };
 
 }

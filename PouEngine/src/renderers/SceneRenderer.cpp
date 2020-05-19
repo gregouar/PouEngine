@@ -346,7 +346,8 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
                     {
                         m_meshDirectShadowsPipeline.updateViewport(cmb, {0,0}, extent);
                         //m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
-                        renderingInstance->pushCamPosAndZoom(cmb, m_deferredMeshesPipeline.getLayout());
+                        renderingInstance->pushCamPosAndZoom(cmb, m_meshDirectShadowsPipeline.getLayout(),
+                                                             VK_SHADER_STAGE_VERTEX_BIT);
                         m_meshDirectShadowsPipeline.updatePushConstant(cmb, 1, (char*)&shadowShift);
                         m_meshDirectShadowsPipeline.updatePushConstant(cmb, 2, (char*)&lightXYonZ);
 
@@ -358,15 +359,14 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
                 }
             }
 
-
             //Sprite shadows drawing
             if(m_spritesVbos[m_curFrameIndex]->getUploadedSize() != 0)
             {
                 vkCmdBindVertexBuffers(cmb, 0, 1, &spritesInstancesVB.buffer, &spritesInstancesVB.offset);
                 m_spriteShadowsPipeline.bind(cmb);
 
-               // vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
-                 //                       m_spriteShadowsPipeline.getLayout(),0,2, descriptorSets, 0, nullptr);
+                vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                        m_spriteShadowsPipeline.getLayout(),0,2, descriptorSets, 0, nullptr);
 
                 for(auto renderingInstance : m_renderingInstances)
                 {
@@ -376,7 +376,6 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
 
                     renderingInstance->pushCamPosAndZoom(cmb, m_spriteShadowsPipeline.getLayout(),
                                                         VK_SHADER_STAGE_VERTEX_BIT);
-
                     m_spriteShadowsPipeline.updatePushConstant(cmb, 1, (char*)&shadowShift);
                     m_spriteShadowsPipeline.updatePushConstant(cmb, 2, (char*)&lightXYonZ);
 
@@ -534,7 +533,7 @@ bool SceneRenderer::recordLightingCmb(uint32_t imageIndex)
     VBuffer lightsInstancesVB   = m_lightsVbos[m_curFrameIndex]->getBuffer();
 
     VkDescriptorSet lightDescriptorSets[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
-                                             VTexturesManager::descriptorSet(m_curFrameIndex),
+                                             VTexturesManager::descriptorSet(m_curFrameIndex,false,true),
                                              m_renderGraph.getDescriptorSet(m_lightingPass,imageIndex/*m_curFrameIndex*/) };
 
     /// Lighting of opac fragments
@@ -828,6 +827,8 @@ bool SceneRenderer::createAttachments()
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_positionAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_normalAttachment) &
+            VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_rmeAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement)
         )
@@ -843,7 +844,7 @@ bool SceneRenderer::createAttachments()
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_normalAttachments[a]) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
-                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_rmtAttachments[a]) &
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_rmeAttachments[a]) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachements[a])
         )
@@ -894,7 +895,8 @@ void SceneRenderer::prepareShadowRenderPass()
 
     m_shadowMapsPass = m_renderGraph.addDynamicRenderPass();
     m_renderGraph.addAttachmentType(m_shadowMapsPass, shadowMapType,
-                                    VK_ATTACHMENT_STORE_OP_STORE, false);
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);
 }
 
 void SceneRenderer::prepareDeferredRenderPass()
@@ -904,10 +906,11 @@ void SceneRenderer::prepareDeferredRenderPass()
     m_renderGraph.addNewAttachments(m_deferredPass, m_albedoAttachment);
     m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachment);
     m_renderGraph.addNewAttachments(m_deferredPass, m_normalAttachment);
+    m_renderGraph.addNewAttachments(m_deferredPass, m_rmeAttachment);
 
     /*m_renderGraph.addNewAttachments(m_deferredPass, m_positionAttachments[0]);
     m_renderGraph.addNewAttachments(m_deferredPass, m_normalAttachments[0]);
-    m_renderGraph.addNewAttachments(m_deferredPass, m_rmtAttachments[0]);*/
+    m_renderGraph.addNewAttachments(m_deferredPass, m_rmeAttachments[0]);*/
 
     m_renderGraph.addNewAttachments(m_deferredPass, m_deferredDepthAttachment);
 }
@@ -928,7 +931,7 @@ void SceneRenderer::prepareAlphaDeferredRenderPass()
     m_renderGraph.addNewAttachments(m_alphaDeferredPass, m_albedoAttachments[1]);
     m_renderGraph.addNewAttachments(m_alphaDeferredPass, m_positionAttachments[1]);
     m_renderGraph.addNewAttachments(m_alphaDeferredPass, m_normalAttachments[1]);
-    m_renderGraph.addNewAttachments(m_alphaDeferredPass, m_rmtAttachments[1]);
+    m_renderGraph.addNewAttachments(m_alphaDeferredPass, m_rmeAttachments[1]);
     //m_renderGraph.transferAttachmentsToAttachments(m_alphaDetectPass, m_alphaDeferredPass, 1);
     m_renderGraph.transferAttachmentsToAttachments(m_deferredPass, m_alphaDeferredPass, 4);
 
@@ -977,6 +980,7 @@ void SceneRenderer::prepareLightingRenderPass()
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 1);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 3);
 
     /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDetectPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
@@ -1054,11 +1058,11 @@ void SceneRenderer::prepareAmbientLightingRenderPass()
     //m_renderGraph.transferAttachmentsToAttachments(m_alphaLightingPass, m_ambientLightingPass, 0);
 
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 0);
-    /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDetectPass, m_ambientLightingPass, 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 1);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 2);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 3);
 
-    m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 0);
+    /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 1);
     m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 2);
     m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 3);
@@ -1227,6 +1231,7 @@ bool SceneRenderer::createDeferredSpritesPipeline()
     m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,0);
     m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,1);
     m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,2);
+    m_deferredSpritesPipeline.setBlendMode(BlendMode_Alpha,3);
 
     return m_deferredSpritesPipeline.init(m_renderGraph.getRenderPass(m_deferredPass));
 }
@@ -1431,7 +1436,7 @@ bool SceneRenderer::createLightingPipeline()
     m_lightingPipeline.setInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, false);
 
     m_lightingPipeline.attachDescriptorSetLayout(m_renderView.getDescriptorSetLayout());
-    m_lightingPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout());
+    m_lightingPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout(true));
     m_lightingPipeline.attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_lightingPass));
 
     m_lightingPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec4));
@@ -1608,6 +1613,7 @@ void SceneRenderer::cleanup()
     VulkanHelpers::destroyAttachment(m_albedoAttachment);
     VulkanHelpers::destroyAttachment(m_positionAttachment);
     VulkanHelpers::destroyAttachment(m_normalAttachment);
+    VulkanHelpers::destroyAttachment(m_rmeAttachment);
     VulkanHelpers::destroyAttachment(m_hdrAttachement);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)
@@ -1615,7 +1621,7 @@ void SceneRenderer::cleanup()
         VulkanHelpers::destroyAttachment(m_albedoAttachments[a]);
         VulkanHelpers::destroyAttachment(m_positionAttachments[a]);
         VulkanHelpers::destroyAttachment(m_normalAttachments[a]);
-        VulkanHelpers::destroyAttachment(m_rmtAttachments[a]);
+        VulkanHelpers::destroyAttachment(m_rmeAttachments[a]);
         VulkanHelpers::destroyAttachment(m_hdrAttachements[a]);
     }*/
 

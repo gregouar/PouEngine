@@ -29,14 +29,16 @@ struct SpriteDatum
     glm::vec4 modelMat3;
 
     glm::vec4 albedo_color;
+    glm::vec3 rme_color;
     glm::vec2 texPos;
     glm::vec2 texExtent;
     glm::uvec2 texRes;
     glm::uvec2 albedo_texId;
     glm::uvec2 normal_texId;
+    glm::uvec2 rme_texId;
 
     static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 10> getAttributeDescriptions();
+    static std::array<VkVertexInputAttributeDescription, 12> getAttributeDescriptions();
 };
 
 /*struct SpriteShadowDatum
@@ -68,7 +70,7 @@ class SpriteEntity : public ShadowCaster
 
         void setRotation(float rotation);
         void setColor(Color color);
-        //void setRmt(glm::vec3 rmt);
+        void setRme(glm::vec3 rme);
         void setSpriteModel(SpriteModel* model);
         void setOrdering(SpriteOrdering ordering);
         void setInheritRotation(bool inheritRotation);
@@ -76,7 +78,7 @@ class SpriteEntity : public ShadowCaster
         float getRotation();
         Color getColor();
         SpriteOrdering getOrdering();
-        //glm::vec3 getRmt();
+        glm::vec3 getRme();
 
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
@@ -102,6 +104,7 @@ class SpriteEntity : public ShadowCaster
     private:
         float       m_rotation;
         glm::vec4   m_color;
+        glm::vec3   m_rme;
         SpriteOrdering  m_ordering;
         bool            m_inheritRotation; ///Rename this to inheritsTransformations
 

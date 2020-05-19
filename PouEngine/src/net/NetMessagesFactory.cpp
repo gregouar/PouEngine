@@ -46,7 +46,7 @@ int NetMessage::serialize(Stream *stream, bool computeBytesAndFlush)
 NetMessagesFactory::NetMessagesFactory()
 {
     auto msg = std::make_unique<NetMessage>();
-    msg.get()->type = 0;
+    msg->type = 0;
     this->addMessageModel(std::move(msg));
 }
 
@@ -57,7 +57,7 @@ NetMessagesFactory::~NetMessagesFactory()
 
 void NetMessagesFactory::addMessageModel(std::unique_ptr<NetMessage> msgModel)
 {
-    m_msgModels.resize(msgModel.get()->type+1);
+    m_msgModels.resize(msgModel->type+1);
     m_msgModels[msgModel->type] = std::move(msgModel);
 }
 
@@ -65,7 +65,7 @@ std::shared_ptr<NetMessage> NetMessagesFactory::createMessage(int type)
 {
     if(type < 0 || type >= (int)m_msgModels.size())
         return (nullptr);
-    auto ptr = m_msgModels[type].get()->msgAllocator();
+    auto ptr = m_msgModels[type]->msgAllocator();
     ptr->type = type;
     return ptr;
 }
