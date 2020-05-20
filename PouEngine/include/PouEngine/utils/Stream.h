@@ -1,6 +1,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+#include <vector>
 #include <cstdint>
 
 namespace pou
@@ -15,6 +16,7 @@ class Stream
         virtual bool isWriting() = 0;
         virtual bool isReading() = 0;
 
+        virtual void setBuffer(std::vector<uint8_t> &buffer);
         virtual void setBuffer(uint8_t *buffer, int bytes) = 0;
 
         int computeBytes();

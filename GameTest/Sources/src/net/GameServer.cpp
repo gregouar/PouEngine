@@ -70,6 +70,7 @@ void GameServer::sendMsgTest(bool reliable, bool forceSend)
             testMsg->isReliable = reliable;
 
             m_server->sendMessage(i,testMsg, forceSend);
+            //m_server->sendReliableBigMessage(i,testMsg);
             std::cout<<"Server send test message with value: "<<testMsg->test_value<<" and id: "<<testMsg->id<<std::endl;
         }
 }

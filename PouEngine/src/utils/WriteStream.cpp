@@ -138,6 +138,11 @@ bool WriteStream::isReading()
 }
 
 
+void WriteStream::setBuffer(std::vector<uint8_t> &buffer)
+{
+    this->setBuffer(buffer.data(), buffer.size());
+}
+
 void WriteStream::setBuffer(uint8_t *buffer, int bytes)
 {
     m_writer = std::make_unique<BitWriter> (buffer, bytes);

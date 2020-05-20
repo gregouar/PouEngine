@@ -136,6 +136,17 @@ void UdpClient::sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend)
     m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
 }
 
+void UdpClient::sendReliableBigMessage(std::shared_ptr<NetMessage> msg)
+{
+    if(m_connectionStatus != ConnectionStatus_Connected)
+    {
+        Logger::warning("Client cannot send message if not connected");
+        return;
+    }
+    ClientAddress clientAddress = {m_serverAddress, m_serverSalt^m_salt};
+    m_packetsExchanger.sendChunk(clientAddress, msg);
+}
+
 
 void UdpClient::receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages)
 {

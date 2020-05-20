@@ -2,6 +2,7 @@
 #define UDPPACKETSEXCHANGER_H
 
 #include "PouEngine/Types.h"
+#include "PouEngine/utils/Timer.h"
 #include "PouEngine/net/NetAddress.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/net/UdpSocket.h"
@@ -9,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <set>
 #include <cstdint>
 
 namespace pou
@@ -48,6 +50,32 @@ struct FragmentedPacket
     std::vector< std::vector<uint8_t> > fragmentBuffers;
     std::vector< bool > receivedFrags;
     int nbr_receivedFrags;
+};
+
+struct ChunkSendingBuffer
+{
+    ClientAddress address;
+    std::vector<uint8_t> buffer;
+    std::set<int> slicesToSend;
+    int chunk_id;
+    int nbr_slices;
+    int chunk_msg_type;
+
+    std::map<int, int> packetSeqToSliceId;
+    Timer sendingTimer;
+};
+
+struct ChunkReceivingBuffer
+{
+    ClientAddress address;
+    std::map<int, std::vector<uint8_t> > sliceBuffers;
+    int chunk_id;
+    //int chunkSize;
+    int nbr_slices;
+    int chunk_msg_type;
+
+    bool isReceiving;
+    Timer ackTimer;
 };
 
 struct SendedPacketContent
@@ -100,6 +128,9 @@ class UdpPacketsExchanger
                                     std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages);
 
         virtual void sendMessage(ClientAddress &address, std::shared_ptr<NetMessage> msg, bool forceSend = false);
+        virtual bool sendChunk(ClientAddress &address,  std::shared_ptr<NetMessage> msg, bool initialBurst = false);
+
+        virtual void ping(ClientAddress &address);
 
         void generatePacketHeader(UdpPacket &packet, PacketType packetType);
         PacketType readPacketType(UdpBuffer &packetBuffer);
@@ -109,6 +140,11 @@ class UdpPacketsExchanger
     protected:
         void fragmentPacket(UdpBuffer &packetBuffer);
         bool reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &destBuffer);
+
+        virtual bool sendChunk(ClientAddress &address,  std::vector<uint8_t> &chunk_data, int type, bool initialBurst); //Careful, it moves data !
+        void sendSlice(ChunkSendingBuffer &chunkSendingBuffer, int sliceId);
+        bool reassembleChunk(UdpBuffer &chunkBuffer,
+                             std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages);
 
         uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
         bool verifyPacketIntegrity(UdpPacket &packet);
@@ -128,10 +164,16 @@ class UdpPacketsExchanger
         std::map< ClientAddress, NetMessagesList > m_netMsgLists;
         std::map< ClientAddress, ReliableMessagesBuffer > m_reliableMsgBuffers;
 
+        std::map< ClientAddress, ChunkSendingBuffer >   m_chunkSendingBuffers;
+        std::map< ClientAddress, ChunkReceivingBuffer > m_chunkReceivingBuffers;
+        //Timer m_chunkSendingTimer, m_chunkgReceivingTimer ?
+
     public:
         static const int MAX_FRAGBUFFER_ENTRIES;
         static const float MAX_FRAGPACKET_LIFESPAN;
         static const float MAX_KEEPFRAGPACKETSPERCLIENT_TIME;
+        static const float SLICE_SENDING_DELAY;
+        static const int NBR_SLICESPERSEND;
 
 };
 

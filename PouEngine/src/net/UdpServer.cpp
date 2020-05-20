@@ -91,6 +91,20 @@ void UdpServer::sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg,
     m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
 }
 
+void UdpServer::sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg)
+{
+    if(clientNbr >= m_clients.size())
+        return;
+
+    auto &client = m_clients[clientNbr];
+
+    if(client.status != ConnectionStatus_Connected)
+        return;
+
+    ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
+    m_packetsExchanger.sendChunk(clientAddress, msg);
+}
+
 
 void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages)
 {

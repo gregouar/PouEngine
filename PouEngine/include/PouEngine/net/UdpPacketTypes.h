@@ -19,12 +19,20 @@ static const int SALT_SIZE = 8;
 const int UDPPACKET_SEQ_SIZE = 16;
 const int UDPPACKET_SEQ_MAX = (int)pow(2,UDPPACKET_SEQ_SIZE);
 
+static const int MAX_SLICESIZE = 1024;
+const int UDPPACKET_SLICEID_SIZE = 16;
+const int UDPPACKET_SLICEID_MAX = (int)pow(2,UDPPACKET_SLICEID_SIZE);
+const int UDPPACKET_CHUNKID_SIZE = 8;
+const int UDPPACKET_CHUNKID_MAX = (int)pow(2,UDPPACKET_CHUNKID_SIZE);
+
+
 
 enum PacketType
 {
     PacketType_Fragment,
     PacketType_ConnectionMsg,
     PacketType_Data,
+    PacketType_Slice,
     NBR_PacketTypes,
     PacketCorrupted,
 };
@@ -128,6 +136,28 @@ struct UdpPacket_Fragment : UdpPacket
         stream->serializeBits(nbr_frags, 8);
 
         stream->memcpy(frag_data.data(), frag_data.size());
+    }
+};
+
+struct UdpPacket_Slice : UdpPacket
+{
+    int chunk_id;
+    int slice_id;
+    int nbr_slices;
+    int chunk_msg_type;
+
+    std::vector<uint8_t> slice_data;
+
+    void serializeImpl(Stream *stream)
+    {
+        slice_data.resize(MAX_SLICESIZE);
+
+        stream->serializeBits(chunk_id, UDPPACKET_CHUNKID_SIZE);
+        stream->serializeBits(slice_id, UDPPACKET_SLICEID_SIZE);
+        stream->serializeBits(nbr_slices, UDPPACKET_SLICEID_SIZE);
+        stream->serializeInt(chunk_msg_type, 0, NetEngine::getNbrNetMsgTypes());
+
+        stream->memcpy(slice_data.data(), slice_data.size());
     }
 };
 

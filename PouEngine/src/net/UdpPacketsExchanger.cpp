@@ -1,10 +1,12 @@
 #include "PouEngine/net/UdpPacketsExchanger.h"
 
+#include "PouEngine/utils/Stream.h"
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Hasher.h"
 #include "PouEngine/core/VApp.h"
 
 #include <string>
+#include <numeric>
 
 namespace pou
 {
@@ -15,6 +17,8 @@ namespace pou
 const int UdpPacketsExchanger::MAX_FRAGBUFFER_ENTRIES = 256;
 const float UdpPacketsExchanger::MAX_FRAGPACKET_LIFESPAN = 60.0f*5;
 const float UdpPacketsExchanger::MAX_KEEPFRAGPACKETSPERCLIENT_TIME = 60.0f*10;
+const float UdpPacketsExchanger::SLICE_SENDING_DELAY = .5f;
+const int UdpPacketsExchanger::NBR_SLICESPERSEND = 50;
 
 UdpBuffer::UdpBuffer() : buffer(MAX_PACKETSIZE)
 {
@@ -31,6 +35,8 @@ FragmentedPacket::FragmentedPacket() :
 UdpPacketsExchanger::UdpPacketsExchanger() : m_curLocalTime(0)
 {
     m_maxPacketSize = getMaxPacketSize()*1.5;
+   // m_chunkSendingBuffer.chunk_id = m_curChunkId;
+   // m_lastReceivedChunkId = -1;
 }
 
 UdpPacketsExchanger::~UdpPacketsExchanger()
@@ -59,6 +65,37 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
         else
             ++it;
     }
+
+
+    for(auto &chunkSendingBufferIt : m_chunkSendingBuffers)
+    {
+        auto &chunkSendingBuffer = chunkSendingBufferIt.second;
+        if(chunkSendingBuffer.sendingTimer.update(elapsedTime)
+        ||!chunkSendingBuffer.sendingTimer.isActive())
+        {
+            size_t i = 0;
+            for(auto it = chunkSendingBuffer.slicesToSend.begin() ; it != chunkSendingBuffer.slicesToSend.end()
+            && i < NBR_SLICESPERSEND ; ++i, ++it)
+            {
+                chunkSendingBuffer.sendingTimer.reset(SLICE_SENDING_DELAY);
+                this->sendSlice(chunkSendingBuffer, *it);
+            }
+        }
+    }
+
+    for(auto &chunkReceivingBufferIt : m_chunkReceivingBuffers)
+    {
+        auto &chunkReceivingBuffer = chunkReceivingBufferIt.second;
+        if(chunkReceivingBuffer.ackTimer.update(elapsedTime)
+        ||!chunkReceivingBuffer.ackTimer.isActive())
+        {
+            if(chunkReceivingBuffer.isReceiving)
+            {
+                this->ping(chunkReceivingBuffer.address);
+                chunkReceivingBuffer.ackTimer.reset(SLICE_SENDING_DELAY*0.5);
+            }
+        }
+    }
 }
 
 void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
@@ -84,7 +121,18 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
         {
             UdpBuffer reassembledBuffer;
             if(this->reassemblePacket(tempBuffer, reassembledBuffer))
+            {
+                packetType = retrieveMessagesAndAck(reassembledBuffer, netMessages);
                 packetBuffers.push_back(std::move(reassembledBuffer));
+            }
+        }
+        else if(packetType == PacketType_Slice)
+        {
+            this->reassembleChunk(tempBuffer, netMessages);
+            /*{
+                ClientAddress clientAddress = {t.address, packet.salt};
+                netMessages.push_back({clientAddress, reassembledMessage});
+            }*/
         }
         else if(packetType != PacketCorrupted)
             packetBuffers.push_back(std::move(tempBuffer));
@@ -132,12 +180,16 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     auto curPacketSize = packet.serialize(&stream);
 
+    auto &netMsgList = m_netMsgLists[{address, packet.salt}];
+    packet.last_ack = netMsgList.last_ack;
+    packet.ack_bits = netMsgList.ack_bits;
+
     if(!forceNonFragSend)
     {
-        auto &netMsgList = m_netMsgLists[{address, packet.salt}];
+        /*auto &netMsgList = m_netMsgLists[{address, packet.salt}];
 
         packet.last_ack = netMsgList.last_ack;
-        packet.ack_bits = netMsgList.ack_bits;
+        packet.ack_bits = netMsgList.ack_bits;*/
 
         auto &sendedPacketContent = netMsgList.sendedPacketContents[packet.sequence];
         sendedPacketContent.messageIds.clear();
@@ -235,6 +287,154 @@ void UdpPacketsExchanger::sendMessage(ClientAddress &address, std::shared_ptr<Ne
         packet.salt = address.salt;
         this->sendPacket(address.address,packet);
     }
+}
+
+bool UdpPacketsExchanger::sendChunk(ClientAddress &address,  std::shared_ptr<NetMessage> msg, bool initialBurst)
+{
+    msg->isReliable = false;
+
+    WriteStream stream;
+    int bufferSize = msg->serialize(&stream,true);
+    std::vector<uint8_t> buffer(bufferSize, 0);
+    stream.setBuffer(buffer);
+    msg->serialize(&stream);
+
+    return this->sendChunk(address, buffer, msg->type, initialBurst);
+}
+
+
+bool UdpPacketsExchanger::sendChunk(ClientAddress &clientAddress, std::vector<uint8_t> &chunk_data, int type, bool initialBurst)
+{
+    auto chunkSendingBufferIt = m_chunkSendingBuffers.find(clientAddress);
+    if(chunkSendingBufferIt == m_chunkSendingBuffers.end())
+    {
+        chunkSendingBufferIt = m_chunkSendingBuffers.insert({clientAddress,ChunkSendingBuffer ()}).first;
+        auto &chunkSendingBuffer = chunkSendingBufferIt->second;
+        chunkSendingBuffer.address = clientAddress;
+        chunkSendingBuffer.chunk_id = -1;
+    }
+    auto &chunkSendingBuffer = chunkSendingBufferIt->second;
+
+    if(!chunkSendingBuffer.slicesToSend.empty())
+        return (false); ///Add to queue ?
+
+    chunkSendingBuffer.address = clientAddress;
+    chunkSendingBuffer.chunk_id = (chunkSendingBuffer.chunk_id + 1) % UDPPACKET_CHUNKID_MAX;
+    chunkSendingBuffer.chunk_msg_type = type;
+    chunkSendingBuffer.nbr_slices = (chunk_data.size()/MAX_SLICESIZE) + (int)((chunk_data.size() % MAX_SLICESIZE == 0) ? 0 : 1);
+    chunkSendingBuffer.packetSeqToSliceId.clear();
+    chunkSendingBuffer.buffer = std::move(chunk_data);
+
+    /*m_chunkSendingBuffer.slicesToSend.resize(m_chunkSendingBuffer.nbrSlices,0);
+    std::iota (std::begin(m_chunkSendingBuffer.slicesToSend), std::end(m_chunkSendingBuffer.slicesToSend), 0);*/
+    chunkSendingBuffer.slicesToSend.clear();
+    for(int i = 0 ; i  <  chunkSendingBuffer.nbr_slices ; ++i)
+    {
+        chunkSendingBuffer.slicesToSend.insert(i);
+        if(initialBurst)
+            this->sendSlice(chunkSendingBuffer, i);
+    }
+
+    std::cout<<"Sending chunk with #slices: "<<chunkSendingBuffer.nbr_slices<<std::endl;
+
+    return (true);
+}
+
+void UdpPacketsExchanger::sendSlice(ChunkSendingBuffer &chunkSendingBuffer, int sliceId)
+{
+    UdpPacket_Slice packet;
+    packet.type = PacketType_Slice;
+    packet.salt = chunkSendingBuffer.address.salt;
+    packet.chunk_id = chunkSendingBuffer.chunk_id;
+    packet.slice_id = sliceId;
+    packet.nbr_slices = chunkSendingBuffer.nbr_slices;
+    packet.chunk_msg_type = chunkSendingBuffer.chunk_msg_type;
+
+    auto startIt    = chunkSendingBuffer.buffer.begin()+ sliceId*MAX_SLICESIZE;
+    auto endIt      = chunkSendingBuffer.buffer.end();
+    if((sliceId+1)*MAX_SLICESIZE < (int)chunkSendingBuffer.buffer.size())
+        endIt = startIt+MAX_SLICESIZE+1;
+
+    packet.slice_data.assign(startIt,endIt);
+
+    //std::cout<<"Send slice: "<<sliceId<<std::endl;
+
+    this->sendPacket(chunkSendingBuffer.address.address, packet, true);
+    chunkSendingBuffer.packetSeqToSliceId.insert_or_assign(packet.sequence, sliceId);
+    m_curSequence++;
+}
+
+
+bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
+                                         std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages)
+{
+    UdpPacket_Slice packetSlice;
+    if(!this->readPacket(packetSlice, chunkBuffer))
+        return (false);
+
+    std::cout<<"Packet slice received : ChunkId="<<packetSlice.chunk_id<<" ("<<packetSlice.slice_id+1<<"/"<<packetSlice.nbr_slices<<")"<<std::endl;
+
+    ClientAddress clientAddress = {chunkBuffer.address,packetSlice.salt};
+    auto chunkReceivingBufferIt = m_chunkReceivingBuffers.find(clientAddress);
+    if(chunkReceivingBufferIt == m_chunkReceivingBuffers.end())
+    {
+        chunkReceivingBufferIt = m_chunkReceivingBuffers.insert({clientAddress,ChunkReceivingBuffer ()}).first;
+        auto &chunkReceivingBuffer = chunkReceivingBufferIt->second;
+        chunkReceivingBuffer.address = clientAddress;
+        chunkReceivingBuffer.chunk_id = packetSlice.chunk_id;
+        chunkReceivingBuffer.isReceiving = false;
+    }
+    auto &chunkReceivingBuffer = chunkReceivingBufferIt->second;
+
+    if(chunkReceivingBuffer.chunk_id % UDPPACKET_CHUNKID_MAX != packetSlice.chunk_id /*&& chunkReceivingBuffer.isReceiving*/)
+    {
+        ///Error ? Queue ?
+        return (false);
+    }
+
+    if(!chunkReceivingBuffer.isReceiving)
+    {
+        chunkReceivingBuffer.nbr_slices = packetSlice.nbr_slices;
+        chunkReceivingBuffer.chunk_msg_type = packetSlice.chunk_msg_type;
+        chunkReceivingBuffer.isReceiving = true;
+    }
+
+    auto it = chunkReceivingBuffer.sliceBuffers.find(packetSlice.slice_id);
+    if(it == chunkReceivingBuffer.sliceBuffers.end())
+        chunkReceivingBuffer.sliceBuffers.insert({packetSlice.slice_id, std::move(packetSlice.slice_data)});
+
+    if((int)chunkReceivingBuffer.sliceBuffers.size() == chunkReceivingBuffer.nbr_slices)
+    {
+        std::vector<uint8_t> reassembledBuffer;
+        reassembledBuffer.reserve(MAX_SLICESIZE*chunkReceivingBuffer.nbr_slices);
+
+        for(size_t i = 0 ; i < chunkReceivingBuffer.sliceBuffers.size() ; ++i)
+            reassembledBuffer.insert(reassembledBuffer.end(),
+                                     chunkReceivingBuffer.sliceBuffers[i].begin(),
+                                     chunkReceivingBuffer.sliceBuffers[i].end());
+
+        ReadStream stream;
+        stream.setBuffer(reassembledBuffer);
+        auto message = NetEngine::createNetMessage(chunkReceivingBuffer.chunk_msg_type);
+        message->serialize(&stream);
+        netMessages.push_back({clientAddress, message});
+
+        chunkReceivingBuffer.sliceBuffers.clear();
+        chunkReceivingBuffer.isReceiving = false;
+        chunkReceivingBuffer.chunk_id++;
+        return (true);
+    }
+
+    return (false);
+}
+
+void UdpPacketsExchanger::ping(ClientAddress &address)
+{
+    UdpPacket_ConnectionMsg packet;
+    packet.type = PacketType_ConnectionMsg;
+    packet.connectionMessage = ConnectionMessage_Ping;
+    packet.salt = address.salt;
+    this->sendPacket(address.address,packet);
 }
 
 PacketType UdpPacketsExchanger::readPacketType(UdpBuffer &packetBuffer)
@@ -426,6 +626,21 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         for(auto id : sendedPacketContent.messageIds)
             netMsgList.reliableMsgMap.erase(id);
         sendedPacketContent.messageIds.clear();
+
+        auto chunkSendingBufferIt = m_chunkSendingBuffers.find(clientAddress);
+        if(chunkSendingBufferIt != m_chunkSendingBuffers.end())
+        {
+            auto &chunkSendingBuffer = chunkSendingBufferIt->second;
+            if(!chunkSendingBuffer.slicesToSend.empty())
+            {
+                auto sliceIt = chunkSendingBuffer.packetSeqToSliceId.find(packet_seq);
+                if(sliceIt != chunkSendingBuffer.packetSeqToSliceId.end())
+                {
+                    chunkSendingBuffer.slicesToSend.erase(sliceIt->second);
+                    chunkSendingBuffer.packetSeqToSliceId.erase(sliceIt);
+                }
+            }
+        }
 
         if(sendedPacketContent.sendTime != -1)
         {

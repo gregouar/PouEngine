@@ -89,6 +89,10 @@ bool ReadStream::isReading()
     return m_reader ? 1 : 0;
 }
 
+void ReadStream::setBuffer(std::vector<uint8_t> &buffer)
+{
+    this->setBuffer(buffer.data(), buffer.size());
+}
 
 void ReadStream::setBuffer(uint8_t *buffer, int bytes)
 {

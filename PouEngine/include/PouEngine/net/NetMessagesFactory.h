@@ -22,6 +22,14 @@ struct NetMessage
     int serialize(Stream *stream, bool computeBytesAndFlush = true);
 };
 
+/*struct NetMessage_Slice : NetMessage
+{
+    int chunkId;
+    int nbrSlices;
+
+    static const int MAX_PACKETSIZE = 1024;
+};*/
+
 
 class NetMessagesFactory
 {

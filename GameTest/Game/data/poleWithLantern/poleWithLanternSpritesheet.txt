@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet material="poleWithLanternMaterial.txt" scaleX=2 scaleY=2>
+	<sprite name="lantern2" castShadow="true">
+		<size 		x="38" 	y="38" 	/>
+		<center 	x="13.5" 	y="13.5" 	/>
+		<position 	x="56" 	y="0"	/>
+	</sprite>
+	<sprite name="lantern" castShadow="true">
+		<size 		x="26" 	y="26" 	/>
+		<center 	x="13" 	y="13" 	/>
+		<position 	x="100" 	y="6"	/>
+		<surface  emissivity=.1 />
+	</sprite>
+	<sprite name="poleTop" castShadow="true">
+		<size 		x="18" 	y="18" 	/>
+		<center 	x="9" 	y="9" 	/>
+		<position 	x="36" 	y="0"	/>
+	</sprite>
+</spritesheet>

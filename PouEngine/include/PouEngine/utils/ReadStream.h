@@ -38,6 +38,7 @@ class ReadStream : public Stream
         virtual bool isWriting();
         virtual bool isReading();
 
+        virtual void setBuffer(std::vector<uint8_t> &buffer);
         virtual void setBuffer(uint8_t *buffer, int bytes);
 
         virtual void memcpy(uint8_t *data, int data_size);

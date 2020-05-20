@@ -15,6 +15,10 @@ Stream::~Stream()
     //dtor
 }
 
+void Stream::setBuffer(std::vector<uint8_t> &buffer)
+{
+    this->setBuffer(buffer.data(), buffer.size());
+}
 
 int Stream::computeBytes()
 {

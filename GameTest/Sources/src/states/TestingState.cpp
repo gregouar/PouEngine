@@ -516,7 +516,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
-    if(eventsManager->keyIsPressed(GLFW_KEY_O))
+    if(eventsManager->keyPressed(GLFW_KEY_O))
         m_gameServer.sendMsgTest(true,false);
 }
 
