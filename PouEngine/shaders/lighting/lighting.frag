@@ -228,11 +228,11 @@ float discretize(float v, uint steps)
 
 float sampleShadow(vec2 screenPos, float fragZ)
 {
-    vec2 shadowPos = screenPos - min(lightShadowShift, vec2(0.0));
+    vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
     vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
 
     float shadowMap = texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
-                               vec3(shadowPos*shadowSizeFactor,lightShadowMap.y)).x;
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).x;
 
 
     //return 1.0 - min(1.0,max(0.0, (depth-shadowDepth)*"<<0.1*PBRTextureAsset::DEPTH_BUFFER_NORMALISER_INV<<"));
@@ -260,29 +260,43 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
 
         if(lightShadowMap.x != 0)
         {
-            vec3 v = vec3((fragPos.z/lightDirection.z)*lightDirection.xy,0.0);
+           /* vec3 v = vec3((fragPos.z/lightDirection.z)*lightDirection.xy,0.0);
             vec2 projPos;
 
             projPos      = gl_FragCoord.xy;
-            projPos.y   -= fragPos.z * viewUbo.view[2][1];
-            projPos     -= (viewUbo.view * vec4(v,0.0)).xy;
+            //projPos.y   -= fragPos.z * viewUbo.view[2][1];
+            projPos     -= (viewUbo.view * vec4(v,0.0)).xy;*/
+
+
+            vec2 lightXYonZ = lightPos.xy / lightPos.z;
+            vec4 projWorldPos  = vec4(fragPos.xy - fragPos.z*lightXYonZ,0.0,1.0);
+
+            vec4 projPos = viewUbo.view*(projWorldPos /*- vec4(pc.camPosAndZoom.xyz,0.0)*/);
+            //projPos.z = worldPos.z;
+
+            projPos.xy -= lightShadowShift * 0.5;
+            /*vec2 shadowSizeFactor = 2.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
+
+            projPos.xyz = projPos.xyz * vec3(shadowSizeFactor, viewUbo.depthOffsetAndFactor.y)
+                                + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);*/
+
 
             //int h = int(gl_FragCoord.x)%4+4*(int(gl_FragCoord.y)%4);
-            int h = int(fragPos.x)%4 + 3*(int(fragPos.y)%4);
+            int h = int(fragPos.x)%7 + 3*(int(fragPos.y)%5);
 
-            float shadowing = 1.0/6.0 * (sampleShadow(projPos, fragPos.z) * 2.0
-                               + sampleShadow(projPos + hashed[h] * 10.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+1)%16] * 10.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+2)%16] * 10.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+3)%16] * 10.0, fragPos.z));
+            float shadowing = 1.0/6.0 * (sampleShadow(projPos.xy, fragPos.z) * 2.0
+                               + sampleShadow(projPos.xy + hashed[h] * 8.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+1)%16] * 8.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+2)%16] * 8.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+3)%16] * 8.0, fragPos.z));
 
             if(shadowing > 0.2 && shadowing < 0.8)
             {
                 shadowing = shadowing * 0.5 + 1.0/8.0 * (
-                               + sampleShadow(projPos + hashed[(h+4)%16] * 4.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+5)%16] * 4.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+6)%16] * 4.0, fragPos.z)
-                               + sampleShadow(projPos + hashed[(h+7)%16] * 4.0, fragPos.z));
+                               + sampleShadow(projPos.xy + hashed[(h+4)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+5)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+6)%16] * 4.0, fragPos.z)
+                               + sampleShadow(projPos.xy + hashed[(h+7)%16] * 4.0, fragPos.z));
             }
 
             attenuation *= shadowing * shadowing;
