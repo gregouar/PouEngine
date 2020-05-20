@@ -22,7 +22,9 @@ struct LimbModel
 {
     std::string node;
     std::string state;
-    pou::SpriteModel* spriteModel;
+    pou::SpriteModel    *spriteModel;
+    pou::MeshAsset      *mesh;
+    const pou::LightModel *lightModel;
 };
 
 struct SoundModel
@@ -37,7 +39,9 @@ struct SoundModel
 class AssetsForSkeletonModel
 {
     public:
-        AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets);
+        AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> *spriteSheets,
+                               const std::map<std::string, pou::LightModel> *lightModels,
+                               const std::string &fileDirectory);
 
         bool loadFromXML(TiXmlElement *element);
 
@@ -49,6 +53,8 @@ class AssetsForSkeletonModel
         std::list<SoundModel> m_sounds;
 
         const std::map<std::string, pou::SpriteSheetAsset*> *m_spriteSheets;
+        const std::map<std::string, pou::LightModel> *m_lightModels;
+        const std::string &m_fileDirectory;
 };
 
 struct SkeletonModelWithAssets
@@ -93,6 +99,7 @@ class CharacterModelAsset : public pou::Asset
     protected:
         bool loadFromXML(TiXmlHandle *);
         bool loadSpriteSheet(TiXmlElement *element);
+        bool loadLightModel(TiXmlElement *element);
         bool loadSoundBank(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
         bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
@@ -100,6 +107,7 @@ class CharacterModelAsset : public pou::Asset
 
     private:
         std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
+        std::map<std::string, pou::LightModel>          m_lightModels;
         std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;
 
         std::list<Hitbox> m_hitboxes, m_hurtboxes;

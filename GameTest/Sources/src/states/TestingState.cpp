@@ -172,28 +172,39 @@ void TestingState::init()
 
 
 
-
-     pou::SpriteSheetAsset *wallSpriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/wallSpriteXML.txt");
-     pou::SceneNode *wallSpriteNode = m_scene->getRootNode()->createChildNode(-50,-100);
-     wallSpriteNode->attachObject(m_scene->createSpriteEntity(wallSpriteSheet->getSpriteModel("wallSprite")));
-
-
-
     pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
     pou::MeshAsset *wallBoxModel = pou::MeshesHandler::makeBox({0,0,0},{1,1,1},wallMaterial);
     pou::MeshEntity *wallBoxEntity;
     wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
-    wallBoxEntity->setScale(glm::vec3(20,200,50));
+    //wallBoxEntity->setScale(glm::vec3(20,200,50));
+    wallBoxEntity->setScale(glm::vec3(50,50,50));
     wallBoxEntity->setShadowCastingType(pou::ShadowCasting_All);
     m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
 
     pou::MeshAsset* quackMesh = pou::MeshesHandler::loadAssetFromFile("../data/quackXML.txt",loadType);
     pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
-
     pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
     quackEntity->setShadowCastingType(pou::ShadowCasting_All);
     quackNode->attachObject(quackEntity);
     quackNode->setScale(1.5f);
+
+
+    /*pou::MeshAsset* lanternMesh = pou::MeshesHandler::loadAssetFromFile("../data/poleWithLanternMeshXML.txt",pou::LoadType_Now);
+    pou::MeshEntity *lanternEntity = m_scene->createMeshEntity(lanternMesh);
+    pou::SceneNode* lanternNode = m_scene->getRootNode()->createChildNode(300,100,0);
+    lanternEntity->setShadowCastingType(pou::ShadowCasting_All);
+    lanternNode->attachObject(lanternEntity);*/
+
+    for(auto i = 0 ; i < 3 ; ++i)
+    {
+        //glm::vec2 p = glm::vec2(300,100);
+        glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        auto *lantern = new Character();
+        lantern->loadModel("../data/poleWithLantern/poleWithLanternXML.txt");
+        lantern->setPosition(p);
+        lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
+        m_scene->getRootNode()->addChildNode(lantern);
+    }
 
     m_camera = m_scene->createCamera();
     m_listeningCamera = m_scene->createCamera();
@@ -229,10 +240,10 @@ void TestingState::init()
 
     //sunLight->setType(pou::LightType_Directional);
     //sunLight->setDirection({-1.0,0.0,-1.0});
-    m_sunLight->setDirection({-.6 , -.6 ,-1.0});
+    //m_sunLight->setDirection({-.6 , -.6 ,-1.0});
     m_sunLight->setShadowMapExtent({1024,1024});
     m_sunLight->enableShadowCasting();
-    m_sunAngle = 30;
+    m_sunAngle = 220;
 
     /*pou::LightEntity* sunLight = m_scene->createLightEntity(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(sunLight);
@@ -523,8 +534,8 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     //m_cameraNode->move(glm::vec3(0,0,elapsedTime.count()));
     m_sunAngle += m_sunAngleVelocity * elapsedTime.count();
-    m_sunLight->setDirection({glm::cos(m_sunAngle*glm::pi<float>()/180.0f),
-                              glm::sin(m_sunAngle*glm::pi<float>()/180.0f),-1.0});
+    m_sunLight->setDirection({glm::cos(m_sunAngle*glm::pi<float>()/180.0f)*.5,
+                              glm::sin(m_sunAngle*glm::pi<float>()/180.0f)*.5,-1.0});
 
     float sunAngleMod = (int)m_sunAngle % 360;
 
@@ -532,21 +543,46 @@ void TestingState::update(const pou::Time &elapsedTime)
                nightColor = {.2,.2,1.0,1.0},
                sunsetColor = {1.0,.6,0.0,1.0};
 
+    float dayIntensity = 3.0,
+          sunsetIntensity = 2.0,
+          nightIntensity = 0.5;
+
     pou::Color sunColor;
+    float sunIntensity;
+
     if(sunAngleMod >= 0 && sunAngleMod < 30)
+    {
         sunColor = glm::mix(sunsetColor, nightColor, sunAngleMod/30.0f);
+        sunIntensity = glm::mix(sunsetIntensity, nightIntensity, sunAngleMod/30.0f);
+    }
     else if(sunAngleMod >= 30 && sunAngleMod <= 150)
+    {
         sunColor = nightColor;
+        sunIntensity = nightIntensity;
+    }
     else if(sunAngleMod > 150 && sunAngleMod <= 180)
+    {
         sunColor =  glm::mix(nightColor, sunsetColor, (sunAngleMod-150)/30.0f);
+        sunIntensity =  glm::mix(nightIntensity, sunsetIntensity, (sunAngleMod-150)/30.0f);
+    }
     else if(sunAngleMod > 180 && sunAngleMod < 210)
+    {
         sunColor =  glm::mix(sunsetColor, dayColor, (sunAngleMod-180)/30.0f);
+        sunIntensity =  glm::mix(sunsetIntensity, dayIntensity, (sunAngleMod-180)/30.0f);
+    }
     else if(sunAngleMod >= 210 && sunAngleMod <= 330)
+    {
         sunColor = dayColor;
+        sunIntensity = dayIntensity;
+    }
     else
+    {
         sunColor = glm::mix(dayColor,sunsetColor, (sunAngleMod-330)/30.0f);
+        sunIntensity = glm::mix(dayIntensity,sunsetIntensity, (sunAngleMod-330)/30.0f);
+    }
     m_scene->setAmbientLight(sunColor * glm::vec4(1.0,1.0,1.0,.75));
     m_sunLight->setDiffuseColor(sunColor);
+    m_sunLight->setIntensity(sunIntensity);
 
 
     m_lifeBar->setMinMaxValue(0,m_character->getAttributes().maxLife);

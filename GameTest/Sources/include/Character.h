@@ -24,7 +24,7 @@ class Character : public pou::SceneNode
         virtual bool addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name);
 
         //virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
-        virtual pou::SpriteEntity *addLimb(LimbModel *limbModel); //return nullptr if error
+        virtual pou::SceneEntity *addLimb(LimbModel *limbModel); //return nullptr if error
         virtual pou::SoundObject *addSound(SoundModel *soundModel); //return nullptr if error
 
         virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
@@ -98,7 +98,7 @@ class Character : public pou::SceneNode
     private:
         CharacterModelAsset *m_model;
 
-        std::map<LimbModel*, std::unique_ptr<pou::SpriteEntity> >   m_limbs;
+        std::map<LimbModel*, std::unique_ptr<pou::SceneEntity> >    m_limbs;
         std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
         //std::map<std::string, pou::SoundObject*> m_soundsMap;
 

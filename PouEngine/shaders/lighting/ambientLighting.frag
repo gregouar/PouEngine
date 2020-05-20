@@ -107,7 +107,7 @@ vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec4
 vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec3 fragRme)
 {
     vec4 lighting = vec4(fragAlbedo.rgb*ubo.ambientLight.rgb*ubo.ambientLight.a,fragAlbedo.a);
-    lighting += vec4(fragRme.z * 5.0 * fragAlbedo.rgb,0.0);
+    lighting += vec4(fragRme.z * 50.0 * fragAlbedo.rgb,0.0);
     return lighting;
 }
 

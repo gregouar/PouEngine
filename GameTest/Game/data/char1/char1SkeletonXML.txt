@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="body" z="10">
+		<node name="body" z="25">
 			<node name="bag" x="0" y="4" z="1" />
 			<node name="shoulderL" x="-16" y="-4" z="5" />
 			<node name="shoulderR" x="16" y="-4" z="5" />
@@ -16,7 +16,7 @@
 			</node>
 			<node name="bodyHB" z=1 />
 		</node>
-		<node name="head" z="20" />
+		<node name="head" z="50" />
 		<node name="footL" x="-10" y="4" z=".1" />
 		<node name="footR" x="10" y="4" z=".1" />
 	</node>
@@ -71,7 +71,7 @@
 			<sound>deathSound</sound>
 			<state node="weapon">standing</state>
 			<state node="weaponTrail">standing</state>
-			<command type="moveTo" node="body" z=-9 rate=5 />
+			<command type="moveTo" node="body" z=-24 rate=5 />
 			<command type="rotateTo" node="weapon" z=-90 rate=400 />
 			<command type="moveTo" node="weapon" x=30 y=-30  rate=100 />
 			<command type="moveTo" node="shoulderL" x=-4 rate=5 />
@@ -80,7 +80,7 @@
 			<command type="scaleTo" node="shoulderR" x=-.2 rate=1 />
 			<command type="moveTo" node="bag" y=-4 rate=5 />
 			<command type="scaleTo" node="bag" y=.2 rate=1 />
-			<command type="moveTo" node="head" y=-12 z=-19 rate=15 />
+			<command type="moveTo" node="head" y=-12 z=-49 rate=15 />
 			<command type="scaleTo" node="head" y=-.2 rate=1 />
 		</frame>
 	</animation>

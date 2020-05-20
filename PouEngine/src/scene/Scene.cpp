@@ -18,7 +18,7 @@ Scene::Scene() :
     m_rootNode.setPosition(0,0,0);
     m_curNewId = 0;
 
-    m_projectionFactor  = 500.0f;
+    m_projectionFactor  = 1000.0f;
     m_viewAngle         = glm::mat4(1.0);
     m_viewAngleInv      = glm::mat4(1.0);
 }

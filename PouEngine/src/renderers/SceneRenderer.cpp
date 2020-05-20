@@ -406,7 +406,7 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
     VkCommandBuffer cmb = m_renderGraph.startRecording(m_deferredPass, imageIndex, m_curFrameIndex);
 
         vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                m_deferredMeshesPipeline.getLayout(),0,2, descriptorSets, 0, nullptr);
+                                m_deferredMeshesPipeline.getLayout(),0,2, descriptorSets_nearest, 0, nullptr);
 
         m_deferredMeshesPipeline.bind(cmb);
 

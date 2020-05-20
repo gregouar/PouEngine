@@ -7,6 +7,9 @@
 	<skeleton name="mainSkeleton" path="treeSkeletonXML.txt">
 		<limb node="baseTrunk" 	sprite="treeBaseTrunk" 	spritesheet="mainSpriteSheet" />
 		<limb node="trunk" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="trunk2" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="trunk3" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
+		<limb node="trunk4" 		sprite="treeTrunk" 		spritesheet="mainSpriteSheet" />
 		<limb node="foliage0" 	sprite="treeFoliage0" 	spritesheet="mainSpriteSheet" />
 		<limb node="foliage1" 	sprite="treeFoliage1" 	spritesheet="mainSpriteSheet" />
 		<limb node="foliage2" 	sprite="treeFoliage2" 	spritesheet="mainSpriteSheet" />

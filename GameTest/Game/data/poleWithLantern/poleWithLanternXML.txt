@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="poleWithLanternSpritesheet.txt" />
+	
+	<light name="lanternLight" type="omni" radius=300 intensity=10.0 castShadow="false" >
+		<color r=1.0 g=.6 b=0.0 a=1.0 />
+	</light>
+	
+	<skeleton name="mainSkeleton" path="poleWithLanternSkeletonXML.txt">
+		<limb node="lantern" 	sprite="lantern" 	spritesheet="mainSpriteSheet" />
+		<limb node="poleTop" 	sprite="poleTop" 	spritesheet="mainSpriteSheet" />
+		<limb node="pole" 		mesh="poleWithLanternMeshXML.txt" />
+		<limb node="lantern" 	light="lanternLight" />
+	</skeleton>
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>1</life>
+	</attributes>
+</character>

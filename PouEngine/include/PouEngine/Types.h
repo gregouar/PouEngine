@@ -165,7 +165,7 @@ typedef AssetHandler<SkeletonModelAsset>SkeletonModelsHandler;
 typedef AssetHandler<SoundAsset>        SoundsHandler;
 typedef AssetHandler<SoundBankAsset>    SoundBanksHandler;
 //typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
-//typedef AssetHandler<MeshAsset>         MeshesHandler;
+typedef AssetHandler<MeshAsset>         MeshAssetsHandler;
 
 const std::string emptyString;
 

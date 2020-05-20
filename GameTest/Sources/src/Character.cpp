@@ -5,6 +5,7 @@
 #include "assets/CharacterModelAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/utils/MathTools.h"
 
 typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
@@ -65,19 +66,40 @@ bool Character::addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::
     return (m_skeletons.insert({name,std::move(skeleton)}).second);
 }
 
-pou::SpriteEntity *Character::addLimb(LimbModel *limbModel)
+pou::SceneEntity *Character::addLimb(LimbModel *limbModel)
 {
-    std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
+    if(limbModel->spriteModel != nullptr)
+    {
+        std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
 
-    limbEntity->setSpriteModel(limbModel->spriteModel);
-    limbEntity->setOrdering(pou::ORDERED_BY_Z);
-    limbEntity->setInheritRotation(true);
+        limbEntity->setSpriteModel(limbModel->spriteModel);
+        limbEntity->setOrdering(pou::ORDERED_BY_Z);
+        limbEntity->setInheritRotation(true);
 
-    //limbEntity->setShadowCasting(pou::ShadowCasting_OnlyDirectional);
+        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
+        return (limb.first->second.get());
+    }
+    else if(limbModel->mesh != nullptr)
+    {
+        std::unique_ptr<pou::MeshEntity> limbEntity(new pou::MeshEntity());
 
-    auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
+        limbEntity->setMesh(limbModel->mesh);
+        limbEntity->setShadowCastingType(pou::ShadowCasting_All);
 
-    return (limb.first->second.get());
+        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
+        return (limb.first->second.get());
+    }
+    else if(limbModel->lightModel != nullptr)
+    {
+        std::unique_ptr<pou::LightEntity> limbEntity(new pou::LightEntity());
+
+        limbEntity->setModel(*limbModel->lightModel);
+
+        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
+        return (limb.first->second.get());
+    }
+
+    return (nullptr);
 }
 
 pou::SoundObject *Character::addSound(SoundModel *soundModel)

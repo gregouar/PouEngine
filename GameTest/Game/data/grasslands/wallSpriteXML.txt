@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<spritesheet texture="wallSprite.png" scaleX=2 scaleY=2>
-	<sprite name="wallSprite">
-		<size 	x=256 y=256 />
-	</sprite>
-</spritesheet>

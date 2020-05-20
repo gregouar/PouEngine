@@ -156,7 +156,7 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath)
             } else if(buf == "vt") {
                 uvList.push_back({});
                 file>>uvList.back().x>>uvList.back().y;
-                uvList.back().y = 1.0-uvList.back().y;
+                //uvList.back().y = 1.0-uvList.back().y;
             } else if(buf == "vn") {
                 normalList.push_back({});
                 file>>normalList.back().x>>normalList.back().y>>normalList.back().z;
@@ -186,21 +186,24 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath)
                     indices.back().z -= 1;
                 }
 
-                /*indexList.push_back({indices[0].x, indices[0].y, indices[0].z});
-                indexList.push_back({indices[1].x, indices[1].y, indices[1].z});
-                indexList.push_back({indices[2].x, indices[2].y, indices[2].z});*/
-                triangleList.push_back({{indices[0].x, indices[0].y, indices[0].z},
-                                        {indices[1].x, indices[1].y, indices[1].z},
-                                        {indices[2].x, indices[2].y, indices[2].z}});
-
-                if(indices.size() == 4) //If quad we need to put 2 triangles
+                if(indices.size() >= 3)
                 {
-                    /*indexList.push_back({indices[2].x, indices[2].y, indices[2].z});
-                    indexList.push_back({indices[3].x, indices[3].y, indices[3].z});
-                    indexList.push_back({indices[0].x, indices[0].y, indices[0].z});*/
-                    triangleList.push_back({{indices[2].x, indices[2].y, indices[2].z},
-                                            {indices[3].x, indices[3].y, indices[3].z},
-                                            {indices[0].x, indices[0].y, indices[0].z}});
+                    /*indexList.push_back({indices[0].x, indices[0].y, indices[0].z});
+                    indexList.push_back({indices[1].x, indices[1].y, indices[1].z});
+                    indexList.push_back({indices[2].x, indices[2].y, indices[2].z});*/
+                    triangleList.push_back({{indices[0].x, indices[0].y, indices[0].z},
+                                            {indices[1].x, indices[1].y, indices[1].z},
+                                            {indices[2].x, indices[2].y, indices[2].z}});
+
+                    if(indices.size() == 4) //If quad we need to put 2 triangles
+                    {
+                        /*indexList.push_back({indices[2].x, indices[2].y, indices[2].z});
+                        indexList.push_back({indices[3].x, indices[3].y, indices[3].z});
+                        indexList.push_back({indices[0].x, indices[0].y, indices[0].z});*/
+                        triangleList.push_back({{indices[2].x, indices[2].y, indices[2].z},
+                                                {indices[3].x, indices[3].y, indices[3].z},
+                                                {indices[0].x, indices[0].y, indices[0].z}});
+                    }
                 }
             }
         }

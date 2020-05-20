@@ -54,16 +54,36 @@ std::array<VkVertexInputAttributeDescription, 5> LightDatum::getAttributeDescrip
     return attributeDescriptions;
 }
 
-LightEntity::LightEntity() : SceneEntity(),
-    m_type(LightType_Omni),
+LightModel::LightModel() :
+    type(LightType_Omni),
+    direction(0.0,0.0,-1.0),
+    color(1.0,1.0,1.0,1.0),
+    radius(100.0),
+    intensity(1.0),
+    castShadow(false),
+    shadowMapExtent(512.0, 512.0)
+{
+
+}
+
+LightEntity::LightEntity() : SceneEntity()
+    /*m_type(LightType_Omni),
     m_direction(0.0,0.0,-1.0),
     m_color(1.0,1.0,1.0,1.0),
     m_radius(100.0),
     m_intensity(1.0),
     m_castShadow(false),
-    m_shadowMapExtent(512.0, 512.0)
+    m_shadowMapExtent(512.0, 512.0)*/
 {
     m_isALight = true;
+
+    /*m_lightModel.type = LightType_Omni;
+    m_lightModel.direction = {0.0,0.0,-1.0};
+    m_lightModel.color = {1.0,1.0,1.0,1.0};
+    m_lightModel.radius = 100.0;
+    m_lightModel.intensity = 1.0;
+    m_lightModel.castShadow = false;
+    m_lightModel.shadowMapExtent = {512.0, 512.0};*/
 
     m_datum.shadowShift = {0,0};
     this->updateDatum();
@@ -87,8 +107,8 @@ void LightEntity::generateRenderingData(SceneRenderingInstance *renderingInstanc
 
 VTexture LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<ShadowCaster*> &shadowCastersList)
 {
-    if(!(m_shadowMap.attachment.extent.width  == m_shadowMapExtent.x
-      && m_shadowMap.attachment.extent.height == m_shadowMapExtent.y))
+    if(!(m_shadowMap.attachment.extent.width  == m_lightModel.shadowMapExtent.x
+      && m_shadowMap.attachment.extent.height == m_lightModel.shadowMapExtent.y))
         this->recreateShadowMap(renderer);
 
     renderer->addShadowMapToRender(m_shadowMap.renderTarget, m_datum);
@@ -109,49 +129,49 @@ VTexture LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<Shado
 
 LightType LightEntity::getType()
 {
-    return m_type;
+    return m_lightModel.type;
 }
 
 glm::vec3 LightEntity::getDirection()
 {
-    return m_direction;
+    return m_lightModel.direction;
 }
 
 Color LightEntity::getDiffuseColor()
 {
-    return m_color;
+    return m_lightModel.color;
 }
 
 float LightEntity::getRadius()
 {
-    return m_radius;
+    return m_lightModel.radius;
 }
 
 float LightEntity::getIntensity()
 {
-    return m_intensity;
+    return m_lightModel.intensity;
 }
 
 bool LightEntity::isCastingShadows()
 {
-    return m_castShadow;
+    return m_lightModel.castShadow;
 }
 
 void LightEntity::setType(LightType type)
 {
-    if(m_type != type)
+    if(m_lightModel.type != type)
     {
-        m_type = type;
+        m_lightModel.type = type;
         this->updateDatum();
     }
 }
 
 void LightEntity::setDirection(glm::vec3 direction)
 {
-    if(m_direction != direction)
+    if(m_lightModel.direction != direction)
     {
-        glm::vec3 oldDirection = m_direction;
-        m_direction = direction;
+        glm::vec3 oldDirection = m_lightModel.direction;
+        m_lightModel.direction = direction;
         this->updateDatum();
 
         this->sendNotification(Notification_UpdateShadow, sizeof(oldDirection), (char*)(&oldDirection));
@@ -165,50 +185,59 @@ void LightEntity::setDiffuseColor(glm::vec3 color)
 
 void LightEntity::setDiffuseColor(Color color)
 {
-    if(m_color != color)
+    if(m_lightModel.color != color)
     {
-        m_color = color;
+        m_lightModel.color = color;
         this->updateDatum();
     }
 }
 
 void LightEntity::setRadius(float radius)
 {
-    if(m_radius != radius)
+    if(m_lightModel.radius != radius)
     {
-        m_radius = radius;
+        m_lightModel.radius = radius;
         this->updateDatum();
     }
 }
 
 void LightEntity::setIntensity(float intensity)
 {
-    if(m_intensity != intensity)
+    if(m_lightModel.intensity != intensity)
     {
-        m_intensity = intensity;
+        m_lightModel.intensity = intensity;
+        this->updateDatum();
+    }
+}
+
+void LightEntity::setModel(const LightModel &lightModel)
+{
+    //if(m_lightModel != lightModel)
+    {
+        m_lightModel = lightModel;
         this->updateDatum();
     }
 }
 
 void LightEntity::setShadowMapExtent(glm::vec2 extent)
 {
-    m_shadowMapExtent = extent;
+    m_lightModel.shadowMapExtent = extent;
 }
 
 void LightEntity::enableShadowCasting()
 {
-    if(!m_castShadow)
+    if(!m_lightModel.castShadow)
     {
-        m_castShadow = true;
+        m_lightModel.castShadow = true;
         this->updateDatum();
     }
 }
 
 void LightEntity::disableShadowCasting()
 {
-    if(m_castShadow)
+    if(m_lightModel.castShadow)
     {
-        m_castShadow = false;
+        m_lightModel.castShadow = false;
         this->updateDatum();
     }
 }
@@ -229,17 +258,17 @@ void LightEntity::notify(NotificationSender *sender, NotificationType type,
 
 void LightEntity::updateDatum()
 {
-    if(m_type == LightType_Directional)
-        m_datum.position = glm::vec4(m_direction,0.0);
+    if(m_lightModel.type == LightType_Directional)
+        m_datum.position = glm::vec4(m_lightModel.direction,0.0);
     else if(m_parentNode != nullptr)
         m_datum.position = glm::vec4(m_parentNode->getGlobalPosition(),1.0);
 
-    m_datum.color     = m_color;
-    m_datum.color.a  *= m_intensity;
+    m_datum.color     = m_lightModel.color;
+    m_datum.color.a  *= m_lightModel.intensity;
 
-    m_datum.radius    = m_radius;
+    m_datum.radius    = m_lightModel.radius;
 
-    if(m_castShadow)
+    if(m_lightModel.castShadow)
         m_datum.shadowMap = {m_shadowMap.texture.getTextureId(),
                              m_shadowMap.texture.getTextureLayer()};
     else
@@ -249,7 +278,7 @@ void LightEntity::updateDatum()
 void LightEntity::recreateShadowMap(SceneRenderer* renderer)
 {
     VTexturesManager::freeTexture(m_shadowMap);
-    VTexturesManager::allocRenderableTexture(m_shadowMapExtent.x, m_shadowMapExtent.y, VK_FORMAT_D24_UNORM_S8_UINT,
+    VTexturesManager::allocRenderableTexture(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y, VK_FORMAT_D24_UNORM_S8_UINT,
                                              renderer->getShadowMapsRenderPass(), &m_shadowMap);
     this->updateDatum();
 }

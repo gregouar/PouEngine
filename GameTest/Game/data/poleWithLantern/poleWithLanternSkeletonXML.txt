@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<skeleton>
+	<node name="root"> 
+		<node name="pole" z=0>
+			<node name="poleTop" z=120 />
+			<node name="lantern" z=110 x=45 />
+		</node>
+	</node>
+	
+	
+	<animation name="stand" loop=1>
+		<frame frameTime=".1">
+			<reset />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="lantern" y=5 />
+		</frame>
+		<frame frameTime="4">
+			<command type="moveTo" node="lantern" y=-5 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="lantern" y=0 />
+		</frame>
+	</animation>
+</skeleton>
+
+

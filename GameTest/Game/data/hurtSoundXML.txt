@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<sound>
-	<name>Hurt</name>
-	<volume>1.0</volume>
-	<spatial>true</spatial>
-	<loop>false</loop>
-	<stream>false</stream>
-	<path>hurt.wav</path>
-</sound>

@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="foliage0" z=40>
-			<node name="shadow" z=-39.9 />
-			<node name="foliage1" z=10 >
-				<node name="foliage2" z=10 />
+		<node name="foliage0" z=80>
+			<node name="shadow" z=-79.9 />
+			<node name="foliage1" z=20 >
+				<node name="foliage2" z=20 />
 			</node>
 		</node>
 		<node name="baseTrunk" z=0 />
-		<node name="trunk" z=20 />
+		<node name="trunk" z=15 >
+			<node name="trunk2" z=15>
+				<node name="trunk3" z=15 >
+					<node name="trunk4" z=15 />
+				</node>
+			</node>
+		</node>
 		<node name="trunkHB" />
 	</node>
 	
@@ -18,7 +24,7 @@
 			<reset node="foliage0" />
 			<reset node="foliage1" />
 			<reset node="foliage2" />
-			<command type="colorTo" node="baseTrunk" a=-1 />
+			<!--<command type="colorTo" node="baseTrunk" a=-1 />-->
 		</frame>
 		<frame frameTime="1">
 			<command type="moveTo" node="foliage1" y=2 x=-1  />
@@ -65,15 +71,25 @@
 			<sound>chopSound</sound>
 			<sound>fallSound</sound>
 			<!--<command type="moveTo" node="baseTrunk" z=2  />-->
-			<command type="colorTo" node="baseTrunk" a=0 />
+			<!--<command type="colorTo" node="baseTrunk" a=0 />-->
 		</frame>
 		
 		<frame frameTime=".75">
-			<command type="moveTo" node="foliage0" y=20 x=120 z=-39  />
-			<command type="moveTo" node="foliage1" y=10 x=10 z=-9  />
-			<command type="moveTo" node="foliage2" y=0 x=0 z=-9  />
-			<command type="colorTo" node="foliage0" a=-1 />
+			<command type="moveTo" node="foliage0" y=20 x=120 z=-79  />
+			<command type="moveTo" node="foliage1" y=10 x=10 z=-20  />
+			<command type="moveTo" node="foliage2" y=0 x=0 z=-20  />
+			<!--<command type="colorTo" node="foliage0" a=-1 />-->
+			<command type="moveTo" node="trunk" y=5 x=30 z=-14  />
+			<command type="moveTo" node="trunk2" y=5 x=20 z=-15  />
+			<command type="moveTo" node="trunk3" y=5 x=20 z=-15  />
+			<command type="moveTo" node="trunk4" y=5 x=20 z=-15  />
+			
 			<command type="colorTo" node="trunk" a=-1 />
+			<command type="colorTo" node="foliage0" a=-.5 />
+		</frame>
+		
+		<frame frameTime=".75">
+			<command type="colorTo" node="foliage0" a=-1 />
 		</frame>
 	</animation>
 </skeleton>

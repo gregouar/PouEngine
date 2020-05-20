@@ -4,6 +4,7 @@
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SoundBankAsset.h"
+#include "PouEngine/assets/MeshAsset.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/SkeletonModelAsset.h"
 
@@ -70,8 +71,8 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
         for(auto &limb : *(skeletonModel.second.assetsModel.getLimbs()))
         {
-            auto *spriteEntity = targetCharacter->addLimb(&limb);
-            skeleton->attachLimb(limb.node, limb.state, spriteEntity);
+            auto *sceneEntity = targetCharacter->addLimb(&limb);
+            skeleton->attachLimb(limb.node, limb.state, sceneEntity);
         }
 
         for(auto &sound : *(skeletonModel.second.assetsModel.getSounds()))
@@ -138,6 +139,14 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
         element = element->NextSiblingElement("spritesheet");
     }
 
+    element = hdl->FirstChildElement("light").Element();
+    while(element != nullptr)
+    {
+        if(!this->loadLightModel(element))
+            loaded = false;
+        element = element->NextSiblingElement("light");
+    }
+
     element = hdl->FirstChildElement("soundbank").Element();
     while(element != nullptr)
     {
@@ -196,6 +205,91 @@ bool CharacterModelAsset::loadSpriteSheet(TiXmlElement *element)
     return (true);
 }
 
+bool CharacterModelAsset::loadLightModel(TiXmlElement *element)
+{
+    std::string lightName = "light"+std::to_string(m_lightModels.size());
+
+    auto att = element->Attribute("name");
+    if(att != nullptr)
+        lightName = std::string(att);
+
+    pou::LightModel lightModel;
+
+    att = element->Attribute("type");
+    if(att != nullptr)
+    {
+        if(std::string(att) == "omni")
+            lightModel.type = pou::LightType_Omni;
+        else if(std::string(att) == "directional")
+            lightModel.type = pou::LightType_Directional;
+        else if(std::string(att) == "spot")
+            lightModel.type = pou::LightType_Spot;
+    }
+
+    att = element->Attribute("radius");
+    if(att != nullptr)
+        lightModel.radius = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("intensity");
+    if(att != nullptr)
+        lightModel.intensity = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("castShadow");
+    if(att != nullptr)
+        lightModel.castShadow = pou::Parser::parseBool(att);
+
+    auto colorChild = element->FirstChildElement("color");
+    if(colorChild != nullptr)
+    {
+        auto colorElement = colorChild->ToElement();
+        att = colorElement->Attribute("r");
+        if(att != nullptr)
+            lightModel.color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("g");
+        if(att != nullptr)
+            lightModel.color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("b");
+        if(att != nullptr)
+            lightModel.color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("a");
+        if(att != nullptr)
+            lightModel.color.a = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("red");
+        if(att != nullptr)
+            lightModel.color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("green");
+        if(att != nullptr)
+            lightModel.color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("blue");
+        if(att != nullptr)
+            lightModel.color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("alpha");
+        if(att != nullptr)
+            lightModel.color.a = pou::Parser::parseFloat(att);
+    }
+
+
+    auto directionChild = element->FirstChildElement("direction");
+    if(directionChild != nullptr)
+    {
+        auto directionElement = directionChild->ToElement();
+        att = directionElement->Attribute("x");
+        if(att != nullptr)
+            lightModel.direction.x = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("y");
+        if(att != nullptr)
+            lightModel.direction.y = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("z");
+        if(att != nullptr)
+            lightModel.direction.z = pou::Parser::parseFloat(att);
+    }
+
+    if(!m_lightModels.insert({lightName,lightModel}).second)
+        pou::Logger::warning("Multiple lights with name \""+lightName+"\" in character model:"+m_filePath);
+
+    return (true);
+}
+
 
 bool CharacterModelAsset::loadSoundBank(TiXmlElement *element)
 {
@@ -235,7 +329,7 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
 
 
     auto skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
-    AssetsForSkeletonModel  assetsModel(&m_spriteSheets);
+    AssetsForSkeletonModel  assetsModel(&m_spriteSheets, &m_lightModels, m_fileDirectory);
 
     auto skelPair = m_skeletonModels.insert({skeletonName, {skeleton, assetsModel}});
     if(!skelPair.second)
@@ -356,8 +450,12 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 /// AssetsForSkeletonModel ///
 
 
-AssetsForSkeletonModel::AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets) :
-    m_spriteSheets(spriteSheets)
+AssetsForSkeletonModel::AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets,
+                                                const std::map<std::string, pou::LightModel> *lightModels,
+                                               const std::string &fileDirectory) :
+    m_spriteSheets(spriteSheets),
+    m_lightModels(lightModels),
+    m_fileDirectory(fileDirectory)
 {
 
 }
@@ -383,24 +481,50 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
         auto stateAtt       = limbElement->Attribute("state");
         auto spriteAtt      = limbElement->Attribute("sprite");
         auto spriteSheetAtt = limbElement->Attribute("spritesheet");
+        auto meshAtt        = limbElement->Attribute("mesh");
+        auto lightAtt       = limbElement->Attribute("light");
 
-        if(nodeAtt != nullptr && spriteAtt != nullptr && spriteSheetAtt != nullptr)
+        std::string state;
+        if(stateAtt != nullptr)
+            state = std::string(stateAtt);
+
+        if(nodeAtt != nullptr)
         {
-            std::string state;
-            if(stateAtt != nullptr)
-                state = std::string(stateAtt);
-
-            auto spritesheetIt = m_spriteSheets->find(std::string(spriteSheetAtt));
-            if(spritesheetIt != m_spriteSheets->end())
+            if(spriteAtt != nullptr && spriteSheetAtt != nullptr)
             {
-                auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
-                m_limbs.push_back({std::string(nodeAtt), state, spriteModel});
-                if(spriteModel == nullptr)
-                    pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
-                                    +std::string(spriteSheetAtt)+"\"");
+                auto spritesheetIt = m_spriteSheets->find(std::string(spriteSheetAtt));
+                if(spritesheetIt != m_spriteSheets->end())
+                {
+                    auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
+                    m_limbs.push_back({std::string(nodeAtt), state, spriteModel, nullptr, nullptr});
+                    if(spriteModel == nullptr)
+                        pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
+                                        +std::string(spriteSheetAtt)+"\"");
 
-            } else
-                pou::Logger::warning("Spritesheet named \""+std::string(spriteSheetAtt)+"\" not found");
+                } else
+                    pou::Logger::warning("Spritesheet named \""+std::string(spriteSheetAtt)+"\" not found");
+            }
+            else if(meshAtt != nullptr)
+            {
+                auto *meshAsset = pou::MeshAssetsHandler::loadAssetFromFile(m_fileDirectory+std::string(meshAtt));
+                m_limbs.push_back({std::string(nodeAtt), state, nullptr, meshAsset,nullptr});
+            }
+            else if(lightAtt != nullptr)
+            {
+                auto lightIt = m_lightModels->find(std::string(lightAtt));
+                if(lightIt != m_lightModels->end())
+                {
+                    /*auto spriteModel = lightIt->second->getSpriteModel(std::string(spriteAtt));
+                    m_limbs.push_back({std::string(nodeAtt), state, spriteModel, nullptr});
+                    if(spriteModel == nullptr)
+                        pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
+                                        +std::string(spriteSheetAtt)+"\"");*/
+                    m_limbs.push_back({std::string(nodeAtt), state, nullptr, nullptr,&lightIt->second});
+
+                } else
+                    pou::Logger::warning("Light named \""+std::string(lightAtt)+"\" not found");
+            }
+
         } else
             pou::Logger::warning("Incomplete limb");
 

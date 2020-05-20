@@ -18,17 +18,18 @@ layout(binding = 1, set = 1) uniform texture2DArray textures[128];
     vec4 camPosAndZoom;
 }pc;*/
 
-layout(location = 0)      in vec2 fragTexCoord;
-layout(location = 1) flat in uvec2 fragAlbedoTexId;
+layout(location = 0) flat in vec4 fragColor;
+layout(location = 1)      in vec2 fragTexCoord;
+layout(location = 2) flat in uvec2 fragAlbedoTexId;
 //layout(location = 2) in vec4 screenPosAndHeight;
 
 
 void main()
 {
     float albedoA = texture(sampler2DArray(textures[fragAlbedoTexId.x], samp),
-                            vec3(fragTexCoord,fragAlbedoTexId.y)).a;
+                            vec3(fragTexCoord,fragAlbedoTexId.y)).a * fragColor.a;
 
-    if(albedoA < .99f)
+    if(albedoA < .01f)
         discard;
 }
 

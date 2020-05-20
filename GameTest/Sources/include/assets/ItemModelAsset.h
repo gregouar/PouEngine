@@ -40,15 +40,14 @@ class ItemModelAsset : public pou::Asset
     protected:
         bool loadFromXML(TiXmlHandle *);
         bool loadSpriteSheet(TiXmlElement *element);
+        bool loadLightModel(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
         bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
         bool loadAttributes(TiXmlElement *element);
 
     private:
         std::map<std::string, pou::SpriteSheetAsset*> m_spriteSheets;
-
-        //std::map<std::string, std::list<LimbModel> > m_limbs;
-        //std::map<std::string, std::list<SoundModel> > m_sounds;
+        std::map<std::string, pou::LightModel>        m_lightModels;
         std::map<std::string, AssetsForSkeletonModel> m_skeletonAssetsModels;
 
         ItemAttributes m_attributes;

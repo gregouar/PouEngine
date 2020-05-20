@@ -11,19 +11,19 @@
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="256" y="0" 	/>
-		<surface roughness=.5 metalness=0.0 emissivity=0.0 />
+		<surface roughness=.8 metalness=0.0 emissivity=0.0 />
 	</sprite>
 	<sprite name="treeFoliage2" castShadow="true">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="512" y="0" 	/>
 	</sprite>
-	<sprite name="treeBaseTrunk">
+	<sprite name="treeBaseTrunk" castShadow="false">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="768" y="0" 	/>
 	</sprite>
-	<sprite name="treeTrunk">
+	<sprite name="treeTrunk" castShadow="true">
 		<size 		x="256" y="256" 	/>
 		<center 	x="128" y="128" 	/>
 		<position 	x="768" y="256" 	/>

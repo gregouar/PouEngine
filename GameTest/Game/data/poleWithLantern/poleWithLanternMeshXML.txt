@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<mesh>
+	<name>PoleWithLantern</name>
+	<scale>1</scale>
+	<model>poleWithLantern.obj</model>
+	<material>poleWithLanternMaterial.txt</material>
+</mesh>

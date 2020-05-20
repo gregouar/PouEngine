@@ -192,7 +192,7 @@ bool ItemModelAsset::loadSkeleton(TiXmlElement *element)
     if(nameAtt != nullptr)
         skeletonName = std::string(nameAtt);
 
-    auto skelPair = m_skeletonAssetsModels.insert({skeletonName, AssetsForSkeletonModel (&m_spriteSheets)});
+    auto skelPair = m_skeletonAssetsModels.insert({skeletonName, AssetsForSkeletonModel (&m_spriteSheets,&m_lightModels,m_fileDirectory)});
     if(!skelPair.second)
         pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in item model:"+m_filePath);
 

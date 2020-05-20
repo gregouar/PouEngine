@@ -38,8 +38,9 @@ layout(location = 3) in vec2 inTexCoord;
 layout(location = 4) in vec2 inTexExtent;
 layout(location = 5) in uvec2 inTexId;*/
 
-layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) flat out uvec2 fragAlbedoTexId;
+layout(location = 0) flat out vec4 fragColor;
+layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) flat out uvec2 fragAlbedoTexId;
 //layout(location = 2) out vec4 screenPosAndHeight;
 
 
@@ -73,6 +74,7 @@ void main()
     gl_Position.xyz = gl_Position.xyz * vec3(shadowSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
 
+    fragColor    = inColor;
     fragTexCoord = inTexExtent * localPos.xy + inTexCoord;;
     fragAlbedoTexId = inAlbedoTexId;
 }

@@ -27,6 +27,21 @@ struct LightDatum
     static std::array<VkVertexInputAttributeDescription, 5> getAttributeDescriptions();
 };
 
+struct LightModel
+{
+    LightModel();
+
+    LightType   type;
+    glm::vec3   direction;
+    Color       color;
+
+    float       radius;
+    float       intensity;
+
+    bool        castShadow;
+    glm::vec2   shadowMapExtent;
+};
+
 /// I could try to compute an accurate englobing sphere and use early z-testing to discard pixels
 
 class LightEntity : public SceneEntity, public NotificationSender //, public NotificationListener
@@ -51,6 +66,7 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
         void setDiffuseColor(Color);
         void setRadius(float);
         void setIntensity(float);
+        void setModel(const LightModel &lightModel);
 
         void enableShadowCasting();
         void disableShadowCasting();
@@ -80,17 +96,19 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
         void recreateShadowMap(SceneRenderer* renderer);
 
     private:
-        LightType   m_type;
+        /*LightType   m_type;
         glm::vec3   m_direction;
         Color       m_color;
 
         float m_radius;
         float m_intensity;
 
+        bool                m_castShadow;
+        glm::vec2           m_shadowMapExtent;*/
+
+        LightModel  m_lightModel;
         LightDatum  m_datum;
 
-        bool                m_castShadow;
-        glm::vec2           m_shadowMapExtent;
         VRenderableTexture  m_shadowMap; //Note that I would actually need one shadow map per renderView if multy viewports... (or I partition shadow map ?)
 
         /*sf::RenderTexture m_shadowMap;

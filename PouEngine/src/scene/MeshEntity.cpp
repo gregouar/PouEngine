@@ -247,7 +247,7 @@ void MeshEntity::updateDatum()
 
     glm::vec3 scale = m_scale * m_mesh->getScale();
 
-    glm::mat4 modelMatrix = glm::mat4(1.0);
+    /*glm::mat4 modelMatrix = glm::mat4(1.0);
 
     modelMatrix = glm::translate(modelMatrix, m_parentNode->getGlobalPosition());
 
@@ -257,12 +257,24 @@ void MeshEntity::updateDatum()
     modelMatrix = glm::rotate(modelMatrix, m_parentNode->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
 
     modelMatrix = glm::scale(modelMatrix, scale);
-    modelMatrix = glm::scale(modelMatrix, m_parentNode->getScale());
+    modelMatrix = glm::scale(modelMatrix, m_parentNode->getScale());*/
 
-    m_datum.model_0 = modelMatrix[0];
-    m_datum.model_1 = modelMatrix[1];
-    m_datum.model_2 = modelMatrix[2];
-    m_datum.model_3 = modelMatrix[3];
+
+
+    glm::mat4 modelMat(1.0);
+
+   // if(m_inheritRotation)
+        modelMat = m_parentNode->getModelMatrix() * modelMat;
+   /* else
+        modelMat = glm::translate(modelMat, m_parentNode->getGlobalPosition());*/
+
+    //modelMat = glm::rotate(modelMat, m_rotation, glm::vec3(0.0,0.0,1.0));
+    modelMat = glm::scale(modelMat, scale);
+
+    m_datum.model_0 = modelMat[0];
+    m_datum.model_1 = modelMat[1];
+    m_datum.model_2 = modelMat[2];
+    m_datum.model_3 = modelMat[3];
 
 }
 

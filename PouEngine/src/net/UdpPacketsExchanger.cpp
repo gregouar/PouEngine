@@ -430,7 +430,7 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         if(sendedPacketContent.sendTime != -1)
         {
             netMsgList.avrgRTT = netMsgList.avrgRTT*0.9 + (m_curLocalTime - sendedPacketContent.sendTime)*0.1;
-            std::cout<<"Average RTT: "<<netMsgList.avrgRTT<<std::endl;
+            //std::cout<<"Average RTT: "<<netMsgList.avrgRTT<<std::endl;
             sendedPacketContent.sendTime = -1;
         }
     }

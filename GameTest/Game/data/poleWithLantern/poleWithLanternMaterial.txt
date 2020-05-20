@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>PoleWithLanternMaterial</name>
+	<texture type="albedo">poleWithLantern.png</texture>
+	<texture type="rme">poleWithLantern_rme.png</texture>
+	<roughness>.5</roughness>
+	<metalness>0</metalness>
+	<emissivity>1.0</emissivity>
+</material>
