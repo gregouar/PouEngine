@@ -162,6 +162,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpSocket.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/AbstractRenderer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/FullRenderPass.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/renderers/PBRToolbox.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderGraph.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderView.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/RenderWindow.h" />
@@ -234,6 +235,8 @@
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShadow.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.frag" />
 		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.vert" />
+		<Unit filename="../../PouEngine/shaders/lighting/brdflut.frag" />
+		<Unit filename="../../PouEngine/shaders/lighting/brdflut.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/lighting.frag" />
 		<Unit filename="../../PouEngine/shaders/lighting/lighting.vert" />
 		<Unit filename="../../PouEngine/shaders/toneMapping.frag" />
@@ -269,6 +272,7 @@
 		<Unit filename="../../PouEngine/src/net/UdpSocket.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/AbstractRenderer.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/FullRenderPass.cpp" />
+		<Unit filename="../../PouEngine/src/renderers/PBRToolbox.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/RenderGraph.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/RenderView.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/RenderWindow.cpp" />

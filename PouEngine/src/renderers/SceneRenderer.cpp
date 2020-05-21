@@ -5,6 +5,7 @@
 #include "PouEngine/scene/SpriteEntity.h"
 //#include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/utils/Logger.h"
+#include "PouEngine/renderers/PBRToolbox.h"
 
 #include <sstream>
 
@@ -1071,9 +1072,9 @@ void SceneRenderer::prepareAmbientLightingRenderPass()
     m_renderGraph.transferAttachmentsToUniforms(m_ssgiLigghtingBlurPasses[1], m_ambientLightingPass, 0);*/
 
 
-    /*size_t texturesCount = m_targetWindow->getSwapchainSize();
+    size_t texturesCount = m_targetWindow->getSwapchainSize();
     std::vector<VkImageView> brdflut(texturesCount, PBRToolbox::getBrdflut().view);
-    m_renderGraph.addNewUniforms(m_ambientLightingPass, brdflut);*/
+    m_renderGraph.addNewUniforms(m_ambientLightingPass, brdflut);
 }
 
 void SceneRenderer::prepareToneMappingRenderPass()

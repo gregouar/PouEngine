@@ -17,16 +17,16 @@ layout (set = 0, binding = 6) uniform sampler2D samplerAlphaNormal;
 layout (set = 0, binding = 7) uniform sampler2D samplerAlphaRme;
 
 layout (set = 0, binding = 8) uniform sampler2D samplerBentNormals;
-layout (set = 0, binding = 9) uniform sampler2D samplerGlobalIllumination;
+layout (set = 0, binding = 9) uniform sampler2D samplerGlobalIllumination;*/
 
-layout (set = 0, binding = 10) uniform texture2D brdflut;*/
+layout (set = 0, binding = 4) uniform texture2D brdflut;
 
 /*layout(set = 1, binding = 0) uniform sampler samp;
 layout(set = 1, binding = 1) uniform texture2DArray textures[128];*/
 
-/*layout(set = 1, binding = 0) uniform sampler    samp;
-layout(set = 1, binding = 1) uniform texture2D  texEnvMap;*/
-layout(set = 1, binding = 0) uniform AmbientLightingUbo {
+layout(set = 1, binding = 0) uniform sampler    samp;
+/*layout(set = 1, binding = 1) uniform texture2D  texEnvMap;*/
+layout(set = 1, binding = 1) uniform AmbientLightingUbo {
     vec4 ambientLight;
     //bool enableEnvMap;
 } ubo;
@@ -104,12 +104,63 @@ vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec4
     return vec4(fragAlbedo.rgb * irradiance * occlusion * kD + specular + globalIll*(1.0-fragNormal.w), fragAlbedo.a);
 }*/
 
+float discretize(float v, uint steps)
+{
+    return floor(v * steps)/steps;
+}
+
+vec3 discretize(vec3 v, uint steps)
+{
+    return floor(v * steps)/steps;
+}
+
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec3 fragRme)
+{
+    vec3 ambientLighting = ubo.ambientLight.rgb * ubo.ambientLight.a;
+
+    vec3 viewDirection = normalize(vec3(0.0,0.0,500.0) - fragPos);
+    float NdotV = max(dot(fragNormal.xyz, viewDirection), 0.0);
+
+    vec3 surfaceReflection0 = vec3(0.04);
+    surfaceReflection0 = mix(surfaceReflection0, fragAlbedo.rgb, fragRme.g);
+
+    vec3 F = fresnelSchlickRoughness(NdotV, surfaceReflection0, fragRme.r);
+    vec3 kS = F;
+    vec3 kD = (1.0 - F)*(1.0 - fragRme.g);
+    vec3 irradiance = ambientLighting;
+    vec3 reflectionView = reflect(-viewDirection, fragNormal.xyz);
+
+    vec3 reflectionColor = ambientLighting  /* * (1+ fragRme.g) */;
+
+    reflectionView = normalize(reflectionView);
+   /* vec3 pickAlbedo = texture(samplerAlbedo, inUV+ reflectionView.xy*.01).rgb;
+    reflectionColor = mix(pickAlbedo * ambientLighting, ambientLighting, .0) ;*/
+
+
+    vec2 envBRDF  = texture(sampler2D(brdflut,samp), vec2(NdotV, fragRme.r)).rg;
+    vec3 specular = reflectionColor  * (F * envBRDF.x + envBRDF.y);
+
+    //specular = discretize(specular,3);
+
+    vec4 lighting = vec4(fragAlbedo.rgb * irradiance * kD + specular, fragAlbedo.a);
+    lighting.rgb = mix(fragAlbedo.rgb*ambientLighting.rgb, lighting.rgb, .25+fragRme.g*.75);
+    lighting += vec4(fragRme.z * 50.0 * fragAlbedo.rgb,0.0);
+
+    return lighting;
+
+}
+
+/**vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec3 fragRme)
 {
     vec4 lighting = vec4(fragAlbedo.rgb*ubo.ambientLight.rgb*ubo.ambientLight.a,fragAlbedo.a);
     lighting += vec4(fragRme.z * 50.0 * fragAlbedo.rgb,0.0);
     return lighting;
-}
+}**/
 
 void main()
 {

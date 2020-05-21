@@ -116,6 +116,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
             bool customCenter = false;
             bool customPosition = false;
             glm::vec3 spriteRme(1.0,0.0,0.0);
+            bool customRme = false;
 
             auto nameElement = spriteElement->Attribute("name");
             if(nameElement != nullptr)
@@ -180,6 +181,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                     spriteRme.y = Parser::parseFloat(std::string(surfaceElement->Attribute("m")));
                 if(surfaceElement->Attribute("e") != nullptr)
                     spriteRme.z = Parser::parseFloat(std::string(surfaceElement->Attribute("e")));
+                customRme = true;
             }
 
 
@@ -211,7 +213,9 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
 
             spriteModel->setSize(spriteSize);
             spriteModel->setCenter(spriteCenter);
-            spriteModel->setRme(spriteRme);
+
+            if(customRme)
+                spriteModel->setRme(spriteRme);
 
             if(customPosition)
                 spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);

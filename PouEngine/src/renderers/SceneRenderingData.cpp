@@ -110,7 +110,7 @@ bool SceneRenderingData::createDescriptorSetLayout()
     VkDevice device = VInstance::device();
 
     //Change to 3 for sampler
-    std::vector<VkDescriptorSetLayoutBinding> layoutBindings(1, VkDescriptorSetLayoutBinding{});
+    std::vector<VkDescriptorSetLayoutBinding> layoutBindings(2, VkDescriptorSetLayoutBinding{});
 
     for(size_t i = 0 ; i < layoutBindings.size() ; ++i)
     {
@@ -118,9 +118,9 @@ bool SceneRenderingData::createDescriptorSetLayout()
         layoutBindings[i].descriptorCount = 1;
         layoutBindings[i].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     }
-    /*layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-    layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;*/
-    layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    /*layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;*/
+    layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -134,15 +134,15 @@ bool SceneRenderingData::createDescriptorSetLayout()
 bool SceneRenderingData::createDescriptorPool(size_t framesCount)
 {
     //Change to 3 for sampler
-    std::vector<VkDescriptorPoolSize> poolSizes(1,VkDescriptorPoolSize{});
-    /*poolSizes[0].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+    std::vector<VkDescriptorPoolSize> poolSizes(2,VkDescriptorPoolSize{});
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_SAMPLER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(framesCount);
 
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    /*poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(framesCount);*/
 
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(framesCount);
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(framesCount);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType          = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -181,13 +181,13 @@ void SceneRenderingData::updateAmbientLightingDescSet(size_t frameIndex)
     bufferInfo.offset = m_ambientLightingUbos[frameIndex].offset;
     bufferInfo.range = sizeof(AmbientLightingData);
 
-   /* VkDescriptorImageInfo imageInfo = {};
+    VkDescriptorImageInfo imageInfo = {};
     imageInfo.imageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView     = m_filteredEnvMap.view;
-    imageInfo.sampler       = VTexturesManager::sampler();*/
+  //  imageInfo.imageView     = m_filteredEnvMap.view;
+    imageInfo.sampler       = VTexturesManager::sampler();
 
     ///Change to 3 if reactivate sampler
-    std::vector<VkWriteDescriptorSet> descriptorWrites(1,VkWriteDescriptorSet{});
+    std::vector<VkWriteDescriptorSet> descriptorWrites(2,VkWriteDescriptorSet{});
     for(size_t i = 0 ; i < descriptorWrites.size() ; ++i)
     {
         descriptorWrites[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -197,14 +197,14 @@ void SceneRenderingData::updateAmbientLightingDescSet(size_t frameIndex)
         descriptorWrites[i].descriptorCount = 1;
     }
 
-    /*descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLER;
+    descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLER;
     descriptorWrites[0].pImageInfo      = &imageInfo;
 
-    descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    /*descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     descriptorWrites[1].pImageInfo      = &imageInfo;*/
 
-    descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrites[0].pBufferInfo     = &bufferInfo;
+    descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrites[1].pBufferInfo     = &bufferInfo;
 
     vkUpdateDescriptorSets(VInstance::device(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 

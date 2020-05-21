@@ -83,7 +83,7 @@ SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_nextSpriteDelay(-1),
     m_nextSprite(-1),
     m_color(1.0),
-    m_rme(1.0),
+    m_rme(1.0,0.0,0.0),
     m_isReady(true)
    // m_shadowMapExtent(0.0,0.0)
 {
@@ -151,6 +151,9 @@ void SpriteModel::setMaterial(MaterialAsset *material)
             m_isReady = false;
         else
             m_isReady = true;
+
+        if(m_material)
+            m_rme = m_material->getRmeFactor();
 
         this->sendNotification(Notification_ModelChanged);
     }
