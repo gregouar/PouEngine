@@ -3,8 +3,11 @@
 #include "PouEngine/Types.h"
 
 #include "PouEngine/assets/AssetHandler.h"
+#include "PouEngine/assets/SoundBankAsset.h"
+#include "PouEngine/assets/MeshAsset.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/SkeletonModelAsset.h"
+
 
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Parser.h"
@@ -125,13 +128,30 @@ bool ItemModelAsset::loadFromXML(TiXmlHandle *hdl)
     if(hdl == nullptr)
         return (false);
 
-    TiXmlElement* spriteSheetElement = hdl->FirstChildElement("spritesheet").Element();
-    while(spriteSheetElement != nullptr)
+    TiXmlElement* element = hdl->FirstChildElement("spritesheet").Element();
+    while(element != nullptr)
     {
-        if(!this->loadSpriteSheet(spriteSheetElement))
+        if(!this->loadSpriteSheet(element))
             loaded = false;
-        spriteSheetElement = spriteSheetElement->NextSiblingElement("spritesheet");
+        element = element->NextSiblingElement("spritesheet");
     }
+
+    element = hdl->FirstChildElement("light").Element();
+    while(element != nullptr)
+    {
+        if(!this->loadLightModel(element))
+            loaded = false;
+        element = element->NextSiblingElement("light");
+    }
+
+    element = hdl->FirstChildElement("soundbank").Element();
+    while(element != nullptr)
+    {
+        if(!this->loadSoundBank(element))
+            loaded = false;
+        element = element->NextSiblingElement("soundbank");
+    }
+
 
     TiXmlElement* skeletonElement = hdl->FirstChildElement("skeleton").Element();
     while(skeletonElement != nullptr)
@@ -175,6 +195,115 @@ bool ItemModelAsset::loadSpriteSheet(TiXmlElement *element)
     if(!m_spriteSheets.insert({spriteSheetName,
                               pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
         pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in item model:"+m_filePath);
+
+    return (true);
+}
+
+
+bool ItemModelAsset::loadLightModel(TiXmlElement *element)
+{
+    std::string lightName = "light"+std::to_string(m_lightModels.size());
+
+    auto att = element->Attribute("name");
+    if(att != nullptr)
+        lightName = std::string(att);
+
+    pou::LightModel lightModel;
+
+    att = element->Attribute("type");
+    if(att != nullptr)
+    {
+        if(std::string(att) == "omni")
+            lightModel.type = pou::LightType_Omni;
+        else if(std::string(att) == "directional")
+            lightModel.type = pou::LightType_Directional;
+        else if(std::string(att) == "spot")
+            lightModel.type = pou::LightType_Spot;
+    }
+
+    att = element->Attribute("radius");
+    if(att != nullptr)
+        lightModel.radius = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("intensity");
+    if(att != nullptr)
+        lightModel.intensity = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("castShadow");
+    if(att != nullptr)
+        lightModel.castShadow = pou::Parser::parseBool(att);
+
+    auto colorChild = element->FirstChildElement("color");
+    if(colorChild != nullptr)
+    {
+        auto colorElement = colorChild->ToElement();
+        att = colorElement->Attribute("r");
+        if(att != nullptr)
+            lightModel.color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("g");
+        if(att != nullptr)
+            lightModel.color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("b");
+        if(att != nullptr)
+            lightModel.color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("a");
+        if(att != nullptr)
+            lightModel.color.a = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("red");
+        if(att != nullptr)
+            lightModel.color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("green");
+        if(att != nullptr)
+            lightModel.color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("blue");
+        if(att != nullptr)
+            lightModel.color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("alpha");
+        if(att != nullptr)
+            lightModel.color.a = pou::Parser::parseFloat(att);
+    }
+
+
+    auto directionChild = element->FirstChildElement("direction");
+    if(directionChild != nullptr)
+    {
+        auto directionElement = directionChild->ToElement();
+        att = directionElement->Attribute("x");
+        if(att != nullptr)
+            lightModel.direction.x = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("y");
+        if(att != nullptr)
+            lightModel.direction.y = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("z");
+        if(att != nullptr)
+            lightModel.direction.z = pou::Parser::parseFloat(att);
+    }
+
+    if(!m_lightModels.insert({lightName,lightModel}).second)
+        pou::Logger::warning("Multiple lights with name \""+lightName+"\" in character model:"+m_filePath);
+
+    return (true);
+}
+
+
+bool ItemModelAsset::loadSoundBank(TiXmlElement *element)
+{
+    //std::string soundBankName = "soundbank"+std::to_string(m_soundBanks.size());
+
+    /*auto nameAtt = element->Attribute("name");
+    if(nameAtt != nullptr)
+        spriteSheetName = std::string(nameAtt);*/
+
+
+    auto pathAtt = element->Attribute("path");
+    if(pathAtt == nullptr)
+        return (false);
+
+    /*if(!m_spriteSheets.insert({spriteSheetName,
+                              pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
+        pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in character model:"+m_filePath);*/
+
+    pou::SoundBanksHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt),m_loadType);
 
     return (true);
 }

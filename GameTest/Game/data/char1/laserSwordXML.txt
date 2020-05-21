@@ -2,9 +2,16 @@
 <item>
 	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
 	
+	<light name="saberLight" type="omni" radius=150 intensity=10.0 castShadow="false" >
+		<color r=1.0 g=0.0 b=0.0 a=1.0 />
+	</light>
+	
+	
 	<skeleton name="mainSkeleton">
 		<limb node="weapon" sprite="laserSword" spritesheet="mainSpriteSheet" />
 		<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />
+		
+		<limb node="weaponCenter" light="saberLight" />
 		
 		<sound name="attackSound" path="event:/LightSaberAttack" type="event" />
 	</skeleton>

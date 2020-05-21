@@ -81,11 +81,13 @@
 		<size 		x="64" 	y="64" 	/>
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="160" y="132" 	/>
+		<surface  emissivity=.1 />
 	</sprite>
 	<sprite name="laserSwordTrail">
 		<size 		x="86" 	y="64" 	/>
 		<center 	x="0" 	y="62" 	/>
 		<position 	x="160" y="68" 	/>
+		<surface  emissivity=.05 />
 	</sprite>
 	
 	<sprite name="sithHead" castShadow="true">

@@ -9,6 +9,7 @@
 			<node name="handR" x="10" y="-8" z="3" />
 			<node name="weapon" x="-2" y="-10" z="2" state="standing">
 					<!--<rotate z=45 />-->
+				<node name="weaponCenter" x=30 y=-30 />
 				<node name="weaponTrail"  z="-.001" state="standing" />
 				<node name="weaponHB" z="1">
 					<rotate z=45 />

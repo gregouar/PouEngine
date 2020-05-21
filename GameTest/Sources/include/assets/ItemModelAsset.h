@@ -41,6 +41,7 @@ class ItemModelAsset : public pou::Asset
         bool loadFromXML(TiXmlHandle *);
         bool loadSpriteSheet(TiXmlElement *element);
         bool loadLightModel(TiXmlElement *element);
+        bool loadSoundBank(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
         bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
         bool loadAttributes(TiXmlElement *element);

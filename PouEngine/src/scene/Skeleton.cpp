@@ -69,7 +69,20 @@ bool Skeleton::detachLimb(const std::string &boneName, const std::string &stateN
         return (false);
     }
 
-    bone->second->detachObject(object);
+    if(object == nullptr)
+        return (true);
+
+    if(stateName == std::string())
+        bone->second->detachObject(object);
+    else
+    {
+        int nodeId = m_model->getNodeId(boneName);
+        int stateId = this->getNodeState(nodeId);
+        int detachStateId = m_model->getStateId(stateName);
+
+        if(stateId == detachStateId)
+            bone->second->detachObject(object);
+    }
 
     auto limbsPerNodeState = m_limbsPerNodeState.equal_range({m_model->getNodeId(boneName),
                                                              m_model->getStateId(stateName)});

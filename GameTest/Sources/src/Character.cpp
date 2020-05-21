@@ -124,10 +124,10 @@ bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skele
     if(skeleton == m_skeletons.end())
         return (false);
 
-    auto *spriteEntity = this->addLimb(limbModel);
+    auto *sceneEntity = this->addLimb(limbModel);
     skeleton->second->attachLimb(limbModel->node,
                                  limbModel->state,
-                                 spriteEntity);
+                                 sceneEntity);
 
     return (true);
 }
