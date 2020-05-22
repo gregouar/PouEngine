@@ -14,8 +14,10 @@ struct VRenderableTexture
 {
     VRenderableTexture() : renderTarget(nullptr){}
 
-    VTexture                texture;
-    VFramebufferAttachment  attachment;
+    VTexture                texture,
+                            depthTexture;
+    VFramebufferAttachment  attachment,
+                            depthAttachment;
     VRenderTarget          *renderTarget;
 };
 
@@ -74,12 +76,16 @@ class VTexturesManager : public Singleton<VTexturesManager>
 
         void update(size_t frameIndex, size_t imageIndex);
 
-        static bool allocTexture(uint32_t width, uint32_t height, VkFormat format,
+        static bool allocTexture(const VTextureFormat &format,
                                  VBuffer source, CommandPoolName cmdPoolName, VTexture *texture);
         static bool allocTexture(uint32_t width, uint32_t height,
                                  VBuffer source, CommandPoolName cmdPoolName, VTexture *texture);
-        static bool allocRenderableTexture(uint32_t width, uint32_t height, VkFormat format,
+
+        static bool allocRenderableTexture(const VTextureFormat &format,
                                            VRenderPass *renderPass, VRenderableTexture *texture);
+        static bool allocRenderableTextureWithDepth(uint32_t width, uint32_t height, VkFormat format, VkFormat depthFormat,
+                                           VRenderPass *renderPass, VRenderableTexture *texture);
+
         static void freeTexture(VTexture &texture);
         static void freeTexture(VRenderableTexture &texture);
 
@@ -97,6 +103,9 @@ class VTexturesManager : public Singleton<VTexturesManager>
     protected:
         VTexturesManager();
         virtual ~VTexturesManager();
+
+        bool allocRenderableTextureImpl(uint32_t width, uint32_t height, VkFormat format,
+                                           VRenderPass *renderPass, VTexture *texture, VFramebufferAttachment *attachment);
 
         bool    allocTextureImpl(VTexture2DArrayFormat format, VBuffer source, CommandPoolName cmdPoolName, VTexture *texture);
         bool    allocRenderableTextureImpl(VTexture2DArrayFormat format, CommandPoolName cmdPoolName, VTexture *texture);

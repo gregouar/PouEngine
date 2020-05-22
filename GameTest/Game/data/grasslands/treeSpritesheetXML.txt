@@ -33,4 +33,44 @@
 		<center 	x="128" y="128" 	/>
 		<position 	x="0" y="256" 	/>
 	</sprite>
+	
+	
+	
+	<sprite name="treeFoliage0_ripple" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="0" 	y="0" 	/>
+		<nextSprite name="treeFoliage0_ripple2"  delay=.1 />
+	</sprite>
+	<sprite name="treeFoliage1_ripple" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="256" y="0" 	/>
+		<nextSprite name="treeFoliage1_ripple2"  delay=.1 />
+	</sprite>
+	<sprite name="treeFoliage2_ripple" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="512" y="0" 	/>
+		<nextSprite name="treeFoliage2_ripple2"  delay=.1 />
+	</sprite>
+	
+	<sprite name="treeFoliage0_ripple2" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="0" 	y="512" 	/>
+		<nextSprite name="treeFoliage0_ripple"  delay=.1 />
+	</sprite>
+	<sprite name="treeFoliage1_ripple2" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="256" y="512" 	/>
+		<nextSprite name="treeFoliage1_ripple"  delay=.1 />
+	</sprite>
+	<sprite name="treeFoliage2_ripple2" castShadow="true">
+		<size 		x="256" y="256" 	/>
+		<center 	x="128" y="128" 	/>
+		<position 	x="512" y="512" 	/>
+		<nextSprite name="treeFoliage2_ripple"  delay=.1 />
+	</sprite>
 </spritesheet>

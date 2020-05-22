@@ -2,8 +2,8 @@
 <material>
 	<name>TreeMaterial</name>
 	<height>0</height>
-	<texture type="albedo">tree.png</texture>
-	<texture type="normal">tree_n.png</texture>
+	<texture type="albedo">tree_ripple.png</texture>
+	<texture type="normal">tree_ripple_n.png</texture>
 	<roughness>.8</roughness>
 	<metalness>0.0</metalness>
 	<emissivity>0</emissivity>

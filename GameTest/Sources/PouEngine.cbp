@@ -225,6 +225,7 @@
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlparser.cpp" />
 		<Unit filename="../../PouEngine/shaders/blur.frag" />
 		<Unit filename="../../PouEngine/shaders/blur.vert" />
+		<Unit filename="../../PouEngine/shaders/blurFromTexture.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshShader.frag" />

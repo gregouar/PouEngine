@@ -21,10 +21,11 @@ struct LightDatum
     float     radius;
 
     glm::uvec2 shadowMap;
+    glm::uvec2 squaredShadowMap;
     glm::vec2  shadowShift;
 
     static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 5> getAttributeDescriptions();
+    static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions();
 };
 
 struct LightModel
@@ -81,7 +82,7 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
 
 
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance);
-        virtual VTexture generateShadowMap(SceneRenderer* renderer, std::list<ShadowCaster*> &shadowCastersList);
+        virtual void generateShadowMap(SceneRenderer* renderer, std::list<ShadowCaster*> &shadowCastersList);
 
         LightDatum getLightDatum();
 

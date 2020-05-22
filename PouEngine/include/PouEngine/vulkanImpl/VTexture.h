@@ -7,6 +7,47 @@
 namespace pou
 {
 
+struct VTextureFormat
+{
+    uint32_t width;
+    uint32_t height;
+    VkFormat vkFormat;
+
+    bool operator==(const VTextureFormat &rhs) const
+    {
+        if(vkFormat != rhs.vkFormat)
+            return (false);
+
+        if(height != rhs.height)
+            return (false);
+
+        if(width != rhs.width)
+            return (false);
+
+        return (true);
+    }
+
+    bool operator<( VTextureFormat const& rhs ) const
+    {
+        if(vkFormat < rhs.vkFormat)
+            return (true);
+        if(vkFormat > rhs.vkFormat)
+            return (false);
+
+        if(height < rhs.height)
+            return (true);
+        if(height > rhs.height)
+            return (false);
+
+        if(width < rhs.width)
+            return (true);
+        if(width > rhs.width)
+            return (false);
+
+        return (false);
+    }
+};
+
 class VTexture
 {
     friend class VTexturesManager;

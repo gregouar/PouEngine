@@ -143,6 +143,14 @@ void AbstractRenderer::cleanup()
 {
     //VkDevice device = VInstance::device();
 
+    /*for(auto att : m_pingPongAttachments)
+        VulkanHelpers::destroyAttachment(att.second);
+    m_pingPongAttachments.clear();*/
+
+    for(auto target : m_pingPongRenderTargets)
+        delete target.second;
+    m_pingPongRenderTargets.clear();
+
     m_renderView.destroy();
 
    /* if(m_descriptorPool != VK_NULL_HANDLE)
@@ -151,6 +159,44 @@ void AbstractRenderer::cleanup()
 
     m_renderGraph.destroy();
 }
+
+
+/*VFramebufferAttachment *AbstractRenderer::getPingPongAttachment(const VTextureFormat &format)
+{
+    auto it = m_pingPongAttachments.find(format);
+    if(it == m_pingPongAttachments.end())
+    {
+        it = m_pingPongAttachments.insert({format, VFramebufferAttachment ()}).first;
+        VulkanHelpers::createAttachment(format.width, format.height, format.vkFormat,
+                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, it->second);
+    }
+
+    return &(it->second);
+}*/
+
+
+VRenderTarget *AbstractRenderer::getPingPongRenderTarget(std::vector<VTextureFormat> &formats, VRenderPass *renderPass)
+{
+    if(formats.empty())
+        return (nullptr);
+
+    PingPongFormatsList ppfl;
+    ppfl.formats = std::move(formats);
+    ppfl.renderPass = renderPass;
+
+    auto it = m_pingPongRenderTargets.find(ppfl);
+    if(it == m_pingPongRenderTargets.end())
+    {
+        it = m_pingPongRenderTargets.insert({ppfl, new VRenderTarget()}).first;
+        it->second->setExtent({formats.front().width, formats.front().height});
+        for(auto format : formats)
+            it->second->createAttachment(format.vkFormat);
+        it->second->init(1, renderPass);
+    }
+
+    return (it->second);
+}
+
 
 /*bool AbstractRenderer::createDescriptorPool()
 {

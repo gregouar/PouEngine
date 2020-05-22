@@ -8,6 +8,50 @@
 namespace pou
 {
 
+struct PingPongFormatsList
+{
+    std::vector<VTextureFormat> formats;
+    VRenderPass* renderPass;
+
+    bool operator==(const PingPongFormatsList &rhs) const
+    {
+        if(renderPass != rhs.renderPass)
+            return (false);
+
+        if(formats.size() != rhs.formats.size())
+            return (false);
+
+        for(size_t i = 0 ; i < formats.size() ; ++i)
+            if(!(rhs.formats[i] == formats[i]))
+                return (false);
+
+        return (true);
+    }
+
+    bool operator<(const PingPongFormatsList &rhs) const
+    {
+        if(renderPass < rhs.renderPass)
+            return (true);
+        if(renderPass > rhs.renderPass)
+            return (false);
+
+        if(formats.size() < rhs.formats.size())
+            return (true);
+        if(formats.size() > rhs.formats.size())
+            return (false);
+
+        for(size_t i = 0 ; i < formats.size() ; ++i)
+        {
+            if(formats[i] < rhs.formats[i])
+                return (true);
+            if(rhs.formats[i] < formats[i])
+                return (false);
+        }
+
+        return (false);
+    }
+};
+
 class AbstractRenderer
 {
     friend class RenderWindow;
@@ -44,6 +88,9 @@ class AbstractRenderer
 
         virtual bool    recordPrimaryCmb(uint32_t imageIndex) = 0;
 
+        //VFramebufferAttachment *getPingPongAttachment(const VTextureFormat &format);
+        VRenderTarget *getPingPongRenderTarget(std::vector<VTextureFormat> &formats, VRenderPass *renderPass);
+
 
     protected:
         //bool m_useDynamicView;
@@ -64,6 +111,9 @@ class AbstractRenderer
         RendererName    m_name;
 
         std::vector<FullRenderPass*> m_finalPasses;
+
+        //std::map<VTextureFormat, VFramebufferAttachment> m_pingPongAttachments;
+        std::map<PingPongFormatsList, VRenderTarget*> m_pingPongRenderTargets;
 };
 
 }

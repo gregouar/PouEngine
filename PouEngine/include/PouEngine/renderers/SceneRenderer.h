@@ -20,13 +20,17 @@ namespace pou
 
 struct ShadowMapRenderingInstance
 {
-    glm::vec4 lightPosition;
-    glm::vec2 shadowShift;
+    /*glm::vec4 lightPosition;
+    glm::vec2 shadowShift;*/
+    LightDatum lightDatum;
+    glm::vec2 extent;
     size_t    spritesVboSize;
     size_t    spritesVboOffset;
     std::map<VMesh*, std::pair<size_t,size_t> > meshesVboSizeAndOffset;
     //std::map<VMesh*, size_t>    meshesVboSize; //I would gain perf by pairing them
     //std::map<VMesh*, size_t>    meshesVboOffset;
+
+    VRenderableTexture *pingPongTex;
 };
 
 class SceneRenderer : public AbstractRenderer
@@ -86,6 +90,7 @@ class SceneRenderer : public AbstractRenderer
         /*bool createSpriteShadowsGenPipeline();*/
         bool createSpriteShadowsPipeline();
         bool createMeshDirectShadowsPipeline();
+        bool createShadowMapsBlurPipelines();
         //Deferred
         bool createDeferredSpritesPipeline();
         bool createDeferredMeshesPipeline();
@@ -116,7 +121,8 @@ class SceneRenderer : public AbstractRenderer
                             m_spriteShadowFilteringPipeline,*/
                             //m_spriteShadowsBlurPipelines[2],
                             m_spriteShadowsPipeline,
-                            m_meshDirectShadowsPipeline;
+                            m_meshDirectShadowsPipeline,
+                            m_shadowMapBlurPipelines[2];
 
         VGraphicsPipeline   m_deferredSpritesPipeline,
                             m_deferredMeshesPipeline/*,
@@ -157,6 +163,7 @@ class SceneRenderer : public AbstractRenderer
         size_t  /*m_spriteShadowsPass,
                 //m_spriteShadowsBlurPasses[2],*/
                 m_shadowMapsPass,
+                //m_shadowMapsBlurPasses[2],
                 m_deferredPass,
                 /*m_alphaDetectPass,
                 m_alphaDeferredPass,
@@ -179,6 +186,8 @@ class SceneRenderer : public AbstractRenderer
 
         std::list<SceneRenderingInstance*>      m_renderingInstances;
         std::list<ShadowMapRenderingInstance>   m_shadowMapsInstances;
+
+        std::map<VTextureFormat, VRenderableTexture> m_shadowMapBlurPingPongs;
 
         /*static const float SSGI_SIZE_FACTOR;
 
@@ -215,6 +224,10 @@ class SceneRenderer : public AbstractRenderer
         static const char *SPRITE_SHADOW_FRAGSHADERFILE;
         static const char *MESH_DIRECTSHADOW_VERTSHADERFILE;
         static const char *MESH_DIRECTSHADOW_FRAGSHADERFILE;
+
+        static const char *BLUR_VERTSHADERFILE;
+        static const char *BLURFROMTEX_FRAGSHADERFILE;
+        static const char *BLUR_FRAGSHADERFILE;
 
         static const char *SPRITE_DEFERRED_VERTSHADERFILE;
         static const char *SPRITE_DEFERRED_FRAGSHADERFILE;

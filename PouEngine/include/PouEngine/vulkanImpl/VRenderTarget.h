@@ -2,6 +2,7 @@
 #define VRENDERTARGET_H
 
 #include "PouEngine/vulkanImpl/VRenderPass.h"
+#include "PouEngine/vulkanImpl/VTexture.h"
 
 namespace pou
 {
@@ -21,7 +22,7 @@ class VRenderTarget
         ///Add preexisting attachments
         void addAttachments(const std::vector<VFramebufferAttachment> &attachments);
         ///Create new attachments (that will be created when init)
-        void createAttachments(VFramebufferAttachmentType type);
+        void createAttachment(VkFormat format);
 
         void startRendering(size_t framebufferIndex, VkCommandBuffer cmb, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
         void startRendering(size_t framebufferIndex, VkCommandBuffer cmb, VkSubpassContents contents,
@@ -35,6 +36,7 @@ class VRenderTarget
         const  std::vector<VFramebufferAttachment> &getAttachments(size_t attachmentIndex);
 
     protected:
+        bool createAttachments(size_t framebuffersCount);
         bool createFramebuffers(size_t framebuffersCount);
 
     protected:
@@ -47,6 +49,10 @@ class VRenderTarget
 
         VRenderPass *m_defaultRenderPass;
         std::vector<std::vector<VFramebufferAttachment> > m_attachments;
+
+        std::vector<VFramebufferAttachment*> m_createdAttachments;
+        std::list<VkFormat> m_creatingAttachmentList;
+
 
 };
 

@@ -16,6 +16,8 @@ layout(binding = 1, set = 1) uniform texture2DArray textures[128];
 layout(location = 0)       in vec2  fragUV;
 layout(location = 1)  flat in uvec2 fragAlbedoTexId;
 
+layout(location = 0) out float squaredDepth;
+
 void main()
 {
     float albedoA = texture(sampler2DArray(textures[fragAlbedoTexId.x], samp),
@@ -23,5 +25,11 @@ void main()
 
     if(albedoA < .99f)
         discard;
+
+    squaredDepth = (1-gl_FragCoord.z) * (1-gl_FragCoord.z);
+
+    float dx = dFdx(1-gl_FragCoord.z);
+    float dy = dFdy(1-gl_FragCoord.z);
+    squaredDepth += 0.25*(dx*dx+dy*dy);
 }
 

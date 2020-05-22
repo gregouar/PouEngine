@@ -31,49 +31,93 @@ bool VTexturesManager::allocTexture(uint32_t width, uint32_t height,
                                                           source, cmdPoolName, texture);
 }
 
-bool VTexturesManager::allocTexture(uint32_t width, uint32_t height, VkFormat format,
+bool VTexturesManager::allocTexture(const VTextureFormat &format,
                                     VBuffer source, CommandPoolName cmdPoolName, VTexture *texture)
 {
-    return VTexturesManager::instance()->allocTextureImpl({width, height, format, false},
+    return VTexturesManager::instance()->allocTextureImpl({format.width, format.height, format.vkFormat, false},
                                                           source, cmdPoolName, texture);
 }
 
 
-bool VTexturesManager::allocRenderableTexture(uint32_t width, uint32_t height, VkFormat format,
-                                              VRenderPass *renderPass, VRenderableTexture *renderableTexture)
+bool VTexturesManager::allocRenderableTexture(const VTextureFormat &format,
+                                     VRenderPass *renderPass, VRenderableTexture *texture)
 {
-    if(!VTexturesManager::instance()->allocTextureImpl({width, height, format, true},
-                                                          VBuffer{}, COMMANDPOOL_SHORTLIVED, &renderableTexture->texture))
+    texture->renderTarget = new VRenderTarget();
+
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(format.width, format.height, format.vkFormat,  renderPass,
+                                                                 &texture->texture, &texture->attachment))
+    {
+        delete texture->renderTarget;
+        return (false);
+    }
+
+    texture->renderTarget->addAttachments({texture->attachment});
+
+    texture->renderTarget->init(1,renderPass);
+
+    return (true);
+}
+
+bool VTexturesManager::allocRenderableTextureWithDepth(uint32_t width, uint32_t height, VkFormat format, VkFormat depthFormat,
+                                     VRenderPass *renderPass, VRenderableTexture *texture)
+{
+    texture->renderTarget = new VRenderTarget();
+
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(width, height, format,  renderPass,
+                                                                 &texture->texture, &texture->attachment))
+    {
+        delete texture->renderTarget;
+        return (false);
+    }
+
+    texture->renderTarget->addAttachments({texture->attachment});
+
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(width, height, depthFormat,  renderPass,
+                                                                 &texture->depthTexture, &texture->depthAttachment))
+    {
+        delete texture->renderTarget;
+        return (false);
+    }
+
+    texture->renderTarget->addAttachments({texture->depthAttachment});
+
+    texture->renderTarget->init(1,renderPass);
+
+    return (true);
+}
+
+
+bool VTexturesManager::allocRenderableTextureImpl(uint32_t width, uint32_t height, VkFormat format,
+                                              VRenderPass *renderPass, VTexture *texture, VFramebufferAttachment *attachment)
+{
+    if(!this->allocTextureImpl({width, height, format, true},
+                                VBuffer{}, COMMANDPOOL_SHORTLIVED, texture))
         return (false);
 
     VkImageAspectFlags aspect;
     if(format == VK_FORMAT_D24_UNORM_S8_UINT)
         aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-    else if(format == VK_FORMAT_D32_SFLOAT)
+    else if(format == VK_FORMAT_D32_SFLOAT || format == VK_FORMAT_D16_UNORM )
         aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
     else
         aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 
-    renderableTexture->attachment.image =
-            VTexturesManager::instance()->m_allocatedTextureArrays_renderable[renderableTexture->texture.getTextureId()]->image;
-    renderableTexture->attachment.view  =
-            VulkanHelpers::createImageView( renderableTexture->attachment.image.vkImage, format,
-                                            aspect, 1, 1, renderableTexture->texture.getTextureLayer(), 0);
-    renderableTexture->attachment.mipViews.push_back(renderableTexture->attachment.view);
+    attachment->image =
+            this->m_allocatedTextureArrays_renderable[texture->getTextureId()]->image;
+    attachment->view  =
+            VulkanHelpers::createImageView( attachment->image.vkImage, format,
+                                            aspect, 1, 1, texture->getTextureLayer(), 0);
+    attachment->mipViews.push_back(attachment->view);
 
-    if(renderableTexture->attachment.view == VK_NULL_HANDLE)
+    if(attachment->view == VK_NULL_HANDLE)
         return (false);
 
-    renderableTexture->attachment.extent.width  = width;
-    renderableTexture->attachment.extent.height = height;
-    renderableTexture->attachment.type.format = format;
-    renderableTexture->attachment.type.layout = (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT) ?
+    attachment->extent.width  = width;
+    attachment->extent.height = height;
+    attachment->type.format = format;
+    attachment->type.layout = (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT || format == VK_FORMAT_D16_UNORM ) ?
                                 //VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    renderableTexture->renderTarget = new VRenderTarget();
-    renderableTexture->renderTarget->addAttachments({renderableTexture->attachment});
-    renderableTexture->renderTarget->init(1,renderPass);
 
     return (true);
 }
@@ -158,7 +202,8 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
 
     if(format.renderable)
     {
-        if(format.vkFormat == VK_FORMAT_D24_UNORM_S8_UINT || format.vkFormat == VK_FORMAT_D32_SFLOAT)
+        if(format.vkFormat == VK_FORMAT_D24_UNORM_S8_UINT || format.vkFormat == VK_FORMAT_D32_SFLOAT
+        || format.vkFormat == VK_FORMAT_D16_UNORM )
         {
             usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -244,15 +289,21 @@ void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable)
 void VTexturesManager::freeTextureImpl(VRenderableTexture &renderableTexture)
 {
     this->freeTextureImpl(renderableTexture.texture, true);
+    this->freeTextureImpl(renderableTexture.depthTexture, true);
 
     if(renderableTexture.renderTarget != nullptr)
         m_cleaningList_renderTargets.push_back({m_framesCount, renderableTexture.renderTarget});
 
     if(renderableTexture.attachment.view != VK_NULL_HANDLE)
+    {
         m_cleaningList_imageViews.push_back({m_framesCount, renderableTexture.attachment.view});
+        m_cleaningList_imageViews.push_back({m_framesCount, renderableTexture.depthAttachment.view});
+    }
 
     renderableTexture.attachment.mipViews.clear();
     renderableTexture.attachment.view   = VK_NULL_HANDLE;
+    renderableTexture.depthAttachment.mipViews.clear();
+    renderableTexture.depthAttachment.view   = VK_NULL_HANDLE;
     renderableTexture.renderTarget      = nullptr;
 }
 

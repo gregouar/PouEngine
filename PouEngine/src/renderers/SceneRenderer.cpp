@@ -49,6 +49,10 @@ const char *SceneRenderer::SPRITE_SHADOW_FRAGSHADERFILE = "deferred/spriteShadow
 const char *SceneRenderer::MESH_DIRECTSHADOW_VERTSHADERFILE = "deferred/meshDirectShadow.vert.spv";
 const char *SceneRenderer::MESH_DIRECTSHADOW_FRAGSHADERFILE = "deferred/meshDirectShadow.frag.spv";
 
+const char *SceneRenderer::BLUR_VERTSHADERFILE = "blur.vert.spv";
+const char *SceneRenderer::BLURFROMTEX_FRAGSHADERFILE = "blurFromTexture.frag.spv";
+const char *SceneRenderer::BLUR_FRAGSHADERFILE = "blur.frag.spv";
+
 const char *SceneRenderer::SPRITE_DEFERRED_VERTSHADERFILE = "deferred/spriteShader.vert.spv";
 const char *SceneRenderer::SPRITE_DEFERRED_FRAGSHADERFILE = "deferred/spriteShader.frag.spv";
 const char *SceneRenderer::MESH_DEFERRED_VERTSHADERFILE = "deferred/meshShader.vert.spv";
@@ -91,14 +95,49 @@ void SceneRenderer::addRenderingInstance(SceneRenderingInstance *renderingInstan
 
 void SceneRenderer::addShadowMapToRender(VRenderTarget* shadowMap, const LightDatum &datum)
 {
-    m_renderGraph.addDynamicRenderTarget(m_shadowMapsPass,shadowMap);
     m_shadowMapsInstances.push_back(ShadowMapRenderingInstance{});
 
+    /*m_shadowMapsInstances.back().lightPosition = datum.position;
     m_shadowMapsInstances.back().lightPosition = datum.position;
-    m_shadowMapsInstances.back().shadowShift = datum.shadowShift;
+    m_shadowMapsInstances.back().shadowShift = datum.shadowShift;*/
+    m_shadowMapsInstances.back().lightDatum = datum;
+    m_shadowMapsInstances.back().extent = {shadowMap->getExtent().width,
+                                            shadowMap->getExtent().height};
 
     m_shadowMapsInstances.back().spritesVboSize = 0;
     m_shadowMapsInstances.back().spritesVboOffset = m_spritesVbos[m_curFrameIndex]->getSize();
+
+
+
+    m_renderGraph.addDynamicRenderTarget(m_shadowMapsPass,shadowMap);
+
+    /*std::vector<VTextureFormat> formats;
+    formats.push_back({shadowMap->getExtent().width, shadowMap->getExtent().height,
+                      VK_FORMAT_R32_SFLOAT});
+    formats.push_back({shadowMap->getExtent().width, shadowMap->getExtent().height,
+                      VK_FORMAT_D16_UNORM});
+    auto pingPong = this->getPingPongRenderTarget(formats, m_renderGraph.getRenderPass(m_shadowMapsBlurPasses[0]));*/
+
+    VTextureFormat format;
+    format.width = m_shadowMapsInstances.back().extent.x;
+    format.height = m_shadowMapsInstances.back().extent.y;
+    format.vkFormat = VK_FORMAT_R32_SFLOAT;
+
+    auto it = m_shadowMapBlurPingPongs.find(format);
+    if(it == m_shadowMapBlurPingPongs.end())
+    {
+        it = m_shadowMapBlurPingPongs.insert({format, VRenderableTexture()}).first;
+        VTexturesManager::allocRenderableTextureWithDepth(m_shadowMapsInstances.back().extent.x, m_shadowMapsInstances.back().extent.y,
+                                                      VK_FORMAT_R32_SFLOAT, VK_FORMAT_D16_UNORM,
+                                                      m_renderGraph.getRenderPass(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/), &(it->second));
+    }
+
+    m_renderGraph.addDynamicRenderTarget(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/,it->second.renderTarget);
+    m_shadowMapsInstances.back().pingPongTex = &(it->second);
+
+    m_renderGraph.addDynamicRenderTarget(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/,shadowMap);
+
+    shadowMap->setClearValue(0, glm::vec4(1.0), glm::vec2(0.0));
 }
 
 /*void SceneRenderer::addSpriteShadowToRender(VRenderTarget* spriteShadow, const SpriteShadowGenerationDatum &datum)
@@ -304,17 +343,21 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
     VkDescriptorSet descriptorSets[] = {m_renderView.getDescriptorSet(m_curFrameIndex),
                                         VTexturesManager::descriptorSet(m_curFrameIndex) };
 
+
+    VkDescriptorSet shadowBludescriptorSets[] = {VTexturesManager::descriptorSet(m_curFrameIndex, false,true) };
+
+
         auto shadowMapInstance = m_shadowMapsInstances.begin();
         while(m_renderGraph.nextRenderTarget(m_shadowMapsPass))
         {
             VkExtent2D extent = m_renderGraph.getExtent(m_shadowMapsPass);
-            glm::vec2 shadowShift = shadowMapInstance->shadowShift;
+            glm::vec2 shadowShift = shadowMapInstance->lightDatum.shadowShift;
             glm::vec2 lightXYonZ = {};
 
-            if(shadowMapInstance->lightPosition.w == 0)
+            if(shadowMapInstance->lightDatum.position.w == 0)
             {
-                lightXYonZ = glm::vec2(shadowMapInstance->lightPosition.x,
-                                       shadowMapInstance->lightPosition.y) / shadowMapInstance->lightPosition.z;
+                lightXYonZ = glm::vec2(shadowMapInstance->lightDatum.position.x,
+                                       shadowMapInstance->lightDatum.position.y) / shadowMapInstance->lightDatum.position.z;
             }
 
 
@@ -384,6 +427,68 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
                                    0, shadowMapInstance->spritesVboOffset);
                 }
             }
+
+            ///Blur
+           // VkDescriptorSet blurDescSets1[] = {m_renderGraph.getDescriptorSet(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/,imageIndex)};
+
+            m_renderGraph.nextRenderTarget(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/);
+            m_shadowMapBlurPipelines[0].bind(cmb);
+
+            vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    m_shadowMapBlurPipelines[0].getLayout(),0,1, shadowBludescriptorSets, 0, nullptr);
+
+            glm::uvec2 depthTex = shadowMapInstance->lightDatum.shadowMap;
+            glm::uvec2 squaredDepthTex = shadowMapInstance->lightDatum.squaredShadowMap;
+
+            float radius = 6.0 / shadowMapInstance->extent.x;
+
+            m_shadowMapBlurPipelines[0].updatePushConstant(cmb, 0, (char*)&depthTex);
+            m_shadowMapBlurPipelines[0].updatePushConstant(cmb, 1, (char*)&squaredDepthTex);
+            m_shadowMapBlurPipelines[0].updatePushConstant(cmb, 2, (char*)&radius);
+
+            //vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_shadowMapBlurPipelines[0].getLayout(),
+             //                       0, 1, blurDescSets1, 0, NULL);
+
+            vkCmdDraw(cmb, 3, 1, 0, 0);
+
+
+            //VkDescriptorSet blurDescSets2[] = {m_renderGraph.getDescriptorSet(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/,imageIndex)};
+
+            m_renderGraph.nextRenderTarget(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/);
+            m_shadowMapBlurPipelines[1].bind(cmb);
+
+            vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    m_shadowMapBlurPipelines[1].getLayout(),0,1, shadowBludescriptorSets, 0, nullptr);
+
+            radius = 6.0 / shadowMapInstance->extent.y;
+
+            depthTex = {shadowMapInstance->pingPongTex->depthTexture.getTextureId(),
+                        shadowMapInstance->pingPongTex->depthTexture.getTextureLayer()};
+
+            squaredDepthTex = {shadowMapInstance->pingPongTex->texture.getTextureId(),
+                        shadowMapInstance->pingPongTex->texture.getTextureLayer()};
+
+            m_shadowMapBlurPipelines[1].updatePushConstant(cmb, 0, (char*)&depthTex);
+            m_shadowMapBlurPipelines[1].updatePushConstant(cmb, 1, (char*)&squaredDepthTex);
+            m_shadowMapBlurPipelines[1].updatePushConstant(cmb, 2, (char*)&radius);
+
+            //vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_shadowMapBlurPipelines[1].getLayout(),
+                    //                0, 1, blurDescSets2, 0, NULL);
+
+            vkCmdDraw(cmb, 3, 1, 0, 0);
+
+
+            /**
+            //Filtering
+            m_renderGraph.nextRenderTarget(m_spriteShadowsPass);
+            m_spriteShadowFilteringPipeline.bind(cmb);
+            m_spriteShadowFilteringPipeline.updateViewport(cmb, {0,0},
+                    m_renderGraph.getExtent(m_spriteShadowsPass));
+            vkCmdDraw(cmb, 3, 1, 0, i);
+
+            i++;
+            **/
+
             ++shadowMapInstance;
         }
 
@@ -788,6 +893,10 @@ bool SceneRenderer::createGraphicsPipeline()
         return (false);
     if(!this->createMeshDirectShadowsPipeline())
         return (false);
+
+    if(!this->createShadowMapsBlurPipelines())
+        return (false);
+
     if(!this->createDeferredSpritesPipeline())
         return (false);
     if(!this->createDeferredMeshesPipeline())
@@ -890,14 +999,52 @@ void SceneRenderer::prepareShadowRenderPass()
                                     VK_ATTACHMENT_STORE_OP_STORE, false);*/
 
     ///Shadow maps rendering
-    VFramebufferAttachmentType shadowMapType;
-    shadowMapType.format = VK_FORMAT_D24_UNORM_S8_UINT;
-    shadowMapType.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    VFramebufferAttachmentType shadowMapType0, shadowMapType1;
+
+    shadowMapType0.format = VK_FORMAT_R32_SFLOAT;//VK_FORMAT_D32_SFLOAT;//VK_FORMAT_D24_UNORM_S8_UINT;
+    shadowMapType0.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    shadowMapType1.format = VK_FORMAT_D16_UNORM;//VK_FORMAT_D32_SFLOAT;//VK_FORMAT_D24_UNORM_S8_UINT;
+    shadowMapType1.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 
     m_shadowMapsPass = m_renderGraph.addDynamicRenderPass();
-    m_renderGraph.addAttachmentType(m_shadowMapsPass, shadowMapType,
+
+    m_renderGraph.addAttachmentType(m_shadowMapsPass, shadowMapType0,
                                     VK_ATTACHMENT_STORE_OP_STORE, true,
                                     VK_ATTACHMENT_LOAD_OP_CLEAR, true);
+    m_renderGraph.addAttachmentType(m_shadowMapsPass, shadowMapType1,
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);
+
+   // m_renderGraph.setClearValue(m_shadowMapsPass, 0, glm::vec4(1.0), glm::vec2(0.0));
+   // m_renderGraph.setClearValue(m_shadowMapsPass, 1, glm::vec4(1.0), glm::vec2(0.0));
+
+    ///Blur
+
+  /*  /// blur horizontal
+    m_shadowMapsBlurPasses[0] = m_renderGraph.addDynamicRenderPass();
+
+    m_renderGraph.addAttachmentType(m_shadowMapsBlurPasses[0], shadowMapType0,
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);
+    m_renderGraph.addAttachmentType(m_shadowMapsBlurPasses[0], shadowMapType1,
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);*/
+    /*m_renderGraph.transferAttachmentsToUniforms(m_shadowMapsPass, m_shadowMapsBlurPasses[0], 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_shadowMapsPass, m_shadowMapsBlurPasses[0], 1);*/
+
+    /// blur vertical
+   /* m_shadowMapsBlurPasses[1] = m_renderGraph.addDynamicRenderPass();
+
+    m_renderGraph.addAttachmentType(m_shadowMapsBlurPasses[1], shadowMapType0,
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);
+    m_renderGraph.addAttachmentType(m_shadowMapsBlurPasses[1], shadowMapType1,
+                                    VK_ATTACHMENT_STORE_OP_STORE, true,
+                                    VK_ATTACHMENT_LOAD_OP_CLEAR, true);*/
+    /*m_renderGraph.transferAttachmentsToUniforms(m_shadowMapsBlurPasses[0], m_shadowMapsBlurPasses[1], 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_shadowMapsBlurPasses[0], m_shadowMapsBlurPasses[1], 1);*/
 }
 
 void SceneRenderer::prepareDeferredRenderPass()
@@ -1205,6 +1352,58 @@ bool SceneRenderer::createMeshDirectShadowsPipeline()
     m_meshDirectShadowsPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER);
 
     return m_meshDirectShadowsPipeline.init(m_renderGraph.getRenderPass(m_shadowMapsPass));
+}
+
+bool SceneRenderer::createShadowMapsBlurPipelines()
+{
+    for(size_t i = 0 ; i < 2 ; ++i)
+    {
+        std::ostringstream vertShaderPath,fragShaderPath;
+        vertShaderPath << VApp::DEFAULT_SHADERPATH << BLUR_VERTSHADERFILE;
+
+        //if(i == 0)
+            fragShaderPath << VApp::DEFAULT_SHADERPATH << BLURFROMTEX_FRAGSHADERFILE;
+        //else
+          //  fragShaderPath << VApp::DEFAULT_SHADERPATH << BLUR_FRAGSHADERFILE;
+
+        m_shadowMapBlurPipelines[i].createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
+        m_shadowMapBlurPipelines[i].createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        //m_shadowMapBlurPipelines[i].setSpecializationInfo(specializationInfo, 1);
+
+        //float radius = 4.0f;
+        //if(i == 0) radius /= float(m_SSGIBlurBentNormalsAttachments[0].extent.width);
+        //if(i == 1) radius /= float(m_SSGIBlurBentNormalsAttachments[0].extent.height);
+
+      //  m_shadowMapBlurPipelines[i].addSpecializationDatum(radius ,1); //Radius
+      //  m_shadowMapBlurPipelines[i].addSpecializationDatum(15.0f,1); //Smart thresold
+
+
+        m_shadowMapBlurPipelines[i].addSpecializationDatum(static_cast<bool>(i),1); //Vertical
+
+        //if(i == 0)
+        {
+            m_shadowMapBlurPipelines[i].attachPushConstant(VK_SHADER_STAGE_FRAGMENT_BIT , sizeof(glm::uvec2)); //texId
+            m_shadowMapBlurPipelines[i].attachPushConstant(VK_SHADER_STAGE_FRAGMENT_BIT , sizeof(glm::uvec2)); //texId
+        }
+
+        m_shadowMapBlurPipelines[i].attachPushConstant(VK_SHADER_STAGE_FRAGMENT_BIT , sizeof(float)); //radius
+
+        //m_shadowMapBlurPipelines[i].setStaticExtent(m_targetWindow->getSwapchainExtent());
+
+        //if(i == 0)
+            m_shadowMapBlurPipelines[i].attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout(true));
+        //else
+          //  m_shadowMapBlurPipelines[i].attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_shadowMapsPass));
+
+
+        m_shadowMapBlurPipelines[i].setDepthTest(true, true, VK_COMPARE_OP_ALWAYS);
+
+        if(!m_shadowMapBlurPipelines[i].init(m_renderGraph.getRenderPass(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/)))
+            return (false);
+    }
+
+    return (true);
 }
 
 bool SceneRenderer::createDeferredSpritesPipeline()
@@ -1593,6 +1792,10 @@ bool SceneRenderer::createToneMappingPipeline()
 
 void SceneRenderer::cleanup()
 {
+    for(auto pingPong : m_shadowMapBlurPingPongs)
+        VTexturesManager::freeTexture(pingPong.second);
+    m_shadowMapBlurPingPongs.clear();
+
     /*for(auto vbo : m_spriteShadowGenerationVbos)
         delete vbo;
     m_spriteShadowGenerationVbos.clear();
@@ -1639,6 +1842,10 @@ void SceneRenderer::cleanup()
     m_spriteShadowFilteringPipeline.destroy();*/
     m_spriteShadowsPipeline.destroy();
     m_meshDirectShadowsPipeline.destroy();
+
+    m_shadowMapBlurPipelines[0].destroy();
+    m_shadowMapBlurPipelines[1].destroy();
+
     m_deferredSpritesPipeline.destroy();
     m_deferredMeshesPipeline.destroy();
     /*m_alphaDetectPipeline.destroy();

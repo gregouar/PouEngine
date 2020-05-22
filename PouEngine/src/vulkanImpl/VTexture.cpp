@@ -41,7 +41,7 @@ bool VTexture::generateTexture(int texWidth, int texHeight, VkFormat format,
 
     VBuffersAllocator::writeBuffer(stagingBuffer, pixels, static_cast<size_t>(imageSize));
 
-    if(!VTexturesManager::allocTexture(texWidth, texHeight, format, stagingBuffer,commandPoolName,this))
+    if(!VTexturesManager::allocTexture({texWidth, texHeight, format}, stagingBuffer,commandPoolName,this))
         return (false);
 
     VBuffersAllocator::freeBuffer(stagingBuffer);

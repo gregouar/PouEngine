@@ -27,6 +27,9 @@ bool VRenderTarget::init(size_t framebuffersCount, VRenderPass *renderPass)
 {
     m_defaultRenderPass = renderPass;
 
+    if(!this->createAttachments(framebuffersCount))
+        return (false);
+
     if(!this->createFramebuffers(framebuffersCount))
         return (false);
 
@@ -36,6 +39,9 @@ bool VRenderTarget::init(size_t framebuffersCount, VRenderPass *renderPass)
 void VRenderTarget::destroy()
 {
     VkDevice device = VInstance::device();
+
+    for(auto att : m_createdAttachments)
+        VulkanHelpers::destroyAttachment(*att);
 
     m_clearValues.clear();
     for(auto framebuffer : m_framebuffers)
@@ -48,9 +54,9 @@ void VRenderTarget::addAttachments(const std::vector<VFramebufferAttachment> &at
     m_attachments.push_back(attachments);
 }
 
-void VRenderTarget::createAttachments(VFramebufferAttachmentType type)
+void VRenderTarget::createAttachment(VkFormat format)
 {
-    /** do something **/
+    m_creatingAttachmentList.push_back(format);
 }
 
 
@@ -108,6 +114,25 @@ const  std::vector<VFramebufferAttachment> &VRenderTarget::getAttachments(size_t
 
 
 /// Protected ///
+
+bool VRenderTarget::createAttachments(size_t framebuffersCount)
+{
+    for(auto format : m_creatingAttachmentList)
+    {
+        m_attachments.push_back(std::vector<VFramebufferAttachment> ());
+      //  m_attachments.back().resize(m_creatingAttachmentList.size());
+
+        for(size_t i = 0 ; i < framebuffersCount ; ++i)
+        {
+            m_attachments.back().push_back(VFramebufferAttachment ());
+            if(!VulkanHelpers::createAttachment(m_extent.width, m_extent.height, format,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_attachments.back().back()))
+                return (false);
+            m_createdAttachments.push_back(&m_attachments.back().back());
+        }
+    }
+    return (true);
+}
 
 bool VRenderTarget::createFramebuffers(size_t framebuffersCount)
 {

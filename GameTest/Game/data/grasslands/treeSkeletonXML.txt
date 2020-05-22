@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="foliage0" z=80>
+		<node name="foliage0" z=80 state="normal">
 			<node name="shadow" z=-79.9 />
-			<node name="foliage1" z=20 >
-				<node name="foliage2" z=20 />
+			<node name="foliage1" z=20  state="normal">
+				<node name="foliage2" z=20  state="normal"/>
 			</node>
 		</node>
 		<node name="baseTrunk" z=0 />
@@ -24,6 +24,10 @@
 			<reset node="foliage0" />
 			<reset node="foliage1" />
 			<reset node="foliage2" />
+			
+			<state node="foliage0">normal</state>
+			<state node="foliage1">normal</state>
+			<state node="foliage2">normal</state>
 			<!--<command type="colorTo" node="baseTrunk" a=-1 />-->
 		</frame>
 		<frame frameTime="1">
@@ -47,6 +51,10 @@
 			<command type="moveTo" node="foliage0" y=-1 x=2  />
 			<command type="moveTo" node="foliage1" y=5 x=7  />
 			<command type="moveTo" node="foliage2" y=-3 x=-4  />
+			
+			<state node="foliage0">ripple</state>
+			<state node="foliage1">ripple</state>
+			<state node="foliage2">ripple</state>
 		</frame>
 		<frame frameTime=".1">
 			<command type="moveTo" node="foliage0" y=1 x=-1  />
@@ -57,6 +65,9 @@
 			<reset node="foliage0" />
 			<reset node="foliage1" />
 			<reset node="foliage2" />
+			<state node="foliage0">normal</state>
+			<state node="foliage1">normal</state>
+			<state node="foliage2">normal</state> 
 		</frame>
 	</animation>
 	
@@ -65,16 +76,22 @@
 		<frame frameTime=".1">
 			<reset />
 		</frame>	
-		<frame frameTime=".01">
+		<frame frameTime=".1">
 			<!--<tag value="chopSound">playSound</tag>
 			<tag value="fallSound">playSound</tag>-->
 			<sound>chopSound</sound>
 			<sound>fallSound</sound>
 			<!--<command type="moveTo" node="baseTrunk" z=2  />-->
 			<!--<command type="colorTo" node="baseTrunk" a=0 />-->
+			<state node="foliage0">ripple</state>
+			<state node="foliage1">ripple</state>
+			<state node="foliage2">ripple</state>
 		</frame>
 		
 		<frame frameTime=".75">
+			<state node="foliage0">normal</state>
+			<state node="foliage1">normal</state>
+			<state node="foliage2">normal</state> 
 			<command type="moveTo" node="foliage0" y=20 x=120 z=-79  />
 			<command type="moveTo" node="foliage1" y=10 x=10 z=-20  />
 			<command type="moveTo" node="foliage2" y=0 x=0 z=-20  />

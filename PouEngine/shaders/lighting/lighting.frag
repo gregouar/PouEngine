@@ -37,7 +37,8 @@ layout(location = 0) flat in vec4  lightPos;
 layout(location = 1) flat in vec3  lightColor;
 layout(location = 2) flat in float lightRadiusInv;
 layout(location = 3) flat in uvec2  lightShadowMap;
-layout(location = 4) flat in vec2   lightShadowShift;
+layout(location = 4) flat in uvec2  lightSquaredShadowMap;
+layout(location = 5) flat in vec2   lightShadowShift;
 
 layout(location = 0) out vec4 outColor;
 
@@ -226,6 +227,53 @@ float discretize(float v, uint steps)
     return floor(v * steps)/steps;
 }
 
+float linstep(float low, float high, float v){
+    return clamp((v-low)/(high-low), 0.0, 1.0);
+}
+
+float chebyshevUpperBound(vec2 screenPos, float fragZ)
+{
+    vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
+    vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
+
+    vec2 moments = vec2(texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).x,
+                        texture(sampler2DArray(renderedTextures[lightSquaredShadowMap.x], samp),
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).x);
+
+    moments.x = 1.0-moments.x;
+    float z = 1.0-(viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y);
+
+    /*float p = smoothstep(z-0.02, z, moments.x);
+    float variance = max(moments.y - moments.x*moments.x, -0.001);
+    float d = z - moments.x;
+    float p_max = linstep(0.2, 1.0, variance / (variance + d*d));
+    return clamp(max(p, p_max), 0.0, 1.0);*/
+
+    float p = smoothstep(z-0.02, z, moments.x);
+    float variance = max(moments.y - moments.x*moments.x, 0.001);
+    float d = z - moments.x;
+    float p_max = linstep(0.2, 1.0, variance / (variance + d*d));
+
+    return clamp(max(p, p_max), 0.0, 1.0);
+
+
+    /*// Surface is fully lit. as the current fragment is before the light occluder
+    if (z <= moments.x)
+        return 1.0 ;
+
+
+    // The fragment is either in shadow or penumbra. We now use chebyshev's upperBound to check
+    // How likely this pixel is to be lit (p_max)
+    float variance = moments.y  - (moments.x*moments.x);
+    variance = max(variance,0.00002);
+
+    float d = z -moments.x;
+    float p_max = variance / (variance + d*d);
+
+    return p_max;*/
+}
+
 float sampleShadow(vec2 screenPos, float fragZ)
 {
     vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
@@ -282,7 +330,8 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
 
 
             //int h = int(gl_FragCoord.x)%4+4*(int(gl_FragCoord.y)%4);
-            int h = int(fragPos.x)%7 + 3*(int(fragPos.y)%5);
+            ///Old PCF
+            /**int h = int(fragPos.x)%7 + 3*(int(fragPos.y)%5);
 
             float shadowing = 1.0/6.0 * (sampleShadow(projPos.xy, fragPos.z) * 2.0
                                + sampleShadow(projPos.xy + hashed[h] * 8.0, fragPos.z)
@@ -299,7 +348,9 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
                                + sampleShadow(projPos.xy + hashed[(h+7)%16] * 4.0, fragPos.z));
             }
 
-            attenuation *= shadowing * shadowing;
+            attenuation *= shadowing * shadowing;**/
+
+            attenuation = chebyshevUpperBound(projPos.xy, fragPos.z);
         }
 
 

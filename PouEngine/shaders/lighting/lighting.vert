@@ -19,13 +19,15 @@ layout(location = 0) in vec4  inPos;
 layout(location = 1) in vec4  inColor;
 layout(location = 2) in float inRadius;
 layout(location = 3) in uvec2  inShadowMap;
-layout(location = 4) in vec2   inShadowShift;
+layout(location = 4) in uvec2  inSquaredShadowMap;
+layout(location = 5) in vec2   inShadowShift;
 
 layout(location = 0) flat out vec4  lightPos;
 layout(location = 1) flat out vec3  lightColor;
 layout(location = 2) flat out float lightRadiusInv;
 layout(location = 3) flat out uvec2  lightShadowMap;
-layout(location = 4) flat out vec2   lightShadowShift;
+layout(location = 4) flat out uvec2  lightSquaredShadowMap;
+layout(location = 5) flat out vec2   lightShadowShift;
 
 
 //2/sqrt(3) ~ 1.1547
@@ -67,6 +69,7 @@ void main()
     lightColor  = inColor.rgb*inColor.a;
     lightRadiusInv = 1.0/(inRadius*0.01);
     lightShadowMap      = inShadowMap;
+    lightSquaredShadowMap = inSquaredShadowMap;
     lightShadowShift    = inShadowShift;
 }
 
