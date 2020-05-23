@@ -16,13 +16,13 @@ VTexture::~VTexture()
     //dtor
 }
 
-bool VTexture::generateTexture(int texWidth, int texHeight, unsigned char* pixels,
+bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, unsigned char* pixels,
                                CommandPoolName commandPoolName)
 {
     return this->generateTexture(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, pixels, commandPoolName);
 }
 
-bool VTexture::generateTexture(int texWidth, int texHeight, VkFormat format,
+bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat format,
                             unsigned char* pixels,CommandPoolName commandPoolName)
 {
     VBuffer stagingBuffer;

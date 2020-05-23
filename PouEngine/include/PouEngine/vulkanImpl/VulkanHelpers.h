@@ -25,13 +25,15 @@ struct VImage
 
 struct VFramebufferAttachmentType
 {
+    VFramebufferAttachmentType() : format(VK_FORMAT_UNDEFINED), layout(VK_IMAGE_LAYOUT_UNDEFINED){}
+
     VkFormat        format;
     VkImageLayout   layout;
 };
 
 struct VFramebufferAttachment
 {
-    VFramebufferAttachment() : view(VK_NULL_HANDLE){}
+    VFramebufferAttachment() : view(VK_NULL_HANDLE){extent = {0,0};}
 
     VImage                      image;
     VkImageView                 view; //View with all mips (use only for uniform or with mipsCount = 1)

@@ -442,7 +442,7 @@ void VGraphicsPipeline::updateViewport(VkCommandBuffer &cmb, glm::vec2 pos, VkEx
 void VGraphicsPipeline::updateScissor(VkCommandBuffer &cmb, glm::vec2 pos, VkExtent2D extent)
 {
     VkRect2D scissor = {};
-    scissor.offset = {pos.x, pos.y};
+    scissor.offset = {(int32_t)pos.x, (int32_t)pos.y};
     scissor.extent = extent;
 
     vkCmdSetScissor(cmb, 0, 1, &scissor);

@@ -112,7 +112,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
             glm::vec2 spriteSize(0,0);
             glm::vec2 spriteCenter(0,0);
             glm::vec2 spritePosition(0,0);
-            bool customSize = false;
+           // bool customSize = false;
             bool customCenter = false;
             bool customPosition = false;
             glm::vec3 spriteRme(1.0,0.0,0.0);
@@ -140,7 +140,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                 if(sizeElement->Attribute("y") != nullptr)
                     spriteSize.y = Parser::parseFloat(std::string(sizeElement->Attribute("y")));
 
-                customSize = true;
+               // customSize = true;
             }
 
             auto centerElement = spriteElement->FirstChildElement("center");

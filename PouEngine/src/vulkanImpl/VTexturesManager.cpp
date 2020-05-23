@@ -10,13 +10,19 @@ namespace pou
 {
 
 /// I should turn this into app parameters
-const size_t VTexturesManager::MAX_TEXTURES_ARRAY_SIZE = 128; //Number of texture2DArray
 const size_t VTexturesManager::MAX_LAYER_PER_TEXTURE = 16; //Number of layers in each texture2DArray
+const size_t VTexturesManager::MAX_TEXTURES_ARRAY_SIZE = 128; //Number of texture2DArray
+
 const size_t VTexturesManager::MAX_RENDERABLETEXTURES_ARRAY_SIZE = 32; //Number of texture2DArray of renderable targets
+const size_t VTexturesManager::NBR_RENDERABLETEXTURES_ARRAY_SETS = 2; //Number of arrays of renderable textures for ping pong etc
 
 VTexturesManager::VTexturesManager() :
     m_lastFrameIndex(0)
 {
+    m_allocatedTextureArrays_renderable.resize(NBR_RENDERABLETEXTURES_ARRAY_SETS);
+    m_descriptorSets_renderable.resize(NBR_RENDERABLETEXTURES_ARRAY_SETS);
+    m_descriptorSets_nearest_renderable.resize(NBR_RENDERABLETEXTURES_ARRAY_SETS);
+    m_imageInfos_renderable.resize(NBR_RENDERABLETEXTURES_ARRAY_SETS);
 }
 
 VTexturesManager::~VTexturesManager()
@@ -39,12 +45,13 @@ bool VTexturesManager::allocTexture(const VTextureFormat &format,
 }
 
 
-bool VTexturesManager::allocRenderableTexture(const VTextureFormat &format,
+bool VTexturesManager::allocRenderableTexture(size_t renderingSet, const VTextureFormat &format,
                                      VRenderPass *renderPass, VRenderableTexture *texture)
 {
+    texture->renderingSet = renderingSet;
     texture->renderTarget = new VRenderTarget();
 
-    if(!VTexturesManager::instance()->allocRenderableTextureImpl(format.width, format.height, format.vkFormat,  renderPass,
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(renderingSet, format.width, format.height, format.vkFormat,  renderPass,
                                                                  &texture->texture, &texture->attachment))
     {
         delete texture->renderTarget;
@@ -58,12 +65,13 @@ bool VTexturesManager::allocRenderableTexture(const VTextureFormat &format,
     return (true);
 }
 
-bool VTexturesManager::allocRenderableTextureWithDepth(uint32_t width, uint32_t height, VkFormat format, VkFormat depthFormat,
+bool VTexturesManager::allocRenderableTextureWithDepth(size_t renderingSet, uint32_t width, uint32_t height, VkFormat format, VkFormat depthFormat,
                                      VRenderPass *renderPass, VRenderableTexture *texture)
 {
+    texture->renderingSet = renderingSet;
     texture->renderTarget = new VRenderTarget();
 
-    if(!VTexturesManager::instance()->allocRenderableTextureImpl(width, height, format,  renderPass,
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(renderingSet, width, height, format,  renderPass,
                                                                  &texture->texture, &texture->attachment))
     {
         delete texture->renderTarget;
@@ -72,7 +80,7 @@ bool VTexturesManager::allocRenderableTextureWithDepth(uint32_t width, uint32_t 
 
     texture->renderTarget->addAttachments({texture->attachment});
 
-    if(!VTexturesManager::instance()->allocRenderableTextureImpl(width, height, depthFormat,  renderPass,
+    if(!VTexturesManager::instance()->allocRenderableTextureImpl(renderingSet, width, height, depthFormat,  renderPass,
                                                                  &texture->depthTexture, &texture->depthAttachment))
     {
         delete texture->renderTarget;
@@ -87,10 +95,10 @@ bool VTexturesManager::allocRenderableTextureWithDepth(uint32_t width, uint32_t 
 }
 
 
-bool VTexturesManager::allocRenderableTextureImpl(uint32_t width, uint32_t height, VkFormat format,
+bool VTexturesManager::allocRenderableTextureImpl(size_t renderingSet, uint32_t width, uint32_t height, VkFormat format,
                                               VRenderPass *renderPass, VTexture *texture, VFramebufferAttachment *attachment)
 {
-    if(!this->allocTextureImpl({width, height, format, true},
+    if(!this->allocTextureImpl({width, height, format, true, renderingSet},
                                 VBuffer{}, COMMANDPOOL_SHORTLIVED, texture))
         return (false);
 
@@ -103,7 +111,7 @@ bool VTexturesManager::allocRenderableTextureImpl(uint32_t width, uint32_t heigh
         aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 
     attachment->image =
-            this->m_allocatedTextureArrays_renderable[texture->getTextureId()]->image;
+            this->m_allocatedTextureArrays_renderable[renderingSet][texture->getTextureId()]->image;
     attachment->view  =
             VulkanHelpers::createImageView( attachment->image.vkImage, format,
                                             aspect, 1, 1, texture->getTextureLayer(), 0);
@@ -136,7 +144,7 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
         {
             chosenArray = ar->second;
             break;
-        } else if(format.renderable && !m_allocatedTextureArrays_renderable[ar->second]->availableLayers.empty()) {
+        } else if(format.renderable && !m_allocatedTextureArrays_renderable[format.renderingSet][ar->second]->availableLayers.empty()) {
             chosenArray = ar->second;
             break;
         }
@@ -150,7 +158,8 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
     }
     m_createImageMutex.unlock();
 
-    VTexture2DArray *texture2DArray = format.renderable ?  m_allocatedTextureArrays_renderable[chosenArray] : m_allocatedTextureArrays[chosenArray];
+    VTexture2DArray *texture2DArray = format.renderable ?
+        m_allocatedTextureArrays_renderable[format.renderingSet][chosenArray] : m_allocatedTextureArrays[chosenArray];
     size_t chosenLayer = *texture2DArray->availableLayers.begin();
     texture2DArray->availableLayers.pop_front();
 
@@ -184,7 +193,7 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
    // std::lock_guard<std::mutex> lock(m_createImageMutex);
 
     if((!format.renderable && m_allocatedTextureArrays.size() >= MAX_TEXTURES_ARRAY_SIZE)
-    || (format.renderable && m_allocatedTextureArrays_renderable.size() >= MAX_RENDERABLETEXTURES_ARRAY_SIZE))
+    || (format.renderable && m_allocatedTextureArrays_renderable[format.renderingSet].size() >= MAX_RENDERABLETEXTURES_ARRAY_SIZE))
     {
         Logger::error("Maximum number of texture arrays allocated");
         return (MAX_TEXTURES_ARRAY_SIZE);
@@ -242,10 +251,10 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
 
     if(format.renderable)
     {
-        m_imageInfos_renderable[m_allocatedTextureArrays_renderable.size()] = imageInfo;
-        m_formatToArray.insert({format, m_allocatedTextureArrays_renderable.size()});
-        m_allocatedTextureArrays_renderable.push_back(texture2DArray);
-        return m_allocatedTextureArrays_renderable.size()-1;
+        m_imageInfos_renderable[format.renderingSet][m_allocatedTextureArrays_renderable[format.renderingSet].size()] = imageInfo;
+        m_formatToArray.insert({format, m_allocatedTextureArrays_renderable[format.renderingSet].size()});
+        m_allocatedTextureArrays_renderable[format.renderingSet].push_back(texture2DArray);
+        return m_allocatedTextureArrays_renderable[format.renderingSet].size()-1;
     } else {
         m_imageInfos[m_allocatedTextureArrays.size()] = imageInfo;
         m_formatToArray.insert({format, m_allocatedTextureArrays.size()});
@@ -272,12 +281,12 @@ void VTexturesManager::freeTexture(VRenderableTexture &renderableTexture)
     renderableTexture.renderTarget.destroy();*/
 }
 
-void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable)
+void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable, size_t renderingSet)
 {
     if(!(texture.m_textureId == 0 && texture.m_textureLayer == 0))
     {
         if(isRenderable)
-            m_allocatedTextureArrays_renderable[texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
+            m_allocatedTextureArrays_renderable[renderingSet][texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
         else
             m_allocatedTextureArrays[texture.m_textureId]->availableLayers.push_back(texture.m_textureLayer);
         texture.m_textureId = 0;
@@ -288,8 +297,8 @@ void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable)
 
 void VTexturesManager::freeTextureImpl(VRenderableTexture &renderableTexture)
 {
-    this->freeTextureImpl(renderableTexture.texture, true);
-    this->freeTextureImpl(renderableTexture.depthTexture, true);
+    this->freeTextureImpl(renderableTexture.texture, true, renderableTexture.renderingSet);
+    this->freeTextureImpl(renderableTexture.depthTexture, true, renderableTexture.renderingSet);
 
     if(renderableTexture.renderTarget != nullptr)
         m_cleaningList_renderTargets.push_back({m_framesCount, renderableTexture.renderTarget});
@@ -344,14 +353,15 @@ VkDescriptorSetLayout VTexturesManager::descriptorSetLayout(bool withRenderableT
     return VTexturesManager::instance()->getDescriptorSetLayout(withRenderableTextures);
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet(bool nearest, bool withRenderableTextures)
+VkDescriptorSet VTexturesManager::descriptorSet(bool nearest, bool withRenderableTextures, size_t renderingSet)
 {
-    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex,nearest,withRenderableTextures);
+    return VTexturesManager::instance()->getDescriptorSet(VTexturesManager::instance()->m_lastFrameIndex,nearest,
+                                                          withRenderableTextures, renderingSet);
 }
 
-VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures)
+VkDescriptorSet VTexturesManager::descriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures, size_t renderingSet)
 {
-    return VTexturesManager::instance()->getDescriptorSet(frameIndex, nearest, withRenderableTextures);
+    return VTexturesManager::instance()->getDescriptorSet(frameIndex, nearest, withRenderableTextures, renderingSet);
 }
 
 /*VkDescriptorSet VTexturesManager::imgDescriptorSet(size_t imageIndex)
@@ -376,17 +386,17 @@ VkDescriptorSetLayout VTexturesManager::getDescriptorSetLayout(bool withRenderab
     return m_descriptorSetLayout;
 }
 
-VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures)
+VkDescriptorSet VTexturesManager::getDescriptorSet(size_t frameIndex, bool nearest, bool withRenderableTextures, size_t renderingSet)
 {
     if(!nearest)
     {
         if(withRenderableTextures)
-            return m_descriptorSets_renderable[frameIndex];
+            return m_descriptorSets_renderable[renderingSet][frameIndex];
         return m_descriptorSets[frameIndex];
     } else
     {
         if(withRenderableTextures)
-            return m_descriptorSets_nearest_renderable[frameIndex];
+            return m_descriptorSets_nearest_renderable[renderingSet][frameIndex];
         return m_descriptorSets_nearest[frameIndex];
     }
     //return nearest ? m_descriptorSets_nearest[frameIndex] : m_descriptorSets[frameIndex];
@@ -497,16 +507,16 @@ bool VTexturesManager::createDescriptorPool(size_t framesCount, size_t imagesCou
 {
     VkDescriptorPoolSize poolSize[2];
     poolSize[0].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
+    poolSize[0].descriptorCount = static_cast<uint32_t>(framesCount*(2+2*NBR_RENDERABLETEXTURES_ARRAY_SETS)/*+imagesCount*/);
     poolSize[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
+    poolSize[1].descriptorCount = static_cast<uint32_t>(framesCount*2/*+imagesCount*/);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 2;
     poolInfo.pPoolSizes = poolSize;
 
-    poolInfo.maxSets = static_cast<uint32_t>(framesCount*4/*+imagesCount*/);
+    poolInfo.maxSets = static_cast<uint32_t>(framesCount*(2+2*NBR_RENDERABLETEXTURES_ARRAY_SETS)/*+imagesCount*/);
 
     return (vkCreateDescriptorPool(VInstance::device(), &poolInfo, nullptr, &m_descriptorPool) == VK_SUCCESS);
 }
@@ -534,13 +544,17 @@ bool VTexturesManager::createDescriptorSets(size_t framesCount, size_t imagesCou
 
     allocInfo.pSetLayouts = layouts_renderable.data();
 
-    m_descriptorSets_renderable.resize(framesCount);
-    if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_renderable.data()) != VK_SUCCESS)
-        return (false);
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
+    {
+        m_descriptorSets_renderable[i].resize(framesCount);
+        if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_renderable[i].data()) != VK_SUCCESS)
+            return (false);
 
-    m_descriptorSets_nearest_renderable.resize(framesCount);
-    if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_nearest_renderable.data()) != VK_SUCCESS)
-        return (false);
+        m_descriptorSets_nearest_renderable[i].resize(framesCount);
+        if (vkAllocateDescriptorSets(device, &allocInfo,m_descriptorSets_nearest_renderable[i].data()) != VK_SUCCESS)
+            return (false);
+
+    }
 
     /*allocInfo.descriptorSetCount = static_cast<uint32_t>(imagesCount);
     m_imgDescSetVersion = std::vector<size_t> (imagesCount, 0);
@@ -561,8 +575,13 @@ void VTexturesManager::updateDescriptorSet(size_t frameIndex)
 {
     this->writeDescriptorSet(m_descriptorSets[frameIndex]);
     this->writeDescriptorSet(m_descriptorSets_nearest[frameIndex],true);
-    this->writeDescriptorSet(m_descriptorSets_renderable[frameIndex],false,true);
-    this->writeDescriptorSet(m_descriptorSets_nearest_renderable[frameIndex],true,true);
+
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
+    {
+        this->writeDescriptorSet(m_descriptorSets_renderable[i][frameIndex],false,true,i);
+        this->writeDescriptorSet(m_descriptorSets_nearest_renderable[i][frameIndex],true,true,i);
+    }
+
     m_needToUpdateDescSet[frameIndex] = false;
     ++m_descSetVersion[frameIndex];
 }
@@ -574,7 +593,7 @@ void VTexturesManager::updateDescriptorSet(size_t frameIndex)
     ++m_imgDescSetVersion[imageIndex];
 }*/
 
-void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest, bool withRenderableTextures)
+void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest, bool withRenderableTextures, size_t renderingSet)
 {
     VkWriteDescriptorSet setWrites[3];
     size_t setCounts = withRenderableTextures ? 3 : 2;
@@ -602,15 +621,18 @@ void VTexturesManager::writeDescriptorSet(VkDescriptorSet &descSet, bool nearest
 	setWrites[1].dstSet             = descSet;
 	setWrites[1].pImageInfo         = m_imageInfos.data();
 
-	setWrites[2] = {};
-	setWrites[2].sType              = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	setWrites[2].dstBinding         = 2;
-	setWrites[2].dstArrayElement    = 0;
-	setWrites[2].descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-	setWrites[2].descriptorCount    = MAX_RENDERABLETEXTURES_ARRAY_SIZE;
-	setWrites[2].pBufferInfo        = 0;
-	setWrites[2].dstSet             = descSet;
-	setWrites[2].pImageInfo         = m_imageInfos_renderable.data();
+	if(withRenderableTextures)
+    {
+        setWrites[2] = {};
+        setWrites[2].sType              = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        setWrites[2].dstBinding         = 2;
+        setWrites[2].dstArrayElement    = 0;
+        setWrites[2].descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        setWrites[2].descriptorCount    = MAX_RENDERABLETEXTURES_ARRAY_SIZE;
+        setWrites[2].pBufferInfo        = 0;
+        setWrites[2].dstSet             = descSet;
+        setWrites[2].pImageInfo         = m_imageInfos_renderable[renderingSet].data();
+    }
 
     vkUpdateDescriptorSets(VInstance::device(), setCounts, setWrites, 0, nullptr);
 }
@@ -624,13 +646,17 @@ bool VTexturesManager::createDummyTexture()
 bool VTexturesManager::init(size_t framesCount, size_t imagesCount)
 {
     m_imageInfos.resize(MAX_TEXTURES_ARRAY_SIZE);
-    m_imageInfos_renderable.resize(MAX_RENDERABLETEXTURES_ARRAY_SIZE);
+
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
+        m_imageInfos_renderable[i].resize(MAX_RENDERABLETEXTURES_ARRAY_SIZE);
+
     m_framesCount = framesCount;
 
     if(!this->createDummyTexture())
         return (false);
 
-    m_allocatedTextureArrays_renderable.push_back(nullptr);
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
+        m_allocatedTextureArrays_renderable[i].push_back(nullptr);
 
     m_needToUpdateDescSet = std::vector<bool> (framesCount, true);
     //m_needToUpdateImgDescSet = std::vector<bool> (imagesCount, true);
@@ -645,12 +671,16 @@ bool VTexturesManager::init(size_t framesCount, size_t imagesCount)
     }
 
     //i = 0;
-    for(auto &imageInfo : m_imageInfos_renderable)
+
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
     {
-        imageInfo.sampler       = nullptr;
-        imageInfo.imageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView     = m_allocatedTextureArrays[0]->view;
-       // i++;
+        for(auto &imageInfo : m_imageInfos_renderable[i])
+        {
+            imageInfo.sampler       = nullptr;
+            imageInfo.imageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView     = m_allocatedTextureArrays[0]->view;
+           // i++;
+        }
     }
 
     if(!this->createDescriptorSetLayouts())
@@ -687,16 +717,20 @@ void VTexturesManager::cleanup()
     }
     m_allocatedTextureArrays.clear();
 
-    for(auto vtexture : m_allocatedTextureArrays_renderable)
+    for(size_t i = 0 ; i < NBR_RENDERABLETEXTURES_ARRAY_SETS ; ++i)
     {
-        if(vtexture)
+        for(auto vtexture : m_allocatedTextureArrays_renderable[i])
         {
-            vkDestroyImageView(device, vtexture->view, nullptr);
-            VulkanHelpers::destroyImage(vtexture->image);
-            delete vtexture;
+            if(vtexture)
+            {
+                vkDestroyImageView(device, vtexture->view, nullptr);
+                VulkanHelpers::destroyImage(vtexture->image);
+                delete vtexture;
+            }
         }
+        m_allocatedTextureArrays_renderable[i].clear();
     }
-    m_allocatedTextureArrays_renderable.clear();
+
     m_formatToArray.clear();
 }
 

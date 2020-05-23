@@ -100,10 +100,10 @@ void RenderView::setupViewport(const ViewInfo &viewInfo, VkCommandBuffer cmb)
     vkCmdSetViewport(cmb, 0, 1, &viewport);
 
     VkRect2D scissor = {};
-    scissor.offset = {viewInfo.viewportOffset.x*m_extent.x,
-                      viewInfo.viewportOffset.y*m_extent.y};
-    scissor.extent = {viewInfo.viewportExtent.x*m_extent.x,
-                      viewInfo.viewportExtent.y*m_extent.y};
+    scissor.offset = {(int32_t)viewInfo.viewportOffset.x*(int32_t)m_extent.x,
+                      (int32_t)viewInfo.viewportOffset.y*(int32_t)m_extent.y};
+    scissor.extent = {(uint32_t)viewInfo.viewportExtent.x*(uint32_t)m_extent.x,
+                      (uint32_t)viewInfo.viewportExtent.y*(uint32_t)m_extent.y};
 
     vkCmdSetScissor(cmb, 0, 1, &scissor);
 

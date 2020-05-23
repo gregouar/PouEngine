@@ -56,9 +56,9 @@ class VTexture
         VTexture();
         virtual ~VTexture();
 
-        bool generateTexture(int texWidth, int texHeight,
+        bool generateTexture(uint32_t texWidth, uint32_t texHeight,
                              unsigned char* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
-        bool generateTexture(int texWidth, int texHeight, VkFormat format,
+        bool generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat format,
                              unsigned char* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
 
         uint32_t    getTextureId();

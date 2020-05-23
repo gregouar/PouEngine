@@ -226,7 +226,7 @@ class SceneRenderer : public AbstractRenderer
         static const char *MESH_DIRECTSHADOW_FRAGSHADERFILE;
 
         static const char *BLUR_VERTSHADERFILE;
-        static const char *BLURFROMTEX_FRAGSHADERFILE;
+        static const char *SHADOWMAPBLUR_FRAGSHADERFILE;
         static const char *BLUR_FRAGSHADERFILE;
 
         static const char *SPRITE_DEFERRED_VERTSHADERFILE;

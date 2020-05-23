@@ -37,8 +37,7 @@ layout(location = 0) flat in vec4  lightPos;
 layout(location = 1) flat in vec3  lightColor;
 layout(location = 2) flat in float lightRadiusInv;
 layout(location = 3) flat in uvec2  lightShadowMap;
-layout(location = 4) flat in uvec2  lightSquaredShadowMap;
-layout(location = 5) flat in vec2   lightShadowShift;
+layout(location = 4) flat in vec2   lightShadowShift;
 
 layout(location = 0) out vec4 outColor;
 
@@ -241,8 +240,8 @@ float chebyshevUpperBound(vec2 screenPos, float fragZ)
                         texture(sampler2DArray(renderedTextures[lightSquaredShadowMap.x], samp),
                                vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).x);*/
 
-    vec2 moments = texture(sampler2DArray(renderedTextures[lightSquaredShadowMap.x], samp),
-                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).xy;
+    vec2 moments = texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).xy;
 
    // moments.x = 1.0-moments.x;
     float z = 1.0-(viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y);
@@ -254,7 +253,7 @@ float chebyshevUpperBound(vec2 screenPos, float fragZ)
     return clamp(max(p, p_max), 0.0, 1.0);*/
 
     float p = smoothstep(z-0.02, z, moments.x);
-    float variance = max(moments.y - moments.x*moments.x, 0.001);
+    float variance = max(moments.y - moments.x*moments.x, -0.001);
     float d = z - moments.x;
     float p_max = linstep(0.2, 1.0, variance / (variance + d*d));
 

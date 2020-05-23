@@ -21,11 +21,10 @@ struct LightDatum
     float     radius;
 
     glm::uvec2 shadowMap;
-    glm::uvec2 squaredShadowMap;
     glm::vec2  shadowShift;
 
     static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions();
+    static std::array<VkVertexInputAttributeDescription, 5> getAttributeDescriptions();
 
 
     //Not in the vbo

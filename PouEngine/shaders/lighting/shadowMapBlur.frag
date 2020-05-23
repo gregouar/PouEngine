@@ -4,8 +4,7 @@
 
 layout(push_constant) uniform PER_OBJECT
 {
-    uvec2    texId1;
-    uvec2    texId2;
+    uvec2    texId;
     float   radius;
 }pc;
 
@@ -41,7 +40,7 @@ vec2 blur(uvec2 texId)
 void main()
 {
    // gl_FragDepth = blur(pc.texId1);
-    outColor1 = blur(pc.texId2);
+    outColor1 = blur(pc.texId);
     //outColor2 = blur(pc.texId2);
 
 }

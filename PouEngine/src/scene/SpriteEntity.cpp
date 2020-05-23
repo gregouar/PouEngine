@@ -346,7 +346,7 @@ glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 {
     if(m_parentNode == nullptr || m_parentNode->getScene() == nullptr)
-        return {0.0,0.0};
+        return (glm::vec2(0.0));
 
 	glm::vec3 lightDirection = normalize(direction);
 

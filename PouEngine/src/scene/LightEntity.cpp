@@ -16,9 +16,9 @@ VkVertexInputBindingDescription LightDatum::getBindingDescription()
     return bindingDescription;
 }
 
-std::array<VkVertexInputAttributeDescription, 6> LightDatum::getAttributeDescriptions()
+std::array<VkVertexInputAttributeDescription, 5> LightDatum::getAttributeDescriptions()
 {
-    std::array<VkVertexInputAttributeDescription, 6> attributeDescriptions = {};
+    std::array<VkVertexInputAttributeDescription, 5> attributeDescriptions = {};
 
     size_t i = 0;
     attributeDescriptions[i].binding = 0;
@@ -43,12 +43,6 @@ std::array<VkVertexInputAttributeDescription, 6> LightDatum::getAttributeDescrip
     attributeDescriptions[i].location = i;
     attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
     attributeDescriptions[i].offset = offsetof(LightDatum, shadowMap);
-    ++i;
-
-    attributeDescriptions[i].binding = 0;
-    attributeDescriptions[i].location = i;
-    attributeDescriptions[i].format = VK_FORMAT_R32G32_UINT;
-    attributeDescriptions[i].offset = offsetof(LightDatum, squaredShadowMap);
     ++i;
 
     attributeDescriptions[i].binding = 0;
@@ -283,15 +277,12 @@ void LightEntity::updateDatum()
 
     if(m_lightModel.castShadow)
     {
-        m_datum.shadowMap = {m_shadowMap.depthTexture.getTextureId(),
-                             m_shadowMap.depthTexture.getTextureLayer()};
-        m_datum.squaredShadowMap = {m_shadowMap.texture.getTextureId(),
-                                    m_shadowMap.texture.getTextureLayer()};
+        m_datum.shadowMap = {m_shadowMap.texture.getTextureId(),
+                             m_shadowMap.texture.getTextureLayer()};
     }
     else
     {
         m_datum.shadowMap = {0,0};
-        m_datum.squaredShadowMap = {0,0};
     }
 
     m_datum.shadowBlurRadius = m_lightModel.shadowBlurRadius;
@@ -304,7 +295,7 @@ void LightEntity::recreateShadowMap(SceneRenderer* renderer)
     //                                         renderer->getShadowMapsRenderPass(), &m_shadowMap);
 
     VTexturesManager::freeTexture(m_shadowMap);
-    VTexturesManager::allocRenderableTextureWithDepth(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y,
+    VTexturesManager::allocRenderableTextureWithDepth(0, m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y,
                                                       VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_D16_UNORM,
                                                       renderer->getShadowMapsRenderPass(), &m_shadowMap);
    // VTexturesManager::allocRenderableTexture(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y, VK_FORMAT_D16_UNORM /*VK_FORMAT_R32_SFLOAT*/,
