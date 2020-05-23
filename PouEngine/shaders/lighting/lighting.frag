@@ -236,12 +236,15 @@ float chebyshevUpperBound(vec2 screenPos, float fragZ)
     vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
     vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
 
-    vec2 moments = vec2(texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
+    /*vec2 moments = vec2(texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
                                vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).x,
                         texture(sampler2DArray(renderedTextures[lightSquaredShadowMap.x], samp),
-                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).x);
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).x);*/
 
-    moments.x = 1.0-moments.x;
+    vec2 moments = texture(sampler2DArray(renderedTextures[lightSquaredShadowMap.x], samp),
+                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightSquaredShadowMap.y)).xy;
+
+   // moments.x = 1.0-moments.x;
     float z = 1.0-(viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y);
 
     /*float p = smoothstep(z-0.02, z, moments.x);

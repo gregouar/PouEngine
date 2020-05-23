@@ -121,14 +121,14 @@ void SceneRenderer::addShadowMapToRender(VRenderTarget* shadowMap, const LightDa
     VTextureFormat format;
     format.width = m_shadowMapsInstances.back().extent.x;
     format.height = m_shadowMapsInstances.back().extent.y;
-    format.vkFormat = VK_FORMAT_R32_SFLOAT;
+    format.vkFormat = VK_FORMAT_R32G32_SFLOAT;
 
     auto it = m_shadowMapBlurPingPongs.find(format);
     if(it == m_shadowMapBlurPingPongs.end())
     {
         it = m_shadowMapBlurPingPongs.insert({format, VRenderableTexture()}).first;
         VTexturesManager::allocRenderableTextureWithDepth(m_shadowMapsInstances.back().extent.x, m_shadowMapsInstances.back().extent.y,
-                                                      VK_FORMAT_R32_SFLOAT, VK_FORMAT_D16_UNORM,
+                                                      VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_D16_UNORM,
                                                       m_renderGraph.getRenderPass(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/), &(it->second));
     }
 
@@ -440,7 +440,7 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
             glm::uvec2 depthTex = shadowMapInstance->lightDatum.shadowMap;
             glm::uvec2 squaredDepthTex = shadowMapInstance->lightDatum.squaredShadowMap;
 
-            float radius = 6.0 / shadowMapInstance->extent.x;
+            float radius = shadowMapInstance->lightDatum.shadowBlurRadius / shadowMapInstance->extent.x;
 
             m_shadowMapBlurPipelines[0].updatePushConstant(cmb, 0, (char*)&depthTex);
             m_shadowMapBlurPipelines[0].updatePushConstant(cmb, 1, (char*)&squaredDepthTex);
@@ -460,7 +460,7 @@ bool SceneRenderer::recordShadowCmb(uint32_t imageIndex)
             vkCmdBindDescriptorSets(cmb,VK_PIPELINE_BIND_POINT_GRAPHICS,
                                     m_shadowMapBlurPipelines[1].getLayout(),0,1, shadowBludescriptorSets, 0, nullptr);
 
-            radius = 6.0 / shadowMapInstance->extent.y;
+            radius = shadowMapInstance->lightDatum.shadowBlurRadius / shadowMapInstance->extent.y;
 
             depthTex = {shadowMapInstance->pingPongTex->depthTexture.getTextureId(),
                         shadowMapInstance->pingPongTex->depthTexture.getTextureLayer()};
@@ -1001,7 +1001,7 @@ void SceneRenderer::prepareShadowRenderPass()
     ///Shadow maps rendering
     VFramebufferAttachmentType shadowMapType0, shadowMapType1;
 
-    shadowMapType0.format = VK_FORMAT_R32_SFLOAT;//VK_FORMAT_D32_SFLOAT;//VK_FORMAT_D24_UNORM_S8_UINT;
+    shadowMapType0.format = VK_FORMAT_R32G32_SFLOAT;//VK_FORMAT_D32_SFLOAT;//VK_FORMAT_D24_UNORM_S8_UINT;
     shadowMapType0.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     shadowMapType1.format = VK_FORMAT_D16_UNORM;//VK_FORMAT_D32_SFLOAT;//VK_FORMAT_D24_UNORM_S8_UINT;
@@ -1397,7 +1397,7 @@ bool SceneRenderer::createShadowMapsBlurPipelines()
           //  m_shadowMapBlurPipelines[i].attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_shadowMapsPass));
 
 
-        m_shadowMapBlurPipelines[i].setDepthTest(true, true, VK_COMPARE_OP_ALWAYS);
+        //m_shadowMapBlurPipelines[i].setDepthTest(true, true, VK_COMPARE_OP_ALWAYS);
 
         if(!m_shadowMapBlurPipelines[i].init(m_renderGraph.getRenderPass(m_shadowMapsPass/*m_shadowMapsBlurPasses[0]*/)))
             return (false);

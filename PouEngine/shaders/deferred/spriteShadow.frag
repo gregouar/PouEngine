@@ -23,7 +23,7 @@ layout(location = 1)      in vec2 fragTexCoord;
 layout(location = 2) flat in uvec2 fragAlbedoTexId;
 //layout(location = 2) in vec4 screenPosAndHeight;
 
-layout(location = 0) out float squaredDepth;
+layout(location = 0) out vec2 squaredDepth;
 
 void main()
 {
@@ -33,11 +33,12 @@ void main()
     if(albedoA < .01f)
         discard;
 
-    squaredDepth = (1-gl_FragCoord.z) * (1-gl_FragCoord.z);
+    squaredDepth.r = (1-gl_FragCoord.z);
+    squaredDepth.g = (1-gl_FragCoord.z) * (1-gl_FragCoord.z);
 
     float dx = dFdx(1-gl_FragCoord.z);
     float dy = dFdy(1-gl_FragCoord.z);
-    squaredDepth += 0.25*(dx*dx+dy*dy);
+    squaredDepth.g += 0.25*(dx*dx+dy*dy);
 }
 
 

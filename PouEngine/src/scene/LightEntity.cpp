@@ -67,7 +67,8 @@ LightModel::LightModel() :
     radius(100.0),
     intensity(1.0),
     castShadow(false),
-    shadowMapExtent(512.0, 512.0)
+    shadowMapExtent(512.0, 512.0),
+    shadowBlurRadius(4.0)
 {
 
 }
@@ -230,6 +231,12 @@ void LightEntity::setShadowMapExtent(glm::vec2 extent)
     m_lightModel.shadowMapExtent = extent;
 }
 
+void LightEntity::setShadowBlurRadius(float blurRadius)
+{
+    m_lightModel.shadowBlurRadius = blurRadius;
+    this->updateDatum();
+}
+
 void LightEntity::enableShadowCasting()
 {
     if(!m_lightModel.castShadow)
@@ -286,6 +293,8 @@ void LightEntity::updateDatum()
         m_datum.shadowMap = {0,0};
         m_datum.squaredShadowMap = {0,0};
     }
+
+    m_datum.shadowBlurRadius = m_lightModel.shadowBlurRadius;
 }
 
 void LightEntity::recreateShadowMap(SceneRenderer* renderer)
@@ -296,7 +305,7 @@ void LightEntity::recreateShadowMap(SceneRenderer* renderer)
 
     VTexturesManager::freeTexture(m_shadowMap);
     VTexturesManager::allocRenderableTextureWithDepth(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y,
-                                                      VK_FORMAT_R32_SFLOAT, VK_FORMAT_D16_UNORM,
+                                                      VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_D16_UNORM,
                                                       renderer->getShadowMapsRenderPass(), &m_shadowMap);
    // VTexturesManager::allocRenderableTexture(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y, VK_FORMAT_D16_UNORM /*VK_FORMAT_R32_SFLOAT*/,
    //                                          renderer->getShadowMapsRenderPass(), &m_shadowMap);

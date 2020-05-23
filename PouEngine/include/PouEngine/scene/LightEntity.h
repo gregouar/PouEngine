@@ -26,6 +26,10 @@ struct LightDatum
 
     static VkVertexInputBindingDescription getBindingDescription();
     static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions();
+
+
+    //Not in the vbo
+    float  shadowBlurRadius;
 };
 
 struct LightModel
@@ -41,6 +45,7 @@ struct LightModel
 
     bool        castShadow;
     glm::vec2   shadowMapExtent;
+    float       shadowBlurRadius;
 };
 
 /// I could try to compute an accurate englobing sphere and use early z-testing to discard pixels
@@ -73,6 +78,7 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
         void disableShadowCasting();
 
         void setShadowMapExtent(glm::vec2);
+        void setShadowBlurRadius(float radius);
 
         /*const sf::Texture& GetShadowMap();
         const sf::IntRect& GetShadowMaxShift();

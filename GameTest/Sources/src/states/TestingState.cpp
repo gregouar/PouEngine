@@ -243,6 +243,7 @@ void TestingState::init()
     //m_sunLight->setDirection({-.6 , -.6 ,-1.0});
     m_sunLight->setShadowMapExtent({1024,1024});
     m_sunLight->enableShadowCasting();
+    m_sunLight->setShadowBlurRadius(10);
     m_sunAngle = 220;
 
     /*pou::LightEntity* sunLight = m_scene->createLightEntity(pou::LightType_Directional);
