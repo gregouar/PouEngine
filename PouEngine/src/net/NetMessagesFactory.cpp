@@ -39,7 +39,10 @@ int NetMessage::serialize(Stream *stream, bool computeBytesAndFlush)
     //stream->serializeBits(serial_check, 32);
     //if(stream->isWriting()) stream->flush();
     if(computeBytesAndFlush)
+    {
+        stream->flush();
         return stream->computeBytes();
+    }
     return 0;
 }
 

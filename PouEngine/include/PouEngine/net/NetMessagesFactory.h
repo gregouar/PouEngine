@@ -11,6 +11,9 @@ namespace pou
 {
 struct NetMessage
 {
+    NetMessage(){}
+    NetMessage(int t) : type(t){}
+
     int type;
     bool isReliable;
     int id;

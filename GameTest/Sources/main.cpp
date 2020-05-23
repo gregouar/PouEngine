@@ -4,6 +4,8 @@
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/core/VApp.h"
 
+#include "net/NetMessageTypes.h"
+
 #include "states/TestingState.h"
 #include "states/ClientServerTestingState.h"
 
@@ -12,6 +14,7 @@ int main()
     pou::Logger::instance();
 
     srand (time(NULL));
+    initializeNetMessages();
 
     try {
         pou::VAppCreateInfos createInfos;

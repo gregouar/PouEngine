@@ -23,7 +23,7 @@ void AbstractClient::update(const Time &elapsedTime)
 
 bool AbstractClient::isConnected() const
 {
-    return m_connectionStatus;
+    return (m_connectionStatus == ConnectionStatus_Connected);
 }
 
 const NetAddress &AbstractClient::getServerAddress() const

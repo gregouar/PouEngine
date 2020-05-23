@@ -12,7 +12,7 @@
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Parser.h"
 
-#include "Character.h"
+#include "character/Character.h"
 
 ItemModelAsset::ItemModelAsset() :
     ItemModelAsset(-1)

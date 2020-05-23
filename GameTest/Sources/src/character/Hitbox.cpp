@@ -1,4 +1,4 @@
-#include "Hitbox.h"
+#include "character/Hitbox.h"
 
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Parser.h"

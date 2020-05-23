@@ -1,4 +1,4 @@
-#include "Character.h"
+#include "character/Character.h"
 
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"

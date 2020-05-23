@@ -4,11 +4,8 @@
 #include "PouEngine/types.h"
 
 GameServer::GameServer() :
-    m_curWorldId(0)
+    m_curWorldId(4)
 {
-    auto testMsg = std::make_unique<NetMessage_test> ();
-    testMsg->type = NetMessageType_Test;
-    pou::NetEngine::addNetMessageModel(std::move(testMsg));
 }
 
 GameServer::~GameServer()
@@ -52,12 +49,17 @@ void GameServer::update(const pou::Time &elapsedTime)
 
     for(auto &clientAndMsg : netMessages)
         this->processMessage(clientAndMsg.first, clientAndMsg.second);
+
+    for(auto &world : m_worlds)
+        world.second.update(elapsedTime);
 }
 
 size_t GameServer::generateWorld()
 {
    auto &world = m_worlds.insert({++m_curWorldId, GameWorld(false)}).first->second;
    world.generate();
+
+   return (m_curWorldId);
 }
 
 /*const pou::NetAddress *GameServer::getAddress() const
@@ -79,7 +81,7 @@ void GameServer::sendMsgTest(bool reliable, bool forceSend)
     for(auto i = 0 ; i < m_server->getMaxNbrClients() ; ++i)
         if(m_server->isClientConnected(i))
         {
-            auto testMsg = std::dynamic_pointer_cast<NetMessage_test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
+            auto testMsg = std::dynamic_pointer_cast<NetMessage_Test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
             testMsg->test_value = glm::linearRand(0,100);
             testMsg->isReliable = reliable;
 
@@ -95,10 +97,29 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
     if(!msg)
         return;
 
-    if(msg->type == NetMessageType_Test)
+    switch(msg->type)
     {
-        auto castMsg = std::dynamic_pointer_cast<NetMessage_test>(msg);
-        std::cout<<"Server received test message from client #"<<clientNbr<<" with value="<<castMsg->test_value<<" and id "<<castMsg->id<<std::endl;
+        case NetMessageType_Test:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_Test>(msg);
+            std::cout<<"Server received test message from client #"<<clientNbr<<" with value="<<castMsg->test_value<<" and id "<<castMsg->id<<std::endl;
+        }break;
+
+        case NetMessageType_AskForWorldSync:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(msg);
+            if(castMsg->world_id == 0)
+            {
+                auto worldInitMsg = std::dynamic_pointer_cast<NetMessage_WorldInitialization>
+                                        (pou::NetEngine::createNetMessage(NetMessageType_WorldInitialization));
+                worldInitMsg->world_id = m_curWorldId;
+
+                auto &world = m_worlds.find(m_curWorldId)->second;
+                world.createWorldInitializationMsg(worldInitMsg);
+                m_server->sendReliableBigMessage(clientNbr, worldInitMsg);
+
+                std::cout<<"Sending WorldInit #"<<m_curWorldId<<" to client #"<<clientNbr<<std::endl;
+            }
+        }break;
     }
+
 }
 

@@ -33,7 +33,10 @@ void GameWorld::generate()
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     {
-        pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+        auto grassNode = this->createNode(nullptr, true);
+        grassNode->setPosition(x*64,y*64);
+
+        /*pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
 
         int rd = x+y;//glm::linearRand(0,96);
         int modulo = 4;
@@ -44,7 +47,7 @@ void GameWorld::generate()
         else if(abs(rd % modulo) == 2)
             grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3")));
         else if(abs(rd % modulo) == 3)
-            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4")));
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4")));*/
 
          grassNode->setScale(glm::vec3(
                                 glm::linearRand(0,10) > 5 ? 1 : -1,
@@ -58,5 +61,46 @@ void GameWorld::destroy()
     if(m_scene)
         delete m_scene;
     m_scene = nullptr;
+}
+
+
+void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg)
+{
+
+}
+
+void GameWorld::readWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg)
+{
+
+}
+
+/// Protected
+
+size_t GameWorld::addSyncNode(pou::SceneNode *node)
+{
+    return m_syncNodes.allocateId(node);
+}
+
+size_t GameWorld::addSyncEntity(pou::SceneEntity *entity)
+{
+    return m_syncEntities.allocateId(entity);
+}
+
+
+pou::SceneNode* GameWorld::createNode(pou::SceneNode* parentNode, bool sync)
+{
+    if(parentNode == nullptr)
+        parentNode = m_scene->getRootNode();
+
+    auto node = parentNode->createChildNode();
+    if(sync)
+        this->addSyncNode(node);
+
+    return node;
+}
+
+pou::SpriteEntity* GameWorld::createSpriteEntity()
+{
+    return (nullptr);
 }
 

@@ -1,7 +1,7 @@
 #ifndef PLAYABLECHARACTER_H
 #define PLAYABLECHARACTER_H
 
-#include <Character.h>
+#include <character/Character.h>
 
 #include "assets/ItemModelAsset.h"
 

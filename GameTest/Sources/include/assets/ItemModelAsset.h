@@ -5,11 +5,11 @@
 
 #include "tinyxml/tinyxml.h"
 
-#include "Hitbox.h"
+#include "character/Hitbox.h"
 #include "Types.h"
 
 #include "assets/CharacterModelAsset.h"
-#include "Character.h"
+#include "character/Character.h"
 
 #include <list>
 

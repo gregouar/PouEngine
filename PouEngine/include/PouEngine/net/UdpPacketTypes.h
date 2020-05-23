@@ -182,7 +182,7 @@ struct UdpPacket_ConnectionMsg : UdpPacket
 
 
 
-struct UdpPacket_BigPacketTest : UdpPacket
+/*struct UdpPacket_BigPacketTest : UdpPacket
 {
     char ctest;
     char dummy;
@@ -197,7 +197,7 @@ struct UdpPacket_BigPacketTest : UdpPacket
         for(auto i = 0 ; i < 1800 ; ++i)
                     stream->serializeChar(ctest);
     }
-};
+};*/
 
 }
 

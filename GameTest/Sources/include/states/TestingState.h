@@ -11,8 +11,8 @@
 //#include "net/GameClient.h"
 #include "ui/GameUi.h"
 
-#include "Character.h"
-#include "PlayableCharacter.h"
+#include "character/Character.h"
+#include "character/PlayableCharacter.h"
 
 class TestingState : public pou::GameState, public Singleton<TestingState>
 {

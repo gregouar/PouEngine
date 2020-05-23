@@ -10,7 +10,7 @@
 #include "tinyxml/tinyxml.h"
 
 #include "Types.h"
-#include "Hitbox.h"
+#include "character/Hitbox.h"
 
 #include <vector>
 #include <list>
