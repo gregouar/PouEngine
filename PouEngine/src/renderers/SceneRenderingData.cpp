@@ -34,15 +34,19 @@ bool SceneRenderingData::init(SceneRenderer *renderer)
 
 void SceneRenderingData::cleanup()
 {
-    VInstance::waitDeviceIdle();
-    VkDevice device = VInstance::device();
+    if(m_isInitialized)
+    {
+        VInstance::waitDeviceIdle();
+        VkDevice device = VInstance::device();
 
-    for(auto buffer : m_ambientLightingUbos)
-        VBuffersAllocator::freeBuffer(buffer);
+        for(auto buffer : m_ambientLightingUbos)
+            VBuffersAllocator::freeBuffer(buffer);
 
-    if(m_descriptorPool != VK_NULL_HANDLE)
-        vkDestroyDescriptorPool(device, m_descriptorPool, nullptr);
-    m_descriptorPool = VK_NULL_HANDLE;
+        if(m_descriptorPool != VK_NULL_HANDLE)
+            vkDestroyDescriptorPool(device, m_descriptorPool, nullptr);
+        m_descriptorPool = VK_NULL_HANDLE;
+    }
+    m_isInitialized = false;
 }
 
 void SceneRenderingData::update()

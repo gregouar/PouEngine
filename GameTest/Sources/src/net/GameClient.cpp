@@ -3,7 +3,8 @@
 #include "net/NetMessageTypes.h"
 #include "PouEngine/Types.h"
 
-GameClient::GameClient()
+GameClient::GameClient() :
+    m_world(true)
 {
     //ctor
 }
@@ -23,6 +24,8 @@ bool GameClient::create(unsigned short port)
 
 void GameClient::cleanup()
 {
+    m_world.destroy();
+
     if(m_client)
     {
         m_client->destroy();

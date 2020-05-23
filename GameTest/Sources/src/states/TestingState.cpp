@@ -40,9 +40,9 @@ void TestingState::init()
 
 
 
-    m_gameServer.create(46969);
+    /*m_gameServer.create(46969);
     m_gameClient.create(42420);
-    m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
+    m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));*/
 
     //m_camVelocity = glm::vec3(0);
     m_activeCroc = false;
@@ -301,7 +301,7 @@ void TestingState::init()
 
 
 
-    m_mainInterface = new pou::UserInterface();
+   /* m_mainInterface = new pou::UserInterface();
 
     m_lifeBar = m_mainInterface->createProgressBar(true);
     m_lifeBar->setPosition(17,0);
@@ -313,7 +313,9 @@ void TestingState::init()
     m_uiPictureTest->setPosition(-17,0,-1);
     m_uiPictureTest->setSize(288,32);
     m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
-    m_lifeBar->addChildNode(m_uiPictureTest);
+    m_lifeBar->addChildNode(m_uiPictureTest);*/
+
+    m_gameUi.init();
 
     /*m_uiPictureTest = m_mainInterface->createUiPicture(false);
     m_uiPictureTest->setPosition(12,12,0);
@@ -334,10 +336,12 @@ void TestingState::entered()
 
 void TestingState::leaving()
 {
-    m_gameClient.disconnectFromServer();
+    //m_gameClient.disconnectFromServer();
 
-    delete m_mainInterface;
-    m_mainInterface = nullptr;
+    /*delete m_mainInterface;
+    m_mainInterface = nullptr;*/
+
+    //m_gameUi.cleanup();
 
     delete m_scene;
     m_scene = nullptr;
@@ -375,7 +379,7 @@ void TestingState::obscuring()
 
 void TestingState::handleEvents(const EventsManager *eventsManager)
 {
-    m_mainInterface->handleEvents(eventsManager);
+    m_gameUi.handleEvents(eventsManager);
 
     if(eventsManager->keyReleased(GLFW_KEY_ESCAPE))
         m_manager->stop();
@@ -510,7 +514,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     }
 
 
-    if(eventsManager->keyPressed(GLFW_KEY_Z))
+    /*if(eventsManager->keyPressed(GLFW_KEY_Z))
         m_gameClient.disconnectFromServer();
     if(eventsManager->keyPressed(GLFW_KEY_X))
         m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
@@ -518,7 +522,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
     if(eventsManager->keyPressed(GLFW_KEY_O))
-        m_gameServer.sendMsgTest(true,false);
+        m_gameServer.sendMsgTest(true,false);*/
 }
 
 void TestingState::update(const pou::Time &elapsedTime)
@@ -586,8 +590,11 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_sunLight->setIntensity(sunIntensity);
 
 
-    m_lifeBar->setMinMaxValue(0,m_character->getAttributes().maxLife);
-    m_lifeBar->setValue(m_character->getAttributes().life);
+    /*m_lifeBar->setMinMaxValue(0,m_character->getAttributes().maxLife);
+    m_lifeBar->setValue(m_character->getAttributes().life);*/
+
+    m_gameUi.updateCharacterLife(m_character->getAttributes().life,
+                                 m_character->getAttributes().maxLife);
 
     m_character->addToNearbyCharacters(m_duck);
     m_character2->addToNearbyCharacters(m_duck);
@@ -606,10 +613,8 @@ void TestingState::update(const pou::Time &elapsedTime)
 
 
 
-    m_gameServer.update(elapsedTime);
-    m_gameClient.update(elapsedTime);
-
-
+    /*m_gameServer.update(elapsedTime);
+    m_gameClient.update(elapsedTime);*/
 
 
     pou::Time remainingTime = elapsedTime;
@@ -617,11 +622,11 @@ void TestingState::update(const pou::Time &elapsedTime)
 
     while(remainingTime > maxTickTime)
     {
-        m_mainInterface->update(maxTickTime);
+        m_gameUi.update(maxTickTime);
         m_scene->update(maxTickTime);
         remainingTime -= maxTickTime;
     }
-    m_mainInterface->update(remainingTime);
+    m_gameUi.update(remainingTime);
     m_scene->update(remainingTime);
 
     if(m_totalTime.count() > 1)
@@ -643,7 +648,7 @@ void TestingState::draw(pou::RenderWindow *renderWindow)
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
     {
         pou::UiRenderer *renderer = dynamic_cast<pou::UiRenderer*>(renderWindow->getRenderer(pou::Renderer_Ui));
-        m_mainInterface->render(renderer);
+        m_gameUi.render(renderer);
     }
 
 }

@@ -7,11 +7,9 @@
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/LightEntity.h"
 
-#include "PouEngine/ui/UserInterface.h"
-#include "PouEngine/ui/UiPicture.h"
-
-#include "net/GameServer.h"
-#include "net/GameClient.h"
+//#include "net/GameServer.h"
+//#include "net/GameClient.h"
+#include "ui/GameUi.h"
 
 #include "Character.h"
 #include "PlayableCharacter.h"
@@ -21,14 +19,14 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
      friend class Singleton<TestingState>;
 
     public:
-        void entered();
-        void leaving();
-        void revealed();
-        void obscuring();
+        virtual void entered();
+        virtual void leaving();
+        virtual void revealed();
+        virtual void obscuring();
 
-        void handleEvents(const EventsManager *eventsManager);
-        void update(const pou::Time &elapsedTime);
-        void draw(pou::RenderWindow *renderWindow);
+        virtual void handleEvents(const EventsManager *eventsManager);
+        virtual void update(const pou::Time &elapsedTime);
+        virtual void draw(pou::RenderWindow *renderWindow);
 
 
     protected:
@@ -70,12 +68,15 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         pou::CameraObject   *m_camera, *m_listeningCamera;
 
-        pou::UserInterface  *m_mainInterface;
-        pou::UiPicture      *m_uiPictureTest;
-        pou::UiProgressBar   *m_lifeBar;
+        GameUi m_gameUi;
 
-        GameServer m_gameServer;
-        GameClient m_gameClient;
+        /*pou::UserInterface  *m_mainInterface;
+        pou::UiPicture      *m_uiPictureTest;
+        pou::UiProgressBar   *m_lifeBar;*/
+
+       // GameServer m_gameServer;
+       // GameClient m_gameClient;
 };
 
 #endif // TESTINGSTATE_H
+

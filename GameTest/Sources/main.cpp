@@ -3,7 +3,9 @@
 
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/core/VApp.h"
+
 #include "states/TestingState.h"
+#include "states/ClientServerTestingState.h"
 
 int main()
 {
@@ -16,7 +18,7 @@ int main()
         createInfos.name = "ProjectW";
 
         pou::VApp app(createInfos);
-        app.run(TestingState::instance());
+        app.run(ClientServerTestingState::instance());
     } catch (const std::exception& e) {
         pou::Logger::fatalError(e.what());
         return EXIT_FAILURE;

@@ -3,7 +3,8 @@
 #include "net/NetMessageTypes.h"
 #include "PouEngine/types.h"
 
-GameServer::GameServer()
+GameServer::GameServer() :
+    m_curWorldId(0)
 {
     auto testMsg = std::make_unique<NetMessage_test> ();
     testMsg->type = NetMessageType_Test;
@@ -23,13 +24,20 @@ bool GameServer::create(unsigned short port)
     return (true);
 }
 
-void GameServer::cleanup()
+void GameServer::shutdown()
 {
+    m_worlds.clear();
+
     if(m_server)
     {
         m_server->shutdown();
         m_server.release();
     }
+}
+
+void GameServer::cleanup()
+{
+    this->shutdown();
 }
 
 void GameServer::update(const pou::Time &elapsedTime)
@@ -44,6 +52,12 @@ void GameServer::update(const pou::Time &elapsedTime)
 
     for(auto &clientAndMsg : netMessages)
         this->processMessage(clientAndMsg.first, clientAndMsg.second);
+}
+
+size_t GameServer::generateWorld()
+{
+   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(false)}).first->second;
+   world.generate();
 }
 
 /*const pou::NetAddress *GameServer::getAddress() const

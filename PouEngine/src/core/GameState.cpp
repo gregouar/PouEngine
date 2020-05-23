@@ -10,7 +10,6 @@ GameState::GameState()
 
 GameState::~GameState()
 {
-    //dtor
 }
 
 void GameState::setManager(StatesManager *manager)

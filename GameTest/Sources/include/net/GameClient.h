@@ -4,6 +4,8 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
 
+#include "world/GameWorld.h"
+
 class GameClient
 {
     public:
@@ -29,6 +31,8 @@ class GameClient
 
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
+
+        GameWorld m_world;
 };
 
 #endif // GAMECLIENT_H
