@@ -52,28 +52,25 @@ uint32_t BitReader::readBits(int bits)
     return value;
 }
 
-void BitReader::memcpy(uint8_t *data, int data_size/*, int bytes_shift*/)
+bool BitReader::memcpy(uint8_t *data, int data_size/*, int bytes_shift*/)
 {
     int bytes_shift = ((32-m_scratch_bits)%32)/8;
 
     m_byte_index = m_byte_index - 4 * (bytes_shift == 0 ? 0 : 1) + bytes_shift ;
 
-   // if(bytes_shift == 0 && m_scratch_bits == 32)
-     //   m_byte_index -= 4;
 
-   // std::cout<<"Read memcpy byte index:"<<m_byte_index<<" with byte shift:"<<bytes_shift<<std::endl;
-    //std::cout<<"Read Index:"<<index * 4 + bytes_shift<<std::endl;
-    //std::cout<<"Read:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
-
-    assert(m_byte_index + data_size <= m_bytes);
+    //assert(m_byte_index + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
+    if(m_byte_index + data_size > m_bytes)
+        return (false);
+
     std::memcpy(data, m_buffer + m_byte_index, data_size);
 
     m_byte_index += data_size;
     m_scratch = 0;
     m_scratch_bits = 0;
 
-    //std::cout<<"Read byte_index after memcpy:"<<m_byte_index<<std::endl;
+    return (true);
 }
 
 /// ReadStream
@@ -108,40 +105,52 @@ void ReadStream::setBuffer(uint8_t *buffer, int bytes)
     m_reader = std::make_unique<BitReader> (buffer, bytes);
 }
 
-void ReadStream::memcpy(uint8_t *data, int data_size)
+bool ReadStream::memcpy(uint8_t *data, int data_size)
 {
     Stream::padZeroes();
 
     if(m_reader)
-        m_reader->memcpy(data, data_size/*, (m_bits%32)/8*/);
+        if(!m_reader->memcpy(data, data_size))
+           return (false);
 
     m_bits += data_size*8;
+    return (true);
 }
 
-void ReadStream::serializeBits(int32_t &value, int bits)
+bool ReadStream::serializeBits(int32_t &value, int bits)
 {
     m_bits += bits;
 
     if(!m_reader)
-        return;
+        return (true);
 
-    /*if(m_reader->wouldReadPastEnd(bits))
-        return;*/
-    assert(!m_reader->wouldReadPastEnd(bits));
+    if(m_reader->wouldReadPastEnd(bits))
+        return (false);
 
     value = m_reader->readBits(bits);
+    return (true);
 }
 
-void ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)
+bool ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)
 {
     assert(min < max);
     const int bits = bitsRequired(min, max);
     int32_t unsigned_value = 0;
-    this->serializeBits(unsigned_value,bits);
+    if(!this->serializeBits(unsigned_value,bits))
+        return (false);
     value = (int32_t)unsigned_value + min;
+    return (true);
 }
 
-void ReadStream::serializeFloat(float &value, float min, float max, uint8_t decimals)
+bool ReadStream::serializeFloat(float &value)
+{
+    int v = 0;
+    if(!this->serializeBits(v,32))
+        return (false);
+    value = *(float*)(&v);
+}
+
+bool ReadStream::serializeFloat(float &value, float min, float max, uint8_t decimals)
 {
     assert(min < max);
 
@@ -152,35 +161,43 @@ void ReadStream::serializeFloat(float &value, float min, float max, uint8_t deci
     const int bits = bitsRequired(minInt, maxInt);
 
     int32_t unsigned_value = 0;
-    this->serializeBits(unsigned_value,bits);
+    if(!this->serializeBits(unsigned_value,bits))
+        return (false);
 
     value = ((float)unsigned_value)/decimals + min;
+    return (true);
 }
 
-void ReadStream::serializeBool(bool &value)
+bool ReadStream::serializeBool(bool &value)
 {
     int32_t v = 0;
-    this->serializeBits(v,1);
+    if(!this->serializeBits(v,1))
+        return (false);
     value = (bool)v;
+    return (true);
 }
 
-void ReadStream::serializeChar(char &value)
+bool ReadStream::serializeChar(char &value)
 {
     int32_t v = 0;
-    this->serializeBits(v,8);
+    if(!this->serializeBits(v,8))
+        return (false);
     value = (char)v;
+    return (true);
 }
 
-void ReadStream::serializeString(std::string &str)
+bool ReadStream::serializeString(std::string &str)
 {
     int strSize = 0;
     this->serializeBits(strSize, 8);
 
     std::vector<uint8_t> temp(strSize+1);
-    this->memcpy(temp.data(), strSize);
+    if(!this->memcpy(temp.data(), strSize))
+        return (false);
     temp.back() = '\0';
 
     str = std::string(reinterpret_cast<const char *>(temp.data()));
+    return (true);
 }
 
 

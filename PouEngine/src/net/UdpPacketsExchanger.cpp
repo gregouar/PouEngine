@@ -129,10 +129,6 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
         else if(packetType == PacketType_Slice)
         {
             this->reassembleChunk(tempBuffer, netMessages);
-            /*{
-                ClientAddress clientAddress = {t.address, packet.salt};
-                netMessages.push_back({clientAddress, reassembledMessage});
-            }*/
         }
         else if(packetType != PacketCorrupted)
             packetBuffers.push_back(std::move(tempBuffer));
@@ -597,6 +593,13 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
     if(!verifyPacketIntegrity(packet))
         return PacketCorrupted;
 
+    if(packet.type == PacketType_Slice)
+    {
+        UdpPacket_Slice packetSlice;
+        if(!this->readPacket(packetSlice, packetBuffer))
+            return PacketCorrupted;
+    }
+
     ClientAddress clientAddress = {packetBuffer.address, packet.salt};
     auto &netMsgList = m_netMsgLists[clientAddress];
 
@@ -657,31 +660,22 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
     //We update the last_ack received and ack_bit
     uint32_t seq = (uint32_t)packet.sequence;
 
-    //std::cout<<"Acking packet seq"<<packet.sequence<<std::endl;
-
-    //std::cout<<"test:"<<(-1)%UDPPACKET_SEQ_MAX<<std::endl;
-
     int64_t delta = seq - netMsgList.last_ack%UDPPACKET_SEQ_MAX;
-    //std::cout<<"Delta1:"<<delta<<std::endl;
     if(abs(delta) > UDPPACKET_SEQ_MAX/2)
     {
-        //if(seq < (uint32_t)netMsgList.last_ack)
         if(delta < 0)
-            delta += UDPPACKET_SEQ_MAX; //seq + UDPPACKET_SEQ_MAX - netMsgList.last_ack;
+            delta += UDPPACKET_SEQ_MAX;
         else
-            delta -= UDPPACKET_SEQ_MAX; //  - netMsgList.last_ack + seq - UDPPACKET_SEQ_MAX;
+            delta -= UDPPACKET_SEQ_MAX;
     }
 
-   // std::cout<<"Delta2:"<<delta<<std::endl;
-
-    //if(netMsgList.last_ack < seq)
     if(delta > 0)
     {
-        netMsgList.ack_bits <<= delta; //seq - netMsgList.last_ack;
+        netMsgList.ack_bits <<= delta;
         netMsgList.last_ack = packet.sequence;
         delta = 0;
     }
-    netMsgList.ack_bits |= (((int)1) << (-delta));//(netMsgList.last_ack - seq));
+    netMsgList.ack_bits |= (((int)1) << (-delta));
 
     //We retrieve the messages
     auto &reliableMsgBuffer = m_reliableMsgBuffers[clientAddress];
@@ -690,7 +684,6 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
     {
         if(msg->isReliable)
         {
-            //std::cout<<"I have got a reliable message dude, id:"<<msg->id<<std::endl;
             int64_t delta = msg->id - reliableMsgBuffer.last_id % NetMessagesFactory::NETMESSAGEID_MAX_NBR;
             if(abs(delta) > NetMessagesFactory::NETMESSAGEID_MAX_NBR/2)
             {
@@ -700,17 +693,8 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
                     delta -= NetMessagesFactory::NETMESSAGEID_MAX_NBR;
             }
 
-            //if(reliableMsgBuffer.last_id % NetMessagesFactory::NETMESSAGEID_MAX_NBR < msg->id)
-
             if(delta > 0)
                 reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
-
-            /*if(delta > 0)
-            {
-                auto r = reliableMsgBuffer.msgMap.try_emplace(msg->id,msg);
-                if(r.second)
-                    std::cout<<"Received reliable msg with id:"<<msg->id<<std::endl;
-            }*/
         } else {
             netMessages.push_back({clientAddress, msg});
         }

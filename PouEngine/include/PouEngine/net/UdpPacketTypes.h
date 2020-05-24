@@ -63,7 +63,7 @@ struct UdpPacket
 
     UdpPacket() : nbrNetMessages(0){}
 
-    virtual void serializeImpl(Stream *stream){}
+    virtual bool serializeImpl(Stream *stream){return (true);}
 
     int serializeHeader(Stream *stream, bool flush = true)
     {
@@ -113,7 +113,9 @@ struct UdpPacket
     int serialize(Stream *stream)
     {
         this->serializeHeaderAndMessages(stream, false);
-        this->serializeImpl(stream);
+        if(!this->serializeImpl(stream))
+            type = PacketCorrupted;
+
         stream->serializeBits(serial_check, 32);
 
         if(stream->isWriting()) stream->flush();
@@ -128,14 +130,14 @@ struct UdpPacket_Fragment : UdpPacket
 
     std::vector<uint8_t> frag_data;
 
-    void serializeImpl(Stream *stream)
+    bool serializeImpl(Stream *stream)
     {
         frag_data.resize(MAX_PACKETSIZE);
 
-        stream->serializeBits(frag_id, 8);
-        stream->serializeBits(nbr_frags, 8);
-
-        stream->memcpy(frag_data.data(), frag_data.size());
+        return
+            stream->serializeBits(frag_id, 8)
+            & stream->serializeBits(nbr_frags, 8)
+            & stream->memcpy(frag_data.data(), frag_data.size());
     }
 };
 
@@ -148,16 +150,16 @@ struct UdpPacket_Slice : UdpPacket
 
     std::vector<uint8_t> slice_data;
 
-    void serializeImpl(Stream *stream)
+    bool serializeImpl(Stream *stream)
     {
         slice_data.resize(MAX_SLICESIZE);
 
-        stream->serializeBits(chunk_id, UDPPACKET_CHUNKID_SIZE);
-        stream->serializeBits(slice_id, UDPPACKET_SLICEID_SIZE);
-        stream->serializeBits(nbr_slices, UDPPACKET_SLICEID_SIZE);
-        stream->serializeInt(chunk_msg_type, 0, NetEngine::getNbrNetMsgTypes());
-
-        stream->memcpy(slice_data.data(), slice_data.size());
+        return
+            stream->serializeBits(chunk_id, UDPPACKET_CHUNKID_SIZE)
+            & stream->serializeBits(slice_id, UDPPACKET_SLICEID_SIZE)
+            & stream->serializeBits(nbr_slices, UDPPACKET_SLICEID_SIZE)
+            & stream->serializeInt(chunk_msg_type, 0, NetEngine::getNbrNetMsgTypes())
+            & stream->memcpy(slice_data.data(), slice_data.size());
     }
 };
 
@@ -167,12 +169,12 @@ struct UdpPacket_ConnectionMsg : UdpPacket
 
     //int connectionData;
 
-    void serializeImpl(Stream *stream)
+    bool serializeImpl(Stream *stream)
     {
         //for(auto i = 0 ; i < 600 ; ++i)
         //stream->serializeBits(connectionData, 16);
 
-        stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
+        return stream->serializeInt(connectionMessage, ConnectionMessage_ConnectionRequest,
                                                 NBR_ConnectionMessages-1);
 
         //for(auto i = 0 ; i <  500 ; ++i)

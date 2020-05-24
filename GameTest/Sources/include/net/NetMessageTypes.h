@@ -56,6 +56,9 @@ struct NetMessage_WorldInitialization : public pou::NetMessage
 
     int world_id;
 
+    float   localTime;
+    int     dayTime;
+
     int nbr_nodes;
     std::vector<std::pair<int, NodeSync> > nodes; //NodeId, ParentNodeId, Node
 

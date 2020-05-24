@@ -3,8 +3,11 @@
 #include "net/NetMessageTypes.h"
 #include "PouEngine/types.h"
 
+const int GameServer::TICKRATE = 30;
+
 GameServer::GameServer() :
-    m_curWorldId(0)
+    m_curWorldId(0),
+    m_remainingTime(0)
 {
 }
 
@@ -50,8 +53,7 @@ void GameServer::update(const pou::Time &elapsedTime)
     for(auto &clientAndMsg : netMessages)
         this->processMessage(clientAndMsg.first, clientAndMsg.second);
 
-    for(auto &world : m_worlds)
-        world.second.update(elapsedTime);
+    this->updateWorlds(elapsedTime);
 }
 
 size_t GameServer::generateWorld()
@@ -120,6 +122,20 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
             }
         }break;
     }
+}
 
+void GameServer::updateWorlds(const pou::Time &elapsedTime)
+{
+    pou::Time tickTime(1.0f/GameServer::TICKRATE);
+    pou::Time totalTime = elapsedTime+m_remainingTime;
+
+    while(totalTime > tickTime)
+    {
+        for(auto &world : m_worlds)
+            world.second.update(tickTime);
+        totalTime -= tickTime;
+    }
+
+    m_remainingTime = totalTime;
 }
 

@@ -23,6 +23,10 @@ void NetMessage_WorldInitialization::serializeImpl(pou::Stream *stream)
 {
     stream->serializeBits(world_id, 8);
 
+    stream->serializeFloat(localTime);
+
+    stream->serializeInt(dayTime, 0, 360);
+
     //std::cout<<"Nbr Nodes:"<<nbr_nodes<<std::endl;
 
     stream->serializeBits(nbr_nodes, GameWorld::NODEID_BITS);

@@ -90,19 +90,9 @@ void ClientServerTestingState::update(const pou::Time &elapsedTime)
     //m_gameUi.updateCharacterLife(m_character->getAttributes().life,
     //                             m_character->getAttributes().maxLife);
 
-    pou::Time remainingTime = elapsedTime;
-    pou::Time maxTickTime(.03);
-
-    while(remainingTime > maxTickTime)
-    {
-        m_gameUi.update(maxTickTime);
-        m_gameServer.update(maxTickTime);
-        m_gameClient.update(maxTickTime);
-        remainingTime -= maxTickTime;
-    }
-    m_gameUi.update(remainingTime);
-    m_gameServer.update(remainingTime);
-    m_gameClient.update(remainingTime);
+    m_gameUi.update(elapsedTime);
+    m_gameServer.update(elapsedTime);
+    m_gameClient.update(elapsedTime);
 }
 
 void ClientServerTestingState::draw(pou::RenderWindow *renderWindow)

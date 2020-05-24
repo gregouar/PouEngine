@@ -10,6 +10,8 @@ void GameWorld::generate()
 {
     this->createScene();
 
+    m_dayTime = glm::linearRand(0,360);
+
     auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt");
     this->syncElement(grassSheet);
 
@@ -73,22 +75,29 @@ void GameWorld::generate()
     }
 
 
+    auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt");
+    this->syncElement(lanternModel);
+
 
     for(auto i = 0 ; i < 3 ; ++i)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         auto *lantern = new Character();
-        lantern->loadModel("../data/poleWithLantern/poleWithLanternXML.txt");
+        lantern->setModel(lanternModel);
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_scene->getRootNode()->addChildNode(lantern);
+
+        this->syncElement(lantern);
     }
 
-
+    m_scene->update(pou::Time(0));
 }
 
 void GameWorld::destroy()
 {
+    m_curLocalTime = 0;
+
     m_syncNodes.clear();
     m_syncSpriteSheets.clear();
     m_syncSpriteEntities.clear();
@@ -106,6 +115,9 @@ void GameWorld::destroy()
 
 void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg)
 {
+    worldInitMsg->localTime = m_curLocalTime;
+    worldInitMsg->dayTime = (int)m_dayTime;
+
     worldInitMsg->nbr_nodes = m_syncNodes.size();
     worldInitMsg->nodes.resize(worldInitMsg->nbr_nodes);
     size_t i = 0;
@@ -207,6 +219,13 @@ void GameWorld::generate(std::shared_ptr<NetMessage_WorldInitialization> worldIn
 {
     this->createScene();
 
+    m_curLocalTime = worldInitMsg->localTime;
+    std::cout<<"Server local time:"<<m_curLocalTime<<std::endl;
+
+    //Need to load this kind of info from WorldTemplate XML
+    m_scene->getRootNode()->attachObject(m_sunLight);
+
+    m_dayTime = worldInitMsg->dayTime;
 
     for(auto &characterModelit : worldInitMsg->characterModels)
     {
@@ -306,6 +325,7 @@ void GameWorld::generate(std::shared_ptr<NetMessage_WorldInitialization> worldIn
         m_syncSpriteEntities.insert(spriteEntityId, spriteEntity);
     }
 
+    m_scene->update(pou::Time(0));
 }
 
 

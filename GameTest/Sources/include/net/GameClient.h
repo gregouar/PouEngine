@@ -41,7 +41,11 @@ class GameClient
         bool        m_isWaitingForWorldSync;
         //pou::Timer  m_syncWorldTimer;
 
+        pou::Time m_remainingTime;
+
         //static const float CLIENTWORLD_SYNC_DELAY;
+    public:
+        static const int TICKRATE;
 };
 
 #endif // GAMECLIENT_H

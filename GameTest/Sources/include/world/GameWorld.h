@@ -38,6 +38,8 @@ class GameWorld
         size_t syncElement(CharacterModelAsset *characterModel);
         size_t syncElement(Character *character);
 
+        void updateSunLight(const pou::Time elapsed_time);
+
         /*size_t syncNode(pou::SceneNode *node);
         size_t syncNode(pou::SceneNode *node, size_t parentNodeId);
         size_t syncSpriteSheet(pou::SpriteSheetAsset *spriteSheet);
@@ -56,7 +58,11 @@ class GameWorld
         pou::Scene *m_scene;
         bool m_isRenderable;
 
+        float m_curLocalTime;
+
         pou::CameraObject *m_camera;
+        pou::LightEntity  *m_sunLight;
+        float              m_dayTime; //Between 0 and 360
 
         pou::IdAllocator<pou::SceneNode*>           m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;

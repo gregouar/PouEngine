@@ -18,7 +18,8 @@ const int    GameWorld::CHARACTERSID_BITS       =16;
 
 GameWorld::GameWorld(bool renderable) :
     m_scene(nullptr),
-    m_isRenderable(renderable)
+    m_isRenderable(renderable),
+    m_curLocalTime(0)
 {
     //ctor
 }
@@ -31,8 +32,13 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time)
 {
-    if(m_scene)
-        m_scene->update(elapsed_time);
+    m_curLocalTime += elapsed_time.count();
+
+    if(!m_scene)
+        return;
+
+    this->updateSunLight(elapsed_time);
+    m_scene->update(elapsed_time);
 }
 
 void GameWorld::render(pou::RenderWindow *renderWindow)
@@ -67,6 +73,11 @@ void GameWorld::createScene()
         cameraNode->attachObject(m_camera);
         cameraNode = cameraNode->createChildNode(0,0,250);
         cameraNode->attachObject(listeningCamera);
+
+        m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
+        m_sunLight->enableShadowCasting();
+        m_sunLight->setShadowMapExtent({1024,1024});
+        m_sunLight->setShadowBlurRadius(10);
     }
 }
 
@@ -120,99 +131,62 @@ size_t GameWorld::syncElement(Character *character)
     return m_syncCharacters.allocateId(character);
 }
 
-/**size_t GameWorld::syncNode(pou::SceneNode *node)
+void GameWorld::updateSunLight(const pou::Time elapsed_time)
 {
-    size_t parentNodeId = 0;
-    if(node->getParent() != m_scene->getRootNode())
-        parentNodeId = m_syncNodes.findId((pou::SceneNode*)node->getParent());
+    m_dayTime = m_dayTime + elapsed_time.count();
+    if(m_dayTime >= 360)
+        m_dayTime -= 360;
 
-    return this->syncNode(node, parentNodeId);
+    if(!m_isRenderable)
+        return;
+
+    m_sunLight->setDirection({glm::cos(m_dayTime*glm::pi<float>()/180.0f)*.5,
+                              glm::sin(m_dayTime*glm::pi<float>()/180.0f)*.5,-1.0});
+
+    pou::Color dayColor = {1.0,1.0,1.0,1.0},
+               nightColor = {.2,.2,1.0,1.0},
+               sunsetColor = {1.0,.6,0.0,1.0};
+
+    float dayIntensity = 3.0,
+          sunsetIntensity = 2.0,
+          nightIntensity = 0.5;
+
+    pou::Color sunColor;
+    float sunIntensity;
+
+    if(m_dayTime >= 0 && m_dayTime < 30)
+    {
+        sunColor = glm::mix(sunsetColor, nightColor, m_dayTime/30.0f);
+        sunIntensity = glm::mix(sunsetIntensity, nightIntensity, m_dayTime/30.0f);
+    }
+    else if(m_dayTime >= 30 && m_dayTime <= 150)
+    {
+        sunColor = nightColor;
+        sunIntensity = nightIntensity;
+    }
+    else if(m_dayTime > 150 && m_dayTime <= 180)
+    {
+        sunColor =  glm::mix(nightColor, sunsetColor, (m_dayTime-150)/30.0f);
+        sunIntensity =  glm::mix(nightIntensity, sunsetIntensity, (m_dayTime-150)/30.0f);
+    }
+    else if(m_dayTime > 180 && m_dayTime < 210)
+    {
+        sunColor =  glm::mix(sunsetColor, dayColor, (m_dayTime-180)/30.0f);
+        sunIntensity =  glm::mix(sunsetIntensity, dayIntensity, (m_dayTime-180)/30.0f);
+    }
+    else if(m_dayTime >= 210 && m_dayTime <= 330)
+    {
+        sunColor = dayColor;
+        sunIntensity = dayIntensity;
+    }
+    else
+    {
+        sunColor = glm::mix(dayColor,sunsetColor, (m_dayTime-330)/30.0f);
+        sunIntensity = glm::mix(dayIntensity,sunsetIntensity, (m_dayTime-330)/30.0f);
+    }
+    m_scene->setAmbientLight(sunColor * glm::vec4(1.0,1.0,1.0,.75));
+    m_sunLight->setDiffuseColor(sunColor);
+    m_sunLight->setIntensity(sunIntensity);
 }
 
-size_t GameWorld::syncNode(pou::SceneNode *node, size_t parentNodeId)
-{
-    NodeSync nodeSync;
-    nodeSync.node = node;
-    nodeSync.parentNodeId = parentNodeId;
-
-    return m_syncNodes.allocateId(nodeSync);
-}
-
-size_t GameWorld::syncSpriteSheet(pou::SpriteSheetAsset *spriteSheet)
-{
-    return m_syncSpriteSheets.allocateId(spriteSheet);
-}
-
-size_t GameWorld::syncSpriteEntity(pou::SpriteEntity *spriteEntity)
-{
-    auto spriteModel = spriteEntity->getSpriteModel();
-    if(spriteModel == nullptr)
-        return 0;
-
-    auto spriteSheet = spriteModel->getSpriteSheet();
-    if(spriteSheet == nullptr)
-        return 0;
-
-    size_t spriteSheetId = m_syncSpriteSheets.findId(spriteSheet);
-    return this->syncSpriteEntity(spriteEntity, spriteSheetId);
-}
-
-size_t GameWorld::syncSpriteEntity(pou::SpriteEntity *spriteEntity, size_t spriteSheetId)
-{
-    size_t nodeId = 0;
-
-    auto parentNode = spriteEntity->getParentNode();
-    if(parentNode != nullptr)
-        nodeId = m_syncNodes.findId(parentNode);
-
-    return this->syncSpriteEntity(spriteEntity, spriteSheetId, nodeId);
-}
-
-size_t GameWorld::syncSpriteEntity(pou::SpriteEntity *spriteEntity, size_t spriteSheetId, size_t nodeId)
-{
-    auto spriteModel = spriteEntity->getSpriteModel();
-    if(spriteModel == nullptr)
-        return 0;
-
-    SpriteEntitySync spriteEntitySync;
-    spriteEntitySync.nodeId         = nodeId;
-    spriteEntitySync.spriteId       = spriteModel->getSpriteId();
-    spriteEntitySync.spriteSheetId  = spriteSheetId;
-
-    return m_syncSpriteEntities.allocateId(spriteSheet);
-}**/
-
-
-/*std::pair<size_t, pou::SpriteSheetAsset*> GameWorld::syncSpriteSheet(const std::string &path)
-{
-    pou::SpriteSheetAsset *spriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile(path);
-    size_t id = m_syncSpriteSheets.allocateId(spriteSheet);
-    return {id, spriteSheet};
-}*/
-
-/*std::pair<size_t, SpriteEntitySync> GameWorld::createSpriteEntitySync(size_t spriteSheetId, const std::string &spriteName)
-{
-    auto spriteSheet = m_syncSpriteSheets.findElement(spriteName);
-    return this->createSpriteEntitySync({spriteSheetId, spriteSheet}, spriteName);
-}
-
-
-std::pair<size_t, SpriteEntitySync> GameWorld::createSpriteEntitySync(
-            std::pair<size_t, pou::SpriteSheetAsset*> spriteSheetPair, const std::string &spriteName)
-{
-    size_t spriteId = spriteSheetPair.second->getSpriteId(spriteName);
-    size_t spriteEntityId = this->allocateId;
-
-    SpriteEntitySync spriteEntitySync;
-    spriteEntitySync.spriteSheetId = spriteSheetPair.first
-    spriteEntitySync.spriteId = spriteId.first
-    spriteEntitySync.nodeId = nodeId.first
-
-    return {spriteEntityId, }
-}*/
-
-/*pou::SpriteEntity* GameWorld::createSpriteEntity()
-{
-    return (nullptr);
-}*/
 

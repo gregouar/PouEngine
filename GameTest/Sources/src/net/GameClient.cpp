@@ -5,10 +5,13 @@
 
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
+const int GameClient::TICKRATE = 60;
+
 GameClient::GameClient() :
     m_world(true),
     m_curWorldId(0),
-    m_isWaitingForWorldSync(false)
+    m_isWaitingForWorldSync(false),
+    m_remainingTime(0)
 {
     //ctor
 }
@@ -134,7 +137,18 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         return;
     }
 
-    m_world.update(elapsedTime);
+
+    pou::Time tickTime(1.0f/GameClient::TICKRATE);
+    pou::Time totalTime = elapsedTime+m_remainingTime;
+
+    while(totalTime > tickTime)
+    {
+        m_world.update(tickTime);
+        totalTime -= tickTime;
+    }
+
+    m_remainingTime = totalTime;
+
 }
 
 
