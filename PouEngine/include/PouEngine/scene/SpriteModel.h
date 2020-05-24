@@ -64,6 +64,7 @@ class SpriteSheetAsset;
 class SpriteModel : public NotificationListener, public NotificationSender
 {
     friend class SpriteEntity;
+    friend class SpriteSheetAsset;
 
     public:
         SpriteModel(SpriteSheetAsset *spriteSheet);
@@ -108,6 +109,9 @@ class SpriteModel : public NotificationListener, public NotificationSender
         float           getNextSpriteDelay();
         SpriteModel*    getNextSpriteModel();
 
+        SpriteSheetAsset* getSpriteSheet();
+        size_t getSpriteId();
+
         /*VTexture getDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction);
         void updateDirectionnalShadow(glm::vec3 oldDirection, glm::vec3 newDirection);
         void deleteDirectionnalShadow(glm::vec3 direction);*/
@@ -116,6 +120,7 @@ class SpriteModel : public NotificationListener, public NotificationSender
                             size_t dataSize = 0, char* data = nullptr) override;
 
     protected:
+        void setSpriteId(size_t id);
         void cleanup();
 
         //Add some kind of cleaning ?
@@ -145,6 +150,7 @@ class SpriteModel : public NotificationListener, public NotificationSender
         glm::vec3 m_rme;
 
         bool m_isReady;
+        size_t m_spriteId;
 
         /*glm::vec2 m_shadowMapExtent;
         std::map<Direction, std::pair<VRenderableTexture, bool> > m_directionnalShadows;*/

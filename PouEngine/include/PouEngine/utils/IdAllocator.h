@@ -12,15 +12,22 @@ template<class T> class IdAllocator
         IdAllocator();
         virtual ~IdAllocator();
 
-        size_t  allocateId(T *t);
+        size_t  allocateId(T t);
+        bool    insert(size_t id, T t);
         bool    freeId(size_t id);
-        T*      findElement(size_t id);
+        T       findElement(size_t id);
+        size_t  findId(T);
+
+        size_t size();
+
+        typename std::map<size_t, T>::iterator begin();
+        typename std::map<size_t, T>::iterator end();
 
     protected:
 
     private:
         size_t              m_curId;
-        std::map<size_t, T*> m_map;
+        std::map<size_t, T> m_map;
 };
 
 }

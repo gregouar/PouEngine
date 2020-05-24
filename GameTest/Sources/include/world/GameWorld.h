@@ -5,9 +5,11 @@
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/utils/IdAllocator.h"
+#include "PouEngine/renderers/RenderWindow.h"
 
 #include "character/Character.h"
 #include "net/NetMessageTypes.h"
+
 
 class GameWorld
 {
@@ -16,28 +18,62 @@ class GameWorld
         virtual ~GameWorld();
 
         void update(const pou::Time elapsed_time);
+        void render(pou::RenderWindow *renderWindow);
 
         void generate();
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg);
-        void readWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg);
+        void generate(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg);
 
     protected:
-        size_t addSyncNode(pou::SceneNode *node);
-        size_t addSyncEntity(pou::SceneEntity *entity);
+        //size_t addSyncNode(pou::SceneNode *node);
+        //size_t addSyncEntity(pou::SceneEntity *entity);
 
-        pou::SceneNode* createNode(pou::SceneNode* parentNode, bool sync = false);
-        pou::SpriteEntity* createSpriteEntity();
+        void createScene();
+
+        size_t syncElement(pou::SceneNode *node);
+        size_t syncElement(pou::SpriteSheetAsset *spriteSheet);
+        size_t syncElement(pou::SpriteEntity *spriteEntity);
+
+        /*size_t syncNode(pou::SceneNode *node);
+        size_t syncNode(pou::SceneNode *node, size_t parentNodeId);
+        size_t syncSpriteSheet(pou::SpriteSheetAsset *spriteSheet);
+        size_t syncSpriteEntity(pou::SpriteEntity *spriteEntity);
+        size_t syncSpriteEntity(pou::SpriteEntity *spriteEntity, size_t spriteSheetId);
+        size_t syncSpriteEntity(pou::SpriteEntity *spriteEntity, size_t spriteSheetId, size_t nodeId);*/
+
+       // pou::SceneNode* createNode(pou::SceneNode* parentNode, bool sync = false);
+        //std::pair<size_t, pou::SpriteSheetAsset*> syncSpriteSheet(const std::string &path);
+       /* std::pair<size_t, SpriteEntitySync> createSpriteEntitySync(size_t spriteSheetId, const std::string &spriteName);
+        std::pair<size_t, SpriteEntitySync> createSpriteEntitySync(std::pair<size_t, pou::SpriteSheetAsset*> spriteSheetPair, const std::string &spriteName);*/
+        //pou::SpriteEntity* createSpriteEntity();
+
 
     private:
         pou::Scene *m_scene;
         bool m_isRenderable;
 
+        pou::CameraObject *m_camera;
 
-        pou::IdAllocator<pou::SceneNode>   m_syncNodes;
-        pou::IdAllocator<pou::SceneEntity> m_syncEntities;
-        pou::IdAllocator<Character>        m_syncCharacters;
+
+        pou::IdAllocator<pou::SceneNode*>   m_syncNodes;
+
+        //pou::IdAllocator<std::string>       m_syncSpritesheets;
+        pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
+        pou::IdAllocator<pou::SpriteEntity*>        m_syncSpriteEntities;
+        //pou::IdAllocator<Character*>        m_syncCharacters;
+
+    public:
+        static const glm::vec3  GAMEWORLD_MAX_SIZE; //Used for - and +
+
+        static const float      NODE_MAX_SCALE;
+        static const uint8_t    NODE_SCALE_DECIMALS;
+
+        static const int        NODEID_BITS;
+        static const int        SPRITESHEETID_BITS;
+        static const int        SPRITEENTITYID_BITS;
+
 
 };
 

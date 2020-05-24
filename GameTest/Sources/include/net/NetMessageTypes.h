@@ -3,6 +3,9 @@
 
 #include "PouEngine/net/NetMessagesFactory.h"
 
+#include "PouEngine/scene/SceneNode.h"
+#include "net/SyncEntities.h"
+
 enum NetMessageType
 {
     NetMessageType_Default,
@@ -20,6 +23,11 @@ struct NetMessage_Test : public pou::NetMessage
     NetMessage_Test() : NetMessage(){}
     NetMessage_Test(int t) : NetMessage(t){}
 
+    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
+    {
+        return std::make_shared<NetMessage_Test>();
+    }
+
     int test_value;
 
    // int dummy;
@@ -34,11 +42,6 @@ struct NetMessage_Test : public pou::NetMessage
        // for(int i = 0 ; i < 0 ; ++i)
          //   stream->serializeBits(dummy, 8);
     }
-
-    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
-    {
-        return std::make_shared<NetMessage_Test>();
-    }
 };
 
 struct NetMessage_WorldInitialization : public pou::NetMessage
@@ -46,14 +49,27 @@ struct NetMessage_WorldInitialization : public pou::NetMessage
     NetMessage_WorldInitialization() : NetMessage(){}
     NetMessage_WorldInitialization(int t) : NetMessage(t){}
 
-    int world_id;
-
-    virtual void serializeImpl(pou::Stream *stream);
-
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
         return std::make_shared<NetMessage_WorldInitialization>();
     }
+
+    int world_id;
+
+    int nbr_nodes;
+    std::vector<std::pair<int, NodeSync> > nodes; //NodeId, ParentNodeId, Node
+
+    int nbr_spriteSheets;
+    std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
+
+    int nbr_spriteEntities;
+    std::vector< std::pair<int,SpriteEntitySync> > spriteEntities;
+
+    virtual void serializeImpl(pou::Stream *stream);
+
+    virtual void serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node);
+    virtual void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
+    virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
 };
 
 
@@ -62,14 +78,14 @@ struct NetMessage_AskForWorldSync : public pou::NetMessage
     NetMessage_AskForWorldSync() : NetMessage(){}
     NetMessage_AskForWorldSync(int t) : NetMessage(t){}
 
-    int world_id;
-
-    virtual void serializeImpl(pou::Stream *stream);
-
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
         return std::make_shared<NetMessage_AskForWorldSync>();
     }
+
+    int world_id;
+
+    virtual void serializeImpl(pou::Stream *stream);
 };
 
 

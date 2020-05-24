@@ -16,7 +16,8 @@
 #include "PouEngine/core/NotificationSender.h"*/
 
 
-namespace pou{
+namespace pou
+{
 
 class Scene;
 class SceneRenderer;

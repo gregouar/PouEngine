@@ -31,7 +31,7 @@ void GameClient::cleanup()
     m_isWaitingForWorldSync = false;
     m_curWorldId = 0;
 
-    m_world.destroy();
+    this->disconnectFromServer();
 
     if(m_client)
     {
@@ -45,6 +45,8 @@ bool GameClient::connectToServer(const pou::NetAddress &address)
     if(!m_client)
         return (false);
 
+    this->disconnectFromServer();
+
     return m_client->connectToServer(address);
 }
 
@@ -56,7 +58,9 @@ bool GameClient::disconnectFromServer()
     bool r = true;
 
     r = r & m_client->disconnectFromServer();
-    this->cleanup();
+
+    m_world.destroy();
+    //this->cleanup();
 
     return r;
 }
@@ -79,6 +83,10 @@ void GameClient::update(const pou::Time &elapsedTime)
         this->updateWorld(elapsedTime);
 }
 
+void GameClient::render(pou::RenderWindow *renderWindow)
+{
+    m_world.render(renderWindow);
+}
 
 void GameClient::sendMsgTest(bool reliable, bool forceSend)
 {
@@ -105,9 +113,11 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
         case NetMessageType_WorldInitialization:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldInitialization>(msg);
             m_curWorldId = castMsg->world_id;
-            //m_isWaitingForWorldSync = false;
+            m_isWaitingForWorldSync = false;
 
-            std::cout<<"Received world id:"<< m_curWorldId<<std::endl;
+            m_world.generate(castMsg);
+
+            std::cout<<"Received world #"<< m_curWorldId<<std::endl;
         }break;
     }
 }
@@ -122,8 +132,10 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         msg->world_id = 0;
         m_client->sendMessage(msg);
 
-        std::cout<<"I'm asking for world sync !"<<std::endl;
+        return;
     }
+
+    m_world.update(elapsedTime);
 }
 
 

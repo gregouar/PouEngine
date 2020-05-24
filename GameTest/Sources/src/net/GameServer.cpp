@@ -4,7 +4,7 @@
 #include "PouEngine/types.h"
 
 GameServer::GameServer() :
-    m_curWorldId(4)
+    m_curWorldId(0)
 {
 }
 

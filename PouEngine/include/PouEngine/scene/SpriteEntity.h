@@ -80,6 +80,8 @@ class SpriteEntity : public ShadowCaster
         SpriteOrdering getOrdering();
         glm::vec3 getRme();
 
+        SpriteModel* getSpriteModel();
+
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;

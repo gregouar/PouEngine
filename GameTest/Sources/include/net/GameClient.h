@@ -3,6 +3,7 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
+#include "PouEngine/renderers/RenderWindow.h"
 
 #include "world/GameWorld.h"
 
@@ -18,6 +19,7 @@ class GameClient
         bool disconnectFromServer();
 
         void update(const pou::Time &elapsedTime);
+        void render(pou::RenderWindow *renderWindow);
 
         //const pou::NetAddress &getAddress() const;
         unsigned short getPort() const;

@@ -131,6 +131,22 @@ void ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)
     value = (int32_t)unsigned_value + min;
 }
 
+void ReadStream::serializeFloat(float &value, float min, float max, uint8_t decimals)
+{
+    assert(min < max);
+
+    decimals = pow(10,decimals);
+
+    int32_t minInt = min*decimals;
+    int32_t maxInt = max*decimals;
+    const int bits = bitsRequired(minInt, maxInt);
+
+    int32_t unsigned_value = 0;
+    this->serializeBits(unsigned_value,bits);
+
+    value = ((float)unsigned_value)/decimals + min;
+}
+
 void ReadStream::serializeBool(bool &value)
 {
     int32_t v = 0;
@@ -143,6 +159,18 @@ void ReadStream::serializeChar(char &value)
     int32_t v = 0;
     this->serializeBits(v,8);
     value = (char)v;
+}
+
+void ReadStream::serializeString(std::string &str)
+{
+    int strSize = 0;
+    this->serializeBits(strSize, 8);
+
+    std::vector<uint8_t> temp(strSize+1);
+    this->memcpy(temp.data(), strSize);
+    temp.back() = '\0';
+
+    str = std::string(reinterpret_cast<const char *>(temp.data()));
 }
 
 

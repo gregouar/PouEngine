@@ -101,12 +101,14 @@ void ClientServerTestingState::update(const pou::Time &elapsedTime)
 
 void ClientServerTestingState::draw(pou::RenderWindow *renderWindow)
 {
-    if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
+    m_gameClient.render(renderWindow);
+
+    /*if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        //if(m_scene)
-        //    m_scene->render(renderer, m_camera);
-    }
+        if(m_scene)
+            m_scene->render(renderer, m_camera);
+    }*/
 
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
     {

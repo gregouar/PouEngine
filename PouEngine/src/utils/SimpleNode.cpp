@@ -47,6 +47,9 @@ void SimpleNode::addChildNode(const NodeTypeId id, SimpleNode* node)
         Logger::warning(warn_report);
     }
 
+    if(m_curNewId <= id)
+        m_curNewId = id+1;
+
     m_childs.insert_or_assign(childsIt,id,node);
     node->setParent(this);
 }

@@ -221,8 +221,11 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                 spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);
 
             int spriteId = this->generateSpriteId(spriteName);
+            spriteModel->setSpriteId(spriteId);
+
             if(!m_spritesById.insert({spriteId, std::move(spriteModel)}).second)
                   Logger::warning("Multiple sprites named \""+spriteName+"\" in the sprite sheet : "+m_filePath);
+
 
             spriteElement = spriteElement->NextSiblingElement("sprite");
             ++i;
@@ -293,7 +296,7 @@ int SpriteSheetAsset::generateSpriteId(const std::string &spriteName)
             return founded->second;
     }
 
-    id = m_spritesIdByName.size();//(--m_soundIdByName.end())->second++;
+    id = m_spritesIdByName.size()+1;//(--m_soundIdByName.end())->second++;
     m_spritesIdByName.insert({spriteName,id});
     return id;
 }

@@ -54,7 +54,7 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
     return (true);
 }
 
-void BitWriter::memcpy(uint8_t *data, int data_size, int bytes_shift)
+void BitWriter::memcpy(const uint8_t *data, int data_size, int bytes_shift)
 {
     m_byte_index += bytes_shift;
     assert(m_byte_index + data_size <= m_bytes);
@@ -155,8 +155,12 @@ void WriteStream::flush()
         m_writer->flush();
 }
 
-
 void WriteStream::memcpy(uint8_t *data, int data_size)
+{
+    this->const_memcpy(data,data_size);
+}
+
+void WriteStream::const_memcpy(const uint8_t *data, int data_size)
 {
     Stream::padZeroes();
 
@@ -192,6 +196,26 @@ void WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
         m_writer->writeBits(unsigned_value, bits);
 }
 
+void WriteStream::serializeFloat(float &value, float min, float max, uint8_t decimals)
+{
+    assert(min < max);
+    assert(value >= min);
+    assert(value <= max);
+
+    decimals = pow(10,decimals);
+
+    int32_t minInt = min*decimals;
+    int32_t maxInt = max*decimals;
+    const int bits = bitsRequired(minInt, maxInt);
+
+    m_bits += bits;
+
+    uint32_t unsigned_value = (value - min)*decimals;
+
+    if(m_writer)
+        m_writer->writeBits(unsigned_value, bits);
+}
+
 void WriteStream::serializeBool(bool &value)
 {
     int32_t temp = (int32_t)value;
@@ -204,6 +228,17 @@ void WriteStream::serializeChar(char &value)
     this->serializeBits(temp, 8);
 }
 
+void WriteStream::serializeString(std::string &str)
+{
+    int strSize = str.size();
+
+    assert(strSize < 256);
+
+    this->serializeBits(strSize, 8);
+
+    const uint8_t* temp = reinterpret_cast<const uint8_t *>(str.c_str());
+    this->const_memcpy(temp, strSize);
+}
 
 
 }

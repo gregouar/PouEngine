@@ -84,7 +84,8 @@ SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_nextSprite(-1),
     m_color(1.0),
     m_rme(1.0,0.0,0.0),
-    m_isReady(true)
+    m_isReady(true),
+    m_spriteId(0)
    // m_shadowMapExtent(0.0,0.0)
 {
     //ctor
@@ -328,7 +329,24 @@ void SpriteModel::updateDirectionnalShadow(glm::vec3 oldDirection, glm::vec3 new
     }
 }*/
 
+
+SpriteSheetAsset* SpriteModel::getSpriteSheet()
+{
+    return m_spriteSheet;
+}
+
+size_t SpriteModel::getSpriteId()
+{
+    return m_spriteId;
+}
+
+
 /// Protected ///
+
+void SpriteModel::setSpriteId(size_t id)
+{
+    m_spriteId = id;
+}
 
 void SpriteModel::cleanup()
 {
@@ -352,6 +370,7 @@ SpriteModel* SpriteModel::getNextSpriteModel()
 
     return m_spriteSheet->getSpriteModel(m_nextSprite);
 }
+
 
 void SpriteModel::notify(NotificationSender *sender, NotificationType notification,
                             size_t dataSize, char* data)
