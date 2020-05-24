@@ -54,8 +54,10 @@ bool BitWriter::writeBits(uint32_t unsigned_value, int bits)
     return (true);
 }
 
-void BitWriter::memcpy(const uint8_t *data, int data_size, int bytes_shift)
+void BitWriter::memcpy(const uint8_t *data, int data_size/*, int bytes_shift*/)
 {
+    int bytes_shift = (m_scratch_bits/8);
+
     m_byte_index += bytes_shift;
     assert(m_byte_index + data_size <= m_bytes);
     ///This secure buffer but not data !!! => maybe replace data by vector
@@ -63,11 +65,15 @@ void BitWriter::memcpy(const uint8_t *data, int data_size, int bytes_shift)
     //std::cout<<"Write Index:"<<index * 4 + bytes_shift<<std::endl;
     //std::cout<<"Write:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
 
+    //std::cout<<"Write memcpy byte index:"<<m_byte_index<<" with byte shift:"<<bytes_shift<<std::endl;
+
     std::memcpy( m_buffer + m_byte_index, data, data_size);
 
     m_byte_index += data_size;
     m_scratch_bits = 0;
     m_scratch = 0;
+
+    //std::cout<<"Write byte_index after memcpy:"<<m_byte_index<<std::endl;
 }
 
 void BitWriter::flush()
@@ -167,7 +173,7 @@ void WriteStream::const_memcpy(const uint8_t *data, int data_size)
     this->flush();
 
     if(m_writer)
-        m_writer->memcpy(data, data_size, (m_bits%32)/8);
+        m_writer->memcpy(data, data_size/*, (m_bits%32)/8*/);
 
     m_bits += data_size*8;
 }

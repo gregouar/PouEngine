@@ -35,6 +35,8 @@ class GameWorld
         size_t syncElement(pou::SceneNode *node);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet);
         size_t syncElement(pou::SpriteEntity *spriteEntity);
+        size_t syncElement(CharacterModelAsset *characterModel);
+        size_t syncElement(Character *character);
 
         /*size_t syncNode(pou::SceneNode *node);
         size_t syncNode(pou::SceneNode *node, size_t parentNodeId);
@@ -56,13 +58,11 @@ class GameWorld
 
         pou::CameraObject *m_camera;
 
-
-        pou::IdAllocator<pou::SceneNode*>   m_syncNodes;
-
-        //pou::IdAllocator<std::string>       m_syncSpritesheets;
+        pou::IdAllocator<pou::SceneNode*>           m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
         pou::IdAllocator<pou::SpriteEntity*>        m_syncSpriteEntities;
-        //pou::IdAllocator<Character*>        m_syncCharacters;
+        pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
+        pou::IdAllocator<Character*>                m_syncCharacters;
 
     public:
         static const glm::vec3  GAMEWORLD_MAX_SIZE; //Used for - and +
@@ -73,6 +73,8 @@ class GameWorld
         static const int        NODEID_BITS;
         static const int        SPRITESHEETID_BITS;
         static const int        SPRITEENTITYID_BITS;
+        static const int        CHARACTERMODELSID_BITS;
+        static const int        CHARACTERSID_BITS;
 
 
 };

@@ -11,7 +11,7 @@
 namespace pou
 {
 
-static const int MAX_PACKETSIZE = 1024;
+static const int MAX_PACKETSIZE = 1000;
 static const int MAX_PACKETFRAGS = 256;
 static const int SERIAL_CHECK = 69420;
 static const int SALT_SIZE = 8;
@@ -19,7 +19,7 @@ static const int SALT_SIZE = 8;
 const int UDPPACKET_SEQ_SIZE = 16;
 const int UDPPACKET_SEQ_MAX = (int)pow(2,UDPPACKET_SEQ_SIZE);
 
-static const int MAX_SLICESIZE = 1024;
+static const int MAX_SLICESIZE = 1000;
 const int UDPPACKET_SLICEID_SIZE = 16;
 const int UDPPACKET_SLICEID_MAX = (int)pow(2,UDPPACKET_SLICEID_SIZE);
 const int UDPPACKET_CHUNKID_SIZE = 8;

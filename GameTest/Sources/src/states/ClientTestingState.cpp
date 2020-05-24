@@ -3,6 +3,9 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/utils/Clock.h"
 
+#include "PouEngine/assets/AssetHandler.h"
+#include "PouEngine/assets/SoundBankAsset.h"
+
 #include "PouEngine/renderers/UiRenderer.h"
 
 ClientTestingState::ClientTestingState() :
@@ -20,6 +23,8 @@ ClientTestingState::~ClientTestingState()
 void ClientTestingState::init()
 {
     m_firstEntering = false;
+
+    pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
 
     m_gameClient.create(42420);
     m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,46969));

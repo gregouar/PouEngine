@@ -4,7 +4,7 @@
 #include "PouEngine/net/NetMessagesFactory.h"
 
 #include "PouEngine/scene/SceneNode.h"
-#include "net/SyncEntities.h"
+#include "net/SyncElements.h"
 
 enum NetMessageType
 {
@@ -65,11 +65,19 @@ struct NetMessage_WorldInitialization : public pou::NetMessage
     int nbr_spriteEntities;
     std::vector< std::pair<int,SpriteEntitySync> > spriteEntities;
 
+    int nbr_characterModels;
+    std::vector< std::pair<int, std::string > > characterModels; //Id, Path
+
+    int nbr_characters;
+    std::vector <std::pair<int, CharacterSync > > characters;
+
     virtual void serializeImpl(pou::Stream *stream);
 
     virtual void serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node);
     virtual void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
     virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
+    virtual void serializeCharacterModels(pou::Stream *stream, std::pair<int, std::string > &characterModel);
+    virtual void serializeCharacters(pou::Stream *stream, std::pair<int, CharacterSync> &character);
 };
 
 

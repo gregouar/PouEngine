@@ -53,12 +53,13 @@ void Stream::padZeroes()
     int zeroes = 0;
     int rem_bits = m_bits%8;
     if(rem_bits != 0)
+    {
         rem_bits = 8 - rem_bits;
+        this->serializeBits(zeroes, rem_bits);
+    }
     /*int rem_bits = m_bits%32;
     if(rem_bits != 0)
         rem_bits = 32 - rem_bits;*/
-
-    this->serializeBits(zeroes, rem_bits);
 }
 
 

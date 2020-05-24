@@ -15,8 +15,10 @@ template<class T> class IdAllocator
         size_t  allocateId(T t);
         bool    insert(size_t id, T t);
         bool    freeId(size_t id);
+        void    clear();
+
         T       findElement(size_t id);
-        size_t  findId(T);
+        size_t  findId(T t);
 
         size_t size();
 
@@ -27,7 +29,8 @@ template<class T> class IdAllocator
 
     private:
         size_t              m_curId;
-        std::map<size_t, T> m_map;
+        std::map<size_t, T> m_mapIdToElement;
+        std::map<T, size_t> m_mapElementToId;
 };
 
 }

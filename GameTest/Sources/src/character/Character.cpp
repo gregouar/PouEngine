@@ -8,7 +8,7 @@
 #include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/utils/MathTools.h"
 
-typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
+//typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
 const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
 
@@ -42,17 +42,17 @@ void Character::cleanup()
 
 bool Character::loadModel(const std::string &path)
 {
+    return this->setModel(CharacterModelsHandler::loadAssetFromFile(path));
+}
+
+bool Character::setModel(CharacterModelAsset *model)
+{
     this->cleanup();
-
-    m_model = CharacterModelsHandler::loadAssetFromFile(path);
-
-    //CharacterModelAsset *characterModel
-      //  = CharacterModelsHandler::loadAssetFromFile(path);
+    m_model = model;
 
     if(m_model == nullptr)
         return (false);
 
-    //m_model->generateOnNode(this, &m_skeletons, &m_limbs);
     if(!m_model->generateCharacter(this))
        return (false);
 
@@ -621,7 +621,7 @@ const std::list<Hitbox> *Character::getHurtboxes() const
     return m_model->getHurtboxes();
 }
 
-const CharacterModelAsset *Character::getModel() const
+CharacterModelAsset *Character::getModel() const
 {
     return m_model;
 }

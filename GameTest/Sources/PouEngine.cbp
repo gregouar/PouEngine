@@ -349,6 +349,7 @@
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
 		<Unit filename="include/net/NetMessageTypes.h" />
+		<Unit filename="include/net/SyncEntities.h" />
 		<Unit filename="include/states/ClientServerTestingState.h" />
 		<Unit filename="include/states/ClientTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />

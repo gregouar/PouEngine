@@ -21,6 +21,7 @@ class Character : public pou::SceneNode
         virtual ~Character();
 
         virtual bool loadModel(const std::string &path);
+        virtual bool setModel(CharacterModelAsset *model);
         virtual bool addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name);
 
         //virtual bool addLimb(std::unique_ptr<pou::SpriteEntity> limb);
@@ -57,7 +58,7 @@ class Character : public pou::SceneNode
         virtual const std::list<Hitbox> *getHitboxes() const;
         virtual const std::list<Hitbox> *getHurtboxes() const;
 
-        const CharacterModelAsset *getModel() const;
+        CharacterModelAsset *getModel() const;
 
         const CharacterAttributes &getAttributes() const;
 

@@ -28,9 +28,6 @@ bool GameClient::create(unsigned short port)
 
 void GameClient::cleanup()
 {
-    m_isWaitingForWorldSync = false;
-    m_curWorldId = 0;
-
     this->disconnectFromServer();
 
     if(m_client)
@@ -59,6 +56,8 @@ bool GameClient::disconnectFromServer()
 
     r = r & m_client->disconnectFromServer();
 
+    m_isWaitingForWorldSync = false;
+    m_curWorldId = 0;
     m_world.destroy();
     //this->cleanup();
 

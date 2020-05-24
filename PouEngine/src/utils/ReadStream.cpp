@@ -52,9 +52,16 @@ uint32_t BitReader::readBits(int bits)
     return value;
 }
 
-void BitReader::memcpy(uint8_t *data, int data_size, int bytes_shift)
+void BitReader::memcpy(uint8_t *data, int data_size/*, int bytes_shift*/)
 {
+    int bytes_shift = ((32-m_scratch_bits)%32)/8;
+
     m_byte_index = m_byte_index - 4 * (bytes_shift == 0 ? 0 : 1) + bytes_shift ;
+
+   // if(bytes_shift == 0 && m_scratch_bits == 32)
+     //   m_byte_index -= 4;
+
+   // std::cout<<"Read memcpy byte index:"<<m_byte_index<<" with byte shift:"<<bytes_shift<<std::endl;
     //std::cout<<"Read Index:"<<index * 4 + bytes_shift<<std::endl;
     //std::cout<<"Read:"<<index * 4 + bytes_shift + data_size<<" VS "<<m_bytes<<"(with bytes shift="<<bytes_shift<<std::endl;
 
@@ -65,6 +72,8 @@ void BitReader::memcpy(uint8_t *data, int data_size, int bytes_shift)
     m_byte_index += data_size;
     m_scratch = 0;
     m_scratch_bits = 0;
+
+    //std::cout<<"Read byte_index after memcpy:"<<m_byte_index<<std::endl;
 }
 
 /// ReadStream
@@ -104,7 +113,7 @@ void ReadStream::memcpy(uint8_t *data, int data_size)
     Stream::padZeroes();
 
     if(m_reader)
-        m_reader->memcpy(data, data_size, (m_bits%32)/8);
+        m_reader->memcpy(data, data_size/*, (m_bits%32)/8*/);
 
     m_bits += data_size*8;
 }
@@ -116,8 +125,9 @@ void ReadStream::serializeBits(int32_t &value, int bits)
     if(!m_reader)
         return;
 
-    if(m_reader->wouldReadPastEnd(bits))
-        return;
+    /*if(m_reader->wouldReadPastEnd(bits))
+        return;*/
+    assert(!m_reader->wouldReadPastEnd(bits));
 
     value = m_reader->readBits(bits);
 }

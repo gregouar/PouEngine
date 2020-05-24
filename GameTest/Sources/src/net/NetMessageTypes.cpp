@@ -3,6 +3,7 @@
 #include "PouEngine/net/NetEngine.h"
 
 #include "world/GameWorld.h"
+#include "character/Character.h"
 
 void initializeNetMessages()
 {
@@ -38,6 +39,16 @@ void NetMessage_WorldInitialization::serializeImpl(pou::Stream *stream)
     spriteEntities.resize(nbr_spriteEntities);
     for(int i = 0 ; i < nbr_spriteEntities ; ++i)
         this->serializeSpriteEntity(stream, spriteEntities[i]);
+
+    stream->serializeBits(nbr_characterModels, GameWorld::CHARACTERMODELSID_BITS);
+    characterModels.resize(nbr_characterModels);
+    for(int i = 0 ; i < nbr_characterModels ; ++i)
+        this->serializeCharacterModels(stream, characterModels[i]);
+
+    stream->serializeBits(nbr_characters, GameWorld::CHARACTERSID_BITS);
+    characters.resize(nbr_characters);
+    for(int i = 0 ; i < nbr_characters ; ++i)
+        this->serializeCharacters(stream, characters[i]);
 }
 
 void NetMessage_WorldInitialization::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
@@ -79,11 +90,26 @@ void NetMessage_WorldInitialization::serializeNode(pou::Stream *stream, std::pai
     } else
         scale = glm::vec3(1.0);
 
+
+    glm::vec4 color = nodePtr->getColor();
+    bool isColor = (color != glm::vec4(1.0));
+    stream->serializeBool(isColor);
+    if(isColor)
+    {
+        stream->serializeFloat(color.r, 0, 10, 2);
+        stream->serializeFloat(color.g, 0, 10, 2);
+        stream->serializeFloat(color.b, 0, 10, 2);
+        stream->serializeFloat(color.a, 0, 1, 2);
+    } else
+        color = glm::vec4(1.0);
+
+
     if(stream->isReading())
     {
         nodePtr->setPosition(pos);
         nodePtr->setRotation(rot);
         nodePtr->setScale(scale);
+        nodePtr->setColor(color);
     }
 }
 
@@ -101,6 +127,27 @@ void NetMessage_WorldInitialization::serializeSpriteEntity(pou::Stream *stream, 
     stream->serializeBits(spriteEntitySync.spriteSheetId, GameWorld::SPRITESHEETID_BITS);
     stream->serializeBits(spriteEntitySync.spriteId, 8);
     stream->serializeBits(spriteEntitySync.nodeId, GameWorld::NODEID_BITS);
+}
+
+void NetMessage_WorldInitialization::serializeCharacterModels(pou::Stream *stream, std::pair<int, std::string > &characterModel)
+{
+    auto& [ characterModelId, characterModelPath ] = characterModel;
+    stream->serializeBits(characterModelId, GameWorld::CHARACTERMODELSID_BITS);
+    stream->serializeString(characterModelPath);
+}
+
+void NetMessage_WorldInitialization::serializeCharacters(pou::Stream *stream, std::pair<int, CharacterSync> &character)
+{
+    auto& [ characterId, characterSync ] = character;
+    stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
+    stream->serializeBits(characterSync.characterModelId, GameWorld::CHARACTERMODELSID_BITS);
+    stream->serializeBits(characterSync.nodeId, GameWorld::NODEID_BITS);
+
+    auto &characterPtr = characterSync.character;
+
+    if(stream->isReading())
+        characterPtr = new Character();
+
 }
 
 ///

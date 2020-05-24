@@ -509,12 +509,19 @@ void SimpleNode::setParent(SimpleNode *p)
     if(m_parent != p)
     {
         this->stopListeningTo(m_parent);
+
+        auto oldParent = m_parent;
+
         m_parent = p;
         if(m_parent != nullptr)
         {
             ///this->setScene(m_parent->getScene());
             this->startListeningTo(m_parent);
         }
+
+        if(oldParent != nullptr)
+            oldParent->removeChildNode(this);
+
         this->updateGlobalPosition();
     }
 }

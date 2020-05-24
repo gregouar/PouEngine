@@ -1,6 +1,7 @@
 #ifndef TYPES_H_INCLUDED
 #define TYPES_H_INCLUDED
 
+class CharacterModelAsset;
 
 enum DamageType
 {
@@ -17,5 +18,8 @@ enum GearType
     GearType_Weapon,
     NBR_GEAR_TYPES,
 };
+
+template<class AssetType> class AssetHandler;
+typedef pou::AssetHandler<CharacterModelAsset>  CharacterModelsHandler;
 
 #endif // TYPES_H_INCLUDED

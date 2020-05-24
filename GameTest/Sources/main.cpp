@@ -21,6 +21,7 @@ int main()
         createInfos.name = "ProjectW";
 
         pou::VApp app(createInfos);
+        //app.run(TestingState::instance());
         app.run(ClientServerTestingState::instance());
     } catch (const std::exception& e) {
         pou::Logger::fatalError(e.what());
