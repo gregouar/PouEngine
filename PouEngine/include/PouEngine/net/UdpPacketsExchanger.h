@@ -86,13 +86,14 @@ struct SendedPacketContent
 
 struct NetMessagesList
 {
-    NetMessagesList() : curId(0), last_ack(-1), ack_bits(0), avrgRTT(0){}
+    NetMessagesList() : curId(0), firstAck(true), last_ack(-1), ack_bits(0), avrgRTT(0){}
 
     std::map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
     std::list<std::shared_ptr<NetMessage> > nonReliableMsgList;
     int curId;
 
-    int last_ack;
+    bool firstAck;
+    uint16_t last_ack;
     int ack_bits;
 
     float avrgRTT;
@@ -146,8 +147,10 @@ class UdpPacketsExchanger
         bool reassembleChunk(UdpBuffer &chunkBuffer,
                              std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages);
 
-        uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
-        bool verifyPacketIntegrity(UdpPacket &packet);
+        //uint32_t hashPacket(std::vector<uint8_t> *data = nullptr);
+        uint32_t hashPacket(uint8_t *data = nullptr, size_t dataSize = 0);
+        bool verifyPacketIntegrity(UdpPacket &packet, std::vector<uint8_t> &buffer, bool checkSerial = true);
+        void writeCrc32(std::vector<uint8_t> &buffer);
 
         int getMaxPacketSize();
 

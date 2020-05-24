@@ -147,7 +147,10 @@ bool ReadStream::serializeFloat(float &value)
     int v = 0;
     if(!this->serializeBits(v,32))
         return (false);
-    value = *(float*)(&v);
+
+    std::memcpy(&value, &v, sizeof(float));
+
+    return (true);
 }
 
 bool ReadStream::serializeFloat(float &value, float min, float max, uint8_t decimals)

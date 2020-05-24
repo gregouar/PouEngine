@@ -203,7 +203,8 @@ bool WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
 
 bool WriteStream::serializeFloat(float &value)
 {
-    int v = *(int*)(&value);
+    int v = 0;
+    std::memcpy(&v, &value, sizeof(float));
     return this->serializeBits(v,32);
 }
 

@@ -3,6 +3,7 @@
 
 #include "PouEngine/utils/ReadStream.h"
 #include "PouEngine/utils/WriteStream.h"
+#include "PouEngine/utils/Hasher.h"
 
 #include "PouEngine/net/NetEngine.h"
 
@@ -148,18 +149,30 @@ struct UdpPacket_Slice : UdpPacket
     int nbr_slices;
     int chunk_msg_type;
 
+    //int slice_crc32;
+
     std::vector<uint8_t> slice_data;
 
     bool serializeImpl(Stream *stream)
     {
         slice_data.resize(MAX_SLICESIZE);
 
-        return
+        if(!(
             stream->serializeBits(chunk_id, UDPPACKET_CHUNKID_SIZE)
             & stream->serializeBits(slice_id, UDPPACKET_SLICEID_SIZE)
             & stream->serializeBits(nbr_slices, UDPPACKET_SLICEID_SIZE)
             & stream->serializeInt(chunk_msg_type, 0, NetEngine::getNbrNetMsgTypes())
-            & stream->memcpy(slice_data.data(), slice_data.size());
+            & stream->memcpy(slice_data.data(), slice_data.size())))
+            return (false);
+
+        /*int crc32check = Hasher::crc32(slice_data.data(), slice_data.size());
+        if(stream->isWriting())
+            slice_crc32 = crc32check;
+        stream->serializeBits(slice_crc32, 32);
+        if(stream->isReading() && crc32check != slice_crc32)
+            return (false);*/
+
+        return (true);
     }
 };
 

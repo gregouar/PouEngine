@@ -349,7 +349,7 @@
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
 		<Unit filename="include/net/NetMessageTypes.h" />
-		<Unit filename="include/net/SyncEntities.h" />
+		<Unit filename="include/net/SyncElements.h" />
 		<Unit filename="include/states/ClientServerTestingState.h" />
 		<Unit filename="include/states/ClientTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />
@@ -371,6 +371,7 @@
 		<Unit filename="src/states/TestingState.cpp" />
 		<Unit filename="src/ui/GameUi.cpp" />
 		<Unit filename="src/world/GameWorld.cpp" />
+		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

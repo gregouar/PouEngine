@@ -217,6 +217,8 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
 
 void GameWorld::generate(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg)
 {
+    std::cout<<"Generate world from server"<<std::endl;
+
     this->createScene();
 
     m_curLocalTime = worldInitMsg->localTime;
@@ -227,9 +229,9 @@ void GameWorld::generate(std::shared_ptr<NetMessage_WorldInitialization> worldIn
 
     m_dayTime = worldInitMsg->dayTime;
 
-    for(auto &characterModelit : worldInitMsg->characterModels)
+    for(auto &characterModelIt : worldInitMsg->characterModels)
     {
-        auto& [ characterModelId, characterModelPath ] = characterModelit;
+        auto& [ characterModelId, characterModelPath ] = characterModelIt;
         auto *characterModelPtr = CharacterModelsHandler::loadAssetFromFile(characterModelPath);
         m_syncCharacterModels.insert(characterModelId, characterModelPtr);
     }

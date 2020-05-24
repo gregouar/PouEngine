@@ -19,10 +19,10 @@ class BitWriter
         bool memcpy(const uint8_t *data, int data_size/*, int bytes_shift*/);
         void flush();
 
-        void printBitCode(uint8_t v);
-        void printBitCode(uint16_t v);
-        void printBitCode(uint32_t v);
-        void printBitCode(uint64_t v);
+        static void printBitCode(uint8_t v);
+        static void printBitCode(uint16_t v);
+        static void printBitCode(uint32_t v);
+        static void printBitCode(uint64_t v);
 
     private:
         uint8_t *m_buffer;

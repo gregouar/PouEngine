@@ -11,9 +11,6 @@
 namespace pou
 {
 
-//const int UdpBuffer::MAX_PACKETSIZE = 1024;
-//const int UdpBuffer::MAX_PACKETFRAGS = 256;
-
 const int UdpPacketsExchanger::MAX_FRAGBUFFER_ENTRIES = 256;
 const float UdpPacketsExchanger::MAX_FRAGPACKET_LIFESPAN = 60.0f*5;
 const float UdpPacketsExchanger::MAX_KEEPFRAGPACKETSPERCLIENT_TIME = 60.0f*10;
@@ -32,11 +29,9 @@ FragmentedPacket::FragmentedPacket() :
 
 }
 
-UdpPacketsExchanger::UdpPacketsExchanger() : m_curLocalTime(0)
+UdpPacketsExchanger::UdpPacketsExchanger() : m_curSequence(0),m_curLocalTime(0)
 {
     m_maxPacketSize = getMaxPacketSize()*1.5;
-   // m_chunkSendingBuffer.chunk_id = m_curChunkId;
-   // m_lastReceivedChunkId = -1;
 }
 
 UdpPacketsExchanger::~UdpPacketsExchanger()
@@ -65,7 +60,6 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
         else
             ++it;
     }
-
 
     for(auto &chunkSendingBufferIt : m_chunkSendingBuffers)
     {
@@ -113,6 +107,8 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
         if (bytes_read <= 0)
             break;
 
+        tempBuffer.buffer.resize(bytes_read);
+
         //std::cout<<"Received packet from"<<tempBuffer.address.getAddressString()<<std::endl;
 
         auto packetType = retrieveMessagesAndAck(tempBuffer, netMessages);
@@ -149,21 +145,14 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
                 break;
 
         }
-        /*while((reliableMsgBuffer.last_id+1)%NetMessagesFactory::NETMESSAGEID_MAX_NBR
-              == reliableMsgBuffer.msgMap.begin()->first)
-        {
-            netMessages.push_back({it.first, reliableMsgBuffer.msgMap.begin()->second});
-            reliableMsgBuffer.msgMap.erase(reliableMsgBuffer.msgMap.begin());
-            reliableMsgBuffer.last_id++;
-        }*/
     }
 }
 
-uint32_t UdpPacketsExchanger::hashPacket(std::vector<uint8_t> *data)
+uint32_t UdpPacketsExchanger::hashPacket(uint8_t *data, size_t dataSize)
 {
     uint32_t s = 0;
     if(data)
-        s = Hasher::crc32(data->data(),data->size(),s);
+        s = Hasher::crc32(data,dataSize,s);
     return Hasher::crc32((std::string)VApp::APP_VERSION,s);
 }
 
@@ -182,11 +171,6 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
     if(!forceNonFragSend)
     {
-        /*auto &netMsgList = m_netMsgLists[{address, packet.salt}];
-
-        packet.last_ack = netMsgList.last_ack;
-        packet.ack_bits = netMsgList.ack_bits;*/
-
         auto &sendedPacketContent = netMsgList.sendedPacketContents[packet.sequence];
         sendedPacketContent.messageIds.clear();
         sendedPacketContent.sendTime = m_curLocalTime;
@@ -204,7 +188,6 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
             packet.netMessages.push_back(it.second);
             packet.nbrNetMessages++;
 
-            //netMsgList.msgPerPacket.insert({packet.sequence, it.first});
             sendedPacketContent.messageIds.push_back(it.first);
 
             //std::cout<<"Trying to send msgid:"<<it.second->id<<std::endl;
@@ -213,7 +196,6 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
                 break;
         }
 
-        //for(auto &it : netMsgList.nonReliableMsgList)
         for(auto it = netMsgList.nonReliableMsgList.begin() ;
             it != netMsgList.nonReliableMsgList.end() ; ++it)
         {
@@ -238,6 +220,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
     stream.setBuffer(buffer.buffer.data(), buffer.buffer.size());
     packet.serialize(&stream);
     buffer.address = address;
+
+    this->writeCrc32(buffer.buffer);
 
     this->sendPacket(buffer, forceNonFragSend);
 }
@@ -321,8 +305,6 @@ bool UdpPacketsExchanger::sendChunk(ClientAddress &clientAddress, std::vector<ui
     chunkSendingBuffer.packetSeqToSliceId.clear();
     chunkSendingBuffer.buffer = std::move(chunk_data);
 
-    /*m_chunkSendingBuffer.slicesToSend.resize(m_chunkSendingBuffer.nbrSlices,0);
-    std::iota (std::begin(m_chunkSendingBuffer.slicesToSend), std::end(m_chunkSendingBuffer.slicesToSend), 0);*/
     chunkSendingBuffer.slicesToSend.clear();
     for(int i = 0 ; i  <  chunkSendingBuffer.nbr_slices ; ++i)
     {
@@ -356,7 +338,7 @@ void UdpPacketsExchanger::sendSlice(ChunkSendingBuffer &chunkSendingBuffer, int 
     //std::cout<<"Send slice: "<<sliceId<<std::endl;
 
     this->sendPacket(chunkSendingBuffer.address.address, packet, true);
-    chunkSendingBuffer.packetSeqToSliceId.insert_or_assign(packet.sequence, sliceId);
+    chunkSendingBuffer.packetSeqToSliceId.insert_or_assign(packet.sequence %  UDPPACKET_SEQ_MAX, sliceId);
     m_curSequence++;
 }
 
@@ -401,6 +383,8 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
 
     if((int)chunkReceivingBuffer.sliceBuffers.size() == chunkReceivingBuffer.nbr_slices)
     {
+        std::cout<<"Chunk received #"<<chunkReceivingBuffer.chunk_id<<std::endl;
+
         std::vector<uint8_t> reassembledBuffer;
         reassembledBuffer.reserve(MAX_SLICESIZE*chunkReceivingBuffer.nbr_slices);
 
@@ -408,6 +392,7 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
             reassembledBuffer.insert(reassembledBuffer.end(),
                                      chunkReceivingBuffer.sliceBuffers[i].begin(),
                                      chunkReceivingBuffer.sliceBuffers[i].end());
+
 
         ReadStream stream;
         stream.setBuffer(reassembledBuffer);
@@ -418,6 +403,7 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
         chunkReceivingBuffer.sliceBuffers.clear();
         chunkReceivingBuffer.isReceiving = false;
         chunkReceivingBuffer.chunk_id++;
+
         return (true);
     }
 
@@ -447,31 +433,39 @@ bool UdpPacketsExchanger::readPacket(UdpPacket &packet, UdpBuffer &packetBuffer)
 {
     ReadStream stream;
 
-    //if((int)packetBuffer.buffer.size() < packet.serialize(&stream))
-    //    return (false);
-
     stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
     packet.serialize(&stream);
 
-    return (this->verifyPacketIntegrity(packet));
+    return (this->verifyPacketIntegrity(packet, packetBuffer.buffer));
 }
 
 
-bool UdpPacketsExchanger::verifyPacketIntegrity(UdpPacket &packet)
+bool UdpPacketsExchanger::verifyPacketIntegrity(UdpPacket &packet, std::vector<uint8_t> &buffer, bool verifySerial)
 {
-    if((uint32_t)packet.crc32 != hashPacket())
+    if((uint32_t)packet.crc32 != hashPacket(buffer.data()+4, buffer.size()-4))
     {
         //std::cout<<"Crc32 check failed !"<<std::endl;
         packet.type = PacketCorrupted;
     }
 
-    if((uint32_t)packet.serial_check != Hasher::crc32(&SERIAL_CHECK,1))
-    {
-        //std::cout<<"Serial check failed !"<<std::endl;
-        packet.type = PacketCorrupted;
-    }
+    if(verifySerial)
+        if((uint32_t)packet.serial_check != Hasher::crc32(&SERIAL_CHECK,1))
+        {
+            //std::cout<<"Serial check failed !"<<std::endl;
+            packet.type = PacketCorrupted;
+        }
 
     return (packet.type != PacketCorrupted);
+}
+
+void UdpPacketsExchanger::writeCrc32(std::vector<uint8_t> &buffer)
+{
+    uint32_t h = hashPacket(buffer.data()+4, buffer.size()-4);
+
+    buffer[0] = (uint8_t)h;
+    buffer[1] = (uint8_t)(h>>8);
+    buffer[2] = (uint8_t)(h>>16);
+    buffer[3] = (uint8_t)(h>>24);
 }
 
 void UdpPacketsExchanger::generatePacketHeader(UdpPacket &packet, PacketType packetType)
@@ -586,26 +580,34 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
                                 std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages)
 {
     UdpPacket packet;
-    ReadStream stream;
-    stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
-    packet.serializeHeaderAndMessages(&stream);
 
-    if(!verifyPacketIntegrity(packet))
-        return PacketCorrupted;
-
-    if(packet.type == PacketType_Slice)
     {
-        UdpPacket_Slice packetSlice;
-        if(!this->readPacket(packetSlice, packetBuffer))
+        ReadStream stream;
+        stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
+        packet.serializeHeader(&stream);
+
+        if(!verifyPacketIntegrity(packet, packetBuffer.buffer,false))
             return PacketCorrupted;
+
+        if(packet.type == PacketType_Slice)
+        {
+            UdpPacket_Slice packetSlice;
+            if(!this->readPacket(packetSlice, packetBuffer))
+                return PacketCorrupted;
+        }
     }
+
+    {
+        ReadStream stream;
+        stream.setBuffer(packetBuffer.buffer.data(), packetBuffer.buffer.size());
+        packet.serializeHeaderAndMessages(&stream);
+    }
+
+    if(!verifyPacketIntegrity(packet, packetBuffer.buffer))
+        return PacketCorrupted;
 
     ClientAddress clientAddress = {packetBuffer.address, packet.salt};
     auto &netMsgList = m_netMsgLists[clientAddress];
-
-    /*for(int i = 0 ; i < 32 ; ++i)
-        std::cout<<(bool)(packet.ack_bits & (uint32_t)(pow(2,i)));
-    std::cout<<std::endl;*/
 
     //We remove from the msgList the messages that have been ack
     for(auto i = 0 ; i < 32 ; ++i)
@@ -614,16 +616,6 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         int packet_seq = (packet.last_ack - (int)i) % UDPPACKET_SEQ_MAX;
         if(packet_seq < 0)
             packet_seq += UDPPACKET_SEQ_MAX;
-
-        //std::cout<<"Client has acked packet seq:"<<packet_seq<<std::endl;
-
-        /*
-       // std::cout<<"Ack packet:"<<packet_seq<<" (last_ack:"<<packet.last_ack<<std::endl;
-        auto msg_ids = netMsgList.msgPerPacket.equal_range(packet_seq);
-        //for(auto id : msg_ids)
-        for(auto id = msg_ids.first ; id != msg_ids.second ; ++id)
-            netMsgList.reliableMsgMap.erase(id->second);
-        netMsgList.msgPerPacket.erase(msg_ids.first, msg_ids.second);*/
 
         auto &sendedPacketContent = netMsgList.sendedPacketContents[packet_seq];
         for(auto id : sendedPacketContent.messageIds)
@@ -667,6 +659,12 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
             delta += UDPPACKET_SEQ_MAX;
         else
             delta -= UDPPACKET_SEQ_MAX;
+    }
+
+    if(netMsgList.firstAck)
+    {
+        netMsgList.firstAck = false;
+        delta=0;
     }
 
     if(delta > 0)
