@@ -26,7 +26,7 @@ void ClientTestingState::init()
 
     pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
 
-    m_gameClient.create(42420);
+    m_gameClient.create();
     m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,46969));
 
     m_gameUi.init();

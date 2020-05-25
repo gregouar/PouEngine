@@ -20,6 +20,7 @@ void ServerTestingState::init()
     m_firstEntering = false;
 
     m_gameServer.create(46969);
+    m_gameServer.generateWorld();
 }
 
 void ServerTestingState::entered()

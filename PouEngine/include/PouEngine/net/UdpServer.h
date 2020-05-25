@@ -36,7 +36,7 @@ class UdpServer : public AbstractServer
         virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);
         virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg, int salt);
 
-        virtual void disconnectClient(uint16_t clientNbr);
+        virtual void disconnectClient(uint16_t clientNbr, bool sendMsg = true);
         virtual void denyConnectionFrom(NetAddress &address);
         virtual void challengeConnexionFrom(uint16_t clientNbr);
         virtual void allowConnectionFrom(uint16_t clientNbr);
@@ -48,7 +48,9 @@ class UdpServer : public AbstractServer
         UdpPacketsExchanger m_packetsExchanger;
 
         float m_pingDelay;
-        float m_deconnectionPingDelay;
+        float m_disconnectionPingDelay;
+
+        std::list<int> m_disconnectionList;
 
     public:
         static const float DEFAULT_PINGDELAY;

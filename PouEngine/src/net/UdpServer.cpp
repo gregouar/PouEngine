@@ -15,7 +15,7 @@ namespace pou
 const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 5.0f;
 const float UdpServer::DEFAULT_PINGDELAY = .5f;
 
-UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_deconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)
+UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_disconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)
 {
     //ctor
 }
@@ -53,7 +53,7 @@ void UdpServer::update(const Time &elapsedTime)
     for(uint16_t i = 0 ; i < m_clients.size() ; ++i)
         if(m_clients[i].status != ConnectionStatus_Disconnected)
         {
-            if(m_clients[i].lastPingAnswerTime + m_deconnectionPingDelay < m_curLocalTime)
+            if(m_clients[i].lastPingAnswerTime + m_disconnectionPingDelay < m_curLocalTime)
             {
                 Logger::write("Client timed out from: "+m_clients[i].address.getAddressString()
                               +"("+std::to_string(m_clients[i].clientSalt)+","+std::to_string(m_clients[i].serverSalt)+")");
@@ -115,6 +115,14 @@ void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessa
 
     for(auto &buffer : packet_buffers)
         this->processPacket(buffer, netMessages);
+
+    while(!m_disconnectionList.empty())
+    {
+        auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
+        msg->connectionStatus = ConnectionStatus_Disconnected;
+        netMessages.push_back({m_disconnectionList.back(), msg});
+        m_disconnectionList.pop_back();
+    }
 
     for(auto &msg : reliableMessages)
     {
@@ -217,13 +225,15 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer, std::list<std::pair
         if(clientNbr != m_clients.size()
         && m_clients[clientNbr].status != ConnectionStatus_Disconnected)
         {
-            m_clients[clientNbr].status = ConnectionStatus_Disconnected;
+            /*m_clients[clientNbr].status = ConnectionStatus_Disconnected;
             Logger::write("Client disconnected from: "+buffer.address.getAddressString()
                           +"("+std::to_string(m_clients[clientNbr].clientSalt)+","+std::to_string(m_clients[clientNbr].serverSalt)+")");
 
             auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
             msg->connectionStatus = ConnectionStatus_Disconnected;
-            netMessages.push_back({clientNbr, msg});
+            netMessages.push_back({clientNbr, msg});*/
+
+            this->disconnectClient(clientNbr);
         }
     }
 }
@@ -271,12 +281,17 @@ void UdpServer::allowConnectionFrom(uint16_t clientNbr)
     this->sendConnectionMsg(clientNbr, ConnectionMessage_ConnectionAccepted);
 }
 
-void UdpServer::disconnectClient(uint16_t clientNbr)
+void UdpServer::disconnectClient(uint16_t clientNbr, bool sendMsg)
 {
     if(clientNbr >= m_clients.size())
         return;
 
+    Logger::write("Client disconnected from: "+m_clients[clientNbr].address.getAddressString()
+                  +"("+std::to_string(m_clients[clientNbr].clientSalt)+","+std::to_string(m_clients[clientNbr].serverSalt)+")");
+
+    m_disconnectionList.push_back(clientNbr);
     m_clients[clientNbr].status = ConnectionStatus_Disconnected;
+
     this->sendConnectionMsg(clientNbr, ConnectionMessage_Disconnection);
 }
 

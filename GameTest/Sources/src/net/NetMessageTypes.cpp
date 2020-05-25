@@ -30,6 +30,7 @@ void NetMessage_WorldInit::serializeImpl(pou::Stream *stream)
     //std::cout<<"Nbr Nodes:"<<nbr_nodes<<std::endl;
 
     stream->serializeBits(nbr_nodes, GameWorld::NODEID_BITS);
+    std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
     nodes.resize(nbr_nodes);
     for(int i = 0 ; i < nbr_nodes ; ++i)
         this->serializeNode(stream, nodes[i]);

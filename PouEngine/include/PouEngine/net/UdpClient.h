@@ -27,9 +27,11 @@ class UdpClient : public AbstractClient
         virtual void receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages);
 
     protected:
-        virtual void processPacket(UdpBuffer &buffer);
+        virtual void processPacket(UdpBuffer &buffer,
+                                   std::list<std::shared_ptr<NetMessage> > &netMessages);
         //virtual void processMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage);
-        virtual void processConnectionMessages(UdpBuffer &buffer);
+        virtual void processConnectionMessages(UdpBuffer &buffer,
+                                               std::list<std::shared_ptr<NetMessage> > &netMessages);
 
         virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg);
 
@@ -46,9 +48,11 @@ class UdpClient : public AbstractClient
         Timer m_connectingTimer;
 
         float m_pingDelay;
-        float m_deconnectionPingDelay;
+        float m_disconnectionPingDelay;
         float m_lastServerAnswerPingTime;
         float m_lastServerPingTime;
+
+        bool m_disconnection;
 
         int m_salt;
         int m_serverSalt;

@@ -5,7 +5,7 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
-const int GameWorld::MAX_NBR_PLAYERS = 8;
+const int GameWorld::MAX_NBR_PLAYERS = 4;
 const glm::vec3 GameWorld::GAMEWORLD_MAX_SIZE   = glm::vec3(50000.0, 50000.0, 1000.0);
 
 const float     GameWorld::NODE_MAX_SCALE       = 100.0f;

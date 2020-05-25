@@ -79,7 +79,8 @@ NetMessagesFactory::~NetMessagesFactory()
 
 void NetMessagesFactory::addMessageModel(std::unique_ptr<NetMessage> msgModel)
 {
-    m_msgModels.resize(msgModel->type+1);
+    if(m_msgModels.size() < msgModel->type+1)
+        m_msgModels.resize(msgModel->type+1);
     m_msgModels[msgModel->type] = std::move(msgModel);
 }
 

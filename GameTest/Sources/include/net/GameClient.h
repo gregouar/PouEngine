@@ -16,7 +16,7 @@ class GameClient
         bool create(unsigned short port = 0);
 
         bool connectToServer(const pou::NetAddress &address);
-        bool disconnectFromServer();
+        bool disconnectFromServer(bool alreadyDisconnected = false);
 
         void update(const pou::Time &elapsedTime);
         void render(pou::RenderWindow *renderWindow);

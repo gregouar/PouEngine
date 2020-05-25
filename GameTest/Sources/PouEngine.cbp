@@ -116,6 +116,64 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="ServerOnly">
+				<Option output="../Game/bin/ProjectW_server" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DSERVERONLY" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
+					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
+					<Add directory="GameTest/Sources/include/states" />
+					<Add directory="GameTest/Sources/include/ui" />
+					<Add directory="GameTest/Sources/include/world" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="ClientOnly">
+				<Option output="../Game/bin/ProjectW_client" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DCLIENTONLY" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
+					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
+					<Add directory="GameTest/Sources/include/states" />
+					<Add directory="GameTest/Sources/include/ui" />
+					<Add directory="GameTest/Sources/include/world" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />

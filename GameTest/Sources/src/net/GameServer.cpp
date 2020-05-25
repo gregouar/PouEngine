@@ -144,7 +144,7 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
 
 void GameServer::addClient(int clientNbr)
 {
-    ClientInfos clientInfos = {0,0};
+    GameClientInfos clientInfos = {0,0};
     m_clientInfos.insert({clientNbr, clientInfos});
 }
 

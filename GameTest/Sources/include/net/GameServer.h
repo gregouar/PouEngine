@@ -10,7 +10,7 @@
 
 ///Need to keep track of clients connected to the server somehow
 
-struct ClientInfos
+struct GameClientInfos
 {
     size_t world_id;
     size_t player_id;
@@ -47,7 +47,7 @@ class GameServer
         std::unique_ptr<pou::AbstractServer> m_server;
 
 
-        std::map<size_t, ClientInfos> m_clientInfos;
+        std::map<size_t, GameClientInfos> m_clientInfos;
         std::map<size_t, GameWorld> m_worlds;
         size_t m_curWorldId;
 

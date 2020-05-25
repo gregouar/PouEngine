@@ -50,14 +50,15 @@ bool GameClient::connectToServer(const pou::NetAddress &address)
     return m_client->connectToServer(address);
 }
 
-bool GameClient::disconnectFromServer()
+bool GameClient::disconnectFromServer(bool alreadyDisconnected)
 {
     if(!m_client)
         return (false);
 
     bool r = true;
 
-    r = r & m_client->disconnectFromServer();
+    if(!alreadyDisconnected)
+        r = r & m_client->disconnectFromServer();
 
     m_isWaitingForWorldSync = false;
     m_curWorldId = 0;
@@ -111,6 +112,17 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             auto castMsg = std::dynamic_pointer_cast<NetMessage_Test>(msg);
             std::cout<<"Client received test message with value: "<<castMsg->test_value<<" and id: "<<castMsg->id<<std::endl;
         }break;
+
+        case NetMessageType_ConnectionStatus:{
+            auto castMsg = std::dynamic_pointer_cast<pou::NetMessage_ConnectionStatus>(msg);
+            if(castMsg->connectionStatus == pou::ConnectionStatus_Connected)
+            {
+                // Do something, probably
+            }
+            else if(castMsg->connectionStatus == pou::ConnectionStatus_Disconnected)
+                this->disconnectFromServer(true);
+        }break;
+
 
         case NetMessageType_WorldInit:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>(msg);

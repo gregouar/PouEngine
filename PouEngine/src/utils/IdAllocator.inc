@@ -97,7 +97,7 @@ bool IdAllocator<T>::freeElement(T t)
     m_availableIds.push_back(it->second);
 
     auto it2 = m_mapIdToElement.find(it->second);
-    if(it2 == m_mapIdToElement.end())
+    if(it2 != m_mapIdToElement.end())
         m_mapIdToElement.erase(it2);
 
     m_mapElementToId.erase(it);

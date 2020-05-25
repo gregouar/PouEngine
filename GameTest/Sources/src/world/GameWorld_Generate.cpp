@@ -388,6 +388,11 @@ size_t GameWorld::addPlayer()
     player->setModel(playerModel);
     m_scene->getRootNode()->addChildNode(player);
 
+    glm::vec2 pos(glm::linearRand(-100,100), glm::linearRand(-100,100));
+    player->setPosition(pos);
+
+    std::cout<<"New player with id:"<<player_id<<std::endl;
+
     return player_id;
 }
 

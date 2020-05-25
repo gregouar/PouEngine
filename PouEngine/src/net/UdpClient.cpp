@@ -21,7 +21,8 @@ const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 5.0f;
 
 UdpClient::UdpClient() :
     m_pingDelay(UdpClient::DEFAULT_PINGDELAY),
-    m_deconnectionPingDelay(UdpClient::DEFAULT_DECONNECTIONPINGDELAY)
+    m_disconnectionPingDelay(UdpClient::DEFAULT_DECONNECTIONPINGDELAY),
+    m_disconnection(false)
 {
     //ctor
 }
@@ -71,6 +72,8 @@ bool UdpClient::disconnectFromServer()
                       +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
         for(auto i = 0 ; i < 5 ; ++i)
             this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
+
+        m_disconnection = true;
     }
 
     m_connectionStatus = ConnectionStatus_Disconnected;
@@ -109,7 +112,7 @@ void UdpClient::update(const Time &elapsedTime)
     }
 
     if(m_connectionStatus == ConnectionStatus_Connected)
-        if(m_lastServerAnswerPingTime + m_deconnectionPingDelay < m_curLocalTime)
+        if(m_lastServerAnswerPingTime + m_disconnectionPingDelay < m_curLocalTime)
         {
             Logger::write("Server connection timed out ("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
             this->disconnectFromServer();
@@ -156,7 +159,16 @@ void UdpClient::receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessa
     m_packetsExchanger.receivePackets(packet_buffers,reliableMessages);
 
     for(auto &buffer : packet_buffers)
-        this->processPacket(buffer);
+        this->processPacket(buffer, netMessages);
+
+    if(m_disconnection)
+    {
+        auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
+        msg->connectionStatus = ConnectionStatus_Disconnected;
+        netMessages.push_back(msg);
+
+        m_disconnection = false;
+    }
 
     for(auto &msg : reliableMessages)
     {
@@ -167,7 +179,8 @@ void UdpClient::receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessa
     }
 }
 
-void UdpClient::processPacket(UdpBuffer &buffer)
+void UdpClient::processPacket(UdpBuffer &buffer,
+                              std::list<std::shared_ptr<NetMessage> > &netMessages)
 {
     PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
@@ -176,7 +189,7 @@ void UdpClient::processPacket(UdpBuffer &buffer)
         m_lastServerAnswerPingTime = m_curLocalTime;
 
     if(packetType == PacketType_ConnectionMsg)
-        this->processConnectionMessages(buffer);
+        this->processConnectionMessages(buffer,netMessages);
 }
 
 /*void UdpClient::processMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage)
@@ -188,7 +201,8 @@ void UdpClient::processPacket(UdpBuffer &buffer)
     std::cout<<"The client has got a reliable message dude ! Id:"<<addressAndMessage.second->id<<std::endl;
 }*/
 
-void UdpClient::processConnectionMessages(UdpBuffer &buffer)
+void UdpClient::processConnectionMessages(UdpBuffer &buffer,
+                                          std::list<std::shared_ptr<NetMessage> > &netMessages)
 {
     UdpPacket_ConnectionMsg packet;
     if(!m_packetsExchanger.readPacket(packet, buffer))
@@ -201,6 +215,11 @@ void UdpClient::processConnectionMessages(UdpBuffer &buffer)
             Logger::write("Connected to server: "+buffer.address.getAddressString()
                           +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
         m_connectionStatus = ConnectionStatus_Connected;
+
+        auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
+        msg->connectionStatus = ConnectionStatus_Connected;
+        netMessages.push_back(msg);
+
         return;
     }
     if(packet.connectionMessage == ConnectionMessage_Challenge)

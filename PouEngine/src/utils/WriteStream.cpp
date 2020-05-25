@@ -1,5 +1,7 @@
 #include "PouEngine/utils/WriteStream.h"
 
+#include "PouEngine/utils/Logger.h"
+
 #include <glm/glm.hpp>
 
 #include <string>
@@ -185,9 +187,15 @@ bool WriteStream::serializeBits(int32_t &value, int bits)
 
 bool WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
 {
-    assert(min < max);
+    /*assert(min < max);
     assert(value >= min);
-    assert(value <= max);
+    assert(value <= max);*/
+
+    if(value < min || value > max)
+        Logger::warning("WriteStream is trying to write value:"+
+                        std::to_string(value)+" not in ["+std::to_string(min)+","+std::to_string(max)+"]");
+
+    value = glm::clamp(value, min, max);
 
     const int bits = bitsRequired(min, max);
 
@@ -210,9 +218,17 @@ bool WriteStream::serializeFloat(float &value)
 
 bool WriteStream::serializeFloat(float &value, float min, float max, uint8_t decimals)
 {
+    /*if(value < min || value > max)
+        std::cout<<min<<" < "<<value<<" < "<<max<<" (dec: "<<decimals<<std::endl;
     assert(min < max);
     assert(value >= min);
-    assert(value <= max);
+    assert(value <= max);*/
+
+    if(value < min || value > max)
+        Logger::warning("WriteStream is trying to write value:"
+                        +std::to_string(value)+" not in ["+std::to_string(min)+","+std::to_string(max)+"]");
+
+    value = glm::clamp(value, min, max);
 
     decimals = pow(10,decimals);
 
