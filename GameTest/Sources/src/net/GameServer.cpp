@@ -19,7 +19,7 @@ GameServer::~GameServer()
 bool GameServer::create(unsigned short port)
 {
     m_server = std::move(pou::NetEngine::createServer());
-    m_server->start(8,port);
+    m_server->start(GameWorld::MAX_NBR_PLAYERS,port);
 
     return (true);
 }
@@ -106,15 +106,33 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
             std::cout<<"Server received test message from client #"<<clientNbr<<" with value="<<castMsg->test_value<<" and id "<<castMsg->id<<std::endl;
         }break;
 
-        case NetMessageType_AskForWorldSync:{
-            auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(msg);
+        case NetMessageType_ConnectionStatus:{
+            auto castMsg = std::dynamic_pointer_cast<pou::NetMessage_ConnectionStatus>(msg);
+            if(castMsg->connectionStatus == pou::ConnectionStatus_Connected)
+                this->addClient(clientNbr);
+            else if(castMsg->connectionStatus == pou::ConnectionStatus_Disconnected)
+                this->disconnectClient(clientNbr);
+        }break;
+
+        case NetMessageType_AskForWorldInit:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldInit>(msg);
             if(castMsg->world_id == 0)
             {
-                auto worldInitMsg = std::dynamic_pointer_cast<NetMessage_WorldInitialization>
-                                        (pou::NetEngine::createNetMessage(NetMessageType_WorldInitialization));
-                worldInitMsg->world_id = m_curWorldId;
+                auto worldInitMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>
+                                        (pou::NetEngine::createNetMessage(NetMessageType_WorldInit));
 
+                worldInitMsg->world_id = m_curWorldId;
                 auto &world = m_worlds.find(m_curWorldId)->second;
+                size_t player_id = world.addPlayer();
+                worldInitMsg->player_id = player_id;
+
+                auto clientInfosIt = m_clientInfos.find(clientNbr);
+                if(clientInfosIt == m_clientInfos.end())
+                    break;
+
+                clientInfosIt->second.world_id = worldInitMsg->world_id;
+                clientInfosIt->second.player_id = worldInitMsg->player_id;
+
                 world.createWorldInitializationMsg(worldInitMsg);
                 m_server->sendReliableBigMessage(clientNbr, worldInitMsg);
 
@@ -122,6 +140,27 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
             }
         }break;
     }
+}
+
+void GameServer::addClient(int clientNbr)
+{
+    ClientInfos clientInfos = {0,0};
+    m_clientInfos.insert({clientNbr, clientInfos});
+}
+
+void GameServer::disconnectClient(int clientNbr)
+{
+    auto it = m_clientInfos.find(clientNbr);
+    if(it == m_clientInfos.end())
+        return;
+
+    auto clientInfos = it->second;
+
+    auto worldIt = m_worlds.find(clientInfos.world_id);
+    if(worldIt != m_worlds.end())
+        worldIt->second.removePlayer(clientInfos.player_id);
+
+    m_clientInfos.erase(it);
 }
 
 void GameServer::updateWorlds(const pou::Time &elapsedTime)

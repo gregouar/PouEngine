@@ -38,8 +38,6 @@ void ClientServerTestingState::init()
 
 void ClientServerTestingState::entered()
 {
-    m_totalTime = pou::TimeZero();
-
     if(m_firstEntering)
         this->init();
 }
@@ -85,8 +83,6 @@ void ClientServerTestingState::handleEvents(const EventsManager *eventsManager)
 
 void ClientServerTestingState::update(const pou::Time &elapsedTime)
 {
-    m_totalTime += elapsedTime;
-
     //m_gameUi.updateCharacterLife(m_character->getAttributes().life,
     //                             m_character->getAttributes().maxLife);
 

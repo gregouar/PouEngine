@@ -5,6 +5,7 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+const int GameWorld::MAX_NBR_PLAYERS = 8;
 const glm::vec3 GameWorld::GAMEWORLD_MAX_SIZE   = glm::vec3(50000.0, 50000.0, 1000.0);
 
 const float     GameWorld::NODE_MAX_SCALE       = 100.0f;
@@ -21,7 +22,14 @@ GameWorld::GameWorld(bool renderable) :
     m_isRenderable(renderable),
     m_curLocalTime(0)
 {
-    //ctor
+    m_syncNodes.setMax(pow(2,GameWorld::NODEID_BITS));
+    m_syncSpriteSheets.setMax(pow(2,GameWorld::SPRITESHEETID_BITS));
+    m_syncSpriteEntities.setMax(pow(2,GameWorld::SPRITEENTITYID_BITS));
+    m_syncCharacterModels.setMax(pow(2,GameWorld::CHARACTERMODELSID_BITS));
+    m_syncCharacters.setMax(pow(2,GameWorld::CHARACTERSID_BITS));
+
+    m_syncPlayers.setMax(GameWorld::MAX_NBR_PLAYERS);
+    m_syncPlayers.enableIdReuse();
 }
 
 GameWorld::~GameWorld()
@@ -56,6 +64,8 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
+
+
 /// Protected
 
 
@@ -81,30 +91,6 @@ void GameWorld::createScene()
     }
 }
 
-/*size_t GameWorld::addSyncNode(pou::SceneNode *node)
-{
-    return m_syncNodes.allocateId(node);
-}*/
-
-/*size_t GameWorld::addSyncEntity(pou::SceneEntity *entity)
-{
-    return m_syncEntities.allocateId(entity);
-}*/
-
-
-/*pou::SceneNode* GameWorld::createNode(pou::SceneNode* parentNode, bool sync)
-{
-    if(parentNode == nullptr)
-        parentNode = m_scene->getRootNode();
-
-    auto node = parentNode->createChildNode();
-    if(sync)
-        m_syncNodes.allocateId(node);
-        //this->addSyncNode(node);
-
-    return node;
-}*/
-
 size_t GameWorld::syncElement(pou::SceneNode *node)
 {
     return m_syncNodes.allocateId(node);
@@ -129,6 +115,12 @@ size_t GameWorld::syncElement(Character *character)
 {
     this->syncElement((pou::SceneNode*)character);
     return m_syncCharacters.allocateId(character);
+}
+
+size_t GameWorld::syncElement(PlayableCharacter *player)
+{
+    this->syncElement((Character*)player);
+    return m_syncPlayers.allocateId(player);
 }
 
 void GameWorld::updateSunLight(const pou::Time elapsed_time)

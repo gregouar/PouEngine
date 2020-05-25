@@ -34,8 +34,6 @@ void ClientTestingState::init()
 
 void ClientTestingState::entered()
 {
-    m_totalTime = pou::TimeZero();
-
     if(m_firstEntering)
         this->init();
 }
@@ -80,33 +78,17 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
 
 void ClientTestingState::update(const pou::Time &elapsedTime)
 {
-    m_totalTime += elapsedTime;
-
     //m_gameUi.updateCharacterLife(m_character->getAttributes().life,
     //                             m_character->getAttributes().maxLife);
 
 
-    pou::Time remainingTime = elapsedTime;
-    pou::Time maxTickTime(.03);
-
-    while(remainingTime > maxTickTime)
-    {
-        m_gameClient.update(maxTickTime);
-        m_gameUi.update(maxTickTime);
-        remainingTime -= maxTickTime;
-    }
-    m_gameClient.update(remainingTime);
-    m_gameUi.update(remainingTime);
+    m_gameUi.update(elapsedTime);
+    m_gameClient.update(elapsedTime);
 }
 
 void ClientTestingState::draw(pou::RenderWindow *renderWindow)
 {
-    if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
-    {
-        pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        //if(m_scene)
-        //    m_scene->render(renderer, m_camera);
-    }
+    m_gameClient.render(renderWindow);
 
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
     {

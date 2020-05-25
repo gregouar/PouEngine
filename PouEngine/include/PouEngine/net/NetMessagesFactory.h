@@ -25,6 +25,15 @@ struct NetMessage
     int serialize(Stream *stream, bool computeBytesAndFlush = true);
 };
 
+struct NetMessage_ConnectionStatus : NetMessage
+{
+    int connectionStatus;
+
+    virtual void serializeImpl(Stream *stream);
+    virtual std::shared_ptr<NetMessage> msgAllocator();
+};
+
+
 /*struct NetMessage_Slice : NetMessage
 {
     int chunkId;

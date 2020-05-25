@@ -27,9 +27,11 @@ class UdpServer : public AbstractServer
         //virtual uint16_t getMaxNbrClients() const;
 
     protected:
-        virtual void processPacket(UdpBuffer &buffer);
+        virtual void processPacket(UdpBuffer &buffer,
+                                   std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
         //virtual int  verifyMessage(std::pair<ClientAddress, std::shared_ptr<NetMessage> > addressAndMessage);
-        virtual void processConnectionMessages(UdpBuffer &buffer);
+        virtual void processConnectionMessages(UdpBuffer &buffer,
+                                               std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
         virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);
         virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg, int salt);

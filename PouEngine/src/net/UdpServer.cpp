@@ -114,7 +114,7 @@ void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessa
     m_packetsExchanger.receivePackets(packet_buffers,reliableMessages);
 
     for(auto &buffer : packet_buffers)
-        this->processPacket(buffer);
+        this->processPacket(buffer, netMessages);
 
     for(auto &msg : reliableMessages)
     {
@@ -138,7 +138,7 @@ void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessa
 }*/
 
 
-void UdpServer::processPacket(UdpBuffer &buffer)
+void UdpServer::processPacket(UdpBuffer &buffer, std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages)
 {
     PacketType packetType = m_packetsExchanger.readPacketType(buffer);
 
@@ -149,11 +149,11 @@ void UdpServer::processPacket(UdpBuffer &buffer)
    // std::cout<<"Server received packet of type: "<<packetType<<std::endl;
 
     if(packetType == PacketType_ConnectionMsg)
-        this->processConnectionMessages(buffer);
+        this->processConnectionMessages(buffer, netMessages);
 }
 
 
-void UdpServer::processConnectionMessages(UdpBuffer &buffer)
+void UdpServer::processConnectionMessages(UdpBuffer &buffer, std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages)
 {
     UdpPacket_ConnectionMsg packet;
     if(!m_packetsExchanger.readPacket(packet, buffer))
@@ -205,6 +205,11 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer)
             return;
 
         this->allowConnectionFrom(clientNbr);
+
+
+        auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
+        msg->connectionStatus = ConnectionStatus_Connected;
+        netMessages.push_back({clientNbr, msg});
     }
 
     if(packet.connectionMessage == ConnectionMessage_Disconnection)
@@ -215,6 +220,10 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer)
             m_clients[clientNbr].status = ConnectionStatus_Disconnected;
             Logger::write("Client disconnected from: "+buffer.address.getAddressString()
                           +"("+std::to_string(m_clients[clientNbr].clientSalt)+","+std::to_string(m_clients[clientNbr].serverSalt)+")");
+
+            auto msg = std::dynamic_pointer_cast<NetMessage_ConnectionStatus>(pou::NetEngine::createNetMessage(0));
+            msg->connectionStatus = ConnectionStatus_Disconnected;
+            netMessages.push_back({clientNbr, msg});
         }
     }
 }

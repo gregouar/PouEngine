@@ -24,8 +24,6 @@ void ServerTestingState::init()
 
 void ServerTestingState::entered()
 {
-    m_totalTime = pou::TimeZero();
-
     if(m_firstEntering)
         this->init();
 }
@@ -55,9 +53,6 @@ void ServerTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
-    if(m_scene == nullptr)
-        return;
-
     if(eventsManager->keyPressed(GLFW_KEY_O))
         m_gameServer.sendMsgTest(true,false);
 }
@@ -66,21 +61,7 @@ void ServerTestingState::handleEvents(const EventsManager *eventsManager)
 
 void ServerTestingState::update(const pou::Time &elapsedTime)
 {
-    m_totalTime += elapsedTime;
-
-    pou::Time remainingTime = elapsedTime;
-    pou::Time maxTickTime(.03);
-
-    while(remainingTime > maxTickTime)
-    {
-        m_gameServer.update(maxTickTime);
-        if(m_scene)
-            m_scene->update(maxTickTime);
-        remainingTime -= maxTickTime;
-    }
-    m_gameServer.update(remainingTime);
-    if(m_scene)
-        m_scene->update(remainingTime);
+    m_gameServer.update(elapsedTime);
 }
 
 void ServerTestingState::draw(pou::RenderWindow *renderWindow)

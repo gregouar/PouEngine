@@ -2,6 +2,7 @@
 #define SYNCELEMENTS_H
 
 class Character;
+class PlayableCharacter;
 
 struct NodeSync
 {
@@ -22,6 +23,13 @@ struct CharacterSync
     int nodeId;
 
     Character *character;
+};
+
+struct PlayerSync
+{
+    int characterId;
+
+    PlayableCharacter *player;
 };
 
 #endif // SYNCELEMENTS_H

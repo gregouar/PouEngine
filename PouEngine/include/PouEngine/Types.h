@@ -147,6 +147,7 @@ enum ConnectionStatus
     ConnectionStatus_Connecting,
     ConnectionStatus_Challenging,
     ConnectionStatus_Connected,
+    NBR_CONNECTIONSTATUS,
 };
 
 typedef std::chrono::duration<double, std::chrono::seconds::period> Time;

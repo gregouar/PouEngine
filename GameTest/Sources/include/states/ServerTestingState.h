@@ -31,9 +31,6 @@ class ServerTestingState : public pou::GameState, public Singleton<ServerTesting
     private:
         bool m_firstEntering;
 
-        pou::Scene *m_scene; ///Replace by std::map with sceneId or maybe even GameWorld
-        pou::Time m_totalTime;
-
         GameServer m_gameServer;
 };
 

@@ -33,14 +33,14 @@ VTexturesManager::~VTexturesManager()
 bool VTexturesManager::allocTexture(uint32_t width, uint32_t height,
                                     VBuffer source, CommandPoolName cmdPoolName, VTexture *texture)
 {
-    return VTexturesManager::instance()->allocTextureImpl({width, height, VK_FORMAT_R8G8B8A8_UNORM, false},
+    return VTexturesManager::instance()->allocTextureImpl({width, height, VK_FORMAT_R8G8B8A8_UNORM, false,0},
                                                           source, cmdPoolName, texture);
 }
 
 bool VTexturesManager::allocTexture(const VTextureFormat &format,
                                     VBuffer source, CommandPoolName cmdPoolName, VTexture *texture)
 {
-    return VTexturesManager::instance()->allocTextureImpl({format.width, format.height, format.vkFormat, false},
+    return VTexturesManager::instance()->allocTextureImpl({format.width, format.height, format.vkFormat, false,0},
                                                           source, cmdPoolName, texture);
 }
 

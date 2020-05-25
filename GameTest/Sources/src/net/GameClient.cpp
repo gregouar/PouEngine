@@ -112,8 +112,8 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             std::cout<<"Client received test message with value: "<<castMsg->test_value<<" and id: "<<castMsg->id<<std::endl;
         }break;
 
-        case NetMessageType_WorldInitialization:{
-            auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldInitialization>(msg);
+        case NetMessageType_WorldInit:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>(msg);
             m_curWorldId = castMsg->world_id;
             m_isWaitingForWorldSync = false;
 
@@ -129,7 +129,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     if(m_curWorldId == 0 && !m_isWaitingForWorldSync)
     {
         m_isWaitingForWorldSync = true;
-        auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+        auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldInit>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldInit));
         msg->isReliable = true;
         msg->world_id = 0;
         m_client->sendMessage(msg);

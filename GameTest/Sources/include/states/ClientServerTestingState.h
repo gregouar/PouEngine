@@ -36,8 +36,6 @@ class ClientServerTestingState : public pou::GameState, public Singleton<ClientS
     private:
         bool m_firstEntering;
 
-        pou::Time m_totalTime;
-
         GameServer m_gameServer;
         GameClient m_gameClient;
 

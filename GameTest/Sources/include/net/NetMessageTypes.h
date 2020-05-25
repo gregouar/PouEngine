@@ -8,11 +8,10 @@
 
 enum NetMessageType
 {
-    NetMessageType_Default,
-    //NetMessageType_Slice,
+    NetMessageType_ConnectionStatus,
     NetMessageType_Test,
-    NetMessageType_WorldInitialization,
-    NetMessageType_AskForWorldSync,
+    NetMessageType_WorldInit,
+    NetMessageType_AskForWorldInit,
     NBR_RELIABLEMESSAGETYPES,
 };
 
@@ -44,20 +43,22 @@ struct NetMessage_Test : public pou::NetMessage
     }
 };
 
-struct NetMessage_WorldInitialization : public pou::NetMessage
+struct NetMessage_WorldInit : public pou::NetMessage
 {
-    NetMessage_WorldInitialization() : NetMessage(){}
-    NetMessage_WorldInitialization(int t) : NetMessage(t){}
+    NetMessage_WorldInit() : NetMessage(){}
+    NetMessage_WorldInit(int t) : NetMessage(t){}
 
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
-        return std::make_shared<NetMessage_WorldInitialization>();
+        return std::make_shared<NetMessage_WorldInit>();
     }
 
     int world_id;
 
     float   localTime;
     int     dayTime;
+
+    int player_id;
 
     int nbr_nodes;
     std::vector<std::pair<int, NodeSync> > nodes; //NodeId, ParentNodeId, Node
@@ -74,24 +75,28 @@ struct NetMessage_WorldInitialization : public pou::NetMessage
     int nbr_characters;
     std::vector <std::pair<int, CharacterSync > > characters;
 
+    int nbr_players;
+    std::vector <std::pair<int, PlayerSync > > players;
+
     virtual void serializeImpl(pou::Stream *stream);
 
     virtual void serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node);
     virtual void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
     virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
-    virtual void serializeCharacterModels(pou::Stream *stream, std::pair<int, std::string > &characterModel);
-    virtual void serializeCharacters(pou::Stream *stream, std::pair<int, CharacterSync> &character);
+    virtual void serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel);
+    virtual void serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character);
+    virtual void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
 };
 
 
-struct NetMessage_AskForWorldSync : public pou::NetMessage
+struct NetMessage_AskForWorldInit : public pou::NetMessage
 {
-    NetMessage_AskForWorldSync() : NetMessage(){}
-    NetMessage_AskForWorldSync(int t) : NetMessage(t){}
+    NetMessage_AskForWorldInit() : NetMessage(){}
+    NetMessage_AskForWorldInit(int t) : NetMessage(t){}
 
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
-        return std::make_shared<NetMessage_AskForWorldSync>();
+        return std::make_shared<NetMessage_AskForWorldInit>();
     }
 
     int world_id;

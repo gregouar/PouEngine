@@ -8,6 +8,7 @@
 #include "PouEngine/renderers/RenderWindow.h"
 
 #include "character/Character.h"
+#include "character/PlayableCharacter.h"
 #include "net/NetMessageTypes.h"
 
 
@@ -23,8 +24,11 @@ class GameWorld
         void generate();
         void destroy();
 
-        void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg);
-        void generate(std::shared_ptr<NetMessage_WorldInitialization> worldInitMsg);
+        void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+        void generate(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+
+        size_t  addPlayer();
+        bool    removePlayer(size_t player_id);
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);
@@ -37,6 +41,7 @@ class GameWorld
         size_t syncElement(pou::SpriteEntity *spriteEntity);
         size_t syncElement(CharacterModelAsset *characterModel);
         size_t syncElement(Character *character);
+        size_t syncElement(PlayableCharacter *player);
 
         void updateSunLight(const pou::Time elapsed_time);
 
@@ -69,8 +74,10 @@ class GameWorld
         pou::IdAllocator<pou::SpriteEntity*>        m_syncSpriteEntities;
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
         pou::IdAllocator<Character*>                m_syncCharacters;
+        pou::IdAllocator<PlayableCharacter*>        m_syncPlayers;
 
     public:
+        static const int        MAX_NBR_PLAYERS;
         static const glm::vec3  GAMEWORLD_MAX_SIZE; //Used for - and +
 
         static const float      NODE_MAX_SCALE;

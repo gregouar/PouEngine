@@ -4,28 +4,28 @@
 
 #include "world/GameWorld.h"
 #include "character/Character.h"
+#include "character/PlayableCharacter.h"
 
 void initializeNetMessages()
 {
     pou::NetEngine::addNetMessageModel(std::move(
         std::make_unique<NetMessage_Test> (NetMessageType_Test)));
     pou::NetEngine::addNetMessageModel(std::move(
-        std::make_unique<NetMessage_WorldInitialization> (NetMessageType_WorldInitialization)));
+        std::make_unique<NetMessage_WorldInit> (NetMessageType_WorldInit)));
     pou::NetEngine::addNetMessageModel(std::move(
-        std::make_unique<NetMessage_AskForWorldSync> (NetMessageType_AskForWorldSync)));
+        std::make_unique<NetMessage_AskForWorldInit> (NetMessageType_AskForWorldInit)));
 }
 
 ///
 /// WorldInitialization
 ///
 
-void NetMessage_WorldInitialization::serializeImpl(pou::Stream *stream)
+void NetMessage_WorldInit::serializeImpl(pou::Stream *stream)
 {
     stream->serializeBits(world_id, 8);
-
     stream->serializeFloat(localTime);
-
     stream->serializeInt(dayTime, 0, 360);
+    stream->serializeInt(player_id, 0, GameWorld::MAX_NBR_PLAYERS);
 
     //std::cout<<"Nbr Nodes:"<<nbr_nodes<<std::endl;
 
@@ -47,15 +47,20 @@ void NetMessage_WorldInitialization::serializeImpl(pou::Stream *stream)
     stream->serializeBits(nbr_characterModels, GameWorld::CHARACTERMODELSID_BITS);
     characterModels.resize(nbr_characterModels);
     for(int i = 0 ; i < nbr_characterModels ; ++i)
-        this->serializeCharacterModels(stream, characterModels[i]);
+        this->serializeCharacterModel(stream, characterModels[i]);
 
     stream->serializeBits(nbr_characters, GameWorld::CHARACTERSID_BITS);
     characters.resize(nbr_characters);
     for(int i = 0 ; i < nbr_characters ; ++i)
-        this->serializeCharacters(stream, characters[i]);
+        this->serializeCharacter(stream, characters[i]);
+
+    stream->serializeInt(nbr_players, 0, GameWorld::MAX_NBR_PLAYERS);
+    players.resize(nbr_players);
+    for(int i = 0 ; i < nbr_players ; ++i)
+        this->serializePlayer(stream, players[i]);
 }
 
-void NetMessage_WorldInitialization::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
+void NetMessage_WorldInit::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
 {
     auto& [ nodeId, nodeSync ] = node;
     stream->serializeBits(nodeId, GameWorld::NODEID_BITS);
@@ -117,14 +122,14 @@ void NetMessage_WorldInitialization::serializeNode(pou::Stream *stream, std::pai
     }
 }
 
-void NetMessage_WorldInitialization::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
+void NetMessage_WorldInit::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
 {
     auto& [ spriteSheetId, spriteSheetPath ] = spriteSheet;
     stream->serializeBits(spriteSheetId, GameWorld::SPRITESHEETID_BITS);
     stream->serializeString(spriteSheetPath);
 }
 
-void NetMessage_WorldInitialization::serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity)
+void NetMessage_WorldInit::serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity)
 {
     auto& [ spriteEntityId, spriteEntitySync ] = spriteEntity;
     stream->serializeBits(spriteEntityId, GameWorld::SPRITEENTITYID_BITS);
@@ -133,14 +138,14 @@ void NetMessage_WorldInitialization::serializeSpriteEntity(pou::Stream *stream, 
     stream->serializeBits(spriteEntitySync.nodeId, GameWorld::NODEID_BITS);
 }
 
-void NetMessage_WorldInitialization::serializeCharacterModels(pou::Stream *stream, std::pair<int, std::string > &characterModel)
+void NetMessage_WorldInit::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)
 {
     auto& [ characterModelId, characterModelPath ] = characterModel;
     stream->serializeBits(characterModelId, GameWorld::CHARACTERMODELSID_BITS);
     stream->serializeString(characterModelPath);
 }
 
-void NetMessage_WorldInitialization::serializeCharacters(pou::Stream *stream, std::pair<int, CharacterSync> &character)
+void NetMessage_WorldInit::serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character)
 {
     auto& [ characterId, characterSync ] = character;
     stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
@@ -154,11 +159,23 @@ void NetMessage_WorldInitialization::serializeCharacters(pou::Stream *stream, st
 
 }
 
+void NetMessage_WorldInit::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
+{
+    auto& [ playerId, playerSync ] = player;
+    stream->serializeInt(playerId, 1,  GameWorld::MAX_NBR_PLAYERS);
+    stream->serializeBits(playerSync.characterId, GameWorld::CHARACTERSID_BITS);
+
+    auto &playerPtr = playerSync.player;
+
+    if(stream->isReading())
+        playerPtr = new PlayableCharacter();
+}
+
 ///
 /// AskForWorldSync
 ///
 
-void NetMessage_AskForWorldSync::serializeImpl(pou::Stream *stream)
+void NetMessage_AskForWorldInit::serializeImpl(pou::Stream *stream)
 {
     stream->serializeBits(world_id, 8);
 }

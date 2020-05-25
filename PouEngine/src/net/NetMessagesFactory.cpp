@@ -10,6 +10,7 @@ namespace pou
 const int NetMessagesFactory::NETMESSAGEID_SIZE = 16;
 const int NetMessagesFactory::NETMESSAGEID_MAX_NBR = (int)pow(2,NETMESSAGEID_SIZE);
 
+///NetMessage
 
 void NetMessage::serializeImpl(Stream *stream)
 {
@@ -48,9 +49,25 @@ int NetMessage::serialize(Stream *stream, bool computeBytesAndFlush)
     return 0;
 }
 
+///NetMessage_ConnectionStatus
+
+
+void NetMessage_ConnectionStatus::serializeImpl(Stream *stream)
+{
+    stream->serializeInt(connectionStatus, 0, NBR_CONNECTIONSTATUS);
+}
+
+std::shared_ptr<NetMessage> NetMessage_ConnectionStatus::msgAllocator()
+{
+    return std::make_shared<NetMessage_ConnectionStatus>();
+}
+
+
+/// NetMessagesFactory
+
 NetMessagesFactory::NetMessagesFactory()
 {
-    auto msg = std::make_unique<NetMessage>();
+    auto msg = std::make_unique<NetMessage_ConnectionStatus>();
     msg->type = 0;
     this->addMessageModel(std::move(msg));
 }
