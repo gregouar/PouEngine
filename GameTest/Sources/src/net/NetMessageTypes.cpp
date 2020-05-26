@@ -116,62 +116,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     if(hasParent)
         stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
 
-    nodePtr->serialize(stream, clientTime);
-
-    /*stream->serializeBool(hasParent);
-    if(hasParent)
-        stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
-
-    stream->serializeBool(hasPos);
-    glm::vec3 pos = nodePtr->getPosition();
-    stream->serializeFloat(pos.x, -GameWorld::GAMEWORLD_MAX_SIZE.x, GameWorld::GAMEWORLD_MAX_SIZE.x, 0);
-    stream->serializeFloat(pos.y, -GameWorld::GAMEWORLD_MAX_SIZE.y, GameWorld::GAMEWORLD_MAX_SIZE.y, 0);
-    stream->serializeFloat(pos.z, -GameWorld::GAMEWORLD_MAX_SIZE.z, GameWorld::GAMEWORLD_MAX_SIZE.z, 2);
-
-
-    glm::vec3 rot = nodePtr->getEulerRotation();
-    bool isRot = (rot != glm::vec3(0.0));
-    stream->serializeBool(isRot);
-    if(isRot)
-    {
-        stream->serializeFloat(rot.x, -glm::pi<float>(), glm::pi<float>(), 2);
-        stream->serializeFloat(rot.y, -glm::pi<float>(), glm::pi<float>(), 2);
-        stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
-    } else
-        rot = glm::vec3(0.0);
-
-    glm::vec3 scale = nodePtr->getScale();
-    bool isScale = (scale != glm::vec3(1.0));
-    stream->serializeBool(isScale);
-    if(isScale)
-    {
-        stream->serializeFloat(scale.x, -GameWorld::NODE_MAX_SCALE, GameWorld::NODE_MAX_SCALE, GameWorld::NODE_SCALE_DECIMALS);
-        stream->serializeFloat(scale.y, -GameWorld::NODE_MAX_SCALE, GameWorld::NODE_MAX_SCALE, GameWorld::NODE_SCALE_DECIMALS);
-        stream->serializeFloat(scale.z, -GameWorld::NODE_MAX_SCALE, GameWorld::NODE_MAX_SCALE, GameWorld::NODE_SCALE_DECIMALS);
-    } else
-        scale = glm::vec3(1.0);
-
-
-    glm::vec4 color = nodePtr->getColor();
-    bool isColor = (color != glm::vec4(1.0));
-    stream->serializeBool(isColor);
-    if(isColor)
-    {
-        stream->serializeFloat(color.r, 0, 10, 2);
-        stream->serializeFloat(color.g, 0, 10, 2);
-        stream->serializeFloat(color.b, 0, 10, 2);
-        stream->serializeFloat(color.a, 0, 1, 2);
-    } else
-        color = glm::vec4(1.0);
-
-
-    if(stream->isReading())
-    {
-        nodePtr->setPosition(pos);
-        nodePtr->setRotation(rot);
-        nodePtr->setScale(scale);
-        nodePtr->setColor(color);
-    }*/
+    nodePtr->serializeNode(stream, clientTime);
 }
 
 void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
@@ -220,6 +165,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
         characterPtr->setLocalTime(localTime);
     }
 
+    characterPtr->serializeCharacter(stream,clientTime);
 }
 
 void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
@@ -235,6 +181,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
         playerPtr = new PlayableCharacter();
         playerPtr->setLocalTime(localTime);
     }
+    ///characterPtr->serializePlayer(stream,clientTime);
 }
 
 ///

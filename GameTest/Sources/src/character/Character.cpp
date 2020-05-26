@@ -28,6 +28,9 @@ Character::Character() : SceneNode(-1,nullptr)
     m_lookingDirection  = {0,-1};
 
     m_lastCharacterUpdateTime = -1;
+    m_lastModelUpdateTime = -1;
+    m_lastAttributesUpdateTime = -1;
+    m_lastLookingDirectionUpdateTime = -1;
 }
 
 Character::~Character()
@@ -59,6 +62,7 @@ bool Character::setModel(CharacterModelAsset *model)
        return (false);
 
     m_attributes = m_model->getAttributes();
+    m_lastModelUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
@@ -205,6 +209,7 @@ void Character::setWalkingSpeed(float speed)
     if(speed >= 0 && m_attributes.walkingSpeed != speed)
     {
         m_attributes.walkingSpeed = speed;
+        m_lastAttributesUpdateTime = m_curLocalTime;
         this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
@@ -217,9 +222,11 @@ void Character::setRotationRadius(float radius)
 
 void Character::setLookingDirection(glm::vec2 direction)
 {
+    direction = glm::normalize(direction);
     if(m_lookingDirection != direction)
     {
         m_lookingDirection = direction;
+        m_lastLookingDirectionUpdateTime = m_curLocalTime;
         this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
@@ -230,7 +237,7 @@ void Character::setDestination(glm::vec2 destination)
     {
         m_destination       = destination;
         m_isDestinationSet  = true;
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+        //this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
 
@@ -240,9 +247,10 @@ void Character::walk(glm::vec2 direction)
     {
         m_walkingDirection = direction;
         if(direction != glm::vec2(0))
-            m_lookingDirection = m_walkingDirection;
+            this->setLookingDirection(m_walkingDirection);
+            //m_lookingDirection = m_walkingDirection;
 
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+        //this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
 
@@ -264,7 +272,7 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     m_isAttacking = true;
     m_isWalking = false;
     //if(direction != glm::vec2(0))
-        m_lookingDirection = direction;
+    this->setLookingDirection(direction);
 
     m_attackDelayTimer.reset(m_attributes.attackDelay);
 
@@ -282,8 +290,8 @@ bool Character::stopAttacking()
     m_alreadyHitCharacters.clear();
     this->startAnimation("stand", true);
 
-    if(wasAttacking)
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+    //if(wasAttacking)
+      //  this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return wasAttacking;
 }
@@ -319,6 +327,7 @@ bool Character::damage(float damages, glm::vec2 direction)
         m_pushVelocity = glm::normalize(direction)*200.0f;
     }
 
+    this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return isFatal;
@@ -341,7 +350,7 @@ bool Character::interrupt(float amount)
         m_attackDelayTimer.reset(0);
         //m_isAttacking   = false;
 
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+        //this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 
     return interrupt;
@@ -354,6 +363,8 @@ bool Character::resurrect()
 
     m_attributes.life = m_attributes.maxLife;
     m_isDead = false;
+
+    this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
@@ -419,7 +430,7 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
                 normalizedDelta - m_lookingDirection) <= 0.0005f)
     {
         m_walkingDirection = normalizedDelta;
-        m_lookingDirection = normalizedDelta;
+        this->setLookingDirection(normalizedDelta);
     } else {
         float arcLength = m_attributes.walkingSpeed*elapsedTime.count();
         float normalizedArcLength = arcLength/rotationRadius;
@@ -447,9 +458,8 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
         SceneNode::move(relMove.x * coLookinDirection + relMove.y * m_lookingDirection);
 
         glm::vec2 relNewLookingDir{sinArcLength, cosArcLength};
-        m_lookingDirection = relNewLookingDir.x * coLookinDirection
-                            + relNewLookingDir.y * m_lookingDirection;
-        m_lookingDirection = glm::normalize(m_lookingDirection);
+        this->setLookingDirection(relNewLookingDir.x * coLookinDirection
+                                + relNewLookingDir.y * m_lookingDirection);
         m_walkingDirection = glm::vec2(0);
     }
 }
@@ -671,3 +681,59 @@ float Character::getLastCharacterUpdateTime()
 {
     return m_lastCharacterUpdateTime;
 }
+
+void Character::serializeCharacter(pou::Stream *stream, float clientTime)
+{
+    bool updateAttributes = false;
+    if(!stream->isReading() && clientTime < m_lastAttributesUpdateTime)
+        updateAttributes = true;
+    stream->serializeBool(updateAttributes);
+    if(updateAttributes)
+    {
+        stream->serializeFloat(m_attributes.maxLife);
+        stream->serializeFloat(m_attributes.life, 0, (int)m_attributes.maxLife+1, 2);
+    }
+
+    bool updateLookingDirection = false;
+    if(!stream->isReading() && clientTime < m_lastLookingDirectionUpdateTime)
+        updateLookingDirection = true;
+    stream->serializeBool(updateLookingDirection);
+    if(updateLookingDirection)
+    {
+        std::cout<<"UpdateLookingDir:"<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<std::endl;
+        glm::vec2 lookingDirection = m_lookingDirection;
+        stream->serializeFloat(lookingDirection.x, -1, 1, 2);
+        stream->serializeFloat(lookingDirection.y, -1, 1, 2);
+
+        if(stream->isReading())
+            this->setLookingDirection(lookingDirection);
+        std::cout<<"UpdatedLookingDir:"<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<std::endl;
+    }
+
+    bool updateAnimation = false;
+}
+
+bool Character::syncFromCharacter(Character *srcCharacter)
+{
+    if(m_curLocalTime > srcCharacter->m_curLocalTime)
+        return (false);
+
+    m_curLocalTime = srcCharacter->m_curLocalTime;
+
+    if(m_lastAttributesUpdateTime < srcCharacter->m_lastAttributesUpdateTime)
+    {
+        m_attributes.maxLife = srcCharacter->m_attributes.maxLife;
+        m_attributes.life = srcCharacter->m_attributes.life;
+        m_lastAttributesUpdateTime = srcCharacter->m_lastAttributesUpdateTime;
+    }
+
+    if(m_lastLookingDirectionUpdateTime < srcCharacter->m_lastLookingDirectionUpdateTime)
+    {
+        std::cout<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<" vs "<<srcCharacter->m_lookingDirection.x<<" "<<srcCharacter->m_lookingDirection.y<<std::endl;
+        this->setLookingDirection(srcCharacter->m_lookingDirection);
+    }
+
+    return (true);
+}
+
+

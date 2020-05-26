@@ -10,7 +10,7 @@ const int GameClient::TICKRATE = 30;
 const float GameClient::SYNCDELAY = .1;
 
 GameClient::GameClient() :
-    m_world(true),
+    m_world(true, false),
     m_curWorldId(0),
     m_isWaitingForWorldSync(false),
     m_remainingTime(0)

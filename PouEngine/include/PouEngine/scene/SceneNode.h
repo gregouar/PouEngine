@@ -44,7 +44,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         void detachAllObjects();
 
-        virtual void syncFrom(SceneNode* srcNode);
+        virtual void syncFromNode(SceneNode* srcNode);
 
         void colorize(const glm::vec4 &c);
         void setColor(const glm::vec4 &c);
@@ -62,7 +62,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         virtual void update(const Time &elapsedTime, float localTime = -1);
 
 
-        virtual void serialize(pou::Stream *stream, float localTime = -1);
+        virtual void serializeNode(pou::Stream *stream, float localTime = -1);
 
         /*virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;*/

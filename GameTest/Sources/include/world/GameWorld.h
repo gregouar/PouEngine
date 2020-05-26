@@ -15,7 +15,7 @@
 class GameWorld
 {
     public:
-        GameWorld(bool renderable);
+        GameWorld(bool renderable, bool isServer);
         virtual ~GameWorld();
 
         void update(const pou::Time elapsed_time);
@@ -70,6 +70,7 @@ class GameWorld
         pou::Scene *m_scene;
         bool m_isRenderable;
 
+        bool m_isServer;
         float m_curLocalTime;
 
         pou::CameraObject *m_camera;

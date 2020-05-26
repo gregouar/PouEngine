@@ -138,7 +138,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
 size_t GameServer::generateWorld()
 {
-   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(false)}).first->second;
+   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(false,true)}).first->second;
    world.generate();
 
    return (m_curWorldId);

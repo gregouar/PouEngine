@@ -39,7 +39,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
         virtual void copyFrom(const SimpleNode* srcNode);
-        virtual bool syncFrom(SimpleNode* srcNode);
+        virtual bool syncFromNode(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -96,7 +96,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
                             size_t dataSize = 0, char* data = nullptr) override;
 
 
-        virtual void serialize(pou::Stream *stream, float localTime = -1);
+        virtual void serializeNode(pou::Stream *stream, float localTime = -1);
 
 
     protected:

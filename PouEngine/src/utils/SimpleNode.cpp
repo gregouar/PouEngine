@@ -254,7 +254,7 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     }
 }
 
-bool SimpleNode::syncFrom(SimpleNode* srcNode)
+bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 {
     if(m_curLocalTime > srcNode->m_curLocalTime)
         return (false);
@@ -769,7 +769,7 @@ void SimpleNode::notify(NotificationSender* sender, NotificationType type,
     }
 }
 
-void SimpleNode::serialize(Stream *stream, float clientTime)
+void SimpleNode::serializeNode(Stream *stream, float clientTime)
 {
     bool hasPos = false;
     if(!stream->isReading() && clientTime < m_lastPositionUpdateTime)

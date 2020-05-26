@@ -182,9 +182,9 @@ void SceneNode::setParent(SimpleNode *p)
         this->setScene(dynamic_cast<SceneNode*>(m_parent)->getScene());
 }
 
-void SceneNode::syncFrom(SceneNode* srcNode)
+void SceneNode::syncFromNode(SceneNode* srcNode)
 {
-    if(!SimpleNode::syncFrom((SimpleNode*) srcNode))
+    if(!SimpleNode::syncFromNode((SimpleNode*) srcNode))
         return;
 
     if(m_lastColorUpdateTime < srcNode->m_lastColorUpdateTime)
@@ -274,9 +274,9 @@ SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
 }*/
 
 
-void SceneNode::serialize(Stream *stream, float clientTime)
+void SceneNode::serializeNode(Stream *stream, float clientTime)
 {
-    SimpleNode::serialize(stream, clientTime);
+    SimpleNode::serializeNode(stream, clientTime);
 
     bool hasColor = false;
     if(!stream->isReading() && clientTime < m_lastColorUpdateTime)

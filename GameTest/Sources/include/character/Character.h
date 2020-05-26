@@ -10,6 +10,7 @@
 #include "PouEngine/scene/SoundObject.h"
 #include "PouEngine/scene/Skeleton.h"
 #include "PouEngine/utils/Timer.h"
+#include "PouEngine/utils/Stream.h"
 #include "assets/CharacterModelAsset.h"
 
 class Character : public pou::SceneNode
@@ -62,10 +63,11 @@ class Character : public pou::SceneNode
 
         const CharacterAttributes &getAttributes() const;
 
-        //void serialize(Stream *stream);
-        //void syncFrom(Character *model);
+        void serializeCharacter(pou::Stream *stream, float clientTime = -1);
+        bool syncFromCharacter(Character *srcCharacter);
 
         void setLastCharacterUpdateTime(float time, bool force = false);
+        float getLastModelUpdateTime();
         float getLastCharacterUpdateTime();
 
     protected:
@@ -103,6 +105,9 @@ class Character : public pou::SceneNode
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         float m_lastCharacterUpdateTime;
+        float m_lastModelUpdateTime;
+        float m_lastAttributesUpdateTime;
+        float m_lastLookingDirectionUpdateTime;
 
     private:
         CharacterModelAsset *m_model;

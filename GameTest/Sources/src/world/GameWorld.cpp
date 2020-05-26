@@ -13,10 +13,11 @@ const int    GameWorld::SPRITEENTITYID_BITS     =16;
 const int    GameWorld::CHARACTERMODELSID_BITS  =12;
 const int    GameWorld::CHARACTERSID_BITS       =16;
 
-GameWorld::GameWorld(bool renderable) :
+GameWorld::GameWorld(bool renderable, bool isServer) :
     m_scene(nullptr),
     m_isRenderable(renderable),
-    m_curLocalTime(0)
+    m_curLocalTime(0),
+    m_isServer(isServer)
 {
     m_syncNodes.setMax(pow(2,GameWorld::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld::SPRITESHEETID_BITS));
@@ -36,7 +37,8 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time)
 {
-    m_curLocalTime += elapsed_time.count();
+    if(m_isServer)
+        m_curLocalTime += elapsed_time.count();
 
     if(!m_scene)
         return;
@@ -63,8 +65,6 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
 void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
 {
     auto player = m_syncPlayers.findElement(player_id);
-
-    std::cout<<"Player walk ! direction:"<<direction.x<<" "<<direction.y<<std::endl;
 
     if(player == nullptr)
         return;
