@@ -186,6 +186,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         if(parentNode != nullptr)
             nodeId = m_syncNodes.findId(parentNode);
 
+        spriteEntitySync.spriteEntity = spriteEntity;
         spriteEntitySync.spriteSheetId = spriteSheetId;
         spriteEntitySync.spriteId = spriteModel->getSpriteId();
         spriteEntitySync.nodeId = nodeId;
@@ -321,7 +322,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
         else
             characterPtr->syncFromCharacter(characterSync.character);
 
-        if(isNew || characterPtr->getLastCharacterUpdateTime() > m_curLocalTime)
+        if(characterSync.characterModelId != 0)
         {
             auto *characterModel = m_syncCharacterModels.findElement(characterSync.characterModelId);
             if(characterModel != nullptr)
@@ -387,7 +388,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
             isNew = true;
         }
 
-        if(isNew || spriteEntitySync.spriteEntity->getLastUpdateTime() > m_curLocalTime)
+        if(spriteEntitySync.spriteSheetId != 0 && spriteEntitySync.spriteId != 0)
         {
             auto *spriteSheetPtr = m_syncSpriteSheets.findElement(spriteEntitySync.spriteSheetId);
             if(spriteSheetPtr == nullptr)
@@ -397,17 +398,17 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
             }
             auto *spriteEntityModel = spriteSheetPtr->getSpriteModel(spriteEntitySync.spriteId);
             spriteEntity->setSpriteModel(spriteEntityModel);
+        }
 
-            if(spriteEntitySync.nodeId != 0)
+        if(spriteEntitySync.nodeId != 0)
+        {
+            auto *node = m_syncNodes.findElement(spriteEntitySync.nodeId);
+            if(node == nullptr)
             {
-                auto *node = m_syncNodes.findElement(spriteEntitySync.nodeId);
-                if(node == nullptr)
-                {
-                    delete spriteEntitySync.spriteEntity;
-                    continue;
-                }
-                node->attachObject(spriteEntity);
+                delete spriteEntitySync.spriteEntity;
+                continue;
             }
+            node->attachObject(spriteEntity);
         }
 
         delete spriteEntitySync.spriteEntity;
@@ -418,6 +419,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
 size_t GameWorld::addPlayer()
 {
     auto player = new PlayableCharacter();
+    player->setLocalTime(m_curLocalTime);
 
     auto player_id = this->syncElement(player);
     if(player_id == 0)

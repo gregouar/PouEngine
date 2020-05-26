@@ -82,6 +82,8 @@ class SpriteEntity : public ShadowCaster
 
         SpriteModel* getSpriteModel();
 
+        float getLastModelUptateTime();
+
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
@@ -102,6 +104,7 @@ class SpriteEntity : public ShadowCaster
         //SpriteShadowDatum    m_shadowDatum;
 
         SpriteModel *m_spriteModel;
+        float m_lastModelUpdateTime;
 
     private:
         float       m_rotation;

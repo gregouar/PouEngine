@@ -28,6 +28,7 @@ class SceneObject : public NotificationListener
         void setLocalTime(float time);
         void setLastUpdateTime(float time, bool force = false);
         float getLastUpdateTime();
+        float getLastNodeUpdateTime();
 
         virtual void update(const Time &elapsedTime, float localTime = -1);
         virtual void notify(NotificationSender* , NotificationType,
@@ -44,6 +45,7 @@ class SceneObject : public NotificationListener
 
         float m_curLocalTime;
         float m_lastUpdateTime;
+        float m_lastNodeUpdateTime;
 
     private:
 };

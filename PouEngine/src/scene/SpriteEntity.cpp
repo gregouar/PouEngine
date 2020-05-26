@@ -191,6 +191,7 @@ std::array<VkVertexInputAttributeDescription, 12> SpriteDatum::getAttributeDescr
 
 SpriteEntity::SpriteEntity() :
     m_spriteModel(nullptr),
+    m_lastModelUpdateTime(-1),
     m_rotation(0.0f),
     m_color(1.0,1.0,1.0,1.0),
     m_rme(1.0,1.0,1.0),
@@ -263,6 +264,7 @@ void SpriteEntity::setSpriteModel(SpriteModel* model)
     {
         this->stopListeningTo(m_spriteModel);
         m_spriteModel = model;
+        m_lastModelUpdateTime = m_curLocalTime;
         this->setLastUpdateTime(m_curLocalTime);
         if(m_spriteModel != nullptr)
         {
@@ -304,6 +306,11 @@ SpriteDatum SpriteEntity::getSpriteDatum()
 SpriteModel* SpriteEntity::getSpriteModel()
 {
     return m_spriteModel;
+}
+
+float SpriteEntity::getLastModelUptateTime()
+{
+    return m_lastModelUpdateTime;
 }
 
 

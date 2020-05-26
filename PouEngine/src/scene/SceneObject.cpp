@@ -15,6 +15,7 @@ SceneObject::SceneObject()
 
     m_curLocalTime = 0;
     m_lastUpdateTime = -1;
+    m_lastNodeUpdateTime = -1;
 }
 
 SceneObject::~SceneObject()
@@ -31,6 +32,7 @@ SceneNode* SceneObject::setParentNode(SceneNode *newParent)
     {
         this->stopListeningTo(m_parentNode);
         m_parentNode = newParent;
+        m_lastNodeUpdateTime = m_curLocalTime;
         this->setLastUpdateTime(m_curLocalTime);
         this->startListeningTo(m_parentNode);
     }
@@ -72,6 +74,11 @@ void SceneObject::setLastUpdateTime(float time, bool force)
 float SceneObject::getLastUpdateTime()
 {
     return m_lastUpdateTime;
+}
+
+float SceneObject::getLastNodeUpdateTime()
+{
+    return m_lastNodeUpdateTime;
 }
 
 void SceneObject::update(const Time &elapsedTime, float localTime)

@@ -682,6 +682,11 @@ float Character::getLastCharacterUpdateTime()
     return m_lastCharacterUpdateTime;
 }
 
+float Character::getLastModelUpdateTime()
+{
+    return m_lastModelUpdateTime;
+}
+
 void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 {
     bool updateAttributes = false;

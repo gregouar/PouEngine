@@ -68,7 +68,6 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     //int player_id;
 
-    bool hasParent, hasPos, hasRot, hasScale, hasColor;
     int nbr_nodes;
     std::vector<std::pair<int, NodeSync> > nodes; //NodeId, Node
 
