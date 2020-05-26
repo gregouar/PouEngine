@@ -25,10 +25,17 @@ class GameWorld
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void generate(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+        void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, float clientTime);
+
+        void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+        void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg);
 
         size_t  addPlayer();
         bool    removePlayer(size_t player_id);
+
+        void playerWalk(int player_id, glm::vec2 direction, float clientTime);
+
+        float getLocalTime();
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);
@@ -76,12 +83,11 @@ class GameWorld
         pou::IdAllocator<Character*>                m_syncCharacters;
         pou::IdAllocator<PlayableCharacter*>        m_syncPlayers;
 
+        std::multimap<float, int> m_syncTimeSpriteSheets;
+        std::multimap<float, int> m_syncTimeCharacterModels;
+
     public:
         static const int        MAX_NBR_PLAYERS;
-        static const glm::vec3  GAMEWORLD_MAX_SIZE; //Used for - and +
-
-        static const float      NODE_MAX_SCALE;
-        static const uint8_t    NODE_SCALE_DECIMALS;
 
         static const int        NODEID_BITS;
         static const int        SPRITESHEETID_BITS;

@@ -12,6 +12,15 @@ const int NetMessagesFactory::NETMESSAGEID_MAX_NBR = (int)pow(2,NETMESSAGEID_SIZ
 
 ///NetMessage
 
+NetMessage::NetMessage() : NetMessage(-1)
+{
+}
+
+NetMessage::NetMessage(int t) : type(t),
+    isReliable(false)
+{
+}
+
 void NetMessage::serializeImpl(Stream *stream)
 {
 }
@@ -79,13 +88,17 @@ NetMessagesFactory::~NetMessagesFactory()
 
 void NetMessagesFactory::addMessageModel(std::unique_ptr<NetMessage> msgModel)
 {
-    if(m_msgModels.size() < msgModel->type+1)
+    std::lock_guard<std::mutex> lock(m_lock);
+
+    if((int)m_msgModels.size() < msgModel->type+1)
         m_msgModels.resize(msgModel->type+1);
     m_msgModels[msgModel->type] = std::move(msgModel);
 }
 
 std::shared_ptr<NetMessage> NetMessagesFactory::createMessage(int type)
 {
+    std::lock_guard<std::mutex> lock(m_lock);
+
     if(type < 0 || type >= (int)m_msgModels.size())
         return (nullptr);
     auto ptr = m_msgModels[type]->msgAllocator();
@@ -95,6 +108,8 @@ std::shared_ptr<NetMessage> NetMessagesFactory::createMessage(int type)
 
 int NetMessagesFactory::getNbrMsgTypes()
 {
+    std::lock_guard<std::mutex> lock(m_lock);
+
     return m_msgModels.size();
 }
 

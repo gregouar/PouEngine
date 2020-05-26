@@ -216,6 +216,7 @@ void SpriteEntity::setRotation(float rotation)
     if(m_rotation != rotation)
     {
         m_rotation = rotation;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -226,6 +227,7 @@ void SpriteEntity::setColor(Color color)
     if(m_color != color)
     {
         m_color = color;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -250,6 +252,7 @@ void SpriteEntity::setRme(glm::vec3 rme)
     if(m_rme != rme)
     {
         m_rme = rme;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -260,6 +263,7 @@ void SpriteEntity::setSpriteModel(SpriteModel* model)
     {
         this->stopListeningTo(m_spriteModel);
         m_spriteModel = model;
+        this->setLastUpdateTime(m_curLocalTime);
         if(m_spriteModel != nullptr)
         {
             this->startListeningTo(m_spriteModel);
@@ -382,9 +386,9 @@ glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
     return viewLightDirectionXY;
 }
 
-void SpriteEntity::update(const Time &elapsedTime)
+void SpriteEntity::update(const Time &elapsedTime, float localTime)
 {
-    ShadowCaster::update(elapsedTime);
+    ShadowCaster::update(elapsedTime, localTime);
 
     m_nextSpriteElapsedTime += elapsedTime.count();
 

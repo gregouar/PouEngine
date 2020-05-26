@@ -6,6 +6,7 @@
 
 #include "PouEngine/core/NotificationListener.h"
 #include "PouEngine/core/NotificationSender.h"
+#include "PouEngine/utils/Stream.h"
 
 namespace pou
 {
@@ -37,7 +38,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
-        void copyFrom(const SimpleNode* srcNode);
+        virtual void copyFrom(const SimpleNode* srcNode);
+        virtual bool syncFrom(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -53,6 +55,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setGlobalPosition(glm::vec3 );
         void setName(const std::string &name);
         void setRigidity(float rigidity);
+
+        void setLocalTime(float localTime);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -82,10 +86,17 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
 
-        virtual void update(const Time &elapsedTime);
+        void setLastUpdateTime(float time, bool force = false);
+        float getLastUpdateTime();
+        float getLastParentUpdateTime();
+
+        virtual void update(const Time &elapsedTime, float localTime = -1);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
+
+
+        virtual void serialize(pou::Stream *stream, float localTime = -1);
 
 
     protected:
@@ -121,6 +132,13 @@ class SimpleNode : public NotificationSender, public NotificationListener
         SimpleNode *m_parent;
         std::map<NodeTypeId, SimpleNode*> m_childs;
 
+        float m_curLocalTime;
+        float m_lastUpdateTime;
+        float m_lastParentUpdateTime;
+        float m_lastPositionUpdateTime;
+        float m_lastRotationUpdateTime;
+        float m_lastScaleUpdateTime;
+
     private:
         NodeTypeId m_id;
         std::string m_name;
@@ -129,6 +147,11 @@ class SimpleNode : public NotificationSender, public NotificationListener
         int m_curNewId;
 
         bool m_needToUpdateModelMat;
+
+    public:
+        static const glm::vec3  NODE_MAX_POS;
+        static const float      NODE_MAX_SCALE;
+        static const uint8_t    NODE_SCALE_DECIMALS;
 };
 
 }

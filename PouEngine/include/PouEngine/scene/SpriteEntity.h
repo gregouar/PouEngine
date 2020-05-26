@@ -87,7 +87,7 @@ class SpriteEntity : public ShadowCaster
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
         virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
-        virtual void update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime, float localTime = -1);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;

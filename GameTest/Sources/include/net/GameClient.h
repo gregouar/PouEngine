@@ -16,7 +16,7 @@ class GameClient
         bool create(unsigned short port = 0);
 
         bool connectToServer(const pou::NetAddress &address);
-        bool disconnectFromServer(bool alreadyDisconnected = false);
+        bool disconnectFromServer();
 
         void update(const pou::Time &elapsedTime);
         void render(pou::RenderWindow *renderWindow);
@@ -24,10 +24,12 @@ class GameClient
         //const pou::NetAddress &getAddress() const;
         unsigned short getPort() const;
 
+        void playerWalk(glm::vec2 direction);
         void sendMsgTest(bool reliable, bool forceSend);
 
     protected:
         void cleanup();
+        void disconnectionCleanup();
 
         void processMessage(std::shared_ptr<pou::NetMessage> msg);
 
@@ -36,6 +38,8 @@ class GameClient
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
 
+        glm::vec2   m_lastPlayerWalkDirection;
+
         GameWorld   m_world;
         uint16_t    m_curWorldId;
         bool        m_isWaitingForWorldSync;
@@ -43,9 +47,12 @@ class GameClient
 
         pou::Time m_remainingTime;
 
+        pou::Timer m_syncTimer;
+
         //static const float CLIENTWORLD_SYNC_DELAY;
     public:
         static const int TICKRATE;
+        static const float SYNCDELAY;
 };
 
 #endif // GAMECLIENT_H

@@ -2,10 +2,12 @@
 
 #include "net/NetMessageTypes.h"
 #include "PouEngine/Types.h"
+#include "PouEngine/utils/Profiler.h"
 
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
-const int GameClient::TICKRATE = 60;
+const int GameClient::TICKRATE = 30;
+const float GameClient::SYNCDELAY = .1;
 
 GameClient::GameClient() :
     m_world(true),
@@ -13,7 +15,7 @@ GameClient::GameClient() :
     m_isWaitingForWorldSync(false),
     m_remainingTime(0)
 {
-    //ctor
+    m_lastPlayerWalkDirection = glm::vec2(0);
 }
 
 GameClient::~GameClient()
@@ -40,6 +42,13 @@ void GameClient::cleanup()
     }
 }
 
+void GameClient::disconnectionCleanup()
+{
+    m_isWaitingForWorldSync = false;
+    m_curWorldId = 0;
+    m_world.destroy();
+}
+
 bool GameClient::connectToServer(const pou::NetAddress &address)
 {
     if(!m_client)
@@ -50,20 +59,15 @@ bool GameClient::connectToServer(const pou::NetAddress &address)
     return m_client->connectToServer(address);
 }
 
-bool GameClient::disconnectFromServer(bool alreadyDisconnected)
+bool GameClient::disconnectFromServer()
 {
     if(!m_client)
         return (false);
 
     bool r = true;
+    r = r & m_client->disconnectFromServer();
 
-    if(!alreadyDisconnected)
-        r = r & m_client->disconnectFromServer();
-
-    m_isWaitingForWorldSync = false;
-    m_curWorldId = 0;
-    m_world.destroy();
-    //this->cleanup();
+    this->disconnectionCleanup();
 
     return r;
 }
@@ -82,8 +86,10 @@ void GameClient::update(const pou::Time &elapsedTime)
     for(auto &msg : netMessages)
         this->processMessage(msg);
 
+    pou::Profiler::pushClock("Update client world");
     if(m_client->isConnected())
         this->updateWorld(elapsedTime);
+    pou::Profiler::popClock();
 }
 
 void GameClient::render(pou::RenderWindow *renderWindow)
@@ -98,8 +104,31 @@ void GameClient::sendMsgTest(bool reliable, bool forceSend)
     testMsg->isReliable = reliable;
 
     m_client->sendMessage(testMsg, forceSend);
-    std::cout<<"Client send test message with value:"<<testMsg->test_value<<" and id: "<<testMsg->id<<std::endl;
+    pou::Logger::write("Client send test message with value:"+std::to_string(testMsg->test_value)+" and id: "+std::to_string(testMsg->id));
 }
+
+void GameClient::playerWalk(glm::vec2 direction)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    if(m_lastPlayerWalkDirection != direction)
+    {
+        auto walkMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(pou::NetEngine::createNetMessage(NetMessageType_PlayerAction));
+        walkMsg->isReliable = true;
+        walkMsg->clientTime = m_world.getLocalTime();
+
+        walkMsg->playerActionType  = PlayerActionType_Walk;
+        walkMsg->walkDirection      = direction;
+
+        m_client->sendMessage(walkMsg);
+        m_lastPlayerWalkDirection = direction;
+
+        //m_world.playerWalk(direction);
+    }
+}
+
+///Protected
 
 void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 {
@@ -110,7 +139,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
     {
         case NetMessageType_Test:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_Test>(msg);
-            std::cout<<"Client received test message with value: "<<castMsg->test_value<<" and id: "<<castMsg->id<<std::endl;
+            pou::Logger::write("Client received test message with value: "+std::to_string(castMsg->test_value)+" and id: "+std::to_string(castMsg->id));
         }break;
 
         case NetMessageType_ConnectionStatus:{
@@ -120,7 +149,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
                 // Do something, probably
             }
             else if(castMsg->connectionStatus == pou::ConnectionStatus_Disconnected)
-                this->disconnectFromServer(true);
+                this->disconnectionCleanup();
         }break;
 
 
@@ -129,9 +158,14 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             m_curWorldId = castMsg->world_id;
             m_isWaitingForWorldSync = false;
 
-            m_world.generate(castMsg);
+            m_world.generateFromMsg(castMsg);
 
-            std::cout<<"Received world #"<< m_curWorldId<<std::endl;
+            pou::Logger::write("Received world #"+std::to_string(m_curWorldId));
+        }break;
+
+        case NetMessageType_WorldSync:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
+            m_world.syncFromMsg(castMsg);
         }break;
     }
 }
@@ -141,23 +175,34 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     if(m_curWorldId == 0 && !m_isWaitingForWorldSync)
     {
         m_isWaitingForWorldSync = true;
-        auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldInit>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldInit));
+        auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
         msg->isReliable = true;
-        msg->world_id = 0;
-        m_client->sendMessage(msg);
+        msg->clientTime = -1;
+        m_client->sendMessage(msg, true);
 
         return;
+    } else if(m_curWorldId != 0) {
+        if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
+        {
+            auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+            msg->clientTime = m_world.getLocalTime();
+            m_client->sendMessage(msg, true);
+            m_syncTimer.reset(GameClient::SYNCDELAY);
+        }
     }
 
 
     pou::Time tickTime(1.0f/GameClient::TICKRATE);
     pou::Time totalTime = elapsedTime+m_remainingTime;
 
-    while(totalTime > tickTime)
+   /* while(totalTime > tickTime)
     {
         m_world.update(tickTime);
         totalTime -= tickTime;
-    }
+    } */
+
+    m_world.update(totalTime);
+    totalTime = pou::Time(0);
 
     m_remainingTime = totalTime;
 

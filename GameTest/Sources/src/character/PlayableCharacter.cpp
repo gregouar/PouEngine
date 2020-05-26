@@ -23,6 +23,7 @@ PlayableCharacter::PlayableCharacter() : Character()
 
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
+    m_lastPlayerUpdateTime = -1;
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
 }
@@ -33,12 +34,23 @@ PlayableCharacter::~PlayableCharacter()
 }
 
 
-bool PlayableCharacter::loadModel(const std::string &path)
+/*bool PlayableCharacter::loadModel(const std::string &path)
 {
     if(!Character::loadModel(path))
         return (false);
 
     m_normalWalkingSpeed = m_attributes.walkingSpeed;
+
+    return (true);
+}*/
+
+bool PlayableCharacter::setModel(CharacterModelAsset *model)
+{
+    if(!Character::setModel(model))
+        return (false);
+
+    m_normalWalkingSpeed = m_attributes.walkingSpeed;
+    this->setLastPlayerUpdateTime(m_curLocalTime);
 
     return (true);
 }
@@ -140,7 +152,7 @@ bool PlayableCharacter::dash(glm::vec2 direction)
     return (true);
 }
 
-void PlayableCharacter::update(const pou::Time &elapsedTime)
+void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
 {
     if(!m_isDead)
     {
@@ -216,7 +228,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime)
     //for(auto &skeleton : m_skeletons)
       //  std::cout<<skeleton.second->getCurrentAnimationName()<<std::endl;
 
-    Character::update(elapsedTime);
+    Character::update(elapsedTime, localTime);
 }
 
 
@@ -249,3 +261,13 @@ void PlayableCharacter::updateGearsAttributes()
     }
 }
 
+void PlayableCharacter::setLastPlayerUpdateTime(float time, bool force)
+{
+    if(force || m_lastPlayerUpdateTime < time)
+        m_lastPlayerUpdateTime = time;
+}
+
+float PlayableCharacter::getLastPlayerUpdateTime()
+{
+    return m_lastPlayerUpdateTime;
+}

@@ -49,10 +49,10 @@ void SceneRenderingData::cleanup()
     m_isInitialized = false;
 }
 
-void SceneRenderingData::update()
+/*void SceneRenderingData::update()
 {
 
-}
+}*/
 
 bool SceneRenderingData::isInitialized()
 {

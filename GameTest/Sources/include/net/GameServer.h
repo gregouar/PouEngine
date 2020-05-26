@@ -2,6 +2,7 @@
 #define GAMESERVER_H
 
 #include <memory>
+#include <thread>
 
 #include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
@@ -12,8 +13,11 @@
 
 struct GameClientInfos
 {
-    size_t world_id;
-    size_t player_id;
+    size_t  world_id;
+    size_t  player_id;
+    float   localTime;
+
+    pou::Timer syncTimer;
 };
 
 class GameServer
@@ -22,10 +26,12 @@ class GameServer
         GameServer();
         virtual ~GameServer();
 
-        bool create(unsigned short port = 0);
+        bool create(unsigned short port = 0, bool launchInThread = false);
         void shutdown();
 
         void update(const pou::Time &elapsedTime);
+        void syncClients(const pou::Time &elapsedTime);
+
         size_t generateWorld();
 
         //const pou::NetAddress *getAddress() const;
@@ -37,13 +43,18 @@ class GameServer
         void cleanup();
 
         void processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg);
+        void processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg);
+        void updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg);
 
         void addClient(int clientNbr);
         void disconnectClient(int clientNbr);
 
         void updateWorlds(const pou::Time &elapsedTime);
 
+        void threading();
+
     private:
+        std::atomic<bool> m_serverIsRunning;
         std::unique_ptr<pou::AbstractServer> m_server;
 
 
@@ -53,8 +64,15 @@ class GameServer
 
         pou::Time m_remainingTime;
 
+
+        bool        m_isInThread;
+        std::thread m_serverThread;
+        std::mutex  m_serverMutex;
+
+
     public:
         static const int TICKRATE;
+        static const float SYNCDELAY;
 };
 
 #endif // GAMESERVER_H

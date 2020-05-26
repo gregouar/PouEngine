@@ -484,7 +484,6 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
         m_character->loadItem("../data/char1/energySwordXML.txt");
 
     glm::vec2 charDirection = {0,0};
-
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
         charDirection.y = 1;
     if(eventsManager->keyIsPressed(GLFW_KEY_W))

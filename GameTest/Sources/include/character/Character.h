@@ -51,7 +51,7 @@ class Character : public pou::SceneNode
 
         void addToNearbyCharacters(Character *character);
 
-        virtual void update(const pou::Time &elapsedTime);
+        virtual void update(const pou::Time &elapsedTime, float localTime = -1);
 
         bool isAlive() const;
 
@@ -61,6 +61,12 @@ class Character : public pou::SceneNode
         CharacterModelAsset *getModel() const;
 
         const CharacterAttributes &getAttributes() const;
+
+        //void serialize(Stream *stream);
+        //void syncFrom(Character *model);
+
+        void setLastCharacterUpdateTime(float time, bool force = false);
+        float getLastCharacterUpdateTime();
 
     protected:
         void cleanup();
@@ -95,6 +101,8 @@ class Character : public pou::SceneNode
         std::set<Character*>    m_nearbyCharacters;
         std::set<Character*>    m_alreadyHitCharacters;
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
+
+        float m_lastCharacterUpdateTime;
 
     private:
         CharacterModelAsset *m_model;

@@ -6,10 +6,6 @@
 #include "PouEngine/renderers/SceneRenderer.h"
 
 const int GameWorld::MAX_NBR_PLAYERS = 4;
-const glm::vec3 GameWorld::GAMEWORLD_MAX_SIZE   = glm::vec3(50000.0, 50000.0, 1000.0);
-
-const float     GameWorld::NODE_MAX_SCALE       = 100.0f;
-const uint8_t   GameWorld::NODE_SCALE_DECIMALS  = 2;
 
 const int    GameWorld::NODEID_BITS             =16;
 const int    GameWorld::SPRITESHEETID_BITS      =10;
@@ -46,7 +42,7 @@ void GameWorld::update(const pou::Time elapsed_time)
         return;
 
     this->updateSunLight(elapsed_time);
-    m_scene->update(elapsed_time);
+    m_scene->update(elapsed_time, m_curLocalTime);
 }
 
 void GameWorld::render(pou::RenderWindow *renderWindow)
@@ -64,7 +60,23 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
+void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
+{
+    auto player = m_syncPlayers.findElement(player_id);
 
+    std::cout<<"Player walk ! direction:"<<direction.x<<" "<<direction.y<<std::endl;
+
+    if(player == nullptr)
+        return;
+
+    player->walk(direction);
+}
+
+
+float GameWorld::getLocalTime()
+{
+    return m_curLocalTime;
+}
 
 /// Protected
 
@@ -98,7 +110,9 @@ size_t GameWorld::syncElement(pou::SceneNode *node)
 
 size_t GameWorld::syncElement(pou::SpriteSheetAsset *spriteSheet)
 {
-    return m_syncSpriteSheets.allocateId(spriteSheet);
+    auto id = m_syncSpriteSheets.allocateId(spriteSheet);
+    m_syncTimeSpriteSheets.insert({m_curLocalTime, id});
+    return id;
 }
 
 size_t GameWorld::syncElement(pou::SpriteEntity *spriteEntity)
@@ -108,7 +122,9 @@ size_t GameWorld::syncElement(pou::SpriteEntity *spriteEntity)
 
 size_t GameWorld::syncElement(CharacterModelAsset *characterModel)
 {
-    return m_syncCharacterModels.allocateId(characterModel);
+    auto id = m_syncCharacterModels.allocateId(characterModel);
+    m_syncTimeCharacterModels.insert({m_curLocalTime,id});
+    return id;
 }
 
 size_t GameWorld::syncElement(Character *character)

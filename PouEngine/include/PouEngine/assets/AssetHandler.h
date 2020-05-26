@@ -74,6 +74,7 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
         std::thread m_loadThread;
         std::mutex m_loadMutex;
         std::mutex m_loadingCurAssetMutex;
+        std::mutex m_assetAccessMutex;
 
         std::list<AssetType*> m_assetsToLoadInThread;
         AssetType* m_assetLoadingInThread;

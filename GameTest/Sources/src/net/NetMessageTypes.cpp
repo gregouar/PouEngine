@@ -13,7 +13,11 @@ void initializeNetMessages()
     pou::NetEngine::addNetMessageModel(std::move(
         std::make_unique<NetMessage_WorldInit> (NetMessageType_WorldInit)));
     pou::NetEngine::addNetMessageModel(std::move(
-        std::make_unique<NetMessage_AskForWorldInit> (NetMessageType_AskForWorldInit)));
+        std::make_unique<NetMessage_WorldSync> (NetMessageType_WorldSync)));
+    pou::NetEngine::addNetMessageModel(std::move(
+        std::make_unique<NetMessage_AskForWorldSync> (NetMessageType_AskForWorldSync)));
+    pou::NetEngine::addNetMessageModel(std::move(
+        std::make_unique<NetMessage_PlayerAction> (NetMessageType_PlayerAction)));
 }
 
 ///
@@ -23,55 +27,102 @@ void initializeNetMessages()
 void NetMessage_WorldInit::serializeImpl(pou::Stream *stream)
 {
     stream->serializeBits(world_id, 8);
-    stream->serializeFloat(localTime);
-    stream->serializeInt(dayTime, 0, 360);
     stream->serializeInt(player_id, 0, GameWorld::MAX_NBR_PLAYERS);
+    stream->serializeInt(dayTime, 0, 360);
 
-    //std::cout<<"Nbr Nodes:"<<nbr_nodes<<std::endl;
+    NetMessage_WorldSync::serializeImpl(stream);
+}
+
+///
+/// WorldSync
+///
+
+NetMessage_WorldSync::NetMessage_WorldSync() : NetMessage_WorldSync(-1)
+{
+}
+
+NetMessage_WorldSync::NetMessage_WorldSync(int t) : NetMessage(t),
+    nbr_nodes(0),
+    nbr_spriteSheets(0),
+    nbr_spriteEntities(0),
+    nbr_characterModels(0),
+    nbr_characters(0),
+    nbr_players(0)
+{
+}
+
+void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
+{
+    stream->serializeFloat(localTime);
 
     stream->serializeBits(nbr_nodes, GameWorld::NODEID_BITS);
-    std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
     nodes.resize(nbr_nodes);
     for(int i = 0 ; i < nbr_nodes ; ++i)
         this->serializeNode(stream, nodes[i]);
+    //std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
 
     stream->serializeBits(nbr_spriteSheets, GameWorld::SPRITESHEETID_BITS);
     spriteSheets.resize(nbr_spriteSheets);
     for(int i = 0 ; i < nbr_spriteSheets ; ++i)
         this->serializeSpriteSheet(stream, spriteSheets[i]);
+    //std::cout<<"Nbr SS:"<<nbr_spriteSheets<<std::endl;
 
     stream->serializeBits(nbr_spriteEntities, GameWorld::SPRITEENTITYID_BITS);
     spriteEntities.resize(nbr_spriteEntities);
     for(int i = 0 ; i < nbr_spriteEntities ; ++i)
         this->serializeSpriteEntity(stream, spriteEntities[i]);
+    //std::cout<<"Nbr SE:"<<nbr_spriteEntities<<std::endl;
 
     stream->serializeBits(nbr_characterModels, GameWorld::CHARACTERMODELSID_BITS);
     characterModels.resize(nbr_characterModels);
     for(int i = 0 ; i < nbr_characterModels ; ++i)
         this->serializeCharacterModel(stream, characterModels[i]);
+    //std::cout<<"Nbr CM:"<<nbr_characterModels<<std::endl;
 
     stream->serializeBits(nbr_characters, GameWorld::CHARACTERSID_BITS);
     characters.resize(nbr_characters);
     for(int i = 0 ; i < nbr_characters ; ++i)
         this->serializeCharacter(stream, characters[i]);
+    //std::cout<<"Nbr C:"<<nbr_characters<<std::endl;
 
     stream->serializeInt(nbr_players, 0, GameWorld::MAX_NBR_PLAYERS);
     players.resize(nbr_players);
     for(int i = 0 ; i < nbr_players ; ++i)
         this->serializePlayer(stream, players[i]);
+    //std::cout<<"Nbr P:"<<nbr_players<<std::endl;
 }
 
-void NetMessage_WorldInit::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
+void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
 {
     auto& [ nodeId, nodeSync ] = node;
     stream->serializeBits(nodeId, GameWorld::NODEID_BITS);
-    stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
 
     auto &nodePtr = nodeSync.node;
 
     if(stream->isReading())
+    {
         nodePtr = new pou::SceneNode(0);
+        nodePtr->setLocalTime(localTime);
+    }
 
+    bool hasParent = false;
+    if(!stream->isReading())
+    {
+        if(clientTime < nodePtr->getLastParentUpdateTime())
+            hasParent = true;
+    }
+
+    stream->serializeBool(hasParent);
+    if(hasParent)
+        stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
+
+    nodePtr->serialize(stream, clientTime);
+
+    /*stream->serializeBool(hasParent);
+    if(hasParent)
+        stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
+
+    stream->serializeBool(hasPos);
     glm::vec3 pos = nodePtr->getPosition();
     stream->serializeFloat(pos.x, -GameWorld::GAMEWORLD_MAX_SIZE.x, GameWorld::GAMEWORLD_MAX_SIZE.x, 0);
     stream->serializeFloat(pos.y, -GameWorld::GAMEWORLD_MAX_SIZE.y, GameWorld::GAMEWORLD_MAX_SIZE.y, 0);
@@ -120,33 +171,41 @@ void NetMessage_WorldInit::serializeNode(pou::Stream *stream, std::pair<int, Nod
         nodePtr->setRotation(rot);
         nodePtr->setScale(scale);
         nodePtr->setColor(color);
-    }
+    }*/
 }
 
-void NetMessage_WorldInit::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
+void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
 {
     auto& [ spriteSheetId, spriteSheetPath ] = spriteSheet;
     stream->serializeBits(spriteSheetId, GameWorld::SPRITESHEETID_BITS);
     stream->serializeString(spriteSheetPath);
 }
 
-void NetMessage_WorldInit::serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity)
+void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity)
 {
     auto& [ spriteEntityId, spriteEntitySync ] = spriteEntity;
     stream->serializeBits(spriteEntityId, GameWorld::SPRITEENTITYID_BITS);
     stream->serializeBits(spriteEntitySync.spriteSheetId, GameWorld::SPRITESHEETID_BITS);
     stream->serializeBits(spriteEntitySync.spriteId, 8);
     stream->serializeBits(spriteEntitySync.nodeId, GameWorld::NODEID_BITS);
+
+    auto &spriteEntityPtr = spriteEntitySync.spriteEntity;
+
+    if(stream->isReading())
+    {
+        spriteEntityPtr = new pou::SpriteEntity();
+        spriteEntityPtr->setLocalTime(localTime);
+    }
 }
 
-void NetMessage_WorldInit::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)
+void NetMessage_WorldSync::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)
 {
     auto& [ characterModelId, characterModelPath ] = characterModel;
     stream->serializeBits(characterModelId, GameWorld::CHARACTERMODELSID_BITS);
     stream->serializeString(characterModelPath);
 }
 
-void NetMessage_WorldInit::serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character)
+void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character)
 {
     auto& [ characterId, characterSync ] = character;
     stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
@@ -156,11 +215,14 @@ void NetMessage_WorldInit::serializeCharacter(pou::Stream *stream, std::pair<int
     auto &characterPtr = characterSync.character;
 
     if(stream->isReading())
+    {
         characterPtr = new Character();
+        characterPtr->setLocalTime(localTime);
+    }
 
 }
 
-void NetMessage_WorldInit::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
+void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
 {
     auto& [ playerId, playerSync ] = player;
     stream->serializeInt(playerId, 1,  GameWorld::MAX_NBR_PLAYERS);
@@ -169,14 +231,35 @@ void NetMessage_WorldInit::serializePlayer(pou::Stream *stream, std::pair<int, P
     auto &playerPtr = playerSync.player;
 
     if(stream->isReading())
+    {
         playerPtr = new PlayableCharacter();
+        playerPtr->setLocalTime(localTime);
+    }
 }
 
 ///
 /// AskForWorldSync
 ///
 
-void NetMessage_AskForWorldInit::serializeImpl(pou::Stream *stream)
+void NetMessage_AskForWorldSync::serializeImpl(pou::Stream *stream)
 {
-    stream->serializeBits(world_id, 8);
+    stream->serializeFloat(clientTime);
+}
+
+///
+/// PlayerAction
+///
+
+
+void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
+{
+    stream->serializeFloat(clientTime);
+    stream->serializeInt(playerActionType, 0, NBR_PLAYERACTIONTYPES);
+
+    if(playerActionType == PlayerActionType_Walk)
+    {
+        stream->serializeFloat(walkDirection.x,-1,1,2);
+        stream->serializeFloat(walkDirection.y,-1,1,2);
+    }
+
 }

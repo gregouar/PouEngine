@@ -26,6 +26,8 @@ Character::Character() : SceneNode(-1,nullptr)
     m_isAttacking       = false;
     m_walkingDirection  = {0,0};
     m_lookingDirection  = {0,-1};
+
+    m_lastCharacterUpdateTime = -1;
 }
 
 Character::~Character()
@@ -57,6 +59,7 @@ bool Character::setModel(CharacterModelAsset *model)
        return (false);
 
     m_attributes = m_model->getAttributes();
+    this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
 }
@@ -199,8 +202,11 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
 
 void Character::setWalkingSpeed(float speed)
 {
-    if(speed >= 0)
+    if(speed >= 0 && m_attributes.walkingSpeed != speed)
+    {
         m_attributes.walkingSpeed = speed;
+        this->setLastCharacterUpdateTime(m_curLocalTime);
+    }
 }
 
 void Character::setRotationRadius(float radius)
@@ -211,20 +217,33 @@ void Character::setRotationRadius(float radius)
 
 void Character::setLookingDirection(glm::vec2 direction)
 {
-    m_lookingDirection = direction;
+    if(m_lookingDirection != direction)
+    {
+        m_lookingDirection = direction;
+        this->setLastCharacterUpdateTime(m_curLocalTime);
+    }
 }
 
 void Character::setDestination(glm::vec2 destination)
 {
-    m_destination       = destination;
-    m_isDestinationSet  = true;
+    if(m_destination != destination || !m_isDestinationSet)
+    {
+        m_destination       = destination;
+        m_isDestinationSet  = true;
+        this->setLastCharacterUpdateTime(m_curLocalTime);
+    }
 }
 
 void Character::walk(glm::vec2 direction)
 {
-    m_walkingDirection = direction;
-    if(direction != glm::vec2(0))
-        m_lookingDirection = m_walkingDirection;
+    if(m_walkingDirection != direction)
+    {
+        m_walkingDirection = direction;
+        if(direction != glm::vec2(0))
+            m_lookingDirection = m_walkingDirection;
+
+        this->setLastCharacterUpdateTime(m_curLocalTime);
+    }
 }
 
 bool Character::attack(glm::vec2 direction, const std::string &animationName)
@@ -249,6 +268,8 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
 
     m_attackDelayTimer.reset(m_attributes.attackDelay);
 
+    this->setLastCharacterUpdateTime(m_curLocalTime);
+
     return (true);
 }
 
@@ -260,6 +281,9 @@ bool Character::stopAttacking()
     m_isAttacking = false;
     m_alreadyHitCharacters.clear();
     this->startAnimation("stand", true);
+
+    if(wasAttacking)
+        this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return wasAttacking;
 }
@@ -295,6 +319,8 @@ bool Character::damage(float damages, glm::vec2 direction)
         m_pushVelocity = glm::normalize(direction)*200.0f;
     }
 
+    this->setLastCharacterUpdateTime(m_curLocalTime);
+
     return isFatal;
 }
 
@@ -314,6 +340,8 @@ bool Character::interrupt(float amount)
         m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
         m_attackDelayTimer.reset(0);
         //m_isAttacking   = false;
+
+        this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 
     return interrupt;
@@ -326,6 +354,8 @@ bool Character::resurrect()
 
     m_attributes.life = m_attributes.maxLife;
     m_isDead = false;
+    this->setLastCharacterUpdateTime(m_curLocalTime);
+
     return (true);
 }
 
@@ -437,7 +467,7 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
     return wantedRotation;
 }
 
-void Character::update(const pou::Time& elapsedTime)
+void Character::update(const pou::Time& elapsedTime, float localTime)
 {
     if(m_pushTimer.isActive())
         this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
@@ -462,7 +492,7 @@ void Character::update(const pou::Time& elapsedTime)
 
     //m_nearbyCharacters.clear();
 
-    SceneNode::update(elapsedTime);
+    SceneNode::update(elapsedTime, localTime);
 
     //this->updateSounds();
 }
@@ -631,3 +661,13 @@ const CharacterAttributes &Character::getAttributes() const
     return m_attributes;
 }
 
+void Character::setLastCharacterUpdateTime(float time, bool force)
+{
+    if(force || m_lastCharacterUpdateTime < time)
+        m_lastCharacterUpdateTime = time;
+}
+
+float Character::getLastCharacterUpdateTime()
+{
+    return m_lastCharacterUpdateTime;
+}

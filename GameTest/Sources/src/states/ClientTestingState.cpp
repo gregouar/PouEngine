@@ -72,6 +72,17 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
 
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
+
+    glm::vec2 charDirection = {0,0};
+    if(eventsManager->keyIsPressed(GLFW_KEY_DOWN))
+        charDirection.y = 1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_UP))
+        charDirection.y = -1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_LEFT))
+        charDirection.x = -1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_RIGHT))
+        charDirection.x = 1;
+    m_gameClient.playerWalk(charDirection);
 }
 
 

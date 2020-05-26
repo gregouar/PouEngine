@@ -6,13 +6,14 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
 
 namespace pou
 {
 struct NetMessage
 {
-    NetMessage(){}
-    NetMessage(int t) : type(t){}
+    NetMessage();
+    NetMessage(int t);
 
     int type;
     bool isReliable;
@@ -57,6 +58,8 @@ class NetMessagesFactory
 
     private:
         std::vector< std::unique_ptr<NetMessage> > m_msgModels;
+
+        std::mutex m_lock;
 
     public:
         static const int NETMESSAGEID_SIZE;

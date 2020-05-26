@@ -5,6 +5,11 @@
 namespace pou
 {
 
+const glm::vec3 SimpleNode::NODE_MAX_POS         = glm::vec3(50000.0, 50000.0, 1000.0);
+const float     SimpleNode::NODE_MAX_SCALE       = 100.0f;
+const uint8_t   SimpleNode::NODE_SCALE_DECIMALS  = 2;
+
+
 SimpleNode::SimpleNode(const NodeTypeId id) :
     m_globalPosition(0.0,0.0,0.0),
     m_position(0.0,0.0,0.0),
@@ -14,7 +19,13 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_curFlexibleLength(0.0),
     m_curFlexibleRotation(0.0),
     m_modelMatrix(1.0),
-    m_invModelMatrix(1.0)
+    m_invModelMatrix(1.0),
+    m_curLocalTime(0),
+    m_lastUpdateTime(-1),
+    m_lastParentUpdateTime(-1),
+    m_lastPositionUpdateTime(-1),
+    m_lastRotationUpdateTime(-1),
+    m_lastScaleUpdateTime(-1)
 {
     m_parent = nullptr;
     m_id = id;
@@ -47,7 +58,7 @@ void SimpleNode::addChildNode(const NodeTypeId id, SimpleNode* node)
         Logger::warning(warn_report);
     }
 
-    if(m_curNewId <= id)
+    if(m_curNewId <= (int)id)
         m_curNewId = id+1;
 
     m_childs.insert_or_assign(childsIt,id,node);
@@ -243,6 +254,32 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     }
 }
 
+bool SimpleNode::syncFrom(SimpleNode* srcNode)
+{
+    if(m_curLocalTime > srcNode->m_curLocalTime)
+        return (false);
+
+    m_curLocalTime = srcNode->m_curLocalTime;
+
+    //if(m_lastParentUpdated < srcNode->m_lastParentUpdated)
+    //    this->setColor(srcNode->getColor());
+    if(m_lastPositionUpdateTime < srcNode->m_lastPositionUpdateTime)
+        this->setPosition(srcNode->getPosition());
+    if(m_lastRotationUpdateTime < srcNode->m_lastRotationUpdateTime)
+        this->setRotation(srcNode->getEulerRotation());
+    if(m_lastScaleUpdateTime < srcNode->m_lastScaleUpdateTime)
+        this->setScale(srcNode->getScale());
+
+    return (true);
+}
+
+void SimpleNode::setLocalTime(float localTime)
+{
+    if(localTime < 0)
+        localTime = -1;
+    m_curLocalTime = localTime;
+}
+
 void SimpleNode::move(float x, float y)
 {
     this->move(x,y,0);
@@ -287,6 +324,8 @@ void SimpleNode::setPosition(glm::vec2 xyPos)
 void SimpleNode::setPosition(glm::vec3 pos)
 {
     m_position = pos;
+    m_lastPositionUpdateTime = m_curLocalTime;
+    this->setLastUpdateTime(m_curLocalTime);
 
     this->updateGlobalPosition();
 }
@@ -315,7 +354,7 @@ void SimpleNode::setGlobalPosition(glm::vec3 pos)
         this->setPosition({newPos.x, newPos.y, newPos.z});
     }
     else
-        m_position = pos;
+        this->setPosition(pos);
 
     this->updateGlobalPosition();
 }
@@ -348,6 +387,8 @@ void SimpleNode::setScale(float scale)
 void SimpleNode::setScale(glm::vec3 scale)
 {
     m_scale = scale;
+    m_lastScaleUpdateTime = m_curLocalTime;
+    this->setLastUpdateTime(m_curLocalTime);
     this->askForUpdateModelMatrix();
 }
 
@@ -378,6 +419,8 @@ void SimpleNode::setRotation(glm::vec3 rotation, bool inRadians)
     }
 
     m_eulerRotations = glm::mod(rotation+glm::pi<float>()*glm::vec3(1.0),glm::pi<float>()*2)-glm::pi<float>()*glm::vec3(1.0);
+    m_lastRotationUpdateTime = m_curLocalTime;
+    this->setLastUpdateTime(m_curLocalTime);
 
     //this->updateModelMatrix();
     this->askForUpdateModelMatrix();
@@ -493,6 +536,24 @@ void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResM
         child.second->getNodesByName(namesAndResMap);
 }
 
+
+void SimpleNode::setLastUpdateTime(float time, bool force)
+{
+    if(force || m_lastUpdateTime < time)
+        m_lastUpdateTime = time;
+}
+
+float SimpleNode::getLastUpdateTime()
+{
+    return m_lastUpdateTime;
+}
+
+float SimpleNode::getLastParentUpdateTime()
+{
+    return m_lastParentUpdateTime;
+}
+
+
 /*std::list<SimpleNode*> SimpleNode::getAllChilds()
 {
     return m_childs.
@@ -513,6 +574,8 @@ void SimpleNode::setParent(SimpleNode *p)
         auto oldParent = m_parent;
 
         m_parent = p;
+        m_lastParentUpdateTime = m_curLocalTime;
+        this->setLastUpdateTime(m_curLocalTime);
         if(m_parent != nullptr)
         {
             ///this->setScene(m_parent->getScene());
@@ -537,14 +600,17 @@ NodeTypeId SimpleNode::generateId()
 }
 
 
-void SimpleNode::update(const Time &elapsedTime)
+void SimpleNode::update(const Time &elapsedTime, float localTime)
 {
     //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
 
+    if(localTime != -1)
+        m_curLocalTime = localTime;
+
     for(auto node : m_childs)
-        node.second->update(elapsedTime);
+        node.second->update(elapsedTime,localTime);
 }
 
 void SimpleNode::updateGlobalPosition()
@@ -700,6 +766,54 @@ void SimpleNode::notify(NotificationSender* sender, NotificationType type,
             m_parent = nullptr;
             this->updateGlobalPosition();
         }
+    }
+}
+
+void SimpleNode::serialize(Stream *stream, float clientTime)
+{
+    bool hasPos = false;
+    if(!stream->isReading() && clientTime < m_lastPositionUpdateTime)
+        hasPos = true;
+    stream->serializeBool(hasPos);
+    if(hasPos)
+    {
+        glm::vec3 pos = this->getPosition();
+        stream->serializeFloat(pos.x, -SimpleNode::NODE_MAX_POS.x, SimpleNode::NODE_MAX_POS.x, 0);
+        stream->serializeFloat(pos.y, -SimpleNode::NODE_MAX_POS.y, SimpleNode::NODE_MAX_POS.y, 0);
+        stream->serializeFloat(pos.z, -SimpleNode::NODE_MAX_POS.z, SimpleNode::NODE_MAX_POS.z, 2);
+
+        if(stream->isReading())
+            this->setPosition(pos);
+    }
+
+    bool hasRot = false;
+    if(!stream->isReading() && clientTime < m_lastRotationUpdateTime)
+        hasRot = true;
+    stream->serializeBool(hasRot);
+    if(hasRot)
+    {
+        glm::vec3 rot = this->getEulerRotation();
+        stream->serializeFloat(rot.x, -glm::pi<float>(), glm::pi<float>(), 2);
+        stream->serializeFloat(rot.y, -glm::pi<float>(), glm::pi<float>(), 2);
+        stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
+
+        if(stream->isReading())
+            this->setRotation(rot);
+    }
+
+    bool hasScale = false;
+    if(!stream->isReading() && clientTime < m_lastScaleUpdateTime)
+        hasScale = true;
+    stream->serializeBool(hasScale);
+    if(hasScale)
+    {
+        glm::vec3 scale = this->getScale();
+        stream->serializeFloat(scale.x, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
+        stream->serializeFloat(scale.y, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
+        stream->serializeFloat(scale.z, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
+
+        if(stream->isReading())
+            this->setScale(scale);
     }
 }
 

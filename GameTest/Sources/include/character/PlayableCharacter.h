@@ -12,7 +12,8 @@ class PlayableCharacter : public Character
         PlayableCharacter();
         virtual ~PlayableCharacter();
 
-        virtual bool loadModel(const std::string &path);
+        //virtual bool loadModel(const std::string &path);
+        virtual bool setModel(CharacterModelAsset *model);
         virtual bool loadItem(const std::string &path);
 
         virtual void setWalkingSpeed(float speed);
@@ -24,9 +25,12 @@ class PlayableCharacter : public Character
         virtual void askToDash(glm::vec2 direction = glm::vec2(0,0));
         virtual bool dash(glm::vec2 direction = glm::vec2(0,0));
 
-        virtual void update(const pou::Time &elapsedTime);
+        virtual void update(const pou::Time &elapsedTime, float localTime = -1);
 
         virtual const std::list<Hitbox> *getHitboxes() const;
+
+        void setLastPlayerUpdateTime(float time, bool force = false);
+        float getLastPlayerUpdateTime();
 
     protected:
         virtual void updateGearsAttributes();
@@ -34,6 +38,8 @@ class PlayableCharacter : public Character
     protected:
         std::vector<ItemModelAsset *> m_gearsModel;
         std::list<Hitbox>             m_hitboxes;
+
+        float m_lastPlayerUpdateTime;
 
     private:
         //bool        m_isInCombatMode;

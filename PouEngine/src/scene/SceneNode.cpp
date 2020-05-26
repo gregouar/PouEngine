@@ -11,7 +11,8 @@ namespace pou
 SceneNode::SceneNode(const NodeTypeId id) :
     SimpleNode(id),
     m_color(1.0f),
-    m_finalColor(1.0f)
+    m_finalColor(1.0f),
+    m_lastColorUpdateTime(-1)
 {
     m_scene = nullptr;
 }
@@ -151,8 +152,6 @@ const glm::vec4 &SceneNode::getFinalColor() const
     return m_finalColor;
 }
 
-
-
 void SceneNode::colorize(const glm::vec4 &c)
 {
     this->setColor(m_color + c);
@@ -161,6 +160,8 @@ void SceneNode::colorize(const glm::vec4 &c)
 void SceneNode::setColor(const glm::vec4 &c)
 {
     m_color = c;
+    m_lastColorUpdateTime = m_curLocalTime;
+    this->setLastUpdateTime(m_curLocalTime);
 
     this->updateGlobalPosition();
 }
@@ -179,6 +180,15 @@ void SceneNode::setParent(SimpleNode *p)
 
     if(this->getParent() != nullptr)
         this->setScene(dynamic_cast<SceneNode*>(m_parent)->getScene());
+}
+
+void SceneNode::syncFrom(SceneNode* srcNode)
+{
+    if(!SimpleNode::syncFrom((SimpleNode*) srcNode))
+        return;
+
+    if(m_lastColorUpdateTime < srcNode->m_lastColorUpdateTime)
+        this->setColor(srcNode->getColor());
 }
 
 void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
@@ -216,9 +226,9 @@ bool SceneNode::playSound(int id)
     return r;
 }
 
-void SceneNode::update(const Time &elapsedTime)
+void SceneNode::update(const Time &elapsedTime, float localTime)
 {
-    SimpleNode::update(elapsedTime);
+    SimpleNode::update(elapsedTime, localTime);
 
     //int i = 0;
     for(auto &object : m_attachedObjects)
@@ -262,5 +272,27 @@ SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
         }
     }
 }*/
+
+
+void SceneNode::serialize(Stream *stream, float clientTime)
+{
+    SimpleNode::serialize(stream, clientTime);
+
+    bool hasColor = false;
+    if(!stream->isReading() && clientTime < m_lastColorUpdateTime)
+        hasColor = true;
+    stream->serializeBool(hasColor);
+    if(hasColor)
+    {
+        glm::vec4 color = this->getColor();
+        stream->serializeFloat(color.r, 0, 10, 2);
+        stream->serializeFloat(color.g, 0, 10, 2);
+        stream->serializeFloat(color.b, 0, 10, 2);
+        stream->serializeFloat(color.a, 0, 1, 2);
+
+        if(stream->isReading())
+            this->setColor(color);
+    }
+}
 
 }

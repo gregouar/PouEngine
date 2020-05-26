@@ -280,9 +280,9 @@ const std::string &Skeleton::getCurrentAnimationName()
     return m_curAnimation->getName();
 }
 
-void Skeleton::update(const Time &elapsedTime)
+void Skeleton::update(const Time &elapsedTime, float localTime)
 {
-    SceneNode::update(elapsedTime);
+    SceneNode::update(elapsedTime, localTime);
 
     m_isNewFrame = false;
     bool nextFrame = true;

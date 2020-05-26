@@ -25,17 +25,25 @@ class SceneObject : public NotificationListener
         bool isAnEntity();
         bool isAShadowCaster();
 
-        virtual void update(const Time &elapsedTime);
+        void setLocalTime(float time);
+        void setLastUpdateTime(float time, bool force = false);
+        float getLastUpdateTime();
+
+        virtual void update(const Time &elapsedTime, float localTime = -1);
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
 
     protected:
+
         SceneNode *setParentNode(SceneNode*);
         SceneNode *m_parentNode;
 
         bool m_isALight;
         bool m_isAnEntity;
         bool m_isAShadowCaster;
+
+        float m_curLocalTime;
+        float m_lastUpdateTime;
 
     private:
 };

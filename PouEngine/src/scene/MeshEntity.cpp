@@ -126,6 +126,7 @@ void MeshEntity::setMesh(MeshAsset* mesh)
     {
         this->stopListeningTo(m_mesh);
         m_mesh = mesh;
+        this->setLastUpdateTime(m_curLocalTime);
         this->startListeningTo(m_mesh);
         this->updateDatum();
     }
@@ -137,6 +138,7 @@ void MeshEntity::setColor(Color color)
     if(m_color != color)
     {
         m_color = color;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -146,6 +148,7 @@ void MeshEntity::setRme(glm::vec3 rme)
     if(m_rme != rme)
     {
         m_rme = rme;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -160,6 +163,7 @@ void MeshEntity::setScale(glm::vec3 scale)
     if(m_scale != scale)
     {
         m_scale = scale;
+        this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }

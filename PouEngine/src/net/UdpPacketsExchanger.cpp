@@ -180,7 +180,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
         for(auto &it : netMsgList.reliableMsgMap)
         {
-            auto msgSize = it.second->serialize(&stream) + 2;
+            WriteStream tempStream;
+            auto msgSize = it.second->serialize(&tempStream) + 2;
             if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
                 break;
             curPacketSize += msgSize;
@@ -199,7 +200,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
         for(auto it = netMsgList.nonReliableMsgList.begin() ;
             it != netMsgList.nonReliableMsgList.end() ; ++it)
         {
-            auto msgSize = (*it)->serialize(&stream) + 2;
+            WriteStream tempStream;
+            auto msgSize = (*it)->serialize(&tempStream) + 2;
 
             if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
                 break;

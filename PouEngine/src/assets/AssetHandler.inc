@@ -33,6 +33,8 @@ AssetType* AssetHandler<AssetType>::getAsset(const AssetTypeId assetId)
 template<typename AssetType>
 AssetType* AssetHandler<AssetType>::getAssetImpl(const AssetTypeId assetId)
 {
+    ///std::lock_guard<std::mutex> lock(m_assetAccessMutex);
+
     if(assetId == 0)
         return this->getDummyAsset();
 
@@ -72,6 +74,9 @@ template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
                                         const std::string &filePath, AssetLoadType loadType)
 {
+    //std::lock_guard<std::mutex> lock(m_assetAccessMutex);
+    ///m_assetAccessMutex.lock();
+
 	std::map<std::string, AssetTypeId>::iterator filesIter;
 	filesIter = m_filesList.find(filePath);
 	if(filesIter != m_filesList.end())
@@ -86,8 +91,12 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
 
             foundedAsset->loadNow();
         }
+
+        ///m_assetAccessMutex.unlock();
 		return foundedAsset;
     }
+
+    ///m_assetAccessMutex.unlock();
 
     AssetType* newAsset = this->addAsset(id);
     newAsset->prepareLoadFromFile(filePath, loadType);

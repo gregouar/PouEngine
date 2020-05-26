@@ -36,10 +36,10 @@ void Scene::cleanAll()
 }
 
 
-void Scene::update(const Time &elapsedTime)
+void Scene::update(const Time &elapsedTime, float localTime)
 {
-    m_rootNode.update(elapsedTime);
-    m_renderingData.update();
+    m_rootNode.update(elapsedTime,localTime);
+   // m_renderingData.update();
 }
 
 void Scene::render(SceneRenderer *renderer, CameraObject *camera)

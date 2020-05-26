@@ -11,8 +11,16 @@ enum NetMessageType
     NetMessageType_ConnectionStatus,
     NetMessageType_Test,
     NetMessageType_WorldInit,
-    NetMessageType_AskForWorldInit,
+    NetMessageType_WorldSync,
+    NetMessageType_AskForWorldSync,
+    NetMessageType_PlayerAction,
     NBR_RELIABLEMESSAGETYPES,
+};
+
+enum PlayerActionType
+{
+    PlayerActionType_Walk,
+    NBR_PLAYERACTIONTYPES,
 };
 
 void initializeNetMessages();
@@ -43,25 +51,26 @@ struct NetMessage_Test : public pou::NetMessage
     }
 };
 
-struct NetMessage_WorldInit : public pou::NetMessage
+
+struct NetMessage_WorldSync : public pou::NetMessage
 {
-    NetMessage_WorldInit() : NetMessage(){}
-    NetMessage_WorldInit(int t) : NetMessage(t){}
+    NetMessage_WorldSync();
+    NetMessage_WorldSync(int t);
 
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
-        return std::make_shared<NetMessage_WorldInit>();
+        return std::make_shared<NetMessage_WorldSync>();
     }
 
-    int world_id;
-
+    float   clientTime;
     float   localTime;
-    int     dayTime;
+    //int     dayTime;
 
-    int player_id;
+    //int player_id;
 
+    bool hasParent, hasPos, hasRot, hasScale, hasColor;
     int nbr_nodes;
-    std::vector<std::pair<int, NodeSync> > nodes; //NodeId, ParentNodeId, Node
+    std::vector<std::pair<int, NodeSync> > nodes; //NodeId, Node
 
     int nbr_spriteSheets;
     std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
@@ -88,22 +97,57 @@ struct NetMessage_WorldInit : public pou::NetMessage
     virtual void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
 };
 
-
-struct NetMessage_AskForWorldInit : public pou::NetMessage
+struct NetMessage_WorldInit : public NetMessage_WorldSync
 {
-    NetMessage_AskForWorldInit() : NetMessage(){}
-    NetMessage_AskForWorldInit(int t) : NetMessage(t){}
+    NetMessage_WorldInit() : NetMessage_WorldSync(){}
+    NetMessage_WorldInit(int t) : NetMessage_WorldSync(t){}
 
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
-        return std::make_shared<NetMessage_AskForWorldInit>();
+        return std::make_shared<NetMessage_WorldInit>();
     }
 
     int world_id;
+    int player_id;
+    int dayTime;
 
     virtual void serializeImpl(pou::Stream *stream);
 };
 
+
+struct NetMessage_AskForWorldSync : public pou::NetMessage
+{
+    NetMessage_AskForWorldSync() : NetMessage(){}
+    NetMessage_AskForWorldSync(int t) : NetMessage(t){}
+
+    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
+    {
+        return std::make_shared<NetMessage_AskForWorldSync>();
+    }
+
+    //int world_id;
+    float clientTime;
+
+    virtual void serializeImpl(pou::Stream *stream);
+};
+
+struct NetMessage_PlayerAction : public pou::NetMessage
+{
+    NetMessage_PlayerAction() : NetMessage(){}
+    NetMessage_PlayerAction(int t) : NetMessage(t){}
+
+    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
+    {
+        return std::make_shared<NetMessage_PlayerAction>();
+    }
+
+    float   clientTime;
+    int     playerActionType;
+
+    glm::vec2 walkDirection;
+
+    virtual void serializeImpl(pou::Stream *stream);
+};
 
 
 

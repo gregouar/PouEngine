@@ -28,7 +28,7 @@ class SceneRenderingData
 
         bool isInitialized();
 
-        void update();
+        //void update();
 
         void setAmbientLight(Color color);
 

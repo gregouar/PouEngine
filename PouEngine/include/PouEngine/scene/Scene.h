@@ -19,7 +19,7 @@ class Scene : public NotificationListener
 
         virtual void cleanAll();
 
-        virtual void update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime, float localTime = -1);
 
         virtual void render(SceneRenderer *renderer, CameraObject *camera);
 

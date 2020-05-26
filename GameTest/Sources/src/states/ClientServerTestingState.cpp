@@ -74,6 +74,22 @@ void ClientServerTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_X))
         m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,m_gameServer.getPort()));
 
+
+    glm::vec2 charDirection = {0,0};
+    if(eventsManager->keyIsPressed(GLFW_KEY_S))
+        charDirection.y = 1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_W))
+        charDirection.y = -1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_A))
+        charDirection.x = -1;
+    if(eventsManager->keyIsPressed(GLFW_KEY_D))
+        charDirection.x = 1;
+    m_gameClient.playerWalk(charDirection);
+    //if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
+    //    m_character->askToDash(charDirection);
+    //m_character->walk(charDirection);
+
+
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
     if(eventsManager->keyPressed(GLFW_KEY_O))
