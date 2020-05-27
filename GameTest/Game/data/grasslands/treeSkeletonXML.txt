@@ -2,12 +2,12 @@
 <skeleton>
 	<node name="root"> 
 		<node name="foliage0" z=80 state="normal">
-			<node name="shadow" z=-79.9 />
+			<node name="shadow" z=-79.5			/>
 			<node name="foliage1" z=20  state="normal">
 				<node name="foliage2" z=20  state="normal"/>
 			</node>
 		</node>
-		<node name="baseTrunk" z=0 />
+		<node name="baseTrunk" z=1 />
 		<node name="trunk" z=15 >
 			<node name="trunk2" z=15>
 				<node name="trunk3" z=15 >

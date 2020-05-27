@@ -30,8 +30,11 @@ class PlayableCharacter : public Character
 
         virtual const std::list<Hitbox> *getHitboxes() const;
 
-        void setLastPlayerUpdateTime(float time, bool force = false);
-        float getLastPlayerUpdateTime();
+        bool syncFromPlayer(PlayableCharacter *srcPlayer);
+
+        virtual void    setSyncAndLocalTime(float syncTime);
+        void            setLastPlayerUpdateTime(float time, bool force = false);
+        float           getLastPlayerUpdateTime();
 
     protected:
         virtual void updateGearsAttributes();
@@ -40,6 +43,7 @@ class PlayableCharacter : public Character
         std::vector<ItemModelAsset *> m_gearsModel;
         std::list<Hitbox>             m_hitboxes;
 
+        float m_lastPlayerSyncTime;
         float m_lastPlayerUpdateTime;
 
     private:

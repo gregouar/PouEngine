@@ -185,7 +185,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
             auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
-            msg->clientTime = m_world.getLocalTime();
+            msg->clientTime = m_world.getLastSyncTime();
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }

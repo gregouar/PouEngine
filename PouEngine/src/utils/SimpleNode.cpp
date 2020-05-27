@@ -21,6 +21,7 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0),
     m_curLocalTime(0),
+    m_lastSyncTime(-1),
     m_lastUpdateTime(-1),
     m_lastParentUpdateTime(-1),
     m_lastPositionUpdateTime(-1),
@@ -35,6 +36,8 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
 
 SimpleNode::~SimpleNode()
 {
+    if(m_parent != nullptr)
+        m_parent->removeChildNode(this);
     this->removeAndDestroyAllChilds();
 }
 
@@ -109,6 +112,11 @@ SimpleNode* SimpleNode::removeChildNode(const NodeTypeId id)
 
         return (nullptr);
     }
+
+
+    auto createdChildsIt = m_createdChildsList.find(id);
+    if(createdChildsIt != m_createdChildsList.end())
+        m_createdChildsList.erase(createdChildsIt);
 
     node = childsIt->second;
     node->setParent(nullptr);
@@ -207,7 +215,11 @@ bool SimpleNode::destroyChildNode(const NodeTypeId id)
     }
 
     if(childsIt->second != nullptr)
+    {
+        childsIt->second->setParent(nullptr);
         delete childsIt->second;
+    }
+
     m_childs.erase(childsIt);
 
     return (true);
@@ -256,20 +268,20 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
 
 bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 {
-    if(m_curLocalTime > srcNode->m_curLocalTime)
+    if(m_lastSyncTime > srcNode->m_curLocalTime)
         return (false);
 
-    m_curLocalTime = srcNode->m_curLocalTime;
-
-    if(m_lastPositionUpdateTime < srcNode->m_lastPositionUpdateTime)
+    if(m_lastSyncTime < srcNode->m_lastPositionUpdateTime)
         //&& srcNode->m_lastPositionUpdateTime != -1)
         this->setPosition(srcNode->getPosition());
-    if(m_lastRotationUpdateTime < srcNode->m_lastRotationUpdateTime)
+    if(m_lastSyncTime < srcNode->m_lastRotationUpdateTime)
     // && srcNode->m_lastRotationUpdateTime != -1)
         this->setRotation(srcNode->getEulerRotation());
-    if(m_lastScaleUpdateTime < srcNode->m_lastScaleUpdateTime)
+    if(m_lastSyncTime < srcNode->m_lastScaleUpdateTime)
     // && srcNode->m_lastScaleUpdateTime != -1)
         this->setScale(srcNode->getScale());
+
+    m_lastSyncTime = srcNode->m_curLocalTime;
 
     return (true);
 }
@@ -279,6 +291,15 @@ void SimpleNode::setLocalTime(float localTime)
     if(localTime < 0)
         localTime = -1;
     m_curLocalTime = localTime;
+}
+
+void SimpleNode::setSyncAndLocalTime(float syncTime)
+{
+    if(syncTime < 0)
+        syncTime = -1;
+    m_lastSyncTime = syncTime;
+
+    this->setLocalTime(syncTime);
 }
 
 void SimpleNode::move(float x, float y)
@@ -554,6 +575,10 @@ float SimpleNode::getLastParentUpdateTime()
     return m_lastParentUpdateTime;
 }
 
+float SimpleNode::getLocalTime()
+{
+    return m_curLocalTime;
+}
 
 /*std::list<SimpleNode*> SimpleNode::getAllChilds()
 {

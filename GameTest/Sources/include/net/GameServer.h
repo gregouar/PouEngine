@@ -18,6 +18,8 @@ struct GameClientInfos
     float   localTime;
 
     pou::Timer syncTimer;
+
+    bool playerCreated;
 };
 
 class GameServer

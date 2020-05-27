@@ -16,8 +16,10 @@ const int    GameWorld::CHARACTERSID_BITS       =16;
 GameWorld::GameWorld(bool renderable, bool isServer) :
     m_scene(nullptr),
     m_isRenderable(renderable),
+    m_isServer(isServer),
     m_curLocalTime(0),
-    m_isServer(isServer)
+    m_lastSyncTime(-1),
+    m_camera(nullptr)
 {
     m_syncNodes.setMax(pow(2,GameWorld::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld::SPRITESHEETID_BITS));
@@ -37,11 +39,23 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time)
 {
-    if(m_isServer)
+    //if(m_isServer)
         m_curLocalTime += elapsed_time.count();
 
     if(!m_scene)
         return;
+
+    while(!m_addedPlayersList.empty())
+    {
+        this->initPlayer(m_addedPlayersList.back());
+        m_addedPlayersList.pop_back();
+    }
+
+    while(!m_removedPlayersList.empty())
+    {
+        this->removePlayer(m_removedPlayersList.back());
+        m_removedPlayersList.pop_back();
+    }
 
     this->updateSunLight(elapsed_time);
     m_scene->update(elapsed_time, m_curLocalTime);
@@ -62,6 +76,37 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
+size_t GameWorld::askToAddPlayer()
+{
+    auto player = new PlayableCharacter();
+
+    auto player_id = this->syncElement(player);
+    if(player_id == 0)
+    {
+        delete player;
+        return (0);
+    }
+    m_addedPlayersList.push_back(player_id);
+    return player_id;
+}
+
+bool GameWorld::askToRemovePlayer(size_t player_id)
+{
+    auto player = m_syncPlayers.findElement(player_id);
+    if(!player)
+        return (false);
+    m_removedPlayersList.push_back(player_id);
+    return (true);
+}
+
+bool GameWorld::isPlayerCreated(size_t player_id)
+{
+    auto player = m_syncPlayers.findElement(player_id);
+    if(!player)
+        return (false);
+    return (player->getLastUpdateTime() != -1);
+}
+
 void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
 {
     auto player = m_syncPlayers.findElement(player_id);
@@ -78,6 +123,11 @@ float GameWorld::getLocalTime()
     return m_curLocalTime;
 }
 
+float GameWorld::getLastSyncTime()
+{
+    return m_lastSyncTime;
+}
+
 /// Protected
 
 
@@ -88,18 +138,26 @@ void GameWorld::createScene()
 
     if(m_isRenderable)
     {
-        m_camera = m_scene->createCamera();
-        auto listeningCamera = m_scene->createCamera();
-        listeningCamera -> setListening(true);
-        auto *cameraNode = m_scene->getRootNode()->createChildNode(0,0,0);
-        cameraNode->attachObject(m_camera);
-        cameraNode = cameraNode->createChildNode(0,0,250);
-        cameraNode->attachObject(listeningCamera);
-
         m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
         m_sunLight->enableShadowCasting();
         m_sunLight->setShadowMapExtent({1024,1024});
         m_sunLight->setShadowBlurRadius(10);
+    }
+}
+
+void GameWorld::createPlayerCamera(size_t player_id)
+{
+    if(m_isRenderable && !m_camera)
+    {
+        auto player = m_syncPlayers.findElement(player_id);
+
+        m_camera = m_scene->createCamera();
+        auto listeningCamera = m_scene->createCamera();
+        listeningCamera -> setListening(true);
+        auto *cameraNode = player->createChildNode();
+        cameraNode->attachObject(m_camera);
+        cameraNode = cameraNode->createChildNode(0,0,250);
+        cameraNode->attachObject(listeningCamera);
     }
 }
 
@@ -137,6 +195,41 @@ size_t GameWorld::syncElement(PlayableCharacter *player)
 {
     this->syncElement((Character*)player);
     return m_syncPlayers.allocateId(player);
+}
+
+
+void GameWorld::desyncElement(pou::SceneNode *node, bool noDesyncInsert)
+{
+    if(!noDesyncInsert)
+    {
+        auto id = m_syncNodes.findId(node);
+        m_desyncNodes.insert({m_curLocalTime,id});
+    }
+    m_syncNodes.freeElement(node);
+}
+
+void GameWorld::desyncElement(Character *character, bool noDesyncInsert)
+{
+    this->desyncElement((pou::SceneNode*)character, true);
+
+    if(!noDesyncInsert)
+    {
+        auto id = m_syncCharacters.findId(character);
+        m_desyncCharacters.insert({m_curLocalTime,id});
+    }
+    m_syncCharacters.freeElement(character);
+}
+
+void GameWorld::desyncElement(PlayableCharacter *player, bool noDesyncInsert)
+{
+    this->desyncElement((Character*)player, true);
+
+    if(!noDesyncInsert)
+    {
+        auto id = m_syncPlayers.findId(player);
+        m_desyncPlayers.insert({m_curLocalTime,id});
+    }
+    m_syncPlayers.freeElement(player);
 }
 
 void GameWorld::updateSunLight(const pou::Time elapsed_time)

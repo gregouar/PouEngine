@@ -68,23 +68,17 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     //int player_id;
 
-    int nbr_nodes;
+    //int nbr_nodes;
     std::vector<std::pair<int, NodeSync> > nodes; //NodeId, Node
-
-    int nbr_spriteSheets;
     std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
-
-    int nbr_spriteEntities;
     std::vector< std::pair<int,SpriteEntitySync> > spriteEntities;
-
-    int nbr_characterModels;
     std::vector< std::pair<int, std::string > > characterModels; //Id, Path
-
-    int nbr_characters;
     std::vector <std::pair<int, CharacterSync > > characters;
-
-    int nbr_players;
     std::vector <std::pair<int, PlayerSync > > players;
+
+    std::vector<int> desyncNodes;
+    std::vector<int> desyncCharacters;
+    std::vector<int> desyncPlayers;
 
     virtual void serializeImpl(pou::Stream *stream);
 

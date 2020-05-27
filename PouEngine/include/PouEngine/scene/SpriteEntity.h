@@ -94,6 +94,8 @@ class SpriteEntity : public ShadowCaster
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
 
+        virtual bool syncFrom(SpriteEntity* srcEntity);
+
     protected:
         void cleanup();
         void updateDatum();

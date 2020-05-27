@@ -57,6 +57,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setRigidity(float rigidity);
 
         void setLocalTime(float localTime);
+        virtual void setSyncAndLocalTime(float syncTime);
+        float getLocalTime();
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -133,6 +135,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::map<NodeTypeId, SimpleNode*> m_childs;
 
         float m_curLocalTime;
+        float m_lastSyncTime;
         float m_lastUpdateTime;
         float m_lastParentUpdateTime;
         float m_lastPositionUpdateTime;

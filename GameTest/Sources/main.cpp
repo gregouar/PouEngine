@@ -20,19 +20,21 @@ int main()
 
     try {
         pou::VAppCreateInfos createInfos;
-        createInfos.name = "ProjectW";
-
-        pou::VApp app(createInfos);
+        //createInfos.name = "ProjectW";
+        //pou::VApp app(createInfos);
         //app.run(TestingState::instance());
 
         #ifdef CLIENTONLY
-            std::cout<<"Client only"<<std::endl;
+            createInfos.name = "ProjectW - client";
+            pou::VApp app(createInfos);
             app.run(ClientTestingState::instance());
         #elif SERVERONLY
-            std::cout<<"Server only"<<std::endl;
+            createInfos.name = "ProjectW - dedicated server";
+            pou::VApp app(createInfos);
             app.run(ServerTestingState::instance());
         #else
-            std::cout<<"Client and server"<<std::endl;
+            createInfos.name = "ProjectW";
+            pou::VApp app(createInfos);
             app.run(ClientServerTestingState::instance());
         #endif
     } catch (const std::exception& e) {

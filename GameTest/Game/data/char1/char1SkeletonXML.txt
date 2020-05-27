@@ -18,8 +18,8 @@
 			<node name="bodyHB" z=1 />
 		</node>
 		<node name="head" z="50" />
-		<node name="footL" x="-10" y="4" z=".1" />
-		<node name="footR" x="10" y="4" z=".1" />
+		<node name="footL" x="-10" y="4" z="1" />
+		<node name="footR" x="10" y="4" z="1" />
 	</node>
 	
 	<animation name="stand" loop=1>

@@ -184,12 +184,12 @@ void SceneNode::setParent(SimpleNode *p)
 
 void SceneNode::syncFromNode(SceneNode* srcNode)
 {
-    if(!SimpleNode::syncFromNode((SimpleNode*) srcNode))
-        return;
-
-    if(m_lastColorUpdateTime < srcNode->m_lastColorUpdateTime)
+    if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
         //&& srcNode->m_lastColorUpdateTime != -1)
         this->setColor(srcNode->getColor());
+
+    if(!SimpleNode::syncFromNode((SimpleNode*) srcNode))
+        return;
 }
 
 void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)

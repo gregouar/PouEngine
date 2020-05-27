@@ -25,6 +25,7 @@ PlayableCharacter::PlayableCharacter() : Character()
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
     m_lastPlayerUpdateTime = -1;
+    m_lastPlayerSyncTime = -1;
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
 }
@@ -270,6 +271,22 @@ void PlayableCharacter::updateGearsAttributes()
         m_attributes.attackDamages  = m_gearsModel[GearType_Weapon]->getAttributes().attackDamages;
         m_attributes.attackDelay    = m_gearsModel[GearType_Weapon]->getAttributes().attackDelay;
     }
+}
+
+bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
+{
+    if(m_lastPlayerSyncTime > srcPlayer->m_curLocalTime)
+        return (false);
+
+    m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
+
+    return (true);
+}
+
+void PlayableCharacter::setSyncAndLocalTime(float syncTime)
+{
+    Character::setSyncAndLocalTime(syncTime);
+    m_lastPlayerSyncTime = m_lastSyncTime;
 }
 
 void PlayableCharacter::setLastPlayerUpdateTime(float time, bool force)

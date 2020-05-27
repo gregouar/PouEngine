@@ -30,18 +30,24 @@ class GameWorld
         void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
         void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg);
 
-        size_t  addPlayer();
-        bool    removePlayer(size_t player_id);
+        size_t  askToAddPlayer();
+        bool    askToRemovePlayer(size_t player_id);
+        bool    isPlayerCreated(size_t player_id);
 
         void playerWalk(int player_id, glm::vec2 direction, float clientTime);
 
         float getLocalTime();
+        float getLastSyncTime();
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);
         //size_t addSyncEntity(pou::SceneEntity *entity);
 
         void createScene();
+        void createPlayerCamera(size_t player_id);
+
+        bool    initPlayer(size_t player_id);
+        bool    removePlayer(size_t player_id);
 
         size_t syncElement(pou::SceneNode *node);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet);
@@ -49,6 +55,10 @@ class GameWorld
         size_t syncElement(CharacterModelAsset *characterModel);
         size_t syncElement(Character *character);
         size_t syncElement(PlayableCharacter *player);
+
+        void desyncElement(pou::SceneNode *node, bool noDesyncInsert = false);
+        void desyncElement(Character *character, bool noDesyncInsert = false);
+        void desyncElement(PlayableCharacter *player, bool noDesyncInsert = false);
 
         void updateSunLight(const pou::Time elapsed_time);
 
@@ -72,10 +82,14 @@ class GameWorld
 
         bool m_isServer;
         float m_curLocalTime;
+        float m_lastSyncTime;
 
         pou::CameraObject *m_camera;
         pou::LightEntity  *m_sunLight;
         float              m_dayTime; //Between 0 and 360
+
+        std::list<int> m_addedPlayersList;
+        std::list<int> m_removedPlayersList;
 
         pou::IdAllocator<pou::SceneNode*>           m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
@@ -86,6 +100,10 @@ class GameWorld
 
         std::multimap<float, int> m_syncTimeSpriteSheets;
         std::multimap<float, int> m_syncTimeCharacterModels;
+
+        std::multimap<float, int> m_desyncNodes;
+        std::multimap<float, int> m_desyncCharacters;
+        std::multimap<float, int> m_desyncPlayers;
 
     public:
         static const int        MAX_NBR_PLAYERS;

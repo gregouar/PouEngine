@@ -26,6 +26,7 @@ class SceneObject : public NotificationListener
         bool isAShadowCaster();
 
         void setLocalTime(float time);
+        virtual void setSyncAndLocalTime(float time);
         void setLastUpdateTime(float time, bool force = false);
         float getLastUpdateTime();
         float getLastNodeUpdateTime();
@@ -44,6 +45,7 @@ class SceneObject : public NotificationListener
         bool m_isAShadowCaster;
 
         float m_curLocalTime;
+        float m_lastSyncTime;
         float m_lastUpdateTime;
         float m_lastNodeUpdateTime;
 

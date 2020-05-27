@@ -446,6 +446,19 @@ void SpriteEntity::notify(NotificationSender *sender, NotificationType notificat
     }
 }
 
+bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
+{
+    if(m_lastSyncTime > srcEntity->m_curLocalTime)
+        return (false);
+
+    m_lastSyncTime = srcEntity->m_curLocalTime;
+
+    return (true);
+}
+
+
+///Protected
+
 void SpriteEntity::updateDatum()
 {
     m_datum = {};
@@ -512,6 +525,7 @@ void SpriteEntity::updateDatum()
     /*m_shadowDatum.texPos    = m_datum.texPos;
     m_shadowDatum.texExtent = m_datum.texExtent;*/
 }
+
 
 
 }

@@ -76,14 +76,14 @@ void GameServer::update(const pou::Time &elapsedTime)
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
 
+    for(auto &clientAndMsg : netMessages)
+        this->processMessage(clientAndMsg.first, clientAndMsg.second);
+
     if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
     this->updateWorlds(elapsedTime);
     if(!m_isInThread)
         pou::Profiler::popClock();
-
-    for(auto &clientAndMsg : netMessages)
-        this->processMessage(clientAndMsg.first, clientAndMsg.second);
 
     this->syncClients(elapsedTime);
 }
@@ -96,18 +96,31 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
         auto clientNbr = clientInfosIt.first;
         if(clientInfos.world_id == 0)
         {
+            auto &world = m_worlds.find(m_curWorldId)->second;
+            size_t player_id = world.askToAddPlayer();
+
+            clientInfos.localTime     = -1;
+            clientInfos.world_id      = m_curWorldId;
+            clientInfos.player_id     = player_id;
+        }
+
+        if(!clientInfos.playerCreated)
+        {
+            auto worldIt = m_worlds.find(clientInfos.world_id);
+            if(worldIt == m_worlds.end())
+                continue;
+            auto &world = worldIt->second;
+
+            if(!world.isPlayerCreated(clientInfos.player_id))
+                continue;
+
             auto worldInitMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldInit));
 
-            worldInitMsg->world_id = m_curWorldId;
-            auto &world = m_worlds.find(m_curWorldId)->second;
-            size_t player_id = world.addPlayer();
-            worldInitMsg->player_id = player_id;
+            worldInitMsg->world_id  = clientInfos.world_id;
+            worldInitMsg->player_id = clientInfos.player_id;
 
-            clientInfos.localTime     = -1;
-            clientInfos.world_id      = worldInitMsg->world_id;
-            clientInfos.player_id     = worldInitMsg->player_id;
-
+            clientInfos.playerCreated = true;
             world.createWorldInitializationMsg(worldInitMsg);
             m_server->sendReliableBigMessage(clientNbr, worldInitMsg);
 
@@ -267,7 +280,7 @@ void GameServer::disconnectClient(int clientNbr)
 
     auto worldIt = m_worlds.find(clientInfos.world_id);
     if(worldIt != m_worlds.end())
-        worldIt->second.removePlayer(clientInfos.player_id);
+        worldIt->second.askToRemovePlayer(clientInfos.player_id);
 
     m_clientInfos.erase(it);
 }

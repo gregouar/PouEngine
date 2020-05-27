@@ -27,6 +27,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_walkingDirection  = {0,0};
     m_lookingDirection  = {0,0};
 
+    m_lastCharacterSyncTime = -1;
     m_lastCharacterUpdateTime = -1;
     m_lastModelUpdateTime = -1;
     m_lastAttributesUpdateTime = -1;
@@ -43,8 +44,8 @@ void Character::cleanup()
     m_model = nullptr;
     m_limbs.clear();
 
-    for(auto &skeleton : m_skeletons)
-        this->removeChildNode(skeleton.second.get());
+    //for(auto &skeleton : m_skeletons)
+        //this->removeChildNode(skeleton.second.get());
     m_skeletons.clear();
 }
 
@@ -684,6 +685,12 @@ const CharacterAttributes &Character::getAttributes() const
     return m_attributes;
 }
 
+void Character::setSyncAndLocalTime(float syncTime)
+{
+    SceneNode::setSyncAndLocalTime(syncTime);
+    m_lastCharacterSyncTime = m_lastSyncTime;
+}
+
 void Character::setLastCharacterUpdateTime(float time, bool force)
 {
     if(force || m_lastCharacterUpdateTime < time)
@@ -732,21 +739,21 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 
 bool Character::syncFromCharacter(Character *srcCharacter)
 {
-    if(m_curLocalTime > srcCharacter->m_curLocalTime)
+    if(m_lastCharacterSyncTime > srcCharacter->m_curLocalTime)
         return (false);
 
-    m_curLocalTime = srcCharacter->m_curLocalTime;
-
-    if(m_lastAttributesUpdateTime < srcCharacter->m_lastAttributesUpdateTime)
+    if(m_lastCharacterSyncTime < srcCharacter->m_lastAttributesUpdateTime)
     //&& srcCharacter->m_lastAttributesUpdateTime != -1)
     {
         m_attributes.maxLife = srcCharacter->m_attributes.maxLife;
         m_attributes.life = srcCharacter->m_attributes.life;
     }
 
-    if(m_lastLookingDirectionUpdateTime < srcCharacter->m_lastLookingDirectionUpdateTime)
+    if(m_lastCharacterSyncTime < srcCharacter->m_lastLookingDirectionUpdateTime)
     //&& srcCharacter->m_lastLookingDirectionUpdateTime != -1)
         this->setLookingDirection(srcCharacter->m_lookingDirection);
+
+    m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
 
     return (true);
 }

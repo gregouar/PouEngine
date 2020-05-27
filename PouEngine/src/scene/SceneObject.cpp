@@ -14,6 +14,7 @@ SceneObject::SceneObject()
     m_isAShadowCaster   = false;
 
     m_curLocalTime = 0;
+    m_lastSyncTime = -1;
     m_lastUpdateTime = -1;
     m_lastNodeUpdateTime = -1;
 }
@@ -62,7 +63,17 @@ bool SceneObject::isAShadowCaster()
 
 void SceneObject::setLocalTime(float time)
 {
+    if(time < 0)
+        time =-1;
     m_curLocalTime = time;
+}
+
+void SceneObject::setSyncAndLocalTime(float time)
+{
+    if(time < 0)
+        time = 0;
+    this->setLocalTime(time);
+    m_lastSyncTime = time;
 }
 
 void SceneObject::setLastUpdateTime(float time, bool force)

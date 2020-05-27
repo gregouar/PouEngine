@@ -66,9 +66,10 @@ class Character : public pou::SceneNode
         void serializeCharacter(pou::Stream *stream, float clientTime = -1);
         bool syncFromCharacter(Character *srcCharacter);
 
-        void setLastCharacterUpdateTime(float time, bool force = false);
-        float getLastModelUpdateTime();
-        float getLastCharacterUpdateTime();
+        virtual void    setSyncAndLocalTime(float syncTime);
+        void            setLastCharacterUpdateTime(float time, bool force = false);
+        float           getLastModelUpdateTime();
+        float           getLastCharacterUpdateTime();
 
     protected:
         void cleanup();
@@ -104,6 +105,7 @@ class Character : public pou::SceneNode
         std::set<Character*>    m_alreadyHitCharacters;
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
+        float m_lastCharacterSyncTime;
         float m_lastCharacterUpdateTime;
         float m_lastModelUpdateTime;
         float m_lastAttributesUpdateTime;
