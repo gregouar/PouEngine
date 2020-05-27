@@ -76,14 +76,14 @@ void GameServer::update(const pou::Time &elapsedTime)
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
 
-    for(auto &clientAndMsg : netMessages)
-        this->processMessage(clientAndMsg.first, clientAndMsg.second);
-
     if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
     this->updateWorlds(elapsedTime);
     if(!m_isInThread)
         pou::Profiler::popClock();
+
+    for(auto &clientAndMsg : netMessages)
+        this->processMessage(clientAndMsg.first, clientAndMsg.second);
 
     this->syncClients(elapsedTime);
 }

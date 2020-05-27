@@ -69,7 +69,7 @@ void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
     if(player == nullptr)
         return;
 
-    player->walk(direction);
+    player->askToWalk(direction);
 }
 
 

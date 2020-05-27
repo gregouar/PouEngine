@@ -20,6 +20,7 @@ PlayableCharacter::PlayableCharacter() : Character()
 
     m_isLateralWalking  = false;
     m_lookingAt         = glm::vec2(0);
+    m_wantToWalkDirection = glm::vec2(0);
 
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
@@ -88,6 +89,10 @@ void PlayableCharacter::setWalkingSpeed(float speed)
     m_normalWalkingSpeed = m_attributes.walkingSpeed;
 }
 
+void PlayableCharacter::askToWalk(glm::vec2 direction)
+{
+    m_wantToWalkDirection = direction;
+}
 
 void PlayableCharacter::askToAttack(glm::vec2 direction)
 {
@@ -154,6 +159,8 @@ bool PlayableCharacter::dash(glm::vec2 direction)
 
 void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
 {
+    Character::update(elapsedTime, localTime);
+
     if(!m_isDead)
     {
 
@@ -168,6 +175,10 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
         m_wantToAttackTimer.update(elapsedTime);
         if(this->attack(m_wantToAttackDirection))
             m_wantToAttackTimer.reset(0);
+    }
+    else if(m_wantToWalkDirection != m_walkingDirection)
+    {
+        this->walk(m_wantToWalkDirection);
     }
 
     m_dashDelayTimer.update(elapsedTime);
@@ -190,7 +201,8 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
         m_combatModeTimer.update(elapsedTime);
 
         //if(!m_isAttacking)
-            m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
+        this->setLookingDirection(m_lookingAt - SceneNode::getGlobalXYPosition());
+            //m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
         //SceneNode::setRotation({0,0,desiredRot});
         if(m_isWalking && !m_isAttacking)
         {
@@ -228,7 +240,6 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
     //for(auto &skeleton : m_skeletons)
       //  std::cout<<skeleton.second->getCurrentAnimationName()<<std::endl;
 
-    Character::update(elapsedTime, localTime);
 }
 
 

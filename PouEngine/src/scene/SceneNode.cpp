@@ -188,6 +188,7 @@ void SceneNode::syncFromNode(SceneNode* srcNode)
         return;
 
     if(m_lastColorUpdateTime < srcNode->m_lastColorUpdateTime)
+        //&& srcNode->m_lastColorUpdateTime != -1)
         this->setColor(srcNode->getColor());
 }
 

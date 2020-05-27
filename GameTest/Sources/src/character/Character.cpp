@@ -25,7 +25,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_isWalking         = true;
     m_isAttacking       = false;
     m_walkingDirection  = {0,0};
-    m_lookingDirection  = {0,-1};
+    m_lookingDirection  = {0,0};
 
     m_lastCharacterUpdateTime = -1;
     m_lastModelUpdateTime = -1;
@@ -42,6 +42,9 @@ void Character::cleanup()
 {
     m_model = nullptr;
     m_limbs.clear();
+
+    for(auto &skeleton : m_skeletons)
+        this->removeChildNode(skeleton.second.get());
     m_skeletons.clear();
 }
 
@@ -52,6 +55,7 @@ bool Character::loadModel(const std::string &path)
 
 bool Character::setModel(CharacterModelAsset *model)
 {
+    std::cout<<"Set model:"<<model->getFilePath()<<std::endl;
     this->cleanup();
     m_model = model;
 
@@ -63,6 +67,7 @@ bool Character::setModel(CharacterModelAsset *model)
 
     m_attributes = m_model->getAttributes();
     m_lastModelUpdateTime = m_curLocalTime;
+
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
@@ -222,6 +227,9 @@ void Character::setRotationRadius(float radius)
 
 void Character::setLookingDirection(glm::vec2 direction)
 {
+    if(direction == glm::vec2(0))
+        return;
+
     direction = glm::normalize(direction);
     if(m_lookingDirection != direction)
     {
@@ -243,6 +251,8 @@ void Character::setDestination(glm::vec2 destination)
 
 void Character::walk(glm::vec2 direction)
 {
+    if(direction != glm::vec2(0))
+        direction = glm::normalize(direction);
     if(m_walkingDirection != direction)
     {
         m_walkingDirection = direction;
@@ -468,10 +478,10 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
 {
     float wantedRotation = glm::pi<float>()/2.0+glm::atan(position.y, position.x);
 
-    if(glm::abs(wantedRotation-startingRotation) > glm::abs(wantedRotation-startingRotation+glm::pi<float>()*2.0))
+    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation+glm::pi<float>()*2.0))
         wantedRotation += glm::pi<float>()*2.0;
 
-    if(glm::abs(wantedRotation-startingRotation) > glm::abs(wantedRotation-startingRotation-glm::pi<float>()*2.0))
+    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation-glm::pi<float>()*2.0))
         wantedRotation -= glm::pi<float>()*2.0;
 
     return wantedRotation;
@@ -479,6 +489,8 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
 
 void Character::update(const pou::Time& elapsedTime, float localTime)
 {
+    SceneNode::update(elapsedTime, localTime);
+
     if(m_pushTimer.isActive())
         this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
     m_pushTimer.update(elapsedTime);
@@ -501,8 +513,6 @@ void Character::update(const pou::Time& elapsedTime, float localTime)
     }
 
     //m_nearbyCharacters.clear();
-
-    SceneNode::update(elapsedTime, localTime);
 
     //this->updateSounds();
 }
@@ -595,6 +605,9 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 
 void Character::updateLookingDirection(const pou::Time &elapsedTime)
 {
+    if(m_lookingDirection == glm::vec2(0))
+        m_lookingDirection = glm::vec2(0,-1);
+
     ///Introduce animationRotationSpeed
     if(!m_attributes.immovable)
     if(m_lookingDirection != glm::vec2(0))
@@ -700,19 +713,18 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
     }
 
     bool updateLookingDirection = false;
-    if(!stream->isReading() && clientTime < m_lastLookingDirectionUpdateTime)
+    if(!stream->isReading() && clientTime < m_lastLookingDirectionUpdateTime
+    && m_lookingDirection != glm::vec2(0))
         updateLookingDirection = true;
     stream->serializeBool(updateLookingDirection);
     if(updateLookingDirection)
     {
-        std::cout<<"UpdateLookingDir:"<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<std::endl;
         glm::vec2 lookingDirection = m_lookingDirection;
         stream->serializeFloat(lookingDirection.x, -1, 1, 2);
         stream->serializeFloat(lookingDirection.y, -1, 1, 2);
 
         if(stream->isReading())
             this->setLookingDirection(lookingDirection);
-        std::cout<<"UpdatedLookingDir:"<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<std::endl;
     }
 
     bool updateAnimation = false;
@@ -726,17 +738,15 @@ bool Character::syncFromCharacter(Character *srcCharacter)
     m_curLocalTime = srcCharacter->m_curLocalTime;
 
     if(m_lastAttributesUpdateTime < srcCharacter->m_lastAttributesUpdateTime)
+    //&& srcCharacter->m_lastAttributesUpdateTime != -1)
     {
         m_attributes.maxLife = srcCharacter->m_attributes.maxLife;
         m_attributes.life = srcCharacter->m_attributes.life;
-        m_lastAttributesUpdateTime = srcCharacter->m_lastAttributesUpdateTime;
     }
 
     if(m_lastLookingDirectionUpdateTime < srcCharacter->m_lastLookingDirectionUpdateTime)
-    {
-        std::cout<<m_lookingDirection.x<<" "<<m_lookingDirection.y<<" vs "<<srcCharacter->m_lookingDirection.x<<" "<<srcCharacter->m_lookingDirection.y<<std::endl;
+    //&& srcCharacter->m_lastLookingDirectionUpdateTime != -1)
         this->setLookingDirection(srcCharacter->m_lookingDirection);
-    }
 
     return (true);
 }

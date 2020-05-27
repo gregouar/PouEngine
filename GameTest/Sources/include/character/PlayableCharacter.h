@@ -19,6 +19,7 @@ class PlayableCharacter : public Character
         virtual void setWalkingSpeed(float speed);
 
         virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
+        virtual void askToWalk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0,0), const std::string &animationName = "attack");
         virtual void lookAt(glm::vec2 position);
         virtual void forceAttackMode(bool force = true);
@@ -55,6 +56,7 @@ class PlayableCharacter : public Character
         glm::vec2   m_dashDirection;
         //float       m_dashDelay, m_dashTime;
 
+        glm::vec2   m_wantToWalkDirection;
         float       m_normalWalkingSpeed;
 
         pou::Timer  m_wantToDashTimer;

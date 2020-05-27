@@ -209,7 +209,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
     {
         auto character = it->second;
-        if(character->getLastUpdateTime() <= clientTime)
+        if(character->getLastCharacterUpdateTime() <= clientTime)
             continue;
 
         worldSyncMsg->characters.push_back({it->first, CharacterSync()});
@@ -235,7 +235,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     {
         auto player = it->second;
 
-        if(player->getLastUpdateTime() <= clientTime)
+        if(player->getLastPlayerUpdateTime() <= clientTime)
             continue;
 
         worldSyncMsg->players.push_back({it->first, PlayerSync()});

@@ -261,13 +261,14 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 
     m_curLocalTime = srcNode->m_curLocalTime;
 
-    //if(m_lastParentUpdated < srcNode->m_lastParentUpdated)
-    //    this->setColor(srcNode->getColor());
     if(m_lastPositionUpdateTime < srcNode->m_lastPositionUpdateTime)
+        //&& srcNode->m_lastPositionUpdateTime != -1)
         this->setPosition(srcNode->getPosition());
     if(m_lastRotationUpdateTime < srcNode->m_lastRotationUpdateTime)
+    // && srcNode->m_lastRotationUpdateTime != -1)
         this->setRotation(srcNode->getEulerRotation());
     if(m_lastScaleUpdateTime < srcNode->m_lastScaleUpdateTime)
+    // && srcNode->m_lastScaleUpdateTime != -1)
         this->setScale(srcNode->getScale());
 
     return (true);
