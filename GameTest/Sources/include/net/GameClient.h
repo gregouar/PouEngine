@@ -42,6 +42,7 @@ class GameClient
 
         GameWorld   m_world;
         uint16_t    m_curWorldId;
+        uint16_t    m_curPlayerId;
         bool        m_isWaitingForWorldSync;
         //pou::Timer  m_syncWorldTimer;
 

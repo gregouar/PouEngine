@@ -269,6 +269,9 @@
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Stream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/SyncedAttribute.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/WriteStream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/XMLLoader.h" />

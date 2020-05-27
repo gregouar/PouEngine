@@ -28,13 +28,13 @@ class GameWorld
         void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, float clientTime);
 
         void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg);
+        void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId);
 
         size_t  askToAddPlayer();
         bool    askToRemovePlayer(size_t player_id);
         bool    isPlayerCreated(size_t player_id);
 
-        void playerWalk(int player_id, glm::vec2 direction, float clientTime);
+        void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
 
         float getLocalTime();
         float getLastSyncTime();

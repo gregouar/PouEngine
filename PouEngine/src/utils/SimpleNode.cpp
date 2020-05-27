@@ -2,6 +2,8 @@
 
 #include "PouEngine/utils/Logger.h"
 
+#include <iostream>
+
 namespace pou
 {
 
@@ -11,10 +13,10 @@ const uint8_t   SimpleNode::NODE_SCALE_DECIMALS  = 2;
 
 
 SimpleNode::SimpleNode(const NodeTypeId id) :
-    m_globalPosition(0.0,0.0,0.0),
-    m_position(0.0,0.0,0.0),
-    m_eulerRotations(0.0,0.0,0.0),
-    m_scale(1.0,1.0,1.0),
+    m_globalPosition(glm::vec3(0)),
+    m_position(glm::vec3(0), 0),
+    m_eulerRotations(glm::vec3(0)),
+    m_scale(glm::vec3(1.0)),
     m_rigidity(1.0),
     m_curFlexibleLength(0.0),
     m_curFlexibleRotation(0.0),
@@ -24,7 +26,7 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_lastSyncTime(-1),
     m_lastUpdateTime(-1),
     m_lastParentUpdateTime(-1),
-    m_lastPositionUpdateTime(-1),
+    //m_lastPositionUpdateTime(-1),
     m_lastRotationUpdateTime(-1),
     m_lastScaleUpdateTime(-1)
 {
@@ -271,9 +273,10 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
     if(m_lastSyncTime > srcNode->m_curLocalTime)
         return (false);
 
-    if(m_lastSyncTime < srcNode->m_lastPositionUpdateTime)
-        //&& srcNode->m_lastPositionUpdateTime != -1)
-        this->setPosition(srcNode->getPosition());
+    m_position.syncFrom(srcNode->m_position);
+    //if(m_lastSyncTime < srcNode->m_lastPositionUpdateTime)
+      //  m_syncPosition = srcNode->getPosition()
+        //this->setPosition(srcNode->getPosition());
     if(m_lastSyncTime < srcNode->m_lastRotationUpdateTime)
     // && srcNode->m_lastRotationUpdateTime != -1)
         this->setRotation(srcNode->getEulerRotation());
@@ -345,8 +348,8 @@ void SimpleNode::setPosition(glm::vec2 xyPos)
 
 void SimpleNode::setPosition(glm::vec3 pos)
 {
-    m_position = pos;
-    m_lastPositionUpdateTime = m_curLocalTime;
+    m_position.setValue(pos);
+    //m_lastPositionUpdateTime = m_curLocalTime;
     this->setLastUpdateTime(m_curLocalTime);
 
     this->updateGlobalPosition();
@@ -460,12 +463,12 @@ void SimpleNode::setRigidity(float rigidity)
 
 glm::vec3 SimpleNode::getPosition() const
 {
-    return m_position;
+    return m_position.getValue();
 }
 
 glm::vec2 SimpleNode::getXYPosition() const
 {
-    return glm::vec2(m_position.x, m_position.y);
+    return glm::vec2(m_position.getValue());
 }
 
 glm::vec3 SimpleNode::getGlobalPosition() const
@@ -628,12 +631,15 @@ NodeTypeId SimpleNode::generateId()
 
 void SimpleNode::update(const Time &elapsedTime, float localTime)
 {
+    if(localTime != -1)
+        m_curLocalTime = localTime;
+
+    m_needToUpdateModelMat |= m_position.update(elapsedTime, m_curLocalTime-elapsedTime.count());
+
     //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
 
-    if(localTime != -1)
-        m_curLocalTime = localTime;
 
     for(auto node : m_childs)
         node.second->update(elapsedTime,localTime);
@@ -645,16 +651,16 @@ void SimpleNode::updateGlobalPosition()
     {
         if(m_rigidity != 1.0)
         {
-            m_globalPosition = m_parent->getGlobalPosition() + m_position;
+            m_globalPosition = m_parent->getGlobalPosition() + m_position.getValue();
         }
         else
         {
-            glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(m_position,1.0);
+            glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(m_position.getValue(),1.0);
             m_globalPosition = {pos.x,pos.y,pos.z};
         }
     }
     else
-        m_globalPosition = m_position;
+        m_globalPosition = m_position.getValue();
 
     //this->updateModelMatrix();
     this->askForUpdateModelMatrix();
@@ -668,13 +674,15 @@ void SimpleNode::askForUpdateModelMatrix()
 
 void SimpleNode::updateModelMatrix()
 {
+    this->updateGlobalPosition();
+
     if(m_rigidity != 1.0 && m_parent != nullptr)
         m_modelMatrix = glm::translate(glm::mat4(1.0), m_parent->getGlobalPosition());
     else
         m_modelMatrix = glm::mat4(1.0);
 
 
-    m_modelMatrix = glm::translate(m_modelMatrix, m_position);
+    m_modelMatrix = glm::translate(m_modelMatrix, m_position.getValue());
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
     m_modelMatrix = glm::rotate(m_modelMatrix, m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
@@ -691,7 +699,7 @@ void SimpleNode::updateModelMatrix()
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.z, glm::vec3(0.0,0.0,1.0));
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.y, glm::vec3(0.0,1.0,0.0));
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -m_eulerRotations.x, glm::vec3(1.0,0.0,0.0));
-    m_invModelMatrix = glm::translate(m_invModelMatrix, -m_position);
+    m_invModelMatrix = glm::translate(m_invModelMatrix, -m_position.getValue());
 
     if(m_rigidity != 1.0 && m_parent != nullptr)
         m_invModelMatrix = glm::translate(m_invModelMatrix, -m_parent->getGlobalPosition());
@@ -743,7 +751,7 @@ void SimpleNode::computeFlexibleMove(glm::vec3 m)
     ///Need to add partial rigidity
     if(m_rigidity != 1.0)
     {
-        glm::vec2 p(m_position.x,m_position.y);
+        glm::vec2 p(m_position.getValue());
         float l = glm::length(p);
         glm::vec2 np = l*glm::normalize(p-glm::vec2(m.x,m.y));
         //float dot = glm::dot(p,np);
@@ -798,7 +806,7 @@ void SimpleNode::notify(NotificationSender* sender, NotificationType type,
 void SimpleNode::serializeNode(Stream *stream, float clientTime)
 {
     bool hasPos = false;
-    if(!stream->isReading() && clientTime < m_lastPositionUpdateTime)
+    if(!stream->isReading() && clientTime < m_position.getLastUpdateTime())
         hasPos = true;
     stream->serializeBool(hasPos);
     if(hasPos)

@@ -112,6 +112,8 @@ void GameClient::playerWalk(glm::vec2 direction)
     if(!m_client || m_curWorldId == 0)
         return;
 
+    m_world.playerWalk(m_curPlayerId, direction);
+
     if(m_lastPlayerWalkDirection != direction)
     {
         auto walkMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(pou::NetEngine::createNetMessage(NetMessageType_PlayerAction));
@@ -156,6 +158,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
         case NetMessageType_WorldInit:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>(msg);
             m_curWorldId = castMsg->world_id;
+            m_curPlayerId = castMsg->player_id;
             m_isWaitingForWorldSync = false;
 
             m_world.generateFromMsg(castMsg);
@@ -165,7 +168,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
-            m_world.syncFromMsg(castMsg);
+            m_world.syncFromMsg(castMsg, m_curPlayerId);
         }break;
     }
 }

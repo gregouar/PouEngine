@@ -126,8 +126,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     if(stream->isReading())
     {
         nodePtr = new pou::SceneNode(0);
-        //nodePtr->setSyncAndLocalTime(localTime);
-        nodePtr->setLocalTime(localTime);
+        nodePtr->update(pou::Time(0),localTime);
     }
 
     bool newParent = false;

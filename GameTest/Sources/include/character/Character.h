@@ -38,6 +38,7 @@ class Character : public pou::SceneNode
         virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
 
+        void disableAutoLookingDirection(bool disable = true);
         void setLookingDirection(glm::vec2 direction);
         void setDestination(glm::vec2 destination);
         void walk(glm::vec2 direction);
@@ -90,6 +91,8 @@ class Character : public pou::SceneNode
         bool      m_isWalking;
         bool      m_isAttacking;
         glm::vec2 m_walkingDirection;
+
+        bool      m_autoLookingDirection;
         glm::vec2 m_lookingDirection;
 
         pou::Timer m_attackDelayTimer;
@@ -109,7 +112,7 @@ class Character : public pou::SceneNode
         float m_lastCharacterUpdateTime;
         float m_lastModelUpdateTime;
         float m_lastAttributesUpdateTime;
-        float m_lastLookingDirectionUpdateTime;
+        //float m_lastLookingDirectionUpdateTime;
 
     private:
         CharacterModelAsset *m_model;

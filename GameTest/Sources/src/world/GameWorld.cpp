@@ -114,6 +114,12 @@ void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
     if(player == nullptr)
         return;
 
+    if(localTime == -1)
+    {
+        //Dont rewind
+    }
+
+    ///Add rewind for localTime
     player->askToWalk(direction);
 }
 

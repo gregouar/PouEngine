@@ -25,13 +25,15 @@ Character::Character() : SceneNode(-1,nullptr)
     m_isWalking         = true;
     m_isAttacking       = false;
     m_walkingDirection  = {0,0};
+
+    m_autoLookingDirection = true;
     m_lookingDirection  = {0,0};
 
     m_lastCharacterSyncTime = -1;
     m_lastCharacterUpdateTime = -1;
     m_lastModelUpdateTime = -1;
     m_lastAttributesUpdateTime = -1;
-    m_lastLookingDirectionUpdateTime = -1;
+   // m_lastLookingDirectionUpdateTime = -1;
 }
 
 Character::~Character()
@@ -226,6 +228,11 @@ void Character::setRotationRadius(float radius)
         m_rotationRadius = radius;
 }
 
+void Character::disableAutoLookingDirection(bool disable)
+{
+    m_autoLookingDirection = !disable;
+}
+
 void Character::setLookingDirection(glm::vec2 direction)
 {
     if(direction == glm::vec2(0))
@@ -235,8 +242,8 @@ void Character::setLookingDirection(glm::vec2 direction)
     if(m_lookingDirection != direction)
     {
         m_lookingDirection = direction;
-        m_lastLookingDirectionUpdateTime = m_curLocalTime;
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+        //m_lastLookingDirectionUpdateTime = m_curLocalTime;
+        //this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
 
@@ -609,6 +616,13 @@ void Character::updateLookingDirection(const pou::Time &elapsedTime)
     if(m_lookingDirection == glm::vec2(0))
         m_lookingDirection = glm::vec2(0,-1);
 
+    if(!m_autoLookingDirection)
+    {
+        float curRotation = SceneNode::getEulerRotation().z;
+        m_lookingDirection = glm::vec2(cos(curRotation), sin(curRotation));
+        return;
+    }
+
     ///Introduce animationRotationSpeed
     if(!m_attributes.immovable)
     if(m_lookingDirection != glm::vec2(0))
@@ -719,7 +733,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
         stream->serializeFloat(m_attributes.life, 0, (int)m_attributes.maxLife+1, 2);
     }
 
-    bool updateLookingDirection = false;
+    /*bool updateLookingDirection = false;
     if(!stream->isReading() && clientTime < m_lastLookingDirectionUpdateTime
     && m_lookingDirection != glm::vec2(0))
         updateLookingDirection = true;
@@ -732,7 +746,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 
         if(stream->isReading())
             this->setLookingDirection(lookingDirection);
-    }
+    }*/
 
     bool updateAnimation = false;
 }
@@ -749,9 +763,9 @@ bool Character::syncFromCharacter(Character *srcCharacter)
         m_attributes.life = srcCharacter->m_attributes.life;
     }
 
-    if(m_lastCharacterSyncTime < srcCharacter->m_lastLookingDirectionUpdateTime)
+    /*if(m_lastCharacterSyncTime < srcCharacter->m_lastLookingDirectionUpdateTime)
     //&& srcCharacter->m_lastLookingDirectionUpdateTime != -1)
-        this->setLookingDirection(srcCharacter->m_lookingDirection);
+        this->setLookingDirection(srcCharacter->m_lookingDirection);*/
 
     m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
 

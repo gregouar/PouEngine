@@ -277,7 +277,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
     m_dayTime = worldInitMsg->dayTime;
 
-    this->syncFromMsg(worldInitMsg);
+    this->syncFromMsg(worldInitMsg, worldInitMsg->player_id);
     m_curLocalTime = m_lastSyncTime;
 
     this->createPlayerCamera(worldInitMsg->player_id);
@@ -286,11 +286,15 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 }
 
 
-void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
+void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId)
 {
     m_lastSyncTime = worldSyncMsg->localTime;
     if(m_curLocalTime > m_lastSyncTime)
+    {
+        int64_t delta = (m_curLocalTime - m_lastSyncTime)*1000;
+        std::this_thread::sleep_for(std::chrono::milliseconds(delta));
         m_curLocalTime = m_lastSyncTime;
+    }
 
     for(auto &spriteSheetIt : worldSyncMsg->spriteSheets)
     {
@@ -316,6 +320,8 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
             if(playerSync.characterId != 0)
             {
                 player = new PlayableCharacter();
+                if(playerId != (int)clientPlayerId)
+                    player->disableAutoLookingDirection();
                 m_syncPlayers.insert(playerId, player);
                 m_syncCharacters.insert(playerSync.characterId, player);
             }
@@ -339,6 +345,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg)
         if(characterPtr == nullptr)
         {
             characterPtr = new Character();
+            characterPtr->disableAutoLookingDirection();
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
             //isNew = true;
