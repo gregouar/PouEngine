@@ -32,7 +32,7 @@ Character::Character() : SceneNode(-1,nullptr)
     m_lastCharacterSyncTime = -1;
     m_lastCharacterUpdateTime = -1;
     m_lastModelUpdateTime = -1;
-    m_lastAttributesUpdateTime = -1;
+   // m_lastAttributesUpdateTime = -1;
    // m_lastLookingDirectionUpdateTime = -1;
 }
 
@@ -58,7 +58,6 @@ bool Character::loadModel(const std::string &path)
 
 bool Character::setModel(CharacterModelAsset *model)
 {
-    std::cout<<"Set model:"<<model->getFilePath()<<std::endl;
     this->cleanup();
     m_model = model;
 
@@ -68,7 +67,13 @@ bool Character::setModel(CharacterModelAsset *model)
     if(!m_model->generateCharacter(this))
        return (false);
 
-    m_attributes = m_model->getAttributes();
+    m_modelAttributes.setValue(m_model->getAttributes());
+
+    auto att = m_attributes.getValue();
+    att.life            = m_modelAttributes.getValue().maxLife;
+    att.walkingSpeed    = m_modelAttributes.getValue().walkingSpeed;
+    m_attributes.setValue(att);
+
     m_lastModelUpdateTime = m_curLocalTime;
 
     this->setLastCharacterUpdateTime(m_curLocalTime);
@@ -214,10 +219,12 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
 
 void Character::setWalkingSpeed(float speed)
 {
-    if(speed >= 0 && m_attributes.walkingSpeed != speed)
+    if(speed >= 0 && m_attributes.getValue().walkingSpeed != speed)
     {
-        m_attributes.walkingSpeed = speed;
-        m_lastAttributesUpdateTime = m_curLocalTime;
+        auto att = m_attributes.getValue();
+        att.walkingSpeed = speed;
+        m_attributes.setValue(att);
+       // m_lastAttributesUpdateTime = m_curLocalTime;
         this->setLastCharacterUpdateTime(m_curLocalTime);
     }
 }
@@ -292,7 +299,7 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     //if(direction != glm::vec2(0))
     this->setLookingDirection(direction);
 
-    m_attackDelayTimer.reset(m_attributes.attackDelay);
+    m_attackDelayTimer.reset(m_modelAttributes.getValue().attackDelay);
 
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
@@ -320,12 +327,14 @@ bool Character::damage(float damages, glm::vec2 direction)
         return (false);
 
     bool isFatal = false;
-    m_attributes.life -= damages;
+
+    auto att = m_attributes.getValue();
+    att.life -= damages;
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
 
-    if(m_attributes.life <= 0)
+    if(att.life <= 0)
     {
-        m_attributes.life  = 0;
+        att.life  = 0;
         if(!m_isDead)
         {
             this->startAnimation("death",true);
@@ -335,17 +344,21 @@ bool Character::damage(float damages, glm::vec2 direction)
         m_isAttacking   = false;
         m_isWalking     = false;
     }
+
+    m_attributes.setValue(att);
+
+
     //Do something to compute interrupt amount ?
     this->interrupt(damages);
 
-    if(!m_attributes.immovable)
-    if(direction != glm::vec2(0) && damages >= m_attributes.maxLife*.25)
+    if(!m_modelAttributes.getValue().immovable)
+    if(direction != glm::vec2(0) && damages >= m_modelAttributes.getValue().maxLife*.25)
     {
         m_pushTimer.reset(.1f);
         m_pushVelocity = glm::normalize(direction)*200.0f;
     }
 
-    this->m_lastAttributesUpdateTime = m_curLocalTime;
+    //this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return isFatal;
@@ -379,10 +392,12 @@ bool Character::resurrect()
     if(this->isAlive())
         return (false);
 
-    m_attributes.life = m_attributes.maxLife;
+    auto att = m_attributes.getValue();
+    att.life = m_modelAttributes.getValue().maxLife;
+    m_attributes.setValue(att);
     m_isDead = false;
 
-    this->m_lastAttributesUpdateTime = m_curLocalTime;
+    //this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
@@ -393,8 +408,9 @@ bool Character::walkToDestination(const pou::Time& elapsedTime)
     glm::vec2 gpos  = SceneNode::getGlobalXYPosition();
     glm::vec2 delta = m_destination - gpos;
     float ndelta    = glm::dot(delta,delta);
+    float walkingAmount = m_attributes.getValue().walkingSpeed*elapsedTime.count();
 
-    if(ndelta <= m_attributes.walkingSpeed*elapsedTime.count()*m_attributes.walkingSpeed*elapsedTime.count())
+    if(ndelta <= walkingAmount*walkingAmount)
     {
         SceneNode::setGlobalPosition(m_destination);
         m_isDestinationSet = false;
@@ -450,7 +466,7 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
         m_walkingDirection = normalizedDelta;
         this->setLookingDirection(normalizedDelta);
     } else {
-        float arcLength = m_attributes.walkingSpeed*elapsedTime.count();
+        float arcLength = m_attributes.getValue().walkingSpeed*elapsedTime.count();
         float normalizedArcLength = arcLength/rotationRadius;
 
         glm::vec2 relDest = {glm::dot(delta, coLookinDirection),
@@ -499,6 +515,9 @@ void Character::update(const pou::Time& elapsedTime, float localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
+    m_modelAttributes.update(elapsedTime, m_curLocalTime);
+    m_attributes.update(elapsedTime, m_curLocalTime);
+
     if(m_pushTimer.isActive())
         this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
     m_pushTimer.update(elapsedTime);
@@ -537,15 +556,16 @@ void Character::updateWalking(const pou::Time &elapsedTime)
 
     if(m_walkingDirection != glm::vec2(0))
     {
+        float walkingAmount = m_attributes.getValue().walkingSpeed*elapsedTime.count();
         m_walkingDirection = glm::normalize(m_walkingDirection);
-        glm::vec2 charMove = {m_walkingDirection.x*m_attributes.walkingSpeed*elapsedTime.count(),
-                              m_walkingDirection.y*m_attributes.walkingSpeed*elapsedTime.count()};
+        glm::vec2 charMove = {m_walkingDirection.x*walkingAmount,
+                              m_walkingDirection.y*walkingAmount};
         //m_lookingDirection = m_walkingDirection;
         SceneNode::move(charMove);
         wantToWalk = true;
     }
 
-    if(m_attributes.walkingSpeed <= 0)
+    if(m_attributes.getValue().walkingSpeed <= 0)
         wantToWalk = false;
 
     if(wantToWalk && !m_isWalking)
@@ -598,7 +618,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 
                         float totalDamages = 0;
                         for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
-                            totalDamages += m_attributes.attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
+                            totalDamages += m_modelAttributes.getValue().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
 
                         c->damage(totalDamages,c->getGlobalXYPosition()-this->getGlobalXYPosition());
                     }
@@ -624,7 +644,7 @@ void Character::updateLookingDirection(const pou::Time &elapsedTime)
     }
 
     ///Introduce animationRotationSpeed
-    if(!m_attributes.immovable)
+    if(!m_modelAttributes.getValue().immovable)
     if(m_lookingDirection != glm::vec2(0))
     {
         float curRotation = SceneNode::getEulerRotation().z;
@@ -696,7 +716,12 @@ CharacterModelAsset *Character::getModel() const
 
 const CharacterAttributes &Character::getAttributes() const
 {
-    return m_attributes;
+    return m_attributes.getValue();
+}
+
+const CharacterModelAttributes &Character::getModelAttributes() const
+{
+    return m_modelAttributes.getValue();
 }
 
 void Character::setSyncAndLocalTime(float syncTime)
@@ -723,14 +748,37 @@ float Character::getLastModelUpdateTime()
 
 void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 {
+    bool updateModelAttributes = false;
+    if(!stream->isReading() && clientTime < m_modelAttributes.getLastUpdateTime())
+        updateModelAttributes = true;
+    stream->serializeBool(updateModelAttributes);
+    if(updateModelAttributes)
+    {
+        auto att = m_modelAttributes.getValue();
+
+        stream->serializeFloat(att.walkingSpeed);
+        stream->serializeFloat(att.attackDelay);
+        stream->serializeFloat(att.maxLife);
+        stream->serializeFloat(att.attackDamages);
+        stream->serializeBool(att.immovable);
+
+        if(stream->isReading())
+            m_modelAttributes.setValue(att);
+    }
+
     bool updateAttributes = false;
-    if(!stream->isReading() && clientTime < m_lastAttributesUpdateTime)
+    if(!stream->isReading() && clientTime < m_attributes.getLastUpdateTime())
         updateAttributes = true;
     stream->serializeBool(updateAttributes);
     if(updateAttributes)
     {
-        stream->serializeFloat(m_attributes.maxLife);
-        stream->serializeFloat(m_attributes.life, 0, (int)m_attributes.maxLife+1, 2);
+        auto att = m_attributes.getValue();
+
+        stream->serializeFloat(att.walkingSpeed);
+        stream->serializeFloat(att.life, 0, (int)m_modelAttributes.getValue().maxLife+1, 2);
+
+        if(stream->isReading())
+            m_attributes.setValue(att);
     }
 
     /*bool updateLookingDirection = false;
@@ -748,7 +796,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
             this->setLookingDirection(lookingDirection);
     }*/
 
-    bool updateAnimation = false;
+   // bool updateAnimation = false;
 }
 
 bool Character::syncFromCharacter(Character *srcCharacter)
@@ -756,12 +804,16 @@ bool Character::syncFromCharacter(Character *srcCharacter)
     if(m_lastCharacterSyncTime > srcCharacter->m_curLocalTime)
         return (false);
 
-    if(m_lastCharacterSyncTime < srcCharacter->m_lastAttributesUpdateTime)
+
+    m_modelAttributes.syncFrom(srcCharacter->m_modelAttributes);
+    m_attributes.syncFrom(srcCharacter->m_attributes);
+
+   /* if(m_lastCharacterSyncTime < srcCharacter->m_lastAttributesUpdateTime)
     //&& srcCharacter->m_lastAttributesUpdateTime != -1)
     {
         m_attributes.maxLife = srcCharacter->m_attributes.maxLife;
         m_attributes.life = srcCharacter->m_attributes.life;
-    }
+    }*/
 
     /*if(m_lastCharacterSyncTime < srcCharacter->m_lastLookingDirectionUpdateTime)
     //&& srcCharacter->m_lastLookingDirectionUpdateTime != -1)

@@ -99,7 +99,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
                             size_t dataSize = 0, char* data = nullptr) override;
 
 
-        virtual void serializeNode(pou::Stream *stream, float localTime = -1);
+        virtual void serializeNode(Stream *stream, float localTime = -1);
 
 
     protected:
@@ -122,10 +122,12 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::vec3 m_globalPosition;
 
         //glm::vec3 m_position;
-        SyncedAttribute<glm::vec3> m_position;
+        //glm::vec3 m_eulerRotations;
+        //glm::vec3 m_scale;
+        LinSyncedAttribute<glm::vec3> m_position;
+        LinSyncedAttribute<glm::vec3> m_eulerRotations;
+        LinSyncedAttribute<glm::vec3> m_scale;
 
-        glm::vec3 m_eulerRotations;
-        glm::vec3 m_scale;
         float     m_rigidity;
 
         float m_curFlexibleLength;
@@ -142,8 +144,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         float m_lastUpdateTime;
         float m_lastParentUpdateTime;
         //float m_lastPositionUpdateTime;
-        float m_lastRotationUpdateTime;
-        float m_lastScaleUpdateTime;
+        //float m_lastRotationUpdateTime;
+        //float m_lastScaleUpdateTime;
 
     private:
         NodeTypeId m_id;

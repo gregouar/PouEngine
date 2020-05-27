@@ -10,9 +10,9 @@ namespace pou
 
 SceneNode::SceneNode(const NodeTypeId id) :
     SimpleNode(id),
-    m_color(1.0f),
-    m_finalColor(1.0f),
-    m_lastColorUpdateTime(-1)
+    m_color(glm::vec4(1.0f),0),
+    m_finalColor(1.0f)//,
+    //m_lastColorUpdateTime(-1)
 {
     m_scene = nullptr;
 }
@@ -144,7 +144,7 @@ Scene* SceneNode::getScene()
 
 const glm::vec4 &SceneNode::getColor() const
 {
-    return m_color;
+    return m_color.getValue();
 }
 
 const glm::vec4 &SceneNode::getFinalColor() const
@@ -154,13 +154,13 @@ const glm::vec4 &SceneNode::getFinalColor() const
 
 void SceneNode::colorize(const glm::vec4 &c)
 {
-    this->setColor(m_color + c);
+    this->setColor(m_color.getValue() + c);
 }
 
 void SceneNode::setColor(const glm::vec4 &c)
 {
-    m_color = c;
-    m_lastColorUpdateTime = m_curLocalTime;
+    m_color.setValue(c);
+    //m_lastColorUpdateTime = m_curLocalTime;
     this->setLastUpdateTime(m_curLocalTime);
 
     this->updateGlobalPosition();
@@ -184,9 +184,10 @@ void SceneNode::setParent(SimpleNode *p)
 
 void SceneNode::syncFromNode(SceneNode* srcNode)
 {
-    if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
+    m_color.syncFrom(srcNode->m_color);
+   // if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
         //&& srcNode->m_lastColorUpdateTime != -1)
-        this->setColor(srcNode->getColor());
+       // this->setColor(srcNode->getColor());
 
     if(!SimpleNode::syncFromNode((SimpleNode*) srcNode))
         return;
@@ -247,7 +248,7 @@ void SceneNode::updateGlobalPosition()
     glm::vec4 parentColor(1.0f);
     if(m_parent != nullptr)
         parentColor = dynamic_cast<SceneNode*>(m_parent)->getFinalColor();
-    m_finalColor = m_color * parentColor;
+    m_finalColor = m_color.getValue() * parentColor;
 
     SimpleNode::updateGlobalPosition();
 }
@@ -280,7 +281,7 @@ void SceneNode::serializeNode(Stream *stream, float clientTime)
     SimpleNode::serializeNode(stream, clientTime);
 
     bool hasColor = false;
-    if(!stream->isReading() && clientTime < m_lastColorUpdateTime)
+    if(!stream->isReading() && clientTime < m_color.getLastUpdateTime())
         hasColor = true;
     stream->serializeBool(hasColor);
     if(hasColor)

@@ -13,6 +13,20 @@
 #include "PouEngine/utils/Stream.h"
 #include "assets/CharacterModelAsset.h"
 
+struct CharacterAttributes
+{
+    bool operator==(const CharacterAttributes& rhs)
+    {
+        if(life != rhs.life) return (false);
+        if(walkingSpeed != rhs.walkingSpeed) return (false);
+        return (true);
+    }
+
+
+    float life;
+    float walkingSpeed;
+};
+
 class Character : public pou::SceneNode
 {
     //friend class CharacterModelAsset;
@@ -63,6 +77,7 @@ class Character : public pou::SceneNode
         CharacterModelAsset *getModel() const;
 
         const CharacterAttributes &getAttributes() const;
+        const CharacterModelAttributes &getModelAttributes() const;
 
         void serializeCharacter(pou::Stream *stream, float clientTime = -1);
         bool syncFromCharacter(Character *srcCharacter);
@@ -102,7 +117,8 @@ class Character : public pou::SceneNode
         pou::Timer  m_interruptTimer;
 
         //float m_walkingSpeed;
-        CharacterAttributes m_attributes;
+        pou::SyncedAttribute<CharacterModelAttributes> m_modelAttributes;
+        pou::SyncedAttribute<CharacterAttributes> m_attributes;
 
         std::set<Character*>    m_nearbyCharacters;
         std::set<Character*>    m_alreadyHitCharacters;
@@ -111,7 +127,7 @@ class Character : public pou::SceneNode
         float m_lastCharacterSyncTime;
         float m_lastCharacterUpdateTime;
         float m_lastModelUpdateTime;
-        float m_lastAttributesUpdateTime;
+        //float m_lastAttributesUpdateTime;
         //float m_lastLookingDirectionUpdateTime;
 
     private:

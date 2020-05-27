@@ -89,7 +89,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
     return (true);
 }
 
-const CharacterAttributes &CharacterModelAsset::getAttributes() const
+const CharacterModelAttributes &CharacterModelAsset::getAttributes() const
 {
     return m_attributes;
 }
@@ -429,10 +429,7 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 
     e = element->FirstChildElement("life");
     if(e != nullptr)
-    {
-        m_attributes.life       = pou::Parser::parseFloat(e->GetText());
-        m_attributes.maxLife    = m_attributes.life;
-    }
+        m_attributes.maxLife     = pou::Parser::parseFloat(e->GetText());
 
     e = element->FirstChildElement("attackDamages");
     if(e != nullptr)

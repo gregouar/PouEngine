@@ -16,7 +16,7 @@ class PlayableCharacter : public Character
         virtual bool setModel(CharacterModelAsset *model);
         virtual bool loadItem(const std::string &path);
 
-        virtual void setWalkingSpeed(float speed);
+       // virtual void setWalkingSpeed(float speed);
 
         virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
         virtual void askToWalk(glm::vec2 direction);
@@ -61,7 +61,7 @@ class PlayableCharacter : public Character
         //float       m_dashDelay, m_dashTime;
 
         glm::vec2   m_wantToWalkDirection;
-        float       m_normalWalkingSpeed;
+        //float       m_normalWalkingSpeed;
 
         pou::Timer  m_wantToDashTimer;
         //float       m_wantToDashDelay;

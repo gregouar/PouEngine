@@ -14,8 +14,8 @@ class SyncedAttribute
         SyncedAttribute(const T &t, float curTime);
         virtual ~SyncedAttribute();
 
-        void syncFrom(const SyncedAttribute<T> &t);
-        bool update(const Time &elapsed_time, float curTime);
+        virtual void syncFrom(const SyncedAttribute<T> &t);
+        virtual bool update(const Time &elapsed_time, float curTime);
 
         void setValue(const T &t);
         void setValue(const T &t, float curLocalTime);
@@ -32,6 +32,28 @@ class SyncedAttribute
         float m_lastSyncTime;
         float m_curLocalTime;
 
+};
+
+
+template<typename T>
+class LinSyncedAttribute : public SyncedAttribute<T>
+{
+    public:
+        LinSyncedAttribute();
+        LinSyncedAttribute(const T &t, float curTime);
+
+        virtual void syncFrom(const LinSyncedAttribute<T> &t);
+
+        virtual bool update(const Time &elapsed_time, float curTime);
+
+        void setModuloRange(const T& min, const T& max);
+    protected:
+        T computeWantedValue();
+
+    protected:
+        bool m_useModulo;
+        T   m_minModuloValue,
+            m_maxModuloValue;
 };
 
 }

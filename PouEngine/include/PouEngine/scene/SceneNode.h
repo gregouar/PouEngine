@@ -76,10 +76,11 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
     protected:
         Scene* m_scene;
-        glm::vec4 m_color;
+        //glm::vec4 m_color;
+        LinSyncedAttribute<glm::vec4> m_color;
         glm::vec4 m_finalColor;
 
-        float m_lastColorUpdateTime;
+        //float m_lastColorUpdateTime;
 
     private:
         std::list<SceneObject *>    m_attachedObjects;

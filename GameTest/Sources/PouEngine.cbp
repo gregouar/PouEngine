@@ -274,7 +274,6 @@
 		</Unit>
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/WriteStream.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/XMLLoader.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicVBO.h" />
@@ -383,9 +382,9 @@
 		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />
 		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Stream.cpp" />
+		<Unit filename="../../PouEngine/src/utils/SyncedAttribute.inc" />
 		<Unit filename="../../PouEngine/src/utils/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/utils/WriteStream.cpp" />
-		<Unit filename="../../PouEngine/src/utils/XMLLoader.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicVBO.inc" />

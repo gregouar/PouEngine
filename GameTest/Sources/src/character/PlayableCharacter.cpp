@@ -51,7 +51,7 @@ bool PlayableCharacter::setModel(CharacterModelAsset *model)
     if(!Character::setModel(model))
         return (false);
 
-    m_normalWalkingSpeed = m_attributes.walkingSpeed;
+    //m_normalWalkingSpeed = m_modelAttributes.getValue().walkingSpeed;
     this->setLastPlayerUpdateTime(m_curLocalTime);
 
     return (true);
@@ -84,11 +84,11 @@ bool PlayableCharacter::loadItem(const std::string &path)
 }
 
 
-void PlayableCharacter::setWalkingSpeed(float speed)
+/*void PlayableCharacter::setWalkingSpeed(float speed)
 {
     Character::setWalkingSpeed(speed);
-    m_normalWalkingSpeed = m_attributes.walkingSpeed;
-}
+    m_normalWalkingSpeed = m_modelAttributes.getValue().walkingSpeed;
+}*/
 
 void PlayableCharacter::askToWalk(glm::vec2 direction)
 {
@@ -186,16 +186,18 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
     if(m_dashTimer.update(elapsedTime))
         this->startAnimation("walk");
 
+    auto att = m_attributes.getValue();
     if(m_dashTimer.isActive())
     {
-        m_attributes.walkingSpeed = DEFAULT_DASH_SPEED;
+        att.walkingSpeed = DEFAULT_DASH_SPEED;
         Character::walk(m_dashDirection);
         m_isWalking = true;
     }
     else if(m_dashDelayTimer.isActive())
-        m_attributes.walkingSpeed = m_normalWalkingSpeed * .25f;
+        att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed * .25f;
     else
-        m_attributes.walkingSpeed = m_normalWalkingSpeed;
+        att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed;
+    m_attributes.setValue(att);
 
     if(m_combatModeTimer.isActive())
     {
@@ -268,8 +270,10 @@ void PlayableCharacter::updateGearsAttributes()
 
     if(m_gearsModel[GearType_Weapon] != nullptr)
     {
-        m_attributes.attackDamages  = m_gearsModel[GearType_Weapon]->getAttributes().attackDamages;
-        m_attributes.attackDelay    = m_gearsModel[GearType_Weapon]->getAttributes().attackDelay;
+        auto att = m_modelAttributes.getValue();
+        att.attackDamages  = m_gearsModel[GearType_Weapon]->getAttributes().attackDamages;
+        att.attackDelay    = m_gearsModel[GearType_Weapon]->getAttributes().attackDelay;
+        m_modelAttributes.setValue(att);
     }
 }
 

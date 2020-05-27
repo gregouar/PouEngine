@@ -593,7 +593,7 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_lifeBar->setValue(m_character->getAttributes().life);*/
 
     m_gameUi.updateCharacterLife(m_character->getAttributes().life,
-                                 m_character->getAttributes().maxLife);
+                                 m_character->getModelAttributes().maxLife);
 
     m_character->addToNearbyCharacters(m_duck);
     m_character2->addToNearbyCharacters(m_duck);

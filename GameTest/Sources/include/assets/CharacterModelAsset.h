@@ -63,15 +63,25 @@ struct SkeletonModelWithAssets
     AssetsForSkeletonModel   assetsModel;
 };
 
-struct CharacterAttributes
+struct CharacterModelAttributes
 {
-    CharacterAttributes() : walkingSpeed(0), attackDelay(0),
-        life(0), attackDamages(0), immovable(0)
+    CharacterModelAttributes() : walkingSpeed(0), attackDelay(0),
+         attackDamages(0), immovable(0)
         {}
+
+    bool operator==(const CharacterModelAttributes& rhs)
+    {
+        if(walkingSpeed != rhs.walkingSpeed) return (false);
+        if(attackDelay != rhs.attackDelay) return (false);
+        if(maxLife != rhs.maxLife) return (false);
+        if(attackDamages != rhs.attackDamages) return (false);
+        if(immovable != rhs.immovable) return (false);
+        return (true);
+    }
+
     float walkingSpeed;
     float attackDelay;
     float maxLife;
-    float life;
     float attackDamages;
     bool  immovable;
 };
@@ -92,7 +102,7 @@ class CharacterModelAsset : public pou::Asset
 
         bool generateCharacter(Character *targetCharacter);
 
-        const CharacterAttributes &getAttributes() const;
+        const CharacterModelAttributes &getAttributes() const;
         const std::list<Hitbox> *getHitboxes() const;
         const std::list<Hitbox> *getHurtboxes() const;
 
@@ -112,7 +122,7 @@ class CharacterModelAsset : public pou::Asset
 
         std::list<Hitbox> m_hitboxes, m_hurtboxes;
 
-        CharacterAttributes m_attributes;
+        CharacterModelAttributes m_attributes;
 };
 
 
