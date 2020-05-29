@@ -102,6 +102,12 @@ void PlayableCharacter::askToAttack(glm::vec2 direction)
     m_wantToAttackDirection = direction;
 }
 
+void PlayableCharacter::walk(glm::vec2 direction)
+{
+    Character::walk(direction);
+    m_wantToWalkDirection = m_walkingDirection.getValue();
+}
+
 bool PlayableCharacter::attack(glm::vec2 direction, const std::string &animationName)
 {
     if(m_dashTimer.isActive())
@@ -177,7 +183,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
         if(this->attack(m_wantToAttackDirection))
             m_wantToAttackTimer.reset(0);
     }
-    else if(m_wantToWalkDirection != m_walkingDirection)
+    else if(m_wantToWalkDirection != m_walkingDirection.getValue())
     {
         this->walk(m_wantToWalkDirection);
     }
@@ -211,10 +217,10 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
         {
             bool wantToLateralWalk = false;
 
-            if(m_walkingDirection != glm::vec2(0))
+            if(m_walkingDirection.getValue() != glm::vec2(0))
             {
                 float deltaRotation = abs(Character::computeWantedRotation(SceneNode::getEulerRotation().z,
-                                           m_walkingDirection)-SceneNode::getEulerRotation().z);
+                                           m_walkingDirection.getValue())-SceneNode::getEulerRotation().z);
 
                 if(deltaRotation > glm::pi<float>()*.25 && deltaRotation <  glm::pi<float>()*.75)
                     wantToLateralWalk = true;
@@ -279,7 +285,7 @@ void PlayableCharacter::updateGearsAttributes()
 
 bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
 {
-    if(m_lastPlayerSyncTime > srcPlayer->m_curLocalTime)
+    if(m_lastPlayerSyncTime > srcPlayer->getLastPlayerUpdateTime())
         return (false);
 
     m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;

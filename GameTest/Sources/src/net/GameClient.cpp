@@ -4,6 +4,8 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/utils/Profiler.h"
 
+#include "net/GameServer.h"
+
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
 const int GameClient::TICKRATE = 30;
@@ -15,6 +17,9 @@ GameClient::GameClient() :
     m_isWaitingForWorldSync(false),
     m_remainingTime(0)
 {
+    initializeNetMessages();
+    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
+
     m_lastPlayerWalkDirection = glm::vec2(0);
 }
 
@@ -168,7 +173,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
-            m_world.syncFromMsg(castMsg, m_curPlayerId);
+            m_world.syncFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
         }break;
     }
 }

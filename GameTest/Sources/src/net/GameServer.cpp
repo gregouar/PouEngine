@@ -14,6 +14,8 @@ GameServer::GameServer() :
     m_remainingTime(0),
     m_isInThread(false)
 {
+    initializeNetMessages();
+    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
 }
 
 GameServer::~GameServer()
@@ -239,7 +241,8 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         return;
     auto &world = worldIt->second;
 
-    clientInfos.localTime = msg->clientTime;
+    if(msg->clientTime > clientInfos.localTime)
+        clientInfos.localTime = msg->clientTime;
 }
 
 void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)

@@ -448,7 +448,7 @@ void SpriteEntity::notify(NotificationSender *sender, NotificationType notificat
 
 bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
 {
-    if(m_lastSyncTime > srcEntity->m_curLocalTime)
+    if(m_lastSyncTime > srcEntity->getLastUpdateTime())
         return (false);
 
     m_lastSyncTime = srcEntity->m_curLocalTime;

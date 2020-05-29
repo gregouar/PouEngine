@@ -28,11 +28,16 @@ class NetEngine  : public Singleton<NetEngine>
         static std::shared_ptr<NetMessage> createNetMessage(int type);
         static int getNbrNetMsgTypes();
 
+        static void setSyncDelay(float delay);
+        static float getSyncDelay();
+
     protected:
 
     private:
         std::unique_ptr<AbstractNetImpl> m_impl;
         NetMessagesFactory m_netMsgFactory;
+
+        float m_syncDelay;
 };
 
 }

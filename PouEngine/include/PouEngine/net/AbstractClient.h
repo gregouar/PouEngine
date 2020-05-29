@@ -31,6 +31,7 @@ class AbstractClient
         bool isConnected() const;
         const NetAddress &getServerAddress() const;
         unsigned short getPort() const;
+        virtual float getRTT() const = 0;
         //const NetAddress &getAddress() const;
 
     protected:

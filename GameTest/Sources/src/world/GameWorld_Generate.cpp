@@ -5,6 +5,8 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+#include "net/GameServer.h"
+
 
 void GameWorld::generate()
 {
@@ -208,6 +210,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     //worldSyncMsg->nbr_characterModels = worldSyncMsg->characterModels.size();
 
 
+    //std::cout<<"Nbr Char:"<<m_syncCharacters.size()<<std::endl;
     worldSyncMsg->characters.clear();
     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
     {
@@ -277,7 +280,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
     m_dayTime = worldInitMsg->dayTime;
 
-    this->syncFromMsg(worldInitMsg, worldInitMsg->player_id);
+    this->syncFromMsg(worldInitMsg, worldInitMsg->player_id,0);
     m_curLocalTime = m_lastSyncTime;
 
     this->createPlayerCamera(worldInitMsg->player_id);
@@ -286,15 +289,21 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 }
 
 
-void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId)
+void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
-    m_lastSyncTime = worldSyncMsg->localTime;
-    if(m_curLocalTime > m_lastSyncTime)
+    if(worldSyncMsg->localTime > m_lastSyncTime)
+    {
+        m_lastSyncTime = worldSyncMsg->localTime;
+        m_curLocalTime = m_lastSyncTime /*- RTT*0.5f*/ - pou::NetEngine::getSyncDelay();//GameServer::SYNCDELAY;
+        //std::cout<<"WorldSync!"<<std::endl;
+    }
+
+    /**if(m_curLocalTime > m_lastSyncTime)
     {
         int64_t delta = (m_curLocalTime - m_lastSyncTime)*1000;
         std::this_thread::sleep_for(std::chrono::milliseconds(delta));
         m_curLocalTime = m_lastSyncTime;
-    }
+    }**/
 
     for(auto &spriteSheetIt : worldSyncMsg->spriteSheets)
     {
@@ -334,6 +343,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         delete playerSync.player;
     }
 
+   // std::cout<<"Nbr Char (client):"<<m_syncCharacters.size()<<std::endl;
     for(auto &characterIt : worldSyncMsg->characters)
     {
         auto& [ characterId, characterSync ] = characterIt;
@@ -507,7 +517,7 @@ bool GameWorld::initPlayer(size_t player_id)
     player->setModel(playerModel);
     m_scene->getRootNode()->addChildNode(player);
 
-    glm::vec2 pos(glm::linearRand(-100,-100), glm::linearRand(-100,100));
+    glm::vec2 pos(glm::linearRand(-100,100), glm::linearRand(-100,100));
     player->setPosition(pos);
 
     std::cout<<"New player with id:"<<player_id<<std::endl;

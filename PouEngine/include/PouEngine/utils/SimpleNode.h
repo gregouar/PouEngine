@@ -93,7 +93,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         float getLastUpdateTime();
         float getLastParentUpdateTime();
 
-        virtual void update(const Time &elapsedTime, float localTime = -1);
+        virtual void update(const Time &elapsedTime = Time(0), float localTime = -1);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;

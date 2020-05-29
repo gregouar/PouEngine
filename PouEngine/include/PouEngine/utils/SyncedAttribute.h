@@ -3,6 +3,8 @@
 
 #include "PouEngine/Types.h"
 
+#include <list>
+
 namespace pou
 {
 
@@ -22,15 +24,22 @@ class SyncedAttribute
         const T& getValue() const;
 
         float getLastUpdateTime() const;
-        float getLastSyncTime() const;
+        float getSyncTime() const;
 
     protected:
         T m_value;
+
         T m_syncValue;
+        //T m_lastSyncValue;
 
         float m_lastUpdateTime;
+
+        float m_syncTime;
         float m_lastSyncTime;
+
+
         float m_curLocalTime;
+        bool m_firstSync;
 
 };
 
@@ -54,6 +63,13 @@ class LinSyncedAttribute : public SyncedAttribute<T>
         bool m_useModulo;
         T   m_minModuloValue,
             m_maxModuloValue;
+
+
+        T m_lastSyncValue;
+        //float m_lastSyncTime;
+
+
+        //std::list< std::pair<float, T> > m_syncTimesAndValuesList;
 };
 
 }

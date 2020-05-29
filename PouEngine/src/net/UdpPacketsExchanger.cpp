@@ -491,6 +491,15 @@ unsigned short UdpPacketsExchanger::getPort() const
     return m_socket.getPort();
 }
 
+float UdpPacketsExchanger::getRTT(const ClientAddress &address) const
+{
+    auto it = m_netMsgLists.find(address);
+    if(it == m_netMsgLists.end())
+        return (-1);
+
+    return it->second.avrgRTT;
+}
+
 void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
 {
     int nbr_frags = (packetBuffer.buffer.size() / MAX_PACKETSIZE) + 1;

@@ -28,7 +28,7 @@ class GameWorld
         void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, float clientTime);
 
         void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId);
+        void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT);
 
         size_t  askToAddPlayer();
         bool    askToRemovePlayer(size_t player_id);

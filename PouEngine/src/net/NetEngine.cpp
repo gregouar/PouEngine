@@ -59,4 +59,14 @@ int NetEngine::getNbrNetMsgTypes()
     return instance()->m_netMsgFactory.getNbrMsgTypes();
 }
 
+void NetEngine::setSyncDelay(float delay)
+{
+    instance()->m_syncDelay = delay;
+}
+
+float NetEngine::getSyncDelay()
+{
+    return instance()->m_syncDelay;
+}
+
 }

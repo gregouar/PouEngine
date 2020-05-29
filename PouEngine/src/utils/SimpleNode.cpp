@@ -272,21 +272,12 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
 
 bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 {
-    if(m_lastSyncTime > srcNode->m_curLocalTime)
+    if(m_lastSyncTime > srcNode->getLastUpdateTime())
         return (false);
 
     m_position.syncFrom(srcNode->m_position);
     m_eulerRotations.syncFrom(srcNode->m_eulerRotations);
     m_scale.syncFrom(srcNode->m_scale);
-    //if(m_lastSyncTime < srcNode->m_lastPositionUpdateTime)
-      //  m_syncPosition = srcNode->getPosition()
-        //this->setPosition(srcNode->getPosition());
-    //if(m_lastSyncTime < srcNode->m_lastRotationUpdateTime)
-    // && srcNode->m_lastRotationUpdateTime != -1)
-      //  this->setRotation(srcNode->getEulerRotation());
-    //if(m_lastSyncTime < srcNode->m_lastScaleUpdateTime)
-    // && srcNode->m_lastScaleUpdateTime != -1)
-      //  this->setScale(srcNode->getScale());
 
     m_lastSyncTime = srcNode->m_curLocalTime;
 
@@ -298,6 +289,7 @@ void SimpleNode::setLocalTime(float localTime)
     if(localTime < 0)
         localTime = -1;
     m_curLocalTime = localTime;
+    this->update();
 }
 
 void SimpleNode::setSyncAndLocalTime(float syncTime)
@@ -836,7 +828,8 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
         glm::vec3 rot = this->getEulerRotation();
         stream->serializeFloat(rot.x, -glm::pi<float>(), glm::pi<float>(), 2);
         stream->serializeFloat(rot.y, -glm::pi<float>(), glm::pi<float>(), 2);
-        stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
+        //stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
+        stream->serializeFloat(rot.z);
 
         if(stream->isReading())
             this->setRotation(rot);

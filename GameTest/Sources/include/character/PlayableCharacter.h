@@ -18,12 +18,14 @@ class PlayableCharacter : public Character
 
        // virtual void setWalkingSpeed(float speed);
 
-        virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
         virtual void askToWalk(glm::vec2 direction);
+        virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
+        virtual void askToDash(glm::vec2 direction = glm::vec2(0,0));
+
+        virtual void walk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0,0), const std::string &animationName = "attack");
         virtual void lookAt(glm::vec2 position);
         virtual void forceAttackMode(bool force = true);
-        virtual void askToDash(glm::vec2 direction = glm::vec2(0,0));
         virtual bool dash(glm::vec2 direction = glm::vec2(0,0));
 
         virtual void update(const pou::Time &elapsedTime, float localTime = -1);

@@ -55,7 +55,7 @@ class Character : public pou::SceneNode
         void disableAutoLookingDirection(bool disable = true);
         void setLookingDirection(glm::vec2 direction);
         void setDestination(glm::vec2 destination);
-        void walk(glm::vec2 direction);
+        virtual void walk(glm::vec2 direction);
         virtual bool attack(glm::vec2 direction = glm::vec2(0), const std::string &animationName = "attack");
         virtual bool stopAttacking();
 
@@ -105,7 +105,8 @@ class Character : public pou::SceneNode
         bool      m_isDead;
         bool      m_isWalking;
         bool      m_isAttacking;
-        glm::vec2 m_walkingDirection;
+        //glm::vec2 m_walkingDirection;
+        pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 
         bool      m_autoLookingDirection;
         glm::vec2 m_lookingDirection;

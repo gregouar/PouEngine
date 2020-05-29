@@ -287,5 +287,11 @@ void UdpClient::tryToChallenge()
     m_packetsExchanger.sendPacket(m_serverAddress, connectionPacket);
 }
 
+float UdpClient::getRTT() const
+{
+    ClientAddress clientAddress = {m_serverAddress, m_serverSalt^m_salt};
+    return m_packetsExchanger.getRTT(clientAddress);
+}
+
 
 }

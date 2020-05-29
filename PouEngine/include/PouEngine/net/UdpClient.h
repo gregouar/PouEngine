@@ -26,6 +26,8 @@ class UdpClient : public AbstractClient
         virtual void sendReliableBigMessage(std::shared_ptr<NetMessage> msg);
         virtual void receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages);
 
+        virtual float getRTT() const;
+
     protected:
         virtual void processPacket(UdpBuffer &buffer,
                                    std::list<std::shared_ptr<NetMessage> > &netMessages);

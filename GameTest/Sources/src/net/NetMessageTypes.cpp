@@ -202,7 +202,8 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     if(stream->isReading())
     {
         characterPtr = new Character();
-        characterPtr->setLocalTime(localTime);
+        //characterPtr->setLocalTime(localTime);
+        characterPtr->update(pou::Time(0),localTime);
         //characterPtr->setSyncAndLocalTime(localTime);
     }
 
@@ -233,7 +234,8 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
     if(stream->isReading())
     {
         playerPtr = new PlayableCharacter();
-        playerPtr->setLocalTime(localTime);
+        playerPtr->update(pou::Time(0),localTime);
+        //playerPtr->setLocalTime(localTime);
         //playerPtr->setSyncAndLocalTime(localTime);
     }
     ///characterPtr->serializePlayer(stream,clientTime);

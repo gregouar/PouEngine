@@ -138,6 +138,8 @@ class UdpPacketsExchanger
         bool readPacket(UdpPacket &packet, UdpBuffer &packetBuffer);
         unsigned short getPort() const;
 
+        float getRTT(const ClientAddress &address) const;
+
     protected:
         void fragmentPacket(UdpBuffer &packetBuffer);
         bool reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &destBuffer);

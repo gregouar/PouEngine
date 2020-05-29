@@ -16,13 +16,18 @@ int main()
     pou::Logger::instance();
 
     srand (time(NULL));
-    initializeNetMessages();
 
     try {
         pou::VAppCreateInfos createInfos;
-        //createInfos.name = "ProjectW";
-        //pou::VApp app(createInfos);
-        //app.run(TestingState::instance());
+
+        bool testingState = false;
+
+        if(testingState)
+        {
+            createInfos.name = "ProjectW";
+            pou::VApp app(createInfos);
+            app.run(TestingState::instance());
+        } else {
 
         #ifdef CLIENTONLY
             createInfos.name = "ProjectW - client";
@@ -37,6 +42,8 @@ int main()
             pou::VApp app(createInfos);
             app.run(ClientServerTestingState::instance());
         #endif
+
+        }
     } catch (const std::exception& e) {
         pou::Logger::fatalError(e.what());
         return EXIT_FAILURE;
