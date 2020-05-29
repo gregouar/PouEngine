@@ -20,6 +20,7 @@ struct ClientInfos
     float               lastPingAnswerTime;
     int                 serverSalt;
     int                 clientSalt;
+    bool                isLocalClient;
 };
 
 
@@ -37,6 +38,8 @@ class AbstractServer
         virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend = false) = 0;
         virtual void sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg) = 0;
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages) = 0;
+
+        size_t connectLocalClient();
 
         bool isRunning() const;
         unsigned short getPort() const;

@@ -276,7 +276,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
     this->createScene();
 
     //Need to load this kind of info from WorldTemplate XML
-    m_scene->getRootNode()->attachObject(m_sunLight);
+    //m_scene->getRootNode()->attachObject(m_sunLight);
 
     m_dayTime = worldInitMsg->dayTime;
 

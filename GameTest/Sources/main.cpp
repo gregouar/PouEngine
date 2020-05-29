@@ -10,6 +10,7 @@
 #include "states/ServerTestingState.h"
 #include "states/ClientTestingState.h"
 #include "states/ClientServerTestingState.h"
+#include "states/PlayerServerTestingState.h"
 
 int main()
 {
@@ -37,6 +38,10 @@ int main()
             createInfos.name = "ProjectW - dedicated server";
             pou::VApp app(createInfos);
             app.run(ServerTestingState::instance());
+        #elif PLAYERSERVER
+            createInfos.name = "ProjectW - player server";
+            pou::VApp app(createInfos);
+            app.run(PlayerServerTestingState::instance());
         #else
             createInfos.name = "ProjectW";
             pou::VApp app(createInfos);

@@ -47,7 +47,7 @@ void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
             this->setValue(m_syncValue, m_syncTime);
 
         m_syncValue = t.getValue();
-        m_syncTime  = t.m_lastUpdateTime;
+        m_syncTime  = t.m_lastUpdateTime - pou::NetEngine::getSyncDelay();
     }
 }
 

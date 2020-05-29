@@ -5,6 +5,8 @@
 #include "PouEngine/utils/Logger.h"
 #include "PouEngine/utils/Profiler.h"
 
+#include "net/GameClient.h"
+
 const int GameServer::TICKRATE = 30;
 const float GameServer::SYNCDELAY = 1.0/30.0;
 
@@ -23,7 +25,7 @@ GameServer::~GameServer()
     this->cleanup();
 }
 
-bool GameServer::create(unsigned short port, bool launchInThread)
+bool GameServer::create(unsigned short port, bool allowLocalPlayers, bool launchInThread)
 {
     m_server = std::move(pou::NetEngine::createServer());
     m_server->start(GameWorld::MAX_NBR_PLAYERS,port);
@@ -34,6 +36,8 @@ bool GameServer::create(unsigned short port, bool launchInThread)
         m_isInThread = true;
         m_serverThread = std::thread(&GameServer::threading, this);
     }
+
+    m_allowLocalPlayers = allowLocalPlayers;
 
     return (true);
 }
@@ -90,12 +94,32 @@ void GameServer::update(const pou::Time &elapsedTime)
     this->syncClients(elapsedTime);
 }
 
+
+void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
+{
+    if(localClientNbr >= m_clientInfos.size())
+        return;
+
+    auto& clientInfos = m_clientInfos[localClientNbr];
+
+    auto worldIt = m_worlds.find(clientInfos.world_id);
+    if(worldIt == m_worlds.end())
+        return;
+
+    worldIt->second.render(renderWindow);
+}
+
+
 void GameServer::syncClients(const pou::Time &elapsedTime)
 {
     for(auto &clientInfosIt : m_clientInfos)
     {
         auto &clientInfos = clientInfosIt.second;
         auto clientNbr = clientInfosIt.first;
+
+        if(clientInfos.isLocalPlayer)
+            continue;
+
         if(clientInfos.world_id == 0)
         {
             auto &world = m_worlds.find(m_curWorldId)->second;
@@ -151,9 +175,30 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
     }
 }
 
+int GameServer::addLocalPlayer()
+{
+    if(!m_allowLocalPlayers)
+        return (-1);
+
+    auto clientNbr = m_server->connectLocalClient();
+    if(clientNbr == m_server->getMaxNbrClients())
+        return (-1);
+
+    auto worldIt = m_worlds.find(m_curWorldId);
+    if(worldIt == m_worlds.end())
+        return (-1);
+
+    this->addClient(clientNbr, true);
+    auto player_id = worldIt->second.askToAddPlayer(true);
+    m_clientInfos[clientNbr].world_id  = m_curWorldId;
+    m_clientInfos[clientNbr].player_id = player_id;
+
+    return clientNbr;
+}
+
 size_t GameServer::generateWorld()
 {
-   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(false,true)}).first->second;
+   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(m_allowLocalPlayers,true)}).first->second;
    world.generate();
 
    return (m_curWorldId);
@@ -247,6 +292,28 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
 
 void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)
 {
+    /*auto clientInfosIt = m_clientInfos.find(clientNbr);
+    if(clientInfosIt == m_clientInfos.end())
+        return;
+    auto &clientInfos = clientInfosIt->second;
+
+    auto worldIt = m_worlds.find(clientInfos.world_id);
+    if(worldIt == m_worlds.end())
+        return;
+    auto &world = worldIt->second;*/
+
+    switch(msg->playerActionType)
+    {
+        case PlayerActionType_Walk:{
+            this->playerWalk(clientNbr, msg->walkDirection, msg->clientTime);
+            //world.playerWalk(clientInfos.player_id, msg->walkDirection, msg->clientTime);
+        }break;
+
+    }
+}
+
+void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTime)
+{
     auto clientInfosIt = m_clientInfos.find(clientNbr);
     if(clientInfosIt == m_clientInfos.end())
         return;
@@ -257,19 +324,12 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
         return;
     auto &world = worldIt->second;
 
-    switch(msg->playerActionType)
-    {
-        case PlayerActionType_Walk:{
-            world.playerWalk(clientInfos.player_id, msg->walkDirection, msg->clientTime);
-        }break;
-
-    }
-
+    world.playerWalk(clientInfos.player_id, direction, localTime);
 }
 
-void GameServer::addClient(int clientNbr)
+void GameServer::addClient(int clientNbr, bool isLocalClient)
 {
-    GameClientInfos clientInfos = {0,0,-1};
+    GameClientInfos clientInfos = {0,0,-1,false,isLocalClient};
     m_clientInfos.insert({clientNbr, clientInfos});
 }
 
@@ -292,6 +352,9 @@ void GameServer::updateWorlds(const pou::Time &elapsedTime)
 {
     pou::Time tickTime(1.0f/GameServer::TICKRATE);
     pou::Time totalTime = elapsedTime+m_remainingTime;
+
+    if(m_allowLocalPlayers)
+        tickTime = pou::Time(1.0f/GameClient::TICKRATE);
 
     while(totalTime > tickTime)
     {

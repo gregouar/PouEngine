@@ -174,14 +174,41 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="PlayerServer">
+				<Option output="../Game/bin/ProjectW_playerServer" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../Game/bin" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="GameTest/Sources/include" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/utils" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
+					<Add directory="PouEngine/include/PouEngine/audio" />
+					<Add directory="PouEngine/src/assets" />
+					<Add directory="PouEngine/include/PouEngine/renderers" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="PouEngine/include/PouEngine/net" />
+					<Add directory="GameTest/Sources/include/states" />
+					<Add directory="GameTest/Sources/include/ui" />
+					<Add directory="GameTest/Sources/include/world" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-std=c17" />
 			<Add option="-std=c++1z" />
 			<Add option="-fexceptions" />
-			<Add option="-D_WIN32" />
 			<Add option="-Wno-unknown-pragmas" />
+			<Add option="-D_WIN32" />
 			<Add directory="../../PouEngine/include" />
 			<Add directory="GameTest/Sources/include/states" />
 			<Add directory="include" />
@@ -412,6 +439,7 @@
 		<Unit filename="include/net/SyncElements.h" />
 		<Unit filename="include/states/ClientServerTestingState.h" />
 		<Unit filename="include/states/ClientTestingState.h" />
+		<Unit filename="include/states/PlayerServerTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="include/ui/GameUi.h" />
@@ -427,6 +455,7 @@
 		<Unit filename="src/net/NetMessageTypes.cpp" />
 		<Unit filename="src/states/ClientServerTestingState.cpp" />
 		<Unit filename="src/states/ClientTestingState.cpp" />
+		<Unit filename="src/states/PlayerServerTestingState.cpp" />
 		<Unit filename="src/states/ServerTestingState.cpp" />
 		<Unit filename="src/states/TestingState.cpp" />
 		<Unit filename="src/ui/GameUi.cpp" />

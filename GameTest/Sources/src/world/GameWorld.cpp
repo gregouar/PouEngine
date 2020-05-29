@@ -76,7 +76,7 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
-size_t GameWorld::askToAddPlayer()
+size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
     auto player = new PlayableCharacter();
 
@@ -86,6 +86,10 @@ size_t GameWorld::askToAddPlayer()
         delete player;
         return (0);
     }
+
+    if(isLocalPlayer)
+        this->createPlayerCamera(player_id);
+
     m_addedPlayersList.push_back(player_id);
     return player_id;
 }
@@ -148,6 +152,8 @@ void GameWorld::createScene()
         m_sunLight->enableShadowCasting();
         m_sunLight->setShadowMapExtent({1024,1024});
         m_sunLight->setShadowBlurRadius(10);
+
+        m_scene->getRootNode()->attachObject(m_sunLight);
     }
 }
 

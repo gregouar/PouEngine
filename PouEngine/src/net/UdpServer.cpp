@@ -51,7 +51,8 @@ bool UdpServer::shutdown()
 void UdpServer::update(const Time &elapsedTime)
 {
     for(uint16_t i = 0 ; i < m_clients.size() ; ++i)
-        if(m_clients[i].status != ConnectionStatus_Disconnected)
+        if(m_clients[i].status != ConnectionStatus_Disconnected
+        &&!m_clients[i].isLocalClient)
         {
             if(m_clients[i].lastPingAnswerTime + m_disconnectionPingDelay < m_curLocalTime)
             {
@@ -203,6 +204,7 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer, std::list<std::pair
         m_clients[clientNbr].lastPingTime       = m_curLocalTime;
         m_clients[clientNbr].clientSalt = packet.salt;
         m_clients[clientNbr].serverSalt = glm::linearRand(0, (int)pow(2,SALT_SIZE));
+        m_clients[clientNbr].isLocalClient = false;
 
         this->challengeConnexionFrom(clientNbr);
     }

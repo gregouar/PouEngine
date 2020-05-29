@@ -20,6 +20,18 @@ void AbstractServer::update(const Time &elapsedTime)
     //this->processMessages();
 }
 
+size_t AbstractServer::connectLocalClient()
+{
+    for(size_t i = 0 ; i < m_clients.size() ; ++i)
+        if(m_clients[i].status == ConnectionStatus_Disconnected)
+        {
+            m_clients[i].status = ConnectionStatus_Connected;
+            m_clients[i].isLocalClient = true;
+            return i;
+        }
+
+    return m_clients.size();
+}
 
 bool AbstractServer::isRunning() const
 {

@@ -8,7 +8,7 @@
 
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
-const int GameClient::TICKRATE = 30;
+const int GameClient::TICKRATE = 60;
 const float GameClient::SYNCDELAY = .1;
 
 GameClient::GameClient() :

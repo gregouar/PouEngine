@@ -17,9 +17,10 @@ struct GameClientInfos
     size_t  player_id;
     float   localTime;
 
-    pou::Timer syncTimer;
-
     bool playerCreated;
+    bool isLocalPlayer;
+
+    pou::Timer syncTimer;
 };
 
 class GameServer
@@ -28,11 +29,15 @@ class GameServer
         GameServer();
         virtual ~GameServer();
 
-        bool create(unsigned short port = 0, bool launchInThread = false);
+        bool create(unsigned short port = 0, bool allowLocalPlayers = false, bool launchInThread = false);
         void shutdown();
 
         void update(const pou::Time &elapsedTime);
         void syncClients(const pou::Time &elapsedTime);
+        void render(pou::RenderWindow *renderWindow, size_t clientNbr);
+
+        int addLocalPlayer(); //ClientNbr
+        void playerWalk(size_t clientNbr, glm::vec2 direction, float localTime = -1);
 
         size_t generateWorld();
 
@@ -48,7 +53,7 @@ class GameServer
         void processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg);
         void updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg);
 
-        void addClient(int clientNbr);
+        void addClient(int clientNbr, bool isLocalClient = false);
         void disconnectClient(int clientNbr);
 
         void updateWorlds(const pou::Time &elapsedTime);
@@ -70,6 +75,8 @@ class GameServer
         bool        m_isInThread;
         std::thread m_serverThread;
         std::mutex  m_serverMutex;
+
+        bool        m_allowLocalPlayers;
 
 
     public:
