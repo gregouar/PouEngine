@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/random.hpp>
+#include <glm/gtc/type_precision.hpp>
 
 #ifndef   POUENGINE_TYPES
 #define   POUENGINE_TYPES

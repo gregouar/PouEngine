@@ -82,6 +82,10 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
     //if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
     //    m_character->askToDash(charDirection);
     //m_character->walk(charDirection);
+
+
+    if(eventsManager->keyIsPressed(GLFW_KEY_R))
+        m_gameServer.rewindWorld(1,0);
 }
 
 

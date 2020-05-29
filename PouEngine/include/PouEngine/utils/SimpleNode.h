@@ -59,7 +59,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void setLocalTime(float localTime);
         virtual void setSyncAndLocalTime(float syncTime);
-        float getLocalTime();
+        void setSyncDelay(float delay);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -92,8 +92,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setLastUpdateTime(float time, bool force = false);
         float getLastUpdateTime();
         float getLastParentUpdateTime();
+        float getLocalTime();
 
         virtual void update(const Time &elapsedTime = Time(0), float localTime = -1);
+        virtual void rewind(float time);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;

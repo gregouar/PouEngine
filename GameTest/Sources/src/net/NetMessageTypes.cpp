@@ -258,12 +258,12 @@ void NetMessage_AskForWorldSync::serializeImpl(pou::Stream *stream)
 void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
 {
     stream->serializeFloat(clientTime);
-    stream->serializeInt(playerActionType, 0, NBR_PLAYERACTIONTYPES);
+    stream->serializeInt(playerAction.actionType, 0, NBR_PLAYERACTIONTYPES);
 
-    if(playerActionType == PlayerActionType_Walk)
+    if(playerAction.actionType == PlayerActionType_Walk)
     {
-        stream->serializeFloat(walkDirection.x,-1,1,2);
-        stream->serializeFloat(walkDirection.y,-1,1,2);
+        stream->serializeFloat(playerAction.walkDirection.x,-1,1,2);
+        stream->serializeFloat(playerAction.walkDirection.y,-1,1,2);
     }
 
 }

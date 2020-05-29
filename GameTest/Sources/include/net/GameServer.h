@@ -40,6 +40,7 @@ class GameServer
         void playerWalk(size_t clientNbr, glm::vec2 direction, float localTime = -1);
 
         size_t generateWorld();
+        void rewindWorld(size_t world_id, float time);
 
         //const pou::NetAddress *getAddress() const;
         unsigned short getPort() const;

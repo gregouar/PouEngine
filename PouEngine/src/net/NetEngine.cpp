@@ -5,7 +5,8 @@ namespace pou
 
 NetEngine::NetEngine() : m_impl(nullptr)
 {
-    //ctor
+    m_syncDelay = 0;
+    m_maxRewindAmount = 0;
 }
 
 NetEngine::~NetEngine()
@@ -67,6 +68,16 @@ void NetEngine::setSyncDelay(float delay)
 float NetEngine::getSyncDelay()
 {
     return instance()->m_syncDelay;
+}
+
+void NetEngine::setMaxRewindAmount(size_t rewindAmount)
+{
+    instance()->m_maxRewindAmount = rewindAmount;
+}
+
+float NetEngine::getMaxRewindAmount()
+{
+    return instance()->m_maxRewindAmount;
 }
 
 }

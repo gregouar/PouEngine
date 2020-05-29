@@ -7,7 +7,7 @@
 
 #include "net/GameClient.h"
 
-const int GameServer::TICKRATE = 30;
+const int GameServer::TICKRATE = 60;
 const float GameServer::SYNCDELAY = 1.0/30.0;
 
 GameServer::GameServer() :
@@ -18,6 +18,7 @@ GameServer::GameServer() :
 {
     initializeNetMessages();
     pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
+    pou::NetEngine::setMaxRewindAmount(100);
 }
 
 GameServer::~GameServer()
@@ -204,6 +205,14 @@ size_t GameServer::generateWorld()
    return (m_curWorldId);
 }
 
+void GameServer::rewindWorld(size_t world_id, float time)
+{
+    auto worldIt = m_worlds.find(world_id);
+    if(worldIt == m_worlds.end())
+        return;
+    worldIt->second.rewind(time);
+}
+
 /*const pou::NetAddress *GameServer::getAddress() const
 {
     if(!m_server)
@@ -302,14 +311,26 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
         return;
     auto &world = worldIt->second;*/
 
-    switch(msg->playerActionType)
+    /*switch(msg->playerAction.actionType)
     {
         case PlayerActionType_Walk:{
             this->playerWalk(clientNbr, msg->walkDirection, msg->clientTime);
             //world.playerWalk(clientInfos.player_id, msg->walkDirection, msg->clientTime);
         }break;
 
-    }
+    }*/
+
+    auto clientInfosIt = m_clientInfos.find(clientNbr);
+    if(clientInfosIt == m_clientInfos.end())
+        return;
+    auto &clientInfos = clientInfosIt->second;
+
+    auto worldIt = m_worlds.find(clientInfos.world_id);
+    if(worldIt == m_worlds.end())
+        return;
+    auto &world = worldIt->second;
+
+    world.addPlayerAction(clientInfos.player_id, msg->playerAction, msg->clientTime);
 }
 
 void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTime)
@@ -324,7 +345,13 @@ void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTi
         return;
     auto &world = worldIt->second;
 
-    world.playerWalk(clientInfos.player_id, direction, localTime);
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_Walk;
+    playerAction.walkDirection = direction;
+
+    world.addPlayerAction(clientInfos.player_id, playerAction, localTime);
+
+    //world.playerWalk(clientInfos.player_id, direction, localTime);
 }
 
 void GameServer::addClient(int clientNbr, bool isLocalClient)

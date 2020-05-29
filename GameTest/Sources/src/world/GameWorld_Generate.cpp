@@ -296,6 +296,10 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         m_lastSyncTime = worldSyncMsg->localTime;
         m_curLocalTime = m_lastSyncTime /*- RTT*0.5f*/ - pou::NetEngine::getSyncDelay();//GameServer::SYNCDELAY;
         //std::cout<<"WorldSync!"<<std::endl;
+
+        auto player = m_syncPlayers.findElement(clientPlayerId);
+        if(player)
+            player->setSyncDelay(RTT*2+pou::NetEngine::getSyncDelay());
     }
 
     /**if(m_curLocalTime > m_lastSyncTime)

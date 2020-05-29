@@ -11,14 +11,16 @@ template<typename T>
 SyncedAttribute<T>::SyncedAttribute() :
     m_value(T()),
     m_syncValue(T()),
-    //m_lastSyncValue(T()),
+    m_firstSync(true),
+    m_curLocalTime(0),
     m_lastUpdateTime(-1),
+    //m_lastSyncValue(T()),
     m_syncTime(-1),
     m_lastSyncTime(-1),
-    m_curLocalTime(0),
-    m_firstSync(true)
+    m_maxRewindAmount(NetEngine::getMaxRewindAmount()),
+    m_syncDelay(0),
+    m_syncPrecision(T())
 {
-
 }
 
 template<typename T>
@@ -91,12 +93,54 @@ void SyncedAttribute<T>::setValue(const T &t)
 template<typename T>
 void SyncedAttribute<T>::setValue(const T &t, float curLocalTime)
 {
-    if(m_value == t)
+    if(m_value == t && m_lastUpdateTime != -1)
         return;
 
     m_value = t;
     if(curLocalTime > m_lastUpdateTime)
         m_lastUpdateTime = curLocalTime;
+
+    if(m_maxRewindAmount > 0)
+    {
+        m_rewindValues.insert({curLocalTime, t});
+        if(m_rewindValues.size() >= m_maxRewindAmount)
+            m_rewindValues.erase(m_rewindValues.begin());
+    }
+}
+
+template<typename T>
+bool SyncedAttribute<T>::rewind(float time)
+{
+    if(m_rewindValues.empty())
+        return (false);
+
+    bool r = true;
+    auto it = m_rewindValues.upper_bound(time);
+    if(it == m_rewindValues.end())
+        return (false);
+    /*if(it == m_rewindValues.end())
+    {
+        it = m_rewindValues.begin();
+        r = false;
+    }*/
+
+    m_lastUpdateTime = it->first;
+    this->setValue(it->second);
+    m_rewindValues.erase(++it, m_rewindValues.end());
+
+    return (r);
+}
+
+template<typename T>
+void SyncedAttribute<T>::setSyncDelay(float syncDelay)
+{
+    m_syncDelay = syncDelay;
+}
+
+template<typename T>
+void SyncedAttribute<T>::setSyncPrecision(T precision)
+{
+    m_syncPrecision = precision;
 }
 
 template<typename T>
@@ -158,41 +202,6 @@ void LinSyncedAttribute<T>::syncFrom(const LinSyncedAttribute<T> &t)
 template<typename T>
 bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
 {
-    /*if(curTime != -1)
-        this->m_curLocalTime = curTime;
-
-    if(m_syncTimesAndValuesList.empty())
-        return (false);
-
-    if(this->m_curLocalTime == 0)
-    {
-        this->setValue(m_syncTimesAndValuesList.begin()->second);
-        return (true);
-    }
-
-    while( m_syncTimesAndValuesList.size() > 1 && (++m_syncTimesAndValuesList.begin())->first <= curTime)
-    {
-        m_syncTimesAndValuesList.pop_front();
-    }
-
-    if(m_syncTimesAndValuesList.size() <= 1)
-        return (false);
-
-    float firstTime = (m_syncTimesAndValuesList.begin())->first;
-    float secondTime = (++m_syncTimesAndValuesList.begin())->first;
-    if(this->m_curLocalTime > firstTime && this->m_curLocalTime < secondTime)
-    {
-        T &firstValue = (m_syncTimesAndValuesList.begin())->second;
-        T &secondValue = (++m_syncTimesAndValuesList.begin())->second;
-
-        float ratio = (this->m_curLocalTime - firstTime)/(secondTime - firstTime);
-        this->setValue(firstValue*(1-ratio) + secondValue*ratio);
-        std::cout<<"Ratio:"<<ratio<<std::endl;
-        return (true);
-    }
-
-    return (false);*/
-
     auto lastTime = curTime - elapsed_time.count();
     if(curTime != -1)
         this->m_curLocalTime = curTime;
@@ -213,43 +222,29 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
     if(curTime > this->m_lastSyncTime && curTime < this->m_syncTime)
     {
         float ratio = (curTime - this->m_lastSyncTime)/(this->m_syncTime - this->m_lastSyncTime);
-        this->setValue(this->m_lastSyncValue * (1-ratio) + this->m_syncValue*ratio);
-        return (true);
+
+        T wantedNewValue = this->m_lastSyncValue * (1-ratio) + this->m_syncValue*ratio;
+
+        if(this->m_syncDelay == 0)
+        {
+            this->setValue(wantedNewValue);
+            return (true);
+        }
+        else
+        {
+            auto isSynced = glm::greaterThan(glm::abs(this->m_value - wantedNewValue), this->m_syncPrecision);
+            if(T(isSynced) == T())
+                this->m_syncTimer.reset(this->m_syncDelay);
+            else if(this->m_syncTimer.update(elapsed_time))
+            {
+                this->setValue(wantedNewValue);
+                return (true);
+            } else if(!this->m_syncTimer.isActive())
+                this->m_syncTimer.reset(this->m_syncDelay);
+         }
     }
 
     return (false);
-
-
-
-
-
-
-    /**auto lastTime = curTime - elapsed_time.count();
-
-    if(this->m_curLocalTime == 0)
-        lastTime = 0;
-
-    if(curTime != -1)
-        this->m_curLocalTime = curTime;
-
-    if(this->m_syncValue == this->m_value || this->m_syncTime < lastTime)
-        return (false);
-
-    if(lastTime == 0)
-    {
-        this->setValue(this->m_syncValue,this->m_syncTime);
-        return (true);
-    }
-
-    float delta = this->m_syncTime - lastTime;
-    float ratio = elapsed_time.count()/delta;
-
-    if(ratio > 1 || ratio < 0)
-        this->setValue(this->m_syncValue,curTime);
-    else
-        this->setValue(this->m_value + ratio * (this->computeWantedValue() - this->m_value),curTime);
-
-    return (true);**/
 }
 
 template<typename T>

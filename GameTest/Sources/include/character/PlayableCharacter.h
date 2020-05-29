@@ -5,6 +5,19 @@
 
 #include "assets/ItemModelAsset.h"
 
+enum PlayerActionType
+{
+    PlayerActionType_Walk,
+    NBR_PLAYERACTIONTYPES,
+};
+
+struct PlayerAction
+{
+    int actionType;
+
+    glm::vec2 walkDirection;
+};
+
 
 class PlayableCharacter : public Character
 {

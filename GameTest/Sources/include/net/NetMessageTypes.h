@@ -5,6 +5,8 @@
 
 #include "PouEngine/scene/SceneNode.h"
 #include "net/SyncElements.h"
+#include "character/PlayableCharacter.h"
+
 
 enum NetMessageType
 {
@@ -15,12 +17,6 @@ enum NetMessageType
     NetMessageType_AskForWorldSync,
     NetMessageType_PlayerAction,
     NBR_RELIABLEMESSAGETYPES,
-};
-
-enum PlayerActionType
-{
-    PlayerActionType_Walk,
-    NBR_PLAYERACTIONTYPES,
 };
 
 void initializeNetMessages();
@@ -134,10 +130,11 @@ struct NetMessage_PlayerAction : public pou::NetMessage
         return std::make_shared<NetMessage_PlayerAction>();
     }
 
-    float   clientTime;
-    int     playerActionType;
+    float clientTime;
+    PlayerAction playerAction;
+    /*int     playerActionType;
 
-    glm::vec2 walkDirection;
+    glm::vec2 walkDirection;*/
 
     virtual void serializeImpl(pou::Stream *stream);
 };

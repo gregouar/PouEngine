@@ -117,7 +117,7 @@ void GameClient::playerWalk(glm::vec2 direction)
     if(!m_client || m_curWorldId == 0)
         return;
 
-    m_world.playerWalk(m_curPlayerId, direction);
+   // m_world.playerWalk(m_curPlayerId, direction);
 
     if(m_lastPlayerWalkDirection != direction)
     {
@@ -125,13 +125,15 @@ void GameClient::playerWalk(glm::vec2 direction)
         walkMsg->isReliable = true;
         walkMsg->clientTime = m_world.getLocalTime();
 
-        walkMsg->playerActionType  = PlayerActionType_Walk;
-        walkMsg->walkDirection      = direction;
+        walkMsg->playerAction.actionType    = PlayerActionType_Walk;
+        walkMsg->playerAction.walkDirection = direction;
 
         m_client->sendMessage(walkMsg);
         m_lastPlayerWalkDirection = direction;
 
         //m_world.playerWalk(direction);
+
+         m_world.addPlayerAction(m_curPlayerId, walkMsg->playerAction);
     }
 }
 

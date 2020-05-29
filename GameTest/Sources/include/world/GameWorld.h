@@ -22,6 +22,7 @@ class GameWorld
         void render(pou::RenderWindow *renderWindow);
 
         void generate();
+        void rewind(float time);
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
@@ -34,7 +35,8 @@ class GameWorld
         bool    askToRemovePlayer(size_t player_id);
         bool    isPlayerCreated(size_t player_id);
 
-        void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
+        //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
+        void addPlayerAction(int player_id, PlayerAction &playerAction, float clientTime = -1);
 
         float getLocalTime();
         float getLastSyncTime();
@@ -61,6 +63,8 @@ class GameWorld
         void desyncElement(PlayableCharacter *player, bool noDesyncInsert = false);
 
         void updateSunLight(const pou::Time elapsed_time);
+
+        void processPlayerActions(const pou::Time elapsed_time);
 
         /*size_t syncNode(pou::SceneNode *node);
         size_t syncNode(pou::SceneNode *node, size_t parentNodeId);
@@ -104,6 +108,8 @@ class GameWorld
         std::multimap<float, int> m_desyncNodes;
         std::multimap<float, int> m_desyncCharacters;
         std::multimap<float, int> m_desyncPlayers;
+
+        std::map<float, std::pair<size_t, PlayerAction> > m_playerActions;
 
     public:
         static const int        MAX_NBR_PLAYERS;

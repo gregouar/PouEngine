@@ -2,6 +2,7 @@
 #define SYNCEDATTRIBUTE_H_INCLUDED
 
 #include "PouEngine/Types.h"
+#include "PouEngine/utils/Timer.h"
 
 #include <list>
 
@@ -26,21 +27,29 @@ class SyncedAttribute
         float getLastUpdateTime() const;
         float getSyncTime() const;
 
+        bool rewind(float time);
+
+        void setSyncPrecision(T precision);
+        void setSyncDelay(float time);
+
     protected:
         T m_value;
-
         T m_syncValue;
-        //T m_lastSyncValue;
 
+        bool m_firstSync;
+        float m_curLocalTime;
         float m_lastUpdateTime;
 
         float m_syncTime;
         float m_lastSyncTime;
 
+        size_t m_maxRewindAmount;
+        std::map<float, T> m_rewindValues;
 
-        float m_curLocalTime;
-        bool m_firstSync;
-
+        float   m_syncDelay;
+        T       m_syncPrecision;
+        //T m_wantedNewSyncValue;
+        Timer m_syncTimer;
 };
 
 
@@ -63,7 +72,6 @@ class LinSyncedAttribute : public SyncedAttribute<T>
         bool m_useModulo;
         T   m_minModuloValue,
             m_maxModuloValue;
-
 
         T m_lastSyncValue;
         //float m_lastSyncTime;

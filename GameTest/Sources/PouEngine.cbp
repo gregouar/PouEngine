@@ -182,6 +182,8 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DPLAYERSERVER" />
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/utils" />

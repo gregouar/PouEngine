@@ -31,13 +31,17 @@ class NetEngine  : public Singleton<NetEngine>
         static void setSyncDelay(float delay);
         static float getSyncDelay();
 
+        static void setMaxRewindAmount(size_t rewindAmount);
+        static float getMaxRewindAmount();
+
     protected:
 
     private:
         std::unique_ptr<AbstractNetImpl> m_impl;
         NetMessagesFactory m_netMsgFactory;
 
-        float m_syncDelay;
+        float   m_syncDelay;
+        size_t  m_maxRewindAmount;
 };
 
 }

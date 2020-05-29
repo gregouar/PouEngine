@@ -36,6 +36,10 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_needToUpdateModelMat = true;
 
     m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
+
+    m_position.setSyncPrecision(glm::vec3(1));
+    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/100.0f));
+    m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 
 SimpleNode::~SimpleNode()
@@ -299,6 +303,13 @@ void SimpleNode::setSyncAndLocalTime(float syncTime)
     m_lastSyncTime = syncTime;
 
     this->setLocalTime(syncTime);
+}
+
+void SimpleNode::setSyncDelay(float delay)
+{
+    m_position.setSyncDelay(delay);
+    m_eulerRotations.setSyncDelay(delay);
+    m_scale.setSyncDelay(delay);
 }
 
 void SimpleNode::move(float x, float y)
@@ -642,6 +653,16 @@ void SimpleNode::update(const Time &elapsedTime, float localTime)
 
     for(auto node : m_childs)
         node.second->update(elapsedTime,localTime);
+}
+
+void SimpleNode::rewind(float time)
+{
+    m_position.rewind(time);
+    m_eulerRotations.rewind(time);
+    m_scale.rewind(time);
+
+    for(auto node : m_childs)
+        node.second->rewind(time);
 }
 
 void SimpleNode::updateGlobalPosition()
