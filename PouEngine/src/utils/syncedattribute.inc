@@ -41,10 +41,6 @@ void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
 {
     if(t.m_lastUpdateTime > m_syncTime)
     {
-        //if(m_syncTime > m_curLocalTime)
-        //if(m_curLocalTime > m_syncTime)
-          //  this->setValue(m_syncValue);
-
         if(m_lastSyncTime != m_syncTime && m_syncTime != -1)
             this->setValue(m_syncValue, m_syncTime);
 
@@ -56,15 +52,11 @@ void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
 template<typename T>
 bool SyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
 {
-
-    if(curTime != -1)
+    if(curTime != -1 && curTime > m_curLocalTime)
         m_curLocalTime = curTime;
 
     if(m_syncTime < 0)
         return (false);
-
-    //if(m_syncValue == m_value /*|| m_syncTime < curTime*/)
-      //  return (false);
 
     if(m_firstSync)
     {
@@ -118,11 +110,6 @@ bool SyncedAttribute<T>::rewind(float time)
     auto it = m_rewindValues.upper_bound(time);
     if(it == m_rewindValues.end())
         return (false);
-    /*if(it == m_rewindValues.end())
-    {
-        it = m_rewindValues.begin();
-        r = false;
-    }*/
 
     m_lastUpdateTime = it->first;
     this->setValue(it->second);
@@ -183,18 +170,11 @@ void LinSyncedAttribute<T>::syncFrom(const LinSyncedAttribute<T> &t)
 {
     if(t.m_lastUpdateTime > this->m_syncTime)
     {
-        /*this->m_lastSyncTime = this->m_syncTime;
-        this->m_lastSyncValue = this->m_syncValue;*/
-
         this->m_lastSyncTime    = t.m_lastUpdateTime - pou::NetEngine::getSyncDelay();
         this->m_lastSyncValue   = this->m_value;
 
         this->m_syncValue   = t.getValue();
         this->m_syncTime    = t.m_lastUpdateTime;
-
-        /*this->m_syncTime    = t.m_lastUpdateTime;
-        this->m_syncValue   = t.getValue();
-        m_syncTimesAndValuesList.push_back({t.m_lastUpdateTime, t.getValue()});*/
     }
 }
 
@@ -203,7 +183,7 @@ template<typename T>
 bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
 {
     auto lastTime = curTime - elapsed_time.count();
-    if(curTime != -1)
+    if(curTime != -1 && curTime > this->m_curLocalTime)
         this->m_curLocalTime = curTime;
 
     if(this->m_syncTime == -1)
@@ -234,7 +214,10 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
         {
             auto isSynced = glm::greaterThan(glm::abs(this->m_value - wantedNewValue), this->m_syncPrecision);
             if(T(isSynced) == T())
+            {
                 this->m_syncTimer.reset(this->m_syncDelay);
+                this->setValue(wantedNewValue);
+            }
             else if(this->m_syncTimer.update(elapsed_time))
             {
                 this->setValue(wantedNewValue);
@@ -256,18 +239,11 @@ T LinSyncedAttribute<T>::computeWantedValue()
     T deltaModulo = m_maxModuloValue - m_minModuloValue;
     T wantedValue = this->m_syncValue;
 
-
     T testValue = glm::abs(wantedValue - this->m_value) - glm::abs(wantedValue - this->m_value + deltaModulo);
     wantedValue += deltaModulo * T(glm::greaterThan(testValue, T(0)));
 
     testValue = glm::abs(wantedValue - this->m_value) - glm::abs(wantedValue - this->m_value - deltaModulo);
     wantedValue -= deltaModulo * T(glm::greaterThan(testValue, T(0)));
-
-    /*if(glm::abs(wantedValue - this->m_value) > glm::abs(wantedValue - this->m_value + deltaModulo))
-        wantedValue += deltaModulo;
-
-    if(glm::abs(wantedValue - this->m_value) > glm::abs(wantedValue - this->m_value - deltaModulo))
-        wantedValue -= deltaModulo;*/
 
     return wantedValue;
 }

@@ -838,8 +838,8 @@ bool Character::syncFromCharacter(Character *srcCharacter)
 {
     //std::cout<<"To Sync ?"<<std::endl;
     //std::cout<<m_lastCharacterSyncTime<<" "<<srcCharacter->getLastCharacterUpdateTime()<<std::endl;
-    if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime())
-        return (false);
+    ///if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime())
+       /// return (false);
     //std::cout<<"Or not to Sync ?"<<std::endl;
 
 
@@ -847,7 +847,7 @@ bool Character::syncFromCharacter(Character *srcCharacter)
     m_attributes.syncFrom(srcCharacter->m_attributes);
     m_walkingDirection.syncFrom(srcCharacter->m_walkingDirection);
 
-   // std::cout<<"WantedWalkingDir:"<<srcCharacter->m_walkingDirection.getValue().x<<" "<<srcCharacter->m_walkingDirection.getValue().y<<std::endl;
+    //std::cout<<"WantedWalkingDir:"<<srcCharacter->m_walkingDirection.getValue().x<<" "<<srcCharacter->m_walkingDirection.getValue().y<<std::endl;
 
     m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
 

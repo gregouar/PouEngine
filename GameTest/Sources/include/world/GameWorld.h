@@ -18,7 +18,7 @@ class GameWorld
         GameWorld(bool renderable, bool isServer);
         virtual ~GameWorld();
 
-        void update(const pou::Time elapsed_time);
+        void update(const pou::Time elapsed_time, bool isRewinding = false);
         void render(pou::RenderWindow *renderWindow);
 
         void generate();
@@ -86,6 +86,7 @@ class GameWorld
 
         bool m_isServer;
         float m_curLocalTime;
+        float m_syncTime;
         float m_lastSyncTime;
 
         pou::CameraObject *m_camera;
@@ -110,6 +111,7 @@ class GameWorld
         std::multimap<float, int> m_desyncPlayers;
 
         std::map<float, std::pair<size_t, PlayerAction> > m_playerActions;
+        float m_wantedRewind;
 
     public:
         static const int        MAX_NBR_PLAYERS;

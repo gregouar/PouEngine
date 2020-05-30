@@ -21,7 +21,8 @@ GameWorld::GameWorld(bool renderable, bool isServer) :
     m_isServer(isServer),
     m_curLocalTime(0),
     m_lastSyncTime(-1),
-    m_camera(nullptr)
+    m_camera(nullptr),
+    m_wantedRewind(-1)
 {
     m_syncNodes.setMax(pow(2,GameWorld::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld::SPRITESHEETID_BITS));
@@ -39,11 +40,26 @@ GameWorld::~GameWorld()
 }
 
 
-void GameWorld::update(const pou::Time elapsed_time)
+void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
 {
-    this->processPlayerActions(elapsed_time);
+    /**this->processPlayerActions(elapsed_time);
     //if(m_isServer)
-        m_curLocalTime += elapsed_time.count();
+        m_curLocalTime += elapsed_time.count();**/
+
+    m_curLocalTime += elapsed_time.count();
+
+    if(!isRewinding)
+    {
+        m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
+        if(m_wantedRewind != -1)
+        {
+            float wantedRewind = m_wantedRewind;
+            m_wantedRewind = -1;
+            this->rewind(wantedRewind);
+        }
+    }
+
+    this->processPlayerActions(elapsed_time);
 
     if(!m_scene)
         return;
@@ -61,7 +77,7 @@ void GameWorld::update(const pou::Time elapsed_time)
     }
 
     this->updateSunLight(elapsed_time);
-    m_scene->update(elapsed_time, m_curLocalTime);
+    m_scene->update(elapsed_time, m_syncTime);
 
 
     float cleanTime = m_curLocalTime - 1.0f/GameServer::TICKRATE*pou::NetEngine::getMaxRewindAmount();
@@ -106,7 +122,7 @@ void GameWorld::rewind(float time)
     m_curLocalTime = time;
 
     while(m_curLocalTime < curTime)
-        this->update(pou::Time(tickDelay));
+        this->update(pou::Time(tickDelay), true);
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
@@ -153,7 +169,10 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, float
     m_playerActions.insert({clientTime, {player_id,playerAction}});
 
     if(clientTime < m_curLocalTime)
-        this->rewind(clientTime);
+    if(m_wantedRewind > clientTime || m_wantedRewind == -1)
+        m_wantedRewind = clientTime;
+
+        //this->rewind(clientTime);
 }
 
 /*void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
@@ -349,10 +368,10 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
 
 void GameWorld::processPlayerActions(const pou::Time elapsed_time)
 {
-    auto it = m_playerActions.find(m_curLocalTime);
+    auto it = m_playerActions.find(m_curLocalTime - elapsed_time.count());
     if(it == m_playerActions.end())
-        it = m_playerActions.upper_bound(m_curLocalTime);
-    while(it != m_playerActions.end() && it->first < m_curLocalTime + elapsed_time.count())
+        it = m_playerActions.upper_bound(m_curLocalTime - elapsed_time.count());
+    while(it != m_playerActions.end() && it->first < m_curLocalTime)
     {
         auto player_id = it->second.first;
         auto player = m_syncPlayers.findElement(player_id);

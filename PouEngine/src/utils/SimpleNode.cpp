@@ -37,8 +37,8 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
 
     m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
 
-    m_position.setSyncPrecision(glm::vec3(1));
-    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/100.0f));
+    m_position.setSyncPrecision(glm::vec3(4));
+    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 

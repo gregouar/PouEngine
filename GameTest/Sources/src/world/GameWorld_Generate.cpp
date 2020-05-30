@@ -299,7 +299,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
         auto player = m_syncPlayers.findElement(clientPlayerId);
         if(player)
-            player->setSyncDelay(RTT*2+pou::NetEngine::getSyncDelay());
+            player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay());
     }
 
     /**if(m_curLocalTime > m_lastSyncTime)
@@ -340,6 +340,10 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             }
             //continue;
         }
+
+        ///TEST///
+        ///player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()*10);
+        ///TEST///
 
         if(player)
             player->syncFromPlayer(playerSync.player);
