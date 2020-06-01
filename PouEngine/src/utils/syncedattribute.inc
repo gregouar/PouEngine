@@ -71,13 +71,13 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     auto itSyncValue = m_syncValues.lower_bound(m_curLocalTime);
 
-    if(itSyncValue->first != this->m_curLocalTime)
+    /*if(itSyncValue->first != this->m_curLocalTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
         else
             (--itSyncValue);
-    }
+    }*/
 
 
     if(itSyncValue != m_syncValues.begin()) //Don't need the condition though
@@ -96,7 +96,6 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     //if(this->m_syncDelay == 0)
     {
-       // if(itSyncValue->first > m_lastSyncTime || m_lastSyncTime == (uint32_t)(-1))
         if(uint32less(m_lastSyncTime, itSyncValue->first))
         {
             this->setValue(itSyncValue->second);
@@ -156,7 +155,7 @@ bool SyncedAttribute<T>::rewind(uint32_t time)
         return (false);
 
     bool r = true;
-    auto it = m_rewindValues.upper_bound(time-1);
+    auto it = m_rewindValues.upper_bound(time);
 
     if(it != m_rewindValues.begin())
         --it;
@@ -319,6 +318,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             ratio = 1;
         }
 
+
         T wantedNewValue = itSyncValue->second * (1-ratio) + this->computeWantedValue(nextIt->second)*ratio;
 
         if(this->m_syncDelay == 0)
@@ -339,51 +339,42 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 evalIt = this->m_rewindValues.lower_bound(interpTime - this->m_syncDelay);
                 if(evalIt != this->m_rewindValues.begin())
                     --evalIt;
-                /*std::cout<<"EvalTime:"<<evalIt->first<<std::endl;
-                std::cout<<"SyncTime:"<<itSyncValue->first<<std::endl;
-                std::cout<<"NextSyncTime:"<<nextIt->first<<std::endl;
-                std::cout<<"EvalValue:"<<evalIt->second.x<<std::endl;
-                std::cout<<"SyncValue:"<<itSyncValue->second.x<<std::endl;
-                std::cout<<"NextSyncValue:"<<nextIt->second.x<<std::endl;
-                std::cout<<"InterpSyncValue:"<<wantedNewValue.x<<std::endl;
-                std::cout<<std::endl;*/
             }
             evalValue = evalIt->second;
 
-            auto isSynced = glm::greaterThan(glm::abs(evalValue - wantedNewValue), this->m_syncPrecision);
+            T deltaMove = wantedNewValue - evalValue;
+            auto isSynced = glm::greaterThan(glm::abs(deltaMove), this->m_syncPrecision);
+
             if(T(isSynced) != T())
             {
-                this->m_lastSyncTime = interpTime;
-                T deltaMove = wantedNewValue - evalValue;
+                if(!this->m_desyncTimer.isActive())
+                    this->m_desyncTimer.reset(.5f);
+                else if(this->m_desyncTimer.update(elapsed_time.count()))
+                {
+                    this->m_lastSyncTime = interpTime;
+                    while(evalIt != this->m_rewindValues.end())
+                    {
+                        evalIt->second += deltaMove;
+                        ++evalIt;
+                    }
+                    this->setValue(this->m_value+deltaMove);
+                    return (true);
+                }
+            } else
+                this->m_desyncTimer.reset(.5f);
+
+
+            /*else {
+                deltaMove *= (float)elapsed_time.count();
                 while(evalIt != this->m_rewindValues.end())
                 {
                     evalIt->second += deltaMove;
                     ++evalIt;
                 }
-                this->setValue(this->m_value+deltaMove);
-                //this->setValue(wantedNewValue);
+                this->setValue(this->m_value + (deltaMove));
                 return (true);
-            }
+            }*/
         }
-
-
-        /*else
-        {
-            auto isSynced = glm::greaterThan(glm::abs(this->m_value - wantedNewValue), this->m_syncPrecision);
-            if(T(isSynced) == T())
-            {
-                this->m_syncTimer.reset(this->m_syncDelay);
-                this->setValue(this->m_value + (wantedNewValue-this->m_value)*(float)elapsed_time.count());
-            }
-            else if(this->m_syncTimer.update(elapsed_time))
-            {
-                this->m_lastSyncTime = interpTime;
-                this->setValue(wantedNewValue);
-                return (true);
-            }
-            else if(!this->m_syncTimer.isActive())
-                this->m_syncTimer.reset(this->m_syncDelay);
-         }*/
     }
 
     return (false);

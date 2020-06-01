@@ -34,7 +34,7 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_curNewId = 0;
     m_needToUpdateModelMat = true;
 
-    m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
+    ///m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
 
 }
 
@@ -859,7 +859,10 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
         stream->serializeFloat(pos.z, -SimpleNode::NODE_MAX_POS.z, SimpleNode::NODE_MAX_POS.z, 2);
 
         if(stream->isReading())
+        {
             this->setPosition(pos);
+            std::cout<<"Pos:"<<pos.x<<" "<<pos.y<<" "<<m_position.getLastUpdateTime()<<std::endl;
+        }
     }
 
     bool hasRot = false;
@@ -869,10 +872,11 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
     if(hasRot)
     {
         glm::vec3 rot = m_eulerRotations.getValue(true);
-        stream->serializeFloat(rot.x, -glm::pi<float>(), glm::pi<float>(), 2);
-        stream->serializeFloat(rot.y, -glm::pi<float>(), glm::pi<float>(), 2);
+        stream->serializeFloat(rot.x, -3.14, 3.14, 2);
+        stream->serializeFloat(rot.y, -3.14, 3.14, 2);
+        stream->serializeFloat(rot.z, -3.14, 3.14, 2);
         //stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
-        stream->serializeFloat(rot.z);
+        //stream->serializeFloat(rot.z);
 
         if(stream->isReading())
             this->setRotation(rot);

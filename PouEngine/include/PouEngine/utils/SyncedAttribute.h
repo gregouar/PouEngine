@@ -51,7 +51,7 @@ class SyncedAttribute
         uint32_t   m_syncDelay;
         T       m_syncPrecision;
         //T m_wantedNewSyncValue;
-        ///Timer m_syncTimer;
+        Timer m_desyncTimer;
 
 
         uint32_t m_timeBeforeRewind;

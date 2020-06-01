@@ -143,10 +143,10 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         if(playerIt->second == nullptr)
             continue;
 
-        /*if((int)playerIt->first == player_id)
-            playerIt->second->setSyncDelay(0);
-        else*/
-            playerIt->second->setSyncDelay(.5f*GameServer::TICKRATE);
+        if((int)playerIt->first == player_id)
+            playerIt->second->setSyncDelay(GameServer::TICKRATE);
+        else
+            playerIt->second->setSyncDelay(/*.5f**/GameServer::TICKRATE);
     }
 
     worldSyncMsg->nodes.clear();
@@ -395,7 +395,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
                 m_syncCharacters.insert(playerSync.characterId, player);
 
                 if(playerId != (int)clientPlayerId)
-                    player->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
+                    player->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
             }
             //continue;
         }
@@ -417,7 +417,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         clientPlayer->setInterpolationDelay(0);
         clientPlayer->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
         //player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()+.5);
-        clientPlayer->setSyncDelay(.5*GameServer::TICKRATE);
+        clientPlayer->setSyncDelay(1.0*GameServer::TICKRATE);
         clientPlayer->disableWalkSync();
     }
 
@@ -440,7 +440,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             //isNew = true;
 
             if(characterPtr != clientPlayer)
-                characterPtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
+                characterPtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
         }
         //else
         characterPtr->syncFromCharacter(characterSync.character);
@@ -479,7 +479,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             m_syncNodes.insert(nodeId, nodePtr);
 
             if(clientPlayer != nodePtr)
-                nodePtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
+                nodePtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
         }
 
         nodePtr->syncFromNode(nodeSync.node);

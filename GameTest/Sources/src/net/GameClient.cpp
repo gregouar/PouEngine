@@ -10,7 +10,7 @@
 
 const int GameClient::TICKRATE = 60;
 const float GameClient::SYNCDELAY = .1f;
-const float GameClient::INTERPOLATIONDELAY = .1f;
+const float GameClient::INTERPOLATIONDELAY = 0.1f;
 
 GameClient::GameClient() :
     m_world(true, false),
@@ -135,7 +135,7 @@ void GameClient::playerWalk(glm::vec2 direction)
 
         //m_world.playerWalk(direction);
 
-        std::cout<<"Client:"<<m_world.getLocalTime()<<std::endl;
+        std::cout<<"Client action:"<<m_world.getLocalTime()<<std::endl;
 
          m_world.addPlayerAction(m_curPlayerId, walkMsg->playerAction);
     }
@@ -213,6 +213,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     {
         m_world.update(tickTime);
         totalTime -= tickTime;
+        std::cout<<"LocalTime:"<<m_world.getLocalTime()<<std::endl;
     }
 
     //m_world.update(totalTime);

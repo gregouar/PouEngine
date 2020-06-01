@@ -47,8 +47,6 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
         m_curLocalTime += elapsed_time.count();**/
 
     //m_curLocalTime += elapsed_time.count();
-    m_curLocalTime++;
-
     if(!isRewinding)
     {
         m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
@@ -61,6 +59,8 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
     }
 
     this->processPlayerActions();
+
+    m_curLocalTime++;
 
     if(!m_scene)
         return;
@@ -181,9 +181,9 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint3
 
     m_playerActions.insert({clientTime, {player_id,playerAction}});
 
-    if(clientTime < m_curLocalTime)
-    if(m_wantedRewind > clientTime || m_wantedRewind == (uint32_t)(-1))
-        m_wantedRewind = clientTime;
+    if(clientTime <= m_curLocalTime)
+    if(m_wantedRewind > clientTime - 1 || m_wantedRewind == (uint32_t)(-1))
+        m_wantedRewind = clientTime - 1;
 }
 
 /*void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
@@ -380,7 +380,7 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
 
 void GameWorld::processPlayerActions()
 {
-    auto boundaries = m_playerActions.equal_range(m_curLocalTime-1);
+    auto boundaries = m_playerActions.equal_range(m_curLocalTime);
 
     for(auto it = boundaries.first ; it != boundaries.second ; ++it)
     {

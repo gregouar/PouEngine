@@ -8,8 +8,8 @@
 #include "net/GameClient.h"
 
 const int GameServer::TICKRATE = 60;
-const float GameServer::SYNCDELAY = 1.0/10.0;
-const int GameServer::MAX_REWIND_AMOUNT = 100;
+const float GameServer::SYNCDELAY = 1.0/20.0;
+const int GameServer::MAX_REWIND_AMOUNT = 200;
 
 GameServer::GameServer() :
     m_serverIsRunning(false),
@@ -335,6 +335,8 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
     if(worldIt == m_worlds.end())
         return;
     auto &world = worldIt->second;
+
+        std::cout<<"Client action:"<<msg->clientTime<<std::endl;
 
     world.addPlayerAction(clientInfos.player_id, msg->playerAction,  msg->clientTime);
 }
