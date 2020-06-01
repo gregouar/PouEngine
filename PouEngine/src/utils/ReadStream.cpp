@@ -142,6 +142,17 @@ bool ReadStream::serializeInt(int32_t &value, int32_t min, int32_t max)
     return (true);
 }
 
+bool ReadStream::serializeUint32(uint32_t &value)
+{
+    int v = 0;
+    if(!this->serializeBits(v,32))
+        return (false);
+
+    std::memcpy(&value, &v, sizeof(uint32_t));
+
+    return (true);
+}
+
 bool ReadStream::serializeFloat(float &value)
 {
     int v = 0;

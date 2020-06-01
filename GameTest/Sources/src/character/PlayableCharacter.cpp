@@ -30,7 +30,7 @@ PlayableCharacter::PlayableCharacter() : Character()
     //m_dashDelay         = 0.0f;
 
 
-    m_position.setSyncPrecision(glm::vec3(32));
+    m_position.setSyncPrecision(glm::vec3(16));
     m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
@@ -169,9 +169,11 @@ bool PlayableCharacter::dash(glm::vec2 direction)
     return (true);
 }
 
-void PlayableCharacter::update(const pou::Time &elapsedTime, float localTime)
+void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     Character::update(elapsedTime, localTime);
+
+    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     if(!m_isDead)
     {
@@ -290,7 +292,7 @@ void PlayableCharacter::updateGearsAttributes()
 
 bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
 {
-    if(m_lastPlayerSyncTime > srcPlayer->getLastPlayerUpdateTime())
+    if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
         return (false);
 
     m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
@@ -298,19 +300,19 @@ bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
     return (true);
 }
 
-void PlayableCharacter::setSyncAndLocalTime(float syncTime)
+void PlayableCharacter::setSyncAndLocalTime(uint32_t syncTime)
 {
     Character::setSyncAndLocalTime(syncTime);
     m_lastPlayerSyncTime = m_lastSyncTime;
 }
 
-void PlayableCharacter::setLastPlayerUpdateTime(float time, bool force)
+void PlayableCharacter::setLastPlayerUpdateTime(uint32_t time, bool force)
 {
-    if(force || m_lastPlayerUpdateTime < time)
+    if(force || m_lastPlayerUpdateTime == (uint32_t)(-1) || m_lastPlayerUpdateTime < time)
         m_lastPlayerUpdateTime = time;
 }
 
-float PlayableCharacter::getLastPlayerUpdateTime()
+uint32_t PlayableCharacter::getLastPlayerUpdateTime()
 {
     return m_lastPlayerUpdateTime + m_syncDelay;
 }

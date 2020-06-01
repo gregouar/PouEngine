@@ -22,11 +22,11 @@ class GameWorld
         void render(pou::RenderWindow *renderWindow);
 
         void generate();
-        void rewind(float time);
+        void rewind(uint32_t time);
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, float clientTime);
+        void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, uint32_t clientTime);
 
         void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
         void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT);
@@ -37,11 +37,11 @@ class GameWorld
 
         //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
 
-        void updatePlayerSyncDelay(int player_id, float delay);
-        void addPlayerAction(int player_id, PlayerAction &playerAction, float clientTime = -1);
+        void updatePlayerSyncDelay(int player_id, uint32_t delay);
+        void addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime = -1);
 
-        float getLocalTime();
-        float getLastSyncTime();
+        uint32_t getLocalTime();
+        uint32_t getLastSyncTime();
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);
@@ -66,7 +66,8 @@ class GameWorld
 
         void updateSunLight(const pou::Time elapsed_time);
 
-        void processPlayerActions(const pou::Time elapsed_time);
+        //void processPlayerActions(const pou::Time elapsed_time);
+        void processPlayerActions();
 
         /*size_t syncNode(pou::SceneNode *node);
         size_t syncNode(pou::SceneNode *node, size_t parentNodeId);
@@ -87,9 +88,9 @@ class GameWorld
         bool m_isRenderable;
 
         bool m_isServer;
-        float m_curLocalTime;
-        float m_syncTime;
-        float m_lastSyncTime;
+        uint32_t m_curLocalTime;
+        uint32_t m_syncTime;
+        uint32_t m_lastSyncTime;
 
         pou::CameraObject *m_camera;
         pou::LightEntity  *m_sunLight;
@@ -105,15 +106,15 @@ class GameWorld
         pou::IdAllocator<Character*>                m_syncCharacters;
         pou::IdAllocator<PlayableCharacter*>        m_syncPlayers;
 
-        std::multimap<float, int> m_syncTimeSpriteSheets;
-        std::multimap<float, int> m_syncTimeCharacterModels;
+        std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
+        std::multimap<uint32_t, int> m_syncTimeCharacterModels;
 
-        std::multimap<float, int> m_desyncNodes;
-        std::multimap<float, int> m_desyncCharacters;
-        std::multimap<float, int> m_desyncPlayers;
+        std::multimap<uint32_t, int> m_desyncNodes;
+        std::multimap<uint32_t, int> m_desyncCharacters;
+        std::multimap<uint32_t, int> m_desyncPlayers;
 
-        std::map<float, std::pair<size_t, PlayerAction> > m_playerActions;
-        float m_wantedRewind;
+        std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
+        uint32_t m_wantedRewind;
 
     public:
         static const int        MAX_NBR_PLAYERS;

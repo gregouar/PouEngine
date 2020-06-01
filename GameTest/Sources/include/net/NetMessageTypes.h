@@ -58,8 +58,8 @@ struct NetMessage_WorldSync : public pou::NetMessage
         return std::make_shared<NetMessage_WorldSync>();
     }
 
-    float   clientTime;
-    float   localTime;
+    uint32_t   clientTime;
+    uint32_t   localTime;
     //int     dayTime;
 
     //int player_id;
@@ -115,7 +115,7 @@ struct NetMessage_AskForWorldSync : public pou::NetMessage
     }
 
     //int world_id;
-    float clientTime;
+    uint32_t clientTime;
 
     virtual void serializeImpl(pou::Stream *stream);
 };
@@ -130,7 +130,7 @@ struct NetMessage_PlayerAction : public pou::NetMessage
         return std::make_shared<NetMessage_PlayerAction>();
     }
 
-    float clientTime;
+    uint32_t clientTime;
     PlayerAction playerAction;
     /*int     playerActionType;
 

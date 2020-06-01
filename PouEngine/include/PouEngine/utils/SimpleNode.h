@@ -57,10 +57,12 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setName(const std::string &name);
         void setRigidity(float rigidity);
 
-        void setLocalTime(float localTime);
-        virtual void setSyncAndLocalTime(float syncTime);
-        virtual void setSyncDelay(float delay);
-        virtual void setInterpolationDelay(float delay);
+        void setLastUpdateTime(uint32_t time, bool force = false);
+        void setLocalTime(uint32_t localTime);
+        virtual void setSyncAndLocalTime(uint32_t syncTime);
+        virtual void setSyncDelay(uint32_t delay);
+        virtual void setInterpolationDelay(uint32_t delay);
+        virtual void setMaxRewind(int maxRewind);
         void disableRotationSync(bool disable = true);
 
         void scale(float scale);
@@ -91,19 +93,18 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
 
-        void setLastUpdateTime(float time, bool force = false);
-        float getLastUpdateTime(bool useSyncDelay = true);
-        float getLastParentUpdateTime(bool useSyncDelay = true);
-        float getLocalTime();
+        uint32_t getLastUpdateTime(bool useSyncDelay = true);
+        uint32_t getLastParentUpdateTime(bool useSyncDelay = true);
+        uint32_t getLocalTime();
 
-        virtual void update(const Time &elapsedTime = Time(0), float localTime = -1);
-        virtual void rewind(float time);
+        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
+        virtual void rewind(uint32_t time);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
 
 
-        virtual void serializeNode(Stream *stream, float localTime = -1);
+        virtual void serializeNode(Stream *stream, uint32_t localTime = -1);
 
 
     protected:
@@ -143,11 +144,11 @@ class SimpleNode : public NotificationSender, public NotificationListener
         SimpleNode *m_parent;
         std::map<NodeTypeId, SimpleNode*> m_childs;
 
-        float m_curLocalTime;
-        float m_syncDelay;
-        float m_lastSyncTime;
-        float m_lastUpdateTime;
-        float m_lastParentUpdateTime;
+        uint32_t m_curLocalTime;
+        uint32_t m_syncDelay;
+        uint32_t m_lastSyncTime;
+        uint32_t m_lastUpdateTime;
+        uint32_t m_lastParentUpdateTime;
         //float m_lastPositionUpdateTime;
         //float m_lastRotationUpdateTime;
         //float m_lastScaleUpdateTime;

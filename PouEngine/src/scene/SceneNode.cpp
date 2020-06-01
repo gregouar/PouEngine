@@ -228,7 +228,7 @@ bool SceneNode::playSound(int id)
     return r;
 }
 
-void SceneNode::update(const Time &elapsedTime, float localTime)
+void SceneNode::update(const Time &elapsedTime, uint32_t localTime)
 {
     SimpleNode::update(elapsedTime, localTime);
 
@@ -276,12 +276,12 @@ SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
 }*/
 
 
-void SceneNode::serializeNode(Stream *stream, float clientTime)
+void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)
 {
     SimpleNode::serializeNode(stream, clientTime);
 
     bool hasColor = false;
-    if(!stream->isReading() && clientTime < m_color.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_color.getLastUpdateTime()))
         hasColor = true;
     stream->serializeBool(hasColor);
     if(hasColor)

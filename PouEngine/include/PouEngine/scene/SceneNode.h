@@ -59,10 +59,10 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         void generateRenderingData(SceneRenderingInstance *renderingInstance);
         bool playSound(int id);
 
-        virtual void update(const Time &elapsedTime, float localTime = -1);
+        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
 
-        virtual void serializeNode(pou::Stream *stream, float localTime = -1);
+        virtual void serializeNode(pou::Stream *stream, uint32_t localTime = -1);
 
         /*virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;*/

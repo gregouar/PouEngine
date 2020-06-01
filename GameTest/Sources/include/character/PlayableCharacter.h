@@ -41,15 +41,15 @@ class PlayableCharacter : public Character
         virtual void forceAttackMode(bool force = true);
         virtual bool dash(glm::vec2 direction = glm::vec2(0,0));
 
-        virtual void update(const pou::Time &elapsedTime, float localTime = -1);
+        virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
         virtual const std::list<Hitbox> *getHitboxes() const;
 
         bool syncFromPlayer(PlayableCharacter *srcPlayer);
 
-        virtual void    setSyncAndLocalTime(float syncTime);
-        void            setLastPlayerUpdateTime(float time, bool force = false);
-        float           getLastPlayerUpdateTime();
+        virtual void    setSyncAndLocalTime(uint32_t syncTime);
+        void            setLastPlayerUpdateTime(uint32_t time, bool force = false);
+        uint32_t        getLastPlayerUpdateTime();
 
     protected:
         virtual void updateGearsAttributes();
@@ -58,8 +58,8 @@ class PlayableCharacter : public Character
         std::vector<ItemModelAsset *> m_gearsModel;
         std::list<Hitbox>             m_hitboxes;
 
-        float m_lastPlayerSyncTime;
-        float m_lastPlayerUpdateTime;
+        uint32_t m_lastPlayerSyncTime;
+        uint32_t m_lastPlayerUpdateTime;
 
     private:
         //bool        m_isInCombatMode;

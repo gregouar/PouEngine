@@ -308,7 +308,7 @@ SpriteModel* SpriteEntity::getSpriteModel()
     return m_spriteModel;
 }
 
-float SpriteEntity::getLastModelUptateTime()
+uint32_t SpriteEntity::getLastModelUptateTime()
 {
     return m_lastModelUpdateTime;
 }
@@ -393,7 +393,7 @@ glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
     return viewLightDirectionXY;
 }
 
-void SpriteEntity::update(const Time &elapsedTime, float localTime)
+void SpriteEntity::update(const Time &elapsedTime, uint32_t localTime)
 {
     ShadowCaster::update(elapsedTime, localTime);
 
@@ -448,8 +448,8 @@ void SpriteEntity::notify(NotificationSender *sender, NotificationType notificat
 
 bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
 {
-    if(m_lastSyncTime > srcEntity->getLastUpdateTime())
-        return (false);
+    //if(m_lastSyncTime > srcEntity->getLastUpdateTime() && m_lastSyncTime != (uint32_t)(-1))
+      //  return (false);
 
     m_lastSyncTime = srcEntity->m_curLocalTime;
 

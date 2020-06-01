@@ -2,6 +2,11 @@
 
 #include "PouEngine/net/NetEngine.h"
 
+
+
+bool uint32less(uint32_t lhs, uint32_t rhs);
+bool uint32leq(uint32_t lhs, uint32_t rhs);
+
 #include <iostream>
 
 namespace pou
@@ -23,7 +28,7 @@ SyncedAttribute<T>::SyncedAttribute() :
 }
 
 template<typename T>
-SyncedAttribute<T>::SyncedAttribute(const T &t, float localTime) :
+SyncedAttribute<T>::SyncedAttribute(const T &t, uint32_t localTime) :
     SyncedAttribute()
 {
     this->setValue(t, localTime);
@@ -38,7 +43,7 @@ SyncedAttribute<T>::~SyncedAttribute()
 template<typename T>
 void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
 {
-    if(t.m_lastUpdateTime > m_syncTime)
+    if(uint32less(m_syncTime, t.m_lastUpdateTime))
     {
         m_syncValues.insert_or_assign(t.m_lastUpdateTime, t.getValue());
         m_syncTime  = t.m_lastUpdateTime;
@@ -46,19 +51,22 @@ void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
 }
 
 template<typename T>
-bool SyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
+bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 {
-    if(curTime != -1)
+    if(curTime != (uint32_t)(-1))
         m_curLocalTime = curTime;
 
-    if(m_timeBeforeRewind != -1 && m_curLocalTime > m_timeBeforeRewind)
+   // if(m_timeBeforeRewind != (uint32_t)(-1) && m_curLocalTime > m_timeBeforeRewind)
+    //if(m_curLocalTime != (uint32_t)(-1) && m_curLocalTime > m_timeBeforeRewind)
+    if(m_timeBeforeRewind != (uint32_t)(-1) && uint32less(m_timeBeforeRewind, m_curLocalTime))
     {
-        if(m_lastUpdateTime < m_curLocalTime && !(m_value == m_valueBeforeRewind))
+        if((m_lastUpdateTime < m_curLocalTime || m_lastUpdateTime == (uint32_t)(-1))
+        && !(m_value == m_valueBeforeRewind))
             m_lastUpdateTime = m_curLocalTime;
-        m_timeBeforeRewind = -1;
+        m_timeBeforeRewind = (uint32_t)(-1);
     }
 
-    if(m_syncTime < 0 || m_syncValues.empty())
+    if(m_syncTime == (uint32_t)(-1) || m_syncValues.empty())
         return (false);
 
     auto itSyncValue = m_syncValues.lower_bound(m_curLocalTime);
@@ -86,16 +94,17 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
         return (true);
     }
 
-    if(this->m_syncDelay == 0)
+    //if(this->m_syncDelay == 0)
     {
-        if(itSyncValue->first > m_lastSyncTime)
+       // if(itSyncValue->first > m_lastSyncTime || m_lastSyncTime == (uint32_t)(-1))
+        if(uint32less(m_lastSyncTime, itSyncValue->first))
         {
             this->setValue(itSyncValue->second);
             m_lastSyncTime = itSyncValue->first;
             return (true);
         }
     }
-    else
+    /*else
     {
         if(this->m_value == itSyncValue->second)
         {
@@ -109,7 +118,7 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
         }
         else if(!this->m_syncTimer.isActive())
             this->m_syncTimer.reset(this->m_syncDelay);
-     }
+     }*/
 
 
     return (false);
@@ -122,16 +131,17 @@ void SyncedAttribute<T>::setValue(const T &t, bool forceUpdate)
 }
 
 template<typename T>
-void SyncedAttribute<T>::setValue(const T &t, float curLocalTime, bool forceUpdate)
+void SyncedAttribute<T>::setValue(const T &t, uint32_t curLocalTime, bool forceUpdate)
 {
-    if(m_value == t && m_lastUpdateTime != -1 && !forceUpdate)
+    if(m_value == t && m_lastUpdateTime != (uint32_t)(-1) && !forceUpdate)
         return;
 
     m_value = t;
-    if(curLocalTime > m_lastUpdateTime)
+    if(uint32less(m_lastUpdateTime, curLocalTime))
+    //if(curLocalTime > m_lastUpdateTime || m_lastUpdateTime == (uint32_t)(-1))
         m_lastUpdateTime = curLocalTime;
 
-    if(m_maxRewindAmount > 0 && curLocalTime >= 0)
+    if(m_maxRewindAmount > 0 && curLocalTime  != (uint32_t)(-1))
     {
         m_rewindValues.insert_or_assign(curLocalTime, t);
         if(m_rewindValues.size() >= m_maxRewindAmount)
@@ -140,13 +150,13 @@ void SyncedAttribute<T>::setValue(const T &t, float curLocalTime, bool forceUpda
 }
 
 template<typename T>
-bool SyncedAttribute<T>::rewind(float time)
+bool SyncedAttribute<T>::rewind(uint32_t time)
 {
     if(m_rewindValues.empty())
         return (false);
 
     bool r = true;
-    auto it = m_rewindValues.upper_bound(time);
+    auto it = m_rewindValues.upper_bound(time-1);
 
     if(it != m_rewindValues.begin())
         --it;
@@ -163,7 +173,7 @@ bool SyncedAttribute<T>::rewind(float time)
 }
 
 template<typename T>
-void SyncedAttribute<T>::setSyncDelay(float syncDelay)
+void SyncedAttribute<T>::setSyncDelay(uint32_t syncDelay)
 {
     m_syncDelay = syncDelay;
 }
@@ -175,12 +185,20 @@ void SyncedAttribute<T>::setSyncPrecision(T precision)
 }
 
 template<typename T>
+void SyncedAttribute<T>::setMaxRewindAmount(size_t maxRewind)
+{
+    m_maxRewindAmount = maxRewind;
+}
+
+template<typename T>
 const T &SyncedAttribute<T>::getValue(bool useRewind) const
 {
     if(!useRewind || m_rewindValues.empty() || m_syncDelay == 0)
         return m_value;
 
-    auto it = m_rewindValues.upper_bound(m_curLocalTime - m_syncDelay);
+    auto it = m_rewindValues.begin();
+    if((int64_t)(m_curLocalTime - m_syncDelay) >= 0)
+        it = m_rewindValues.upper_bound(m_curLocalTime - m_syncDelay);
 
     if(it != m_rewindValues.begin())
         --it;
@@ -189,7 +207,7 @@ const T &SyncedAttribute<T>::getValue(bool useRewind) const
 }
 
 template<typename T>
-float SyncedAttribute<T>::getLastUpdateTime(bool useRewind) const
+uint32_t SyncedAttribute<T>::getLastUpdateTime(bool useRewind) const
 {
     if(useRewind)
         return (m_lastUpdateTime + m_syncDelay);
@@ -197,7 +215,7 @@ float SyncedAttribute<T>::getLastUpdateTime(bool useRewind) const
 }
 
 template<typename T>
-float SyncedAttribute<T>::getSyncTime() const
+uint32_t SyncedAttribute<T>::getSyncTime() const
 {
     return m_syncTime;
 }
@@ -214,45 +232,49 @@ LinSyncedAttribute<T>::LinSyncedAttribute() :
 }
 
 template<typename T>
-LinSyncedAttribute<T>::LinSyncedAttribute(const T &t, float localTime) :
+LinSyncedAttribute<T>::LinSyncedAttribute(const T &t, uint32_t localTime) :
     SyncedAttribute<T>(t, localTime),
     m_useModulo(false),
     m_interpolationDelay(0)
 {
 }
 
-template<typename T>
+/*template<typename T>
 void LinSyncedAttribute<T>::syncFrom(const LinSyncedAttribute<T> &t)
 {
-    if(t.m_lastUpdateTime > this->m_syncTime)
+    //if(t.m_lastUpdateTime > this->m_syncTime)
+    if(uint32less(this->m_syncTime,t.m_lastUpdateTime))
     {
         this->m_syncValues.insert_or_assign(t.m_lastUpdateTime, t.getValue());
         this->m_syncTime    = t.m_lastUpdateTime;
     }
-}
+}*/
 
 
 template<typename T>
-bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
+bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 {
-    if(curTime != -1)
+    if(curTime != (uint32_t)(-1))
         this->m_curLocalTime = curTime;
 
-    if(this->m_timeBeforeRewind != -1 && this->m_curLocalTime > this->m_timeBeforeRewind)
+    //if(this->m_timeBeforeRewind != (uint32_t)(-1) && this->m_curLocalTime > this->m_timeBeforeRewind)
+    if(this->m_timeBeforeRewind != (uint32_t)(-1) && uint32less(this->m_timeBeforeRewind, this->m_curLocalTime))
     {
-        if(this->m_lastUpdateTime < this->m_curLocalTime && !(this->m_value == this->m_valueBeforeRewind))
+        //if((this->m_lastUpdateTime < this->m_curLocalTime || this->m_lastUpdateTime == (uint32_t)(-1))
+        //&& !(this->m_value == this->m_valueBeforeRewind))
+        if(uint32less(this->m_lastUpdateTime, this->m_curLocalTime) && !(this->m_value == this->m_valueBeforeRewind))
             this->m_lastUpdateTime = this->m_curLocalTime;
-        this->m_timeBeforeRewind = -1;
+        this->m_timeBeforeRewind = (uint32_t)(-1);
     }
 
-    if(this->m_syncTime < 0)
+    if(this->m_syncTime == (uint32_t)(-1) || this->m_syncValues.empty())
         return (false);
 
-    if(this->m_syncValues.size() == 1
-    && this->m_lastSyncTime >= this->m_syncValues.begin()->first) ///TEST
-        return (false);
+    /*if(this->m_syncValues.size() == 1
+    && uint32leq(this->m_syncValues.begin()->first, this->m_lastSyncTime)) ///TEST
+        return (false);*/
 
-    float interpTime = this->m_curLocalTime - m_interpolationDelay;
+    uint32_t interpTime = this->m_curLocalTime - m_interpolationDelay;
 
     auto itSyncValue = this->m_syncValues.lower_bound(interpTime);
 
@@ -272,13 +294,14 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
 
     if(this->m_firstSync)
     {
+        //std::cout<<"FirstSync:"<<itSyncValue->second.x<<std::endl;
         this->m_lastSyncTime = interpTime;
         this->setValue(itSyncValue->second);
         this->m_firstSync = false;
         return (true);
     }
 
-    if(!(this->m_value == itSyncValue->second))
+    //if(!(evalValue == itSyncValue->second))
     {
         float ratio = 0;
         auto nextIt = itSyncValue;
@@ -286,11 +309,15 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
         if(itSyncValue != --this->m_syncValues.end())
         {
             nextIt = std::next(itSyncValue);
-            ratio = (interpTime - itSyncValue->first)/(nextIt->first - itSyncValue->first);
+            ratio = (float)(interpTime - itSyncValue->first)/(float)(nextIt->first - itSyncValue->first);
+        } else {
+            interpTime = itSyncValue->first;
         }
 
         if(ratio > 1)
+        {
             ratio = 1;
+        }
 
         T wantedNewValue = itSyncValue->second * (1-ratio) + this->computeWantedValue(nextIt->second)*ratio;
 
@@ -301,6 +328,46 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
             return (true);
         }
         else
+        {
+            if(this->m_rewindValues.empty())
+                return (false);
+
+            T evalValue = this->m_value;
+            auto evalIt = --this->m_rewindValues.end();
+            if(!this->m_rewindValues.empty())
+            {
+                evalIt = this->m_rewindValues.lower_bound(interpTime - this->m_syncDelay);
+                if(evalIt != this->m_rewindValues.begin())
+                    --evalIt;
+                /*std::cout<<"EvalTime:"<<evalIt->first<<std::endl;
+                std::cout<<"SyncTime:"<<itSyncValue->first<<std::endl;
+                std::cout<<"NextSyncTime:"<<nextIt->first<<std::endl;
+                std::cout<<"EvalValue:"<<evalIt->second.x<<std::endl;
+                std::cout<<"SyncValue:"<<itSyncValue->second.x<<std::endl;
+                std::cout<<"NextSyncValue:"<<nextIt->second.x<<std::endl;
+                std::cout<<"InterpSyncValue:"<<wantedNewValue.x<<std::endl;
+                std::cout<<std::endl;*/
+            }
+            evalValue = evalIt->second;
+
+            auto isSynced = glm::greaterThan(glm::abs(evalValue - wantedNewValue), this->m_syncPrecision);
+            if(T(isSynced) != T())
+            {
+                this->m_lastSyncTime = interpTime;
+                T deltaMove = wantedNewValue - evalValue;
+                while(evalIt != this->m_rewindValues.end())
+                {
+                    evalIt->second += deltaMove;
+                    ++evalIt;
+                }
+                this->setValue(this->m_value+deltaMove);
+                //this->setValue(wantedNewValue);
+                return (true);
+            }
+        }
+
+
+        /*else
         {
             auto isSynced = glm::greaterThan(glm::abs(this->m_value - wantedNewValue), this->m_syncPrecision);
             if(T(isSynced) == T())
@@ -316,7 +383,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, float curTime)
             }
             else if(!this->m_syncTimer.isActive())
                 this->m_syncTimer.reset(this->m_syncDelay);
-         }
+         }*/
     }
 
     return (false);
@@ -350,7 +417,7 @@ void LinSyncedAttribute<T>::setModuloRange(const T& min, const T& max)
 }
 
 template<typename T>
-void LinSyncedAttribute<T>::setInterpolationDelay(float delay)
+void LinSyncedAttribute<T>::setInterpolationDelay(uint32_t delay)
 {
     m_interpolationDelay = delay;
 }

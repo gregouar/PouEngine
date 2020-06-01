@@ -93,6 +93,32 @@ int intLog2(int v)
 }
 
 
+
+
+}
+
+
+
+bool uint32less(uint32_t lhs, uint32_t rhs)
+{
+    if(lhs == (uint32_t)(-1))
+        return (rhs != (uint32_t)(-1));
+
+    if(rhs == (uint32_t)(-1))
+        return (false);
+
+    return lhs < rhs;
+}
+
+bool uint32leq(uint32_t lhs, uint32_t rhs)
+{
+    if(lhs == (uint32_t)(-1))
+        return (true);
+
+    if(rhs == (uint32_t)(-1))
+        return (false);
+
+    return lhs <= rhs;
 }
 
 

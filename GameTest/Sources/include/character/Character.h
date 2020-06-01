@@ -67,7 +67,7 @@ class Character : public pou::SceneNode
 
         void addToNearbyCharacters(Character *character);
 
-        virtual void update(const pou::Time &elapsedTime, float localTime = -1);
+        virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
         bool isAlive() const;
 
@@ -79,14 +79,14 @@ class Character : public pou::SceneNode
         const CharacterAttributes &getAttributes() const;
         const CharacterModelAttributes &getModelAttributes() const;
 
-        void serializeCharacter(pou::Stream *stream, float clientTime = -1);
+        void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
         bool syncFromCharacter(Character *srcCharacter);
 
-        virtual void    setSyncDelay(float delay);
-        virtual void    setSyncAndLocalTime(float syncTime);
-        void            setLastCharacterUpdateTime(float time, bool force = false);
-        float           getLastModelUpdateTime(bool useSyncDelay = true);
-        float           getLastCharacterUpdateTime(bool useSyncDelay = true);
+        virtual void    setSyncDelay(uint32_t delay);
+        virtual void    setSyncAndLocalTime(uint32_t syncTime);
+        void            setLastCharacterUpdateTime(uint32_t time, bool force = false);
+        uint32_t        getLastModelUpdateTime(bool useSyncDelay = true);
+        uint32_t        getLastCharacterUpdateTime(bool useSyncDelay = true);
 
         void disableWalkSync(bool disable = true);
 
@@ -128,9 +128,9 @@ class Character : public pou::SceneNode
         std::set<Character*>    m_alreadyHitCharacters;
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
-        float m_lastCharacterSyncTime;
-        float m_lastCharacterUpdateTime;
-        float m_lastModelUpdateTime;
+        uint32_t m_lastCharacterSyncTime;
+        uint32_t m_lastCharacterUpdateTime;
+        uint32_t m_lastModelUpdateTime;
         //float m_lastAttributesUpdateTime;
         //float m_lastLookingDirectionUpdateTime;
 

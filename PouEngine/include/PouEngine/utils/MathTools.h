@@ -22,4 +22,8 @@ int intLog2(int v);
 
 }
 
+bool uint32less(uint32_t lhs, uint32_t rhs);
+bool uint32leq(uint32_t lhs, uint32_t rhs);
+
+
 #endif // MATHTOOLS_H

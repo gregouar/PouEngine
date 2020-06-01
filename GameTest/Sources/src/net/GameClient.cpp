@@ -19,7 +19,7 @@ GameClient::GameClient() :
     m_remainingTime(0)
 {
     initializeNetMessages();
-    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
+    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY*GameServer::TICKRATE);
     //pou::NetEngine::setMaxRewindAmount(100);
 
     m_lastPlayerWalkDirection = glm::vec2(0);
@@ -135,6 +135,8 @@ void GameClient::playerWalk(glm::vec2 direction)
 
         //m_world.playerWalk(direction);
 
+        std::cout<<"Client:"<<m_world.getLocalTime()<<std::endl;
+
          m_world.addPlayerAction(m_curPlayerId, walkMsg->playerAction);
     }
 }
@@ -207,14 +209,14 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     pou::Time tickTime(1.0f/GameClient::TICKRATE);
     pou::Time totalTime = elapsedTime+m_remainingTime;
 
-   /* while(totalTime > tickTime)
+    while(totalTime > tickTime)
     {
         m_world.update(tickTime);
         totalTime -= tickTime;
-    } */
+    }
 
-    m_world.update(totalTime);
-    totalTime = pou::Time(0);
+    //m_world.update(totalTime);
+    //totalTime = pou::Time(0);
 
     m_remainingTime = totalTime;
 

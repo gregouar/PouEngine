@@ -209,6 +209,13 @@ bool WriteStream::serializeInt(int32_t &value, int32_t min, int32_t max)
     return (true);
 }
 
+bool WriteStream::serializeUint32(uint32_t &value)
+{
+    int v = 0;
+    std::memcpy(&v, &value, sizeof(uint32_t));
+    return this->serializeBits(v,32);
+}
+
 bool WriteStream::serializeFloat(float &value)
 {
     int v = 0;

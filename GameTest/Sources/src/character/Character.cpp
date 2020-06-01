@@ -517,7 +517,7 @@ float Character::computeWantedRotation(float startingRotation, glm::vec2 positio
     return wantedRotation;
 }
 
-void Character::update(const pou::Time& elapsedTime, float localTime)
+void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
@@ -741,33 +741,33 @@ const CharacterModelAttributes &Character::getModelAttributes() const
 }
 
 
-void Character::setSyncDelay(float delay)
+void Character::setSyncDelay(uint32_t delay)
 {
     SceneNode::setSyncDelay(delay);
     m_walkingDirection.setSyncDelay(delay);
     m_lookingDirection.setSyncDelay(delay);
 }
 
-void Character::setSyncAndLocalTime(float syncTime)
+void Character::setSyncAndLocalTime(uint32_t syncTime)
 {
     SceneNode::setSyncAndLocalTime(syncTime);
     m_lastCharacterSyncTime = m_lastSyncTime;
 }
 
-void Character::setLastCharacterUpdateTime(float time, bool force)
+void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
 {
-    if(force || m_lastCharacterUpdateTime < time)
+    if(force || m_lastCharacterUpdateTime < time || m_lastCharacterUpdateTime == (uint32_t)(-1))
         m_lastCharacterUpdateTime = time;
 }
 
-float Character::getLastCharacterUpdateTime(bool useSyncDelay)
+uint32_t Character::getLastCharacterUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastCharacterUpdateTime + m_syncDelay; ///SHOULD USE SYNC DELAY ONLY ON SERVER SIDE HEH
     return m_lastCharacterUpdateTime;
 }
 
-float Character::getLastModelUpdateTime(bool useSyncDelay)
+uint32_t Character::getLastModelUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastModelUpdateTime + m_syncDelay;
@@ -780,10 +780,10 @@ void Character::disableWalkSync(bool disable)
 }
 
 
-void Character::serializeCharacter(pou::Stream *stream, float clientTime)
+void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
 {
     bool updateModelAttributes = false;
-    if(!stream->isReading() && clientTime < m_modelAttributes.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_modelAttributes.getLastUpdateTime()))
         updateModelAttributes = true;
     stream->serializeBool(updateModelAttributes);
     if(updateModelAttributes)
@@ -804,7 +804,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
     }
 
     bool updateAttributes = false;
-    if(!stream->isReading() && clientTime < m_attributes.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_attributes.getLastUpdateTime()))
         updateAttributes = true;
     stream->serializeBool(updateAttributes);
     if(updateAttributes)
@@ -822,7 +822,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
     }
 
     bool updateWalking = false;
-    if(!stream->isReading() && clientTime < m_walkingDirection.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_walkingDirection.getLastUpdateTime()))
         updateWalking = true;
     stream->serializeBool(updateWalking);
     if(updateWalking)
@@ -844,7 +844,7 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 
 
     bool updateLooking = false;
-    if(!stream->isReading() && clientTime < m_lookingDirection.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_lookingDirection.getLastUpdateTime()))
         updateLooking = true;
     stream->serializeBool(updateLooking);
     if(updateLooking)
@@ -866,15 +866,17 @@ void Character::serializeCharacter(pou::Stream *stream, float clientTime)
 
 bool Character::syncFromCharacter(Character *srcCharacter)
 {
-    ///if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime())
+    ///if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime() && m_lastCharacterSyncTime != (uint32_t)(-1))
        /// return (false);
 
 
     m_modelAttributes.syncFrom(srcCharacter->m_modelAttributes);
     m_attributes.syncFrom(srcCharacter->m_attributes);
     if(!m_disableWalkSync)
+    {
         m_walkingDirection.syncFrom(srcCharacter->m_walkingDirection);
-    m_lookingDirection.syncFrom(srcCharacter->m_lookingDirection);
+        m_lookingDirection.syncFrom(srcCharacter->m_lookingDirection);
+    }
 
     //std::cout<<"WantedLookingDir:"<<srcCharacter->m_lookingDirection.getValue().x<<" "<<srcCharacter->m_lookingDirection.getValue().y<<std::endl;
     //std::cout<<"WantedWalkingDir:"<<srcCharacter->m_walkingDirection.getValue().x<<" "<<srcCharacter->m_walkingDirection.getValue().y<<std::endl;

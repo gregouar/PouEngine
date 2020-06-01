@@ -45,6 +45,7 @@ class ReadStream : public Stream
         virtual bool serializeBits(int32_t &value, int bits);
 
         virtual bool serializeInt(int32_t &value, int32_t min, int32_t max);
+        virtual bool serializeUint32(uint32_t &value);
         virtual bool serializeFloat(float &value);
         virtual bool serializeFloat(float &value, float min, float max, uint8_t decimals);
         virtual bool serializeBool(bool &value);

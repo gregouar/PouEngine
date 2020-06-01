@@ -28,6 +28,7 @@ class Stream
         virtual bool serializeBits(int32_t &value, int bits) = 0;
 
         virtual bool serializeInt(int32_t &value, int32_t min, int32_t max) = 0;
+        virtual bool serializeUint32(uint32_t &value) = 0;
         virtual bool serializeFloat(float &value) = 0;
         virtual bool serializeFloat(float &value, float min, float max, uint8_t decimals) = 0;
         virtual bool serializeBool(bool &value) = 0;

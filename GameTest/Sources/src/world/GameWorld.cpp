@@ -46,20 +46,21 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
     //if(m_isServer)
         m_curLocalTime += elapsed_time.count();**/
 
-    m_curLocalTime += elapsed_time.count();
+    //m_curLocalTime += elapsed_time.count();
+    m_curLocalTime++;
 
     if(!isRewinding)
     {
         m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
-        if(m_wantedRewind != -1)
+        if(m_wantedRewind != (uint32_t)(-1))
         {
-            float wantedRewind = m_wantedRewind;
-            m_wantedRewind = -1;
+            uint32_t wantedRewind = m_wantedRewind;
+            m_wantedRewind = (uint32_t)(-1);
             this->rewind(wantedRewind);
         }
     }
 
-    this->processPlayerActions(elapsed_time);
+    this->processPlayerActions();
 
     if(!m_scene)
         return;
@@ -77,7 +78,7 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
     }
 
     this->updateSunLight(elapsed_time);
-    m_scene->update(elapsed_time, m_syncTime);
+    m_scene->update(elapsed_time, m_curLocalTime /**m_syncTime**/);
 
 
     float cleanTime = m_curLocalTime - 1.0f/GameServer::TICKRATE*pou::NetEngine::getMaxRewindAmount();
@@ -107,25 +108,27 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
-void GameWorld::rewind(float time)
+void GameWorld::rewind(uint32_t time)
 {
     if(!m_scene)
         return;
 
-    float tickDelay = 1.0/GameServer::TICKRATE;
+    /*float tickDelay = 1.0/GameServer::TICKRATE;
 
-    time = (int)(time/tickDelay)*tickDelay;
+    std::cout<<"before:"<<time<<std::endl;
+    time = (uint64_t)(time/tickDelay)*tickDelay;
+    std::cout<<"after:"<<time<<std::endl;
 
-    float maxRewind = tickDelay*pou::NetEngine::getMaxRewindAmount();
-    if(time < m_curLocalTime - maxRewind)
-        time = m_curLocalTime - maxRewind;
+    float maxRewind = tickDelay*pou::NetEngine::getMaxRewindAmount();*/
+    if(time < m_curLocalTime - pou::NetEngine::getMaxRewindAmount())
+        time = m_curLocalTime - pou::NetEngine::getMaxRewindAmount();
 
-    float curTime = m_curLocalTime;
+    uint32_t curTime = m_curLocalTime;
     m_scene->rewind(time);
     m_curLocalTime = time;
 
     while(m_curLocalTime < curTime)
-        this->update(pou::Time(tickDelay), true);
+        this->update(pou::Time(1.0f/GameServer::TICKRATE), true);
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
@@ -160,10 +163,10 @@ bool GameWorld::isPlayerCreated(size_t player_id)
     auto player = m_syncPlayers.findElement(player_id);
     if(!player)
         return (false);
-    return (player->getLastUpdateTime() != -1);
+    return (player->getLastPlayerUpdateTime() != (uint32_t)(-1));
 }
 
-void GameWorld::updatePlayerSyncDelay(int player_id, float delay)
+void GameWorld::updatePlayerSyncDelay(int player_id, uint32_t delay)
 {
     auto player = m_syncPlayers.findElement(player_id);
     if(player == nullptr)
@@ -171,15 +174,15 @@ void GameWorld::updatePlayerSyncDelay(int player_id, float delay)
     player->setSyncDelay(delay);
 }
 
-void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, float clientTime)
+void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime)
 {
-    if(clientTime == -1)
+    if(clientTime == (uint32_t)(-1))
         clientTime = m_curLocalTime;
 
     m_playerActions.insert({clientTime, {player_id,playerAction}});
 
     if(clientTime < m_curLocalTime)
-    if(m_wantedRewind > clientTime || m_wantedRewind == -1)
+    if(m_wantedRewind > clientTime || m_wantedRewind == (uint32_t)(-1))
         m_wantedRewind = clientTime;
 }
 
@@ -199,12 +202,12 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, float
 }*/
 
 
-float GameWorld::getLocalTime()
+uint32_t GameWorld::getLocalTime()
 {
     return m_curLocalTime;
 }
 
-float GameWorld::getLastSyncTime()
+uint32_t GameWorld::getLastSyncTime()
 {
     return m_lastSyncTime;
 }
@@ -375,8 +378,32 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
     m_sunLight->setIntensity(sunIntensity);
 }
 
+void GameWorld::processPlayerActions()
+{
+    auto boundaries = m_playerActions.equal_range(m_curLocalTime-1);
 
-void GameWorld::processPlayerActions(const pou::Time elapsed_time)
+    for(auto it = boundaries.first ; it != boundaries.second ; ++it)
+    {
+        auto player_id = it->second.first;
+        auto player = m_syncPlayers.findElement(player_id);
+        if(player == nullptr)
+        {
+            ++it;
+            continue;
+        }
+
+        auto& playerAction = it->second.second;
+        switch(playerAction.actionType)
+        {
+            case PlayerActionType_Walk:{
+                player->askToWalk(playerAction.walkDirection);
+            }break;
+        }
+    }
+}
+
+
+/*void GameWorld::processPlayerActions(const pou::Time elapsed_time)
 {
     auto it = m_playerActions.find(m_curLocalTime - elapsed_time.count());
     if(it == m_playerActions.end())
@@ -400,5 +427,5 @@ void GameWorld::processPlayerActions(const pou::Time elapsed_time)
         }
         ++it;
     }
-}
+}*/
 

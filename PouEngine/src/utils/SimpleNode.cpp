@@ -272,8 +272,8 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
 
 bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 {
-    if(m_lastSyncTime > srcNode->getLastUpdateTime())
-        return (false);
+    //if(m_lastSyncTime > srcNode->getLastUpdateTime() && m_lastSyncTime != (uint32_t)(-1))
+      //  return (false);
 
     m_position.syncFrom(srcNode->m_position);
     if(!m_disableRotationSync)
@@ -285,24 +285,24 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
     return (true);
 }
 
-void SimpleNode::setLocalTime(float localTime)
+void SimpleNode::setLocalTime(uint32_t localTime)
 {
-    if(localTime < 0)
-        localTime = -1;
+    //if(localTime < 0)
+        //localTime = -1;
     m_curLocalTime = localTime;
     this->update();
 }
 
-void SimpleNode::setSyncAndLocalTime(float syncTime)
+void SimpleNode::setSyncAndLocalTime(uint32_t syncTime)
 {
-    if(syncTime < 0)
-        syncTime = -1;
+    //if(syncTime < 0)
+        //syncTime = -1;
     m_lastSyncTime = syncTime;
 
     this->setLocalTime(syncTime);
 }
 
-void SimpleNode::setSyncDelay(float delay)
+void SimpleNode::setSyncDelay(uint32_t delay)
 {
     m_position.setSyncDelay(delay);
     m_eulerRotations.setSyncDelay(delay);
@@ -311,11 +311,18 @@ void SimpleNode::setSyncDelay(float delay)
     m_syncDelay = delay;
 }
 
-void SimpleNode::setInterpolationDelay(float delay)
+void SimpleNode::setInterpolationDelay(uint32_t delay)
 {
     m_position.setInterpolationDelay(delay);
     m_eulerRotations.setInterpolationDelay(delay);
     m_scale.setInterpolationDelay(delay);
+}
+
+void SimpleNode::setMaxRewind(int maxRewind)
+{
+    m_position.setMaxRewindAmount(maxRewind);
+    m_eulerRotations.setMaxRewindAmount(maxRewind);
+    m_scale.setMaxRewindAmount(maxRewind);
 }
 
 void SimpleNode::disableRotationSync(bool disable)
@@ -581,27 +588,27 @@ void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResM
 }
 
 
-void SimpleNode::setLastUpdateTime(float time, bool force)
+void SimpleNode::setLastUpdateTime(uint32_t time, bool force)
 {
-    if(force || m_lastUpdateTime < time)
+    if(force || m_lastUpdateTime == (uint32_t)(-1) || m_lastUpdateTime < time)
         m_lastUpdateTime = time;
 }
 
-float SimpleNode::getLastUpdateTime(bool useSyncDelay)
+uint32_t SimpleNode::getLastUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastUpdateTime + m_syncDelay;
     return m_lastUpdateTime;
 }
 
-float SimpleNode::getLastParentUpdateTime(bool useSyncDelay)
+uint32_t SimpleNode::getLastParentUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastParentUpdateTime + m_syncDelay;
     return m_lastParentUpdateTime;
 }
 
-float SimpleNode::getLocalTime()
+uint32_t SimpleNode::getLocalTime()
 {
     return m_curLocalTime;
 }
@@ -652,9 +659,9 @@ NodeTypeId SimpleNode::generateId()
 }
 
 
-void SimpleNode::update(const Time &elapsedTime, float localTime)
+void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
 {
-    if(localTime != -1)
+    if(localTime != (uint32_t)(-1))
         m_curLocalTime = localTime;
 
     m_needToUpdateModelMat |= m_position.update(elapsedTime, m_curLocalTime);
@@ -670,7 +677,7 @@ void SimpleNode::update(const Time &elapsedTime, float localTime)
         node.second->update(elapsedTime,localTime);
 }
 
-void SimpleNode::rewind(float time)
+void SimpleNode::rewind(uint32_t time)
 {
     m_position.rewind(time);
     m_eulerRotations.rewind(time);
@@ -838,10 +845,10 @@ void SimpleNode::notify(NotificationSender* sender, NotificationType type,
     }
 }
 
-void SimpleNode::serializeNode(Stream *stream, float clientTime)
+void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
 {
     bool hasPos = false;
-    if(!stream->isReading() && clientTime < m_position.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_position.getLastUpdateTime()))
         hasPos = true;
     stream->serializeBool(hasPos);
     if(hasPos)
@@ -856,7 +863,7 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
     }
 
     bool hasRot = false;
-    if(!stream->isReading() && clientTime < m_eulerRotations.getLastUpdateTime() && !m_disableRotationSync)
+    if(!stream->isReading() && uint32less(clientTime,m_eulerRotations.getLastUpdateTime()) && !m_disableRotationSync)
         hasRot = true;
     stream->serializeBool(hasRot);
     if(hasRot)
@@ -872,7 +879,7 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
     }
 
     bool hasScale = false;
-    if(!stream->isReading() && clientTime < m_scale.getLastUpdateTime())
+    if(!stream->isReading() && uint32less(clientTime,m_scale.getLastUpdateTime()))
         hasScale = true;
     stream->serializeBool(hasScale);
     if(hasScale)

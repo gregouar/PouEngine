@@ -21,6 +21,7 @@ struct GameClientInfos
     bool isLocalPlayer;
 
     pou::Timer syncTimer;
+    glm::vec2  lastPlayerWalkDirection;
 };
 
 class GameServer
@@ -83,6 +84,7 @@ class GameServer
     public:
         static const int TICKRATE;
         static const float SYNCDELAY;
+        static const int MAX_REWIND_AMOUNT;
 };
 
 #endif // GAMESERVER_H

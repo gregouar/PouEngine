@@ -14,46 +14,47 @@ class SyncedAttribute
 {
     public:
         SyncedAttribute();
-        SyncedAttribute(const T &t, float curTime);
+        SyncedAttribute(const T &t, uint32_t curTime);
         virtual ~SyncedAttribute();
 
         virtual void syncFrom(const SyncedAttribute<T> &t);
-        virtual bool update(const Time &elapsed_time, float curTime);
+        virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
         void setValue(const T &t, bool forceUpdate = false);
-        void setValue(const T &t, float curLocalTime, bool forceUpdate = false);
+        void setValue(const T &t, uint32_t curLocalTime, bool forceUpdate = false);
         const T& getValue(bool useRewind = false) const;
 
-        float getLastUpdateTime(bool useRewind = true) const;
-        float getSyncTime() const;
+        uint32_t getLastUpdateTime(bool useRewind = true) const;
+        uint32_t getSyncTime() const;
 
-        bool rewind(float time);
+        bool rewind(uint32_t time);
 
         void setSyncPrecision(T precision);
-        void setSyncDelay(float time);
+        void setSyncDelay(uint32_t time);
+        void setMaxRewindAmount(size_t maxRewind);
 
     protected:
         T m_value;
         //T m_syncValue;
-        std::map<float, T> m_syncValues;
+        std::map<uint32_t, T> m_syncValues;
 
         bool m_firstSync;
-        float m_curLocalTime;
-        float m_lastUpdateTime;
+        uint32_t m_curLocalTime;
+        uint32_t m_lastUpdateTime;
 
-        float m_syncTime;
-        float m_lastSyncTime;
+        uint32_t m_syncTime;
+        uint32_t m_lastSyncTime;
 
         size_t m_maxRewindAmount;
-        std::map<float, T> m_rewindValues;
+        std::map<uint32_t, T> m_rewindValues;
 
-        float   m_syncDelay;
+        uint32_t   m_syncDelay;
         T       m_syncPrecision;
         //T m_wantedNewSyncValue;
-        Timer m_syncTimer;
+        ///Timer m_syncTimer;
 
 
-        float m_timeBeforeRewind;
+        uint32_t m_timeBeforeRewind;
         T m_valueBeforeRewind;
 };
 
@@ -63,14 +64,14 @@ class LinSyncedAttribute : public SyncedAttribute<T>
 {
     public:
         LinSyncedAttribute();
-        LinSyncedAttribute(const T &t, float curTime);
+        LinSyncedAttribute(const T &t, uint32_t curTime);
 
-        virtual void syncFrom(const LinSyncedAttribute<T> &t);
+       // virtual void syncFrom(const LinSyncedAttribute<T> &t);
 
-        virtual bool update(const Time &elapsed_time, float curTime);
+        virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
         void setModuloRange(const T& min, const T& max);
-        void setInterpolationDelay(float delay);
+        void setInterpolationDelay(uint32_t delay);
 
     protected:
         T computeWantedValue(T &value);
@@ -83,7 +84,7 @@ class LinSyncedAttribute : public SyncedAttribute<T>
         //T m_lastSyncValue;
         //float m_lastSyncTime;
 
-        float m_interpolationDelay;
+        uint32_t m_interpolationDelay;
 
 
         //std::list< std::pair<float, T> > m_syncTimesAndValuesList;

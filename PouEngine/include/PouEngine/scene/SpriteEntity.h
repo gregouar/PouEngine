@@ -82,14 +82,14 @@ class SpriteEntity : public ShadowCaster
 
         SpriteModel* getSpriteModel();
 
-        float getLastModelUptateTime();
+        uint32_t getLastModelUptateTime();
 
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
         virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
-        virtual void update(const Time &elapsedTime, float localTime = -1);
+        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
@@ -106,7 +106,7 @@ class SpriteEntity : public ShadowCaster
         //SpriteShadowDatum    m_shadowDatum;
 
         SpriteModel *m_spriteModel;
-        float m_lastModelUpdateTime;
+        uint32_t m_lastModelUpdateTime;
 
     private:
         float       m_rotation;

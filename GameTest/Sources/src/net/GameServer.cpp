@@ -9,6 +9,7 @@
 
 const int GameServer::TICKRATE = 60;
 const float GameServer::SYNCDELAY = 1.0/10.0;
+const int GameServer::MAX_REWIND_AMOUNT = 100;
 
 GameServer::GameServer() :
     m_serverIsRunning(false),
@@ -17,8 +18,8 @@ GameServer::GameServer() :
     m_isInThread(false)
 {
     initializeNetMessages();
-    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
-    pou::NetEngine::setMaxRewindAmount(100);
+    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY*GameServer::TICKRATE);
+    pou::NetEngine::setMaxRewindAmount(GameServer::MAX_REWIND_AMOUNT);
 }
 
 GameServer::~GameServer()
@@ -292,7 +293,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(clientInfos.world_id == 0)
         return;
 
-    if(msg->clientTime < 0)
+    if(msg->clientTime == (uint32_t)(-1))
         return;
 
     /*auto worldIt = m_worlds.find(clientInfos.world_id);
@@ -300,7 +301,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         return;
     auto &world = worldIt->second;*/
 
-    if(msg->clientTime > clientInfos.localTime)
+    if(uint32less(clientInfos.localTime,msg->clientTime))
         clientInfos.localTime = msg->clientTime;
 }
 
@@ -335,9 +336,7 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
         return;
     auto &world = worldIt->second;
 
-    float estimatedClientTime = msg->clientTime;
-    //estimatedClientTime += /* m_server.getRTT(clientNbr)*2 + */ GameServer::SYNCDELAY*3;
-    world.addPlayerAction(clientInfos.player_id, msg->playerAction, estimatedClientTime);
+    world.addPlayerAction(clientInfos.player_id, msg->playerAction,  msg->clientTime);
 }
 
 void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTime)
@@ -346,6 +345,10 @@ void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTi
     if(clientInfosIt == m_clientInfos.end())
         return;
     auto &clientInfos = clientInfosIt->second;
+
+    if(clientInfos.lastPlayerWalkDirection == direction)
+        return;
+    clientInfos.lastPlayerWalkDirection = direction;
 
     auto worldIt = m_worlds.find(clientInfos.world_id);
     if(worldIt == m_worlds.end())

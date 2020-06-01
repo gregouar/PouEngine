@@ -73,7 +73,7 @@ class Skeleton : public SceneNode
 
         int getNodeState(int nodeId);
 
-        virtual void update(const Time &elapsedTime, float localTime = -1);
+        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
     protected:
         void copyFromModel(SkeletonModelAsset *model);

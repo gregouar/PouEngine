@@ -61,38 +61,38 @@ bool SceneObject::isAShadowCaster()
     return m_isAShadowCaster;
 }
 
-void SceneObject::setLocalTime(float time)
+void SceneObject::setLocalTime(uint32_t time)
 {
-    if(time < 0)
-        time =-1;
+    //if(time < 0)
+      //  time =-1;
     m_curLocalTime = time;
 }
 
-void SceneObject::setSyncAndLocalTime(float time)
+void SceneObject::setSyncAndLocalTime(uint32_t time)
 {
-    if(time < 0)
-        time = 0;
+    //if(time < 0)
+      //  time = 0;
     this->setLocalTime(time);
     m_lastSyncTime = time;
 }
 
-void SceneObject::setLastUpdateTime(float time, bool force)
+void SceneObject::setLastUpdateTime(uint32_t time, bool force)
 {
-    if(force || m_lastUpdateTime < time)
+    if(force || m_lastUpdateTime < time || m_lastUpdateTime == (uint32_t)(-1))
         m_lastUpdateTime = time;
 }
 
-float SceneObject::getLastUpdateTime()
+uint32_t SceneObject::getLastUpdateTime()
 {
     return m_lastUpdateTime;
 }
 
-float SceneObject::getLastNodeUpdateTime()
+uint32_t SceneObject::getLastNodeUpdateTime()
 {
     return m_lastNodeUpdateTime;
 }
 
-void SceneObject::update(const Time &elapsedTime, float localTime)
+void SceneObject::update(const Time &elapsedTime, uint32_t localTime)
 {
     m_curLocalTime = localTime;
 }
