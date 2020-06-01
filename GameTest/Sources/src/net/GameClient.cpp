@@ -9,7 +9,8 @@
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
 const int GameClient::TICKRATE = 60;
-const float GameClient::SYNCDELAY = .1;
+const float GameClient::SYNCDELAY = .1f;
+const float GameClient::INTERPOLATIONDELAY = .1f;
 
 GameClient::GameClient() :
     m_world(true, false),
@@ -19,6 +20,7 @@ GameClient::GameClient() :
 {
     initializeNetMessages();
     pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY);
+    //pou::NetEngine::setMaxRewindAmount(100);
 
     m_lastPlayerWalkDirection = glm::vec2(0);
 }

@@ -24,6 +24,8 @@ class UdpServer : public AbstractServer
         virtual void sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg);
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
+        virtual float getRTT(uint16_t clientNbr) const;
+
         //virtual uint16_t getMaxNbrClients() const;
 
     protected:

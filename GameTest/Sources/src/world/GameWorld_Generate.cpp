@@ -6,6 +6,7 @@
 #include "PouEngine/renderers/SceneRenderer.h"
 
 #include "net/GameServer.h"
+#include "net/GameClient.h"
 
 
 void GameWorld::generate()
@@ -133,6 +134,17 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 {
     worldSyncMsg->clientTime    = clientTime;
     worldSyncMsg->localTime     = m_curLocalTime;
+
+    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+    {
+        if(playerIt->second == nullptr)
+            continue;
+
+        if((int)playerIt->first == player_id)
+            playerIt->second->setSyncDelay(0);
+        else
+            playerIt->second->setSyncDelay(.5f);
+    }
 
     worldSyncMsg->nodes.clear();
     for(auto it = m_syncNodes.begin() ; it != m_syncNodes.end() ; ++it)
@@ -291,15 +303,35 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
 void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
+    if(worldSyncMsg->localTime <= m_lastSyncTime)
+        return;
+
+
+    //std::cout<<"ClientLocalTime:"<<m_curLocalTime<<" vs server sync time:"<<worldSyncMsg->localTime<<std::endl;
+
     if(worldSyncMsg->localTime > m_lastSyncTime)
     {
         m_lastSyncTime = worldSyncMsg->localTime;
-        m_curLocalTime = m_lastSyncTime /*- RTT*0.5f*/ - pou::NetEngine::getSyncDelay();//GameServer::SYNCDELAY;
+
+        float desiredLocalTime = m_lastSyncTime - pou::NetEngine::getSyncDelay() - RTT;
+        float desiredMaxLocalTime = m_lastSyncTime - (pou::NetEngine::getSyncDelay() + RTT)*1.5;
+        float desiredMinLocalTime = m_lastSyncTime - (pou::NetEngine::getSyncDelay() + RTT)*0.5;
+
+        if(m_curLocalTime > desiredMaxLocalTime || m_curLocalTime < desiredMinLocalTime)
+
+        //if(abs(m_curLocalTime - m_lastSyncTime -  pou::NetEngine::getSyncDelay()) > 1)
+        {
+            m_curLocalTime = desiredLocalTime;//- 0.5; /*- RTT*0.5f*/// - pou::NetEngine::getSyncDelay();//GameServer::SYNCDELAY;
+           // std::cout<<"Correcting local time !"<<std::endl;
+        }
         //std::cout<<"WorldSync!"<<std::endl;
 
         auto player = m_syncPlayers.findElement(clientPlayerId);
         if(player)
+        {
             player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay());
+            player->disableWalkSync();
+        }
     }
 
     /**if(m_curLocalTime > m_lastSyncTime)
@@ -333,10 +365,12 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             if(playerSync.characterId != 0)
             {
                 player = new PlayableCharacter();
-                if(playerId != (int)clientPlayerId)
-                    player->disableAutoLookingDirection();
+                ///if(playerId != (int)clientPlayerId)
+                    ///player->disableAutoLookingDirection();
                 m_syncPlayers.insert(playerId, player);
                 m_syncCharacters.insert(playerSync.characterId, player);
+
+                player->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
             }
             //continue;
         }
@@ -363,10 +397,12 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         if(characterPtr == nullptr)
         {
             characterPtr = new Character();
-            characterPtr->disableAutoLookingDirection();
+            ///characterPtr->disableAutoLookingDirection();
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
             //isNew = true;
+
+            characterPtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
         }
         //else
         characterPtr->syncFromCharacter(characterSync.character);
@@ -403,6 +439,8 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         {
             nodePtr = m_scene->getRootNode()->createChildNode();
             m_syncNodes.insert(nodeId, nodePtr);
+
+            nodePtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY);
         }
 
         nodePtr->syncFromNode(nodeSync.node);

@@ -59,7 +59,9 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void setLocalTime(float localTime);
         virtual void setSyncAndLocalTime(float syncTime);
-        void setSyncDelay(float delay);
+        virtual void setSyncDelay(float delay);
+        virtual void setInterpolationDelay(float delay);
+        void disableRotationSync(bool disable = true);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -90,8 +92,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         //std::list<SimpleNode*> getAllChilds();
 
         void setLastUpdateTime(float time, bool force = false);
-        float getLastUpdateTime();
-        float getLastParentUpdateTime();
+        float getLastUpdateTime(bool useSyncDelay = true);
+        float getLastParentUpdateTime(bool useSyncDelay = true);
         float getLocalTime();
 
         virtual void update(const Time &elapsedTime = Time(0), float localTime = -1);
@@ -142,12 +144,15 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::map<NodeTypeId, SimpleNode*> m_childs;
 
         float m_curLocalTime;
+        float m_syncDelay;
         float m_lastSyncTime;
         float m_lastUpdateTime;
         float m_lastParentUpdateTime;
         //float m_lastPositionUpdateTime;
         //float m_lastRotationUpdateTime;
         //float m_lastScaleUpdateTime;
+
+        bool m_disableRotationSync;
 
     private:
         NodeTypeId m_id;

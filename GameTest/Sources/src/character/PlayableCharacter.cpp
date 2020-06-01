@@ -28,6 +28,11 @@ PlayableCharacter::PlayableCharacter() : Character()
     m_lastPlayerSyncTime = -1;
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
+
+
+    m_position.setSyncPrecision(glm::vec3(32));
+    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
+    m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 
 PlayableCharacter::~PlayableCharacter()
@@ -153,7 +158,7 @@ bool PlayableCharacter::dash(glm::vec2 direction)
 
     //m_isAttacking   = false;
     if(direction == glm::vec2(0))
-        m_dashDirection = m_lookingDirection;
+        m_dashDirection = m_lookingDirection.getValue();
     else
         m_dashDirection = direction;
     m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
@@ -307,5 +312,5 @@ void PlayableCharacter::setLastPlayerUpdateTime(float time, bool force)
 
 float PlayableCharacter::getLastPlayerUpdateTime()
 {
-    return m_lastPlayerUpdateTime;
+    return m_lastPlayerUpdateTime + m_syncDelay;
 }

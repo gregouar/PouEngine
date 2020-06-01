@@ -8,7 +8,7 @@
 #include "net/GameClient.h"
 
 const int GameServer::TICKRATE = 60;
-const float GameServer::SYNCDELAY = 1.0/30.0;
+const float GameServer::SYNCDELAY = 1.0/10.0;
 
 GameServer::GameServer() :
     m_serverIsRunning(false),
@@ -170,8 +170,13 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             auto worldSyncMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldSync));
 
+
+            //.float clientRTT = .5f;//m_server->getRTT(clientNbr);
+            ///float delay = .2+GameServer::SYNCDELAY;
+            ///world.updatePlayerSyncDelay(clientInfos.player_id,delay);
             world.createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.localTime);
             m_server->sendMessage(clientNbr, worldSyncMsg, true);
+
         }
     }
 }
@@ -290,10 +295,10 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(msg->clientTime < 0)
         return;
 
-    auto worldIt = m_worlds.find(clientInfos.world_id);
+    /*auto worldIt = m_worlds.find(clientInfos.world_id);
     if(worldIt == m_worlds.end())
         return;
-    auto &world = worldIt->second;
+    auto &world = worldIt->second;*/
 
     if(msg->clientTime > clientInfos.localTime)
         clientInfos.localTime = msg->clientTime;
@@ -330,7 +335,9 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
         return;
     auto &world = worldIt->second;
 
-    world.addPlayerAction(clientInfos.player_id, msg->playerAction, msg->clientTime);
+    float estimatedClientTime = msg->clientTime;
+    //estimatedClientTime += /* m_server.getRTT(clientNbr)*2 + */ GameServer::SYNCDELAY*3;
+    world.addPlayerAction(clientInfos.player_id, msg->playerAction, estimatedClientTime);
 }
 
 void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTime)

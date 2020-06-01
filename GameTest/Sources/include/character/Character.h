@@ -82,10 +82,13 @@ class Character : public pou::SceneNode
         void serializeCharacter(pou::Stream *stream, float clientTime = -1);
         bool syncFromCharacter(Character *srcCharacter);
 
+        virtual void    setSyncDelay(float delay);
         virtual void    setSyncAndLocalTime(float syncTime);
         void            setLastCharacterUpdateTime(float time, bool force = false);
-        float           getLastModelUpdateTime();
-        float           getLastCharacterUpdateTime();
+        float           getLastModelUpdateTime(bool useSyncDelay = true);
+        float           getLastCharacterUpdateTime(bool useSyncDelay = true);
+
+        void disableWalkSync(bool disable = true);
 
     protected:
         void cleanup();
@@ -109,7 +112,7 @@ class Character : public pou::SceneNode
         pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 
         bool      m_autoLookingDirection;
-        glm::vec2 m_lookingDirection;
+        pou::SyncedAttribute<glm::vec2> m_lookingDirection;
 
         pou::Timer m_attackDelayTimer;
 
@@ -130,6 +133,8 @@ class Character : public pou::SceneNode
         float m_lastModelUpdateTime;
         //float m_lastAttributesUpdateTime;
         //float m_lastLookingDirectionUpdateTime;
+
+        bool m_disableWalkSync;
 
     private:
         CharacterModelAsset *m_model;

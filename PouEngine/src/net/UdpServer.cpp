@@ -147,6 +147,21 @@ void UdpServer::receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessa
 }*/
 
 
+float UdpServer::getRTT(uint16_t clientNbr) const
+{
+    if(clientNbr >= m_clients.size())
+        return (-1);
+
+    auto &client = m_clients[clientNbr];
+    if(client.status != ConnectionStatus_Connected)
+        return (-1);
+
+    ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
+    return m_packetsExchanger.getRTT(clientAddress);
+}
+
+///Protected
+
 void UdpServer::processPacket(UdpBuffer &buffer, std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages)
 {
     PacketType packetType = m_packetsExchanger.readPacketType(buffer);

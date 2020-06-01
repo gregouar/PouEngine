@@ -36,6 +36,8 @@ class GameWorld
         bool    isPlayerCreated(size_t player_id);
 
         //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
+
+        void updatePlayerSyncDelay(int player_id, float delay);
         void addPlayerAction(int player_id, PlayerAction &playerAction, float clientTime = -1);
 
         float getLocalTime();

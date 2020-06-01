@@ -46,6 +46,7 @@ class AbstractServer
         virtual uint16_t getMaxNbrClients() const;
         //const NetAddress &getAddress() const;
         bool isClientConnected(uint16_t clientNbr) const;
+        virtual float getRTT(uint16_t clientNbr) const = 0;
 
     protected:
         //virtual void processMessages() = 0;

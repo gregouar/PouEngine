@@ -54,6 +54,7 @@ class GameClient
     public:
         static const int TICKRATE;
         static const float SYNCDELAY;
+        static const float INTERPOLATIONDELAY;
 };
 
 #endif // GAMECLIENT_H

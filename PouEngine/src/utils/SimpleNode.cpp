@@ -23,12 +23,11 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0),
     m_curLocalTime(0),
+    m_syncDelay(0),
     m_lastSyncTime(-1),
     m_lastUpdateTime(-1),
-    m_lastParentUpdateTime(-1)
-    //m_lastPositionUpdateTime(-1),
-   // m_lastRotationUpdateTime(-1),
-   // m_lastScaleUpdateTime(-1)
+    m_lastParentUpdateTime(-1),
+    m_disableRotationSync(false)
 {
     m_parent = nullptr;
     m_id = id;
@@ -37,9 +36,6 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
 
     m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
 
-    m_position.setSyncPrecision(glm::vec3(4));
-    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 
 SimpleNode::~SimpleNode()
@@ -280,7 +276,8 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
         return (false);
 
     m_position.syncFrom(srcNode->m_position);
-    m_eulerRotations.syncFrom(srcNode->m_eulerRotations);
+    if(!m_disableRotationSync)
+        m_eulerRotations.syncFrom(srcNode->m_eulerRotations);
     m_scale.syncFrom(srcNode->m_scale);
 
     m_lastSyncTime = srcNode->m_curLocalTime;
@@ -310,6 +307,20 @@ void SimpleNode::setSyncDelay(float delay)
     m_position.setSyncDelay(delay);
     m_eulerRotations.setSyncDelay(delay);
     m_scale.setSyncDelay(delay);
+
+    m_syncDelay = delay;
+}
+
+void SimpleNode::setInterpolationDelay(float delay)
+{
+    m_position.setInterpolationDelay(delay);
+    m_eulerRotations.setInterpolationDelay(delay);
+    m_scale.setInterpolationDelay(delay);
+}
+
+void SimpleNode::disableRotationSync(bool disable)
+{
+    m_disableRotationSync = disable;
 }
 
 void SimpleNode::move(float x, float y)
@@ -576,13 +587,17 @@ void SimpleNode::setLastUpdateTime(float time, bool force)
         m_lastUpdateTime = time;
 }
 
-float SimpleNode::getLastUpdateTime()
+float SimpleNode::getLastUpdateTime(bool useSyncDelay)
 {
+    if(useSyncDelay)
+        return m_lastUpdateTime + m_syncDelay;
     return m_lastUpdateTime;
 }
 
-float SimpleNode::getLastParentUpdateTime()
+float SimpleNode::getLastParentUpdateTime(bool useSyncDelay)
 {
+    if(useSyncDelay)
+        return m_lastParentUpdateTime + m_syncDelay;
     return m_lastParentUpdateTime;
 }
 
@@ -831,7 +846,7 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
     stream->serializeBool(hasPos);
     if(hasPos)
     {
-        glm::vec3 pos = this->getPosition();
+        glm::vec3 pos = m_position.getValue(true);
         stream->serializeFloat(pos.x, -SimpleNode::NODE_MAX_POS.x, SimpleNode::NODE_MAX_POS.x, 0);
         stream->serializeFloat(pos.y, -SimpleNode::NODE_MAX_POS.y, SimpleNode::NODE_MAX_POS.y, 0);
         stream->serializeFloat(pos.z, -SimpleNode::NODE_MAX_POS.z, SimpleNode::NODE_MAX_POS.z, 2);
@@ -841,12 +856,12 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
     }
 
     bool hasRot = false;
-    if(!stream->isReading() && clientTime < m_eulerRotations.getLastUpdateTime())
+    if(!stream->isReading() && clientTime < m_eulerRotations.getLastUpdateTime() && !m_disableRotationSync)
         hasRot = true;
     stream->serializeBool(hasRot);
     if(hasRot)
     {
-        glm::vec3 rot = this->getEulerRotation();
+        glm::vec3 rot = m_eulerRotations.getValue(true);
         stream->serializeFloat(rot.x, -glm::pi<float>(), glm::pi<float>(), 2);
         stream->serializeFloat(rot.y, -glm::pi<float>(), glm::pi<float>(), 2);
         //stream->serializeFloat(rot.z, -glm::pi<float>(), glm::pi<float>(), 2);
@@ -862,7 +877,7 @@ void SimpleNode::serializeNode(Stream *stream, float clientTime)
     stream->serializeBool(hasScale);
     if(hasScale)
     {
-        glm::vec3 scale = this->getScale();
+        glm::vec3 scale = m_scale.getValue(true);
         stream->serializeFloat(scale.x, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
         stream->serializeFloat(scale.y, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
         stream->serializeFloat(scale.z, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);

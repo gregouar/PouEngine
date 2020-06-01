@@ -33,7 +33,7 @@ const char *VApp::DEFAULT_SHADERPATH = "../shaders/";
 const char *VApp::DEFAULT_WINDOW_FULLSCREEN = "false";
 const char *VApp::DEFAULT_WINDOW_WIDTH = "1024";
 const char *VApp::DEFAULT_WINDOW_HEIGHT = "768";
-const char *VApp::DEFAULT_VSYNC = "false";
+const char *VApp::DEFAULT_VSYNC = "true";
 const char *VApp::DEFAULT_ANISOTROPIC = "16";
 
 
