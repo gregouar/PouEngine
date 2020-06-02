@@ -837,7 +837,6 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
 
             //m_walkingDirection.setValue(glm::vec2(-2,0));
             m_walkingDirection.setValue(walking, true);
-       std::cout<<"Walking:"<<walking.x<<" "<<walking.y<<" "<<m_walkingDirection.getLastUpdateTime()<<std::endl;
             this->setLastCharacterUpdateTime(m_walkingDirection.getLastUpdateTime());
         }
     }

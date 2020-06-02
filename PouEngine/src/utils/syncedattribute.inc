@@ -256,11 +256,9 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(curTime != (uint32_t)(-1))
         this->m_curLocalTime = curTime;
 
-    //if(this->m_timeBeforeRewind != (uint32_t)(-1) && this->m_curLocalTime > this->m_timeBeforeRewind)
+    if(this->m_syncDelay == 0)
     if(this->m_timeBeforeRewind != (uint32_t)(-1) && uint32less(this->m_timeBeforeRewind, this->m_curLocalTime))
     {
-        //if((this->m_lastUpdateTime < this->m_curLocalTime || this->m_lastUpdateTime == (uint32_t)(-1))
-        //&& !(this->m_value == this->m_valueBeforeRewind))
         if(uint32less(this->m_lastUpdateTime, this->m_curLocalTime) && !(this->m_value == this->m_valueBeforeRewind))
             this->m_lastUpdateTime = this->m_curLocalTime;
         this->m_timeBeforeRewind = (uint32_t)(-1);
@@ -293,7 +291,6 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     if(this->m_firstSync)
     {
-        //std::cout<<"FirstSync:"<<itSyncValue->second.x<<std::endl;
         this->m_lastSyncTime = interpTime;
         this->setValue(itSyncValue->second);
         this->m_firstSync = false;
@@ -314,10 +311,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         }
 
         if(ratio > 1)
-        {
             ratio = 1;
-        }
-
 
         T wantedNewValue = itSyncValue->second * (1-ratio) + this->computeWantedValue(nextIt->second)*ratio;
 
@@ -345,10 +339,19 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             T deltaMove = wantedNewValue - evalValue;
             auto isSynced = glm::greaterThan(glm::abs(deltaMove), this->m_syncPrecision);
 
+                /*std::cout<<"SyncTime:"<<itSyncValue->first<<std::endl;
+                std::cout<<"NextSyncTime:"<<nextIt->first<<std::endl;
+                std::cout<<"InterpTime:"<<interpTime<<std::endl;
+                std::cout<<"SyncValue:"<<itSyncValue->second.x<<std::endl;
+                std::cout<<"NextSyncValue:"<<nextIt->second.x<<std::endl;
+                std::cout<<"WantedValue:"<<wantedNewValue.x<<std::endl;
+                std::cout<<"RealValue:"<<evalValue.x<<std::endl;
+                std::cout<<std::endl;*/
+
             if(T(isSynced) != T())
             {
                 if(!this->m_desyncTimer.isActive())
-                    this->m_desyncTimer.reset(.5f);
+                    this->m_desyncTimer.reset(1.0f);
                 else if(this->m_desyncTimer.update(elapsed_time.count()))
                 {
                     this->m_lastSyncTime = interpTime;
@@ -358,22 +361,11 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                         ++evalIt;
                     }
                     this->setValue(this->m_value+deltaMove);
+                    this->m_desyncTimer.reset(1.0f);
                     return (true);
                 }
             } else
-                this->m_desyncTimer.reset(.5f);
-
-
-            /*else {
-                deltaMove *= (float)elapsed_time.count();
-                while(evalIt != this->m_rewindValues.end())
-                {
-                    evalIt->second += deltaMove;
-                    ++evalIt;
-                }
-                this->setValue(this->m_value + (deltaMove));
-                return (true);
-            }*/
+                this->m_desyncTimer.reset(1.0f);
         }
     }
 

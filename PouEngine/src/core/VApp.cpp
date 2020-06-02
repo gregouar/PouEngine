@@ -165,10 +165,21 @@ void VApp::loop()
 {
     Clock clock;
 
+    bool useHardVSync   = Config::getBool("video","vsync",DEFAULT_VSYNC);
+    Time vSyncDelay     = Time(1.0f/60);
+
     clock.restart();
     while(m_running)
     {
         Time elapsedTime = clock.restart();
+
+        if(useHardVSync && elapsedTime < vSyncDelay)
+        {
+            std::this_thread::sleep_for(vSyncDelay-elapsedTime);
+            clock.restart();
+            elapsedTime = vSyncDelay;
+        }
+
         Profiler::resetLoop(ENABLE_PROFILER);
 
         if(m_eventsManager.resizedWindow())
@@ -183,7 +194,6 @@ void VApp::loop()
         Profiler::pushClock("Acquire next image");
         m_renderWindow.acquireNextImage(); //Also update renderers
         Profiler::popClock();
-
 
         VTexturesManager::instance()->update(m_renderWindow.getFrameIndex(),
                                              m_renderWindow.getImageIndex());

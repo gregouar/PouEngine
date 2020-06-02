@@ -144,9 +144,9 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             continue;
 
         if((int)playerIt->first == player_id)
-            playerIt->second->setSyncDelay(GameServer::TICKRATE);
+            playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
         else
-            playerIt->second->setSyncDelay(/*.5f**/GameServer::TICKRATE);
+            playerIt->second->setSyncDelay(/*.5f**/GameServer::TICKRATE*1.5);
     }
 
     worldSyncMsg->nodes.clear();
@@ -328,14 +328,12 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
     //if(worldSyncMsg->localTime > m_lastSyncTime)
     {
-
-        float tickDelay = 1.0/GameServer::TICKRATE;
-        uint32_t delta = (uint32_t)(RTT/tickDelay)*RTT;
+        uint32_t delta = (uint32_t)(RTT*GameServer::TICKRATE);
         delta += pou::NetEngine::getSyncDelay();
 
-        uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime - delta,(int64_t)0);
+        uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(delta*1),(int64_t)0);
         uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(delta*1.5),(int64_t)0);
-        uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(delta*0.5),(int64_t)0);
+        uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(delta*.75),(int64_t)0);
 
         if(m_lastSyncTime == (uint32_t)(-1))
             m_curLocalTime = desiredLocalTime;
@@ -417,7 +415,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         clientPlayer->setInterpolationDelay(0);
         clientPlayer->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
         //player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()+.5);
-        clientPlayer->setSyncDelay(1.0*GameServer::TICKRATE);
+        clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
         clientPlayer->disableWalkSync();
     }
 

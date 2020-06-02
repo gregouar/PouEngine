@@ -6,8 +6,8 @@ namespace pou
 
 Timer::Timer()
 {
-    m_maxTime       = 0.0f;
-    m_elapsedTime   = 0.0f;
+    m_maxTime       = Time(0);
+    m_elapsedTime   = Time(0);
     m_isLooping     = false;
 }
 
@@ -19,22 +19,28 @@ Timer::~Timer()
 
 void Timer::reset(float time, bool looping)
 {
-    m_elapsedTime   = 0;
+    this->reset(Time(time),looping);
+}
+
+
+void Timer::reset(const Time &time, bool looping)
+{
+    m_elapsedTime   = Time(0);
     m_maxTime       = time;
     m_isLooping     = looping;
 }
 
-int Timer::update(const pou::Time &elapsedTime)
-{
-    return (this->update(elapsedTime.count()));
-}
-
 int Timer::update(float elapsedTime)
 {
-    if(elapsedTime < 0)
+    return this->update(Time(elapsedTime));
+}
+
+int Timer::update(const Time &elapsedTime)
+{
+    if(elapsedTime < Time(0))
         return (0);
 
-    if(m_maxTime == 0)
+    if(m_maxTime == Time(0))
         return (0);
 
     m_elapsedTime += elapsedTime;
@@ -53,7 +59,7 @@ int Timer::update(float elapsedTime)
 
 bool Timer::isActive()
 {
-    return (m_maxTime > 0);
+    return (m_maxTime > Time(0));
 }
 
 }

@@ -14,6 +14,7 @@ class Timer
         virtual ~Timer();
 
         virtual void reset(float time, bool looping = false);
+        virtual void reset(const Time &time, bool looping = false);
         virtual int update(float elapsedTime);
         virtual int update(const Time &elapsedTime);
 
@@ -22,9 +23,9 @@ class Timer
     protected:
 
     private:
-        float   m_maxTime;
-        float   m_elapsedTime;
-        bool    m_isLooping;
+        pou::Time   m_maxTime;
+        pou::Time   m_elapsedTime;
+        bool        m_isLooping;
 };
 
 }

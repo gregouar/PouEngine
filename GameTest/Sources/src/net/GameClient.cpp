@@ -8,9 +8,11 @@
 
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
-const int GameClient::TICKRATE = 60;
-const float GameClient::SYNCDELAY = .1f;
-const float GameClient::INTERPOLATIONDELAY = 0.1f;
+const int       GameClient::TICKRATE    = 60;
+const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
+const int       GameClient::SYNCRATE    = 20;
+const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
+const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 
 GameClient::GameClient() :
     m_world(true, false),
@@ -19,7 +21,7 @@ GameClient::GameClient() :
     m_remainingTime(0)
 {
     initializeNetMessages();
-    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY*GameServer::TICKRATE);
+    pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
     //pou::NetEngine::setMaxRewindAmount(100);
 
     m_lastPlayerWalkDirection = glm::vec2(0);
@@ -85,7 +87,15 @@ void GameClient::update(const pou::Time &elapsedTime)
     if(!m_client)
         return;
 
-    m_client->update(elapsedTime);
+    m_remainingTime += elapsedTime;
+
+    if(m_remainingTime < GameClient::TICKDELAY)
+        return;
+
+    float nbrTicks = (int)(m_remainingTime/GameClient::TICKDELAY);
+    auto tickedElapsedTime = nbrTicks*GameClient::TICKDELAY;
+
+    m_client->update(tickedElapsedTime);
 
     std::list<std::shared_ptr<pou::NetMessage> > netMessages;
     m_client->receivePackets(netMessages);
@@ -95,7 +105,9 @@ void GameClient::update(const pou::Time &elapsedTime)
 
     pou::Profiler::pushClock("Update client world");
     if(m_client->isConnected())
-        this->updateWorld(elapsedTime);
+        this->updateWorld(tickedElapsedTime);
+    else
+        m_remainingTime -= tickedElapsedTime;
     pou::Profiler::popClock();
 }
 
@@ -134,8 +146,6 @@ void GameClient::playerWalk(glm::vec2 direction)
         m_lastPlayerWalkDirection = direction;
 
         //m_world.playerWalk(direction);
-
-        std::cout<<"Client action:"<<m_world.getLocalTime()<<std::endl;
 
          m_world.addPlayerAction(m_curPlayerId, walkMsg->playerAction);
     }
@@ -205,22 +215,18 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         }
     }
 
+    pou::Time totalTime = m_remainingTime;
 
-    pou::Time tickTime(1.0f/GameClient::TICKRATE);
-    pou::Time totalTime = elapsedTime+m_remainingTime;
-
-    while(totalTime > tickTime)
+    while(totalTime > GameClient::TICKDELAY)
     {
-        m_world.update(tickTime);
-        totalTime -= tickTime;
-        std::cout<<"LocalTime:"<<m_world.getLocalTime()<<std::endl;
+        m_world.update(GameClient::TICKDELAY);
+        totalTime -= GameClient::TICKDELAY;
     }
 
     //m_world.update(totalTime);
     //totalTime = pou::Time(0);
 
     m_remainingTime = totalTime;
-
 }
 
 

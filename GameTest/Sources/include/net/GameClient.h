@@ -52,9 +52,11 @@ class GameClient
 
         //static const float CLIENTWORLD_SYNC_DELAY;
     public:
-        static const int TICKRATE;
-        static const float SYNCDELAY;
-        static const float INTERPOLATIONDELAY;
+        static const int        TICKRATE;
+        static const pou::Time  TICKDELAY;
+        static const int        SYNCRATE;
+        static const pou::Time  SYNCDELAY;
+        static const float      INTERPOLATIONDELAY;
 };
 
 #endif // GAMECLIENT_H

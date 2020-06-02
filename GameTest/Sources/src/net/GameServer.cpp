@@ -7,9 +7,11 @@
 
 #include "net/GameClient.h"
 
-const int GameServer::TICKRATE = 60;
-const float GameServer::SYNCDELAY = 1.0/20.0;
-const int GameServer::MAX_REWIND_AMOUNT = 200;
+const int   GameServer::TICKRATE    = 60;
+const pou::Time GameServer::TICKDELAY(1.0f/GameServer::TICKRATE);
+const int   GameServer::SYNCRATE    = 20;
+const pou::Time GameServer::SYNCDELAY(1.0f/GameServer::SYNCRATE);
+const int   GameServer::MAX_REWIND_AMOUNT = 200;
 
 GameServer::GameServer() :
     m_serverIsRunning(false),
@@ -18,7 +20,7 @@ GameServer::GameServer() :
     m_isInThread(false)
 {
     initializeNetMessages();
-    pou::NetEngine::setSyncDelay(GameServer::SYNCDELAY*GameServer::TICKRATE);
+    pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
     pou::NetEngine::setMaxRewindAmount(GameServer::MAX_REWIND_AMOUNT);
 }
 
@@ -79,7 +81,14 @@ void GameServer::update(const pou::Time &elapsedTime)
     if(!m_server)
         return;
 
-    m_server->update(elapsedTime);
+    m_remainingTime += elapsedTime;
+    if(m_remainingTime < GameServer::TICKDELAY)
+        return;
+
+    float nbrTicks = (int)(m_remainingTime/GameServer::TICKDELAY);
+    auto tickedElapsedTime = nbrTicks*GameServer::TICKDELAY;
+
+    m_server->update(tickedElapsedTime);
 
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
@@ -89,11 +98,11 @@ void GameServer::update(const pou::Time &elapsedTime)
 
     if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
-    this->updateWorlds(elapsedTime);
+    this->updateWorlds(tickedElapsedTime);
     if(!m_isInThread)
         pou::Profiler::popClock();
 
-    this->syncClients(elapsedTime);
+    this->syncClients(tickedElapsedTime);
 }
 
 
@@ -296,36 +305,12 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(msg->clientTime == (uint32_t)(-1))
         return;
 
-    /*auto worldIt = m_worlds.find(clientInfos.world_id);
-    if(worldIt == m_worlds.end())
-        return;
-    auto &world = worldIt->second;*/
-
     if(uint32less(clientInfos.localTime,msg->clientTime))
         clientInfos.localTime = msg->clientTime;
 }
 
 void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)
 {
-    /*auto clientInfosIt = m_clientInfos.find(clientNbr);
-    if(clientInfosIt == m_clientInfos.end())
-        return;
-    auto &clientInfos = clientInfosIt->second;
-
-    auto worldIt = m_worlds.find(clientInfos.world_id);
-    if(worldIt == m_worlds.end())
-        return;
-    auto &world = worldIt->second;*/
-
-    /*switch(msg->playerAction.actionType)
-    {
-        case PlayerActionType_Walk:{
-            this->playerWalk(clientNbr, msg->walkDirection, msg->clientTime);
-            //world.playerWalk(clientInfos.player_id, msg->walkDirection, msg->clientTime);
-        }break;
-
-    }*/
-
     auto clientInfosIt = m_clientInfos.find(clientNbr);
     if(clientInfosIt == m_clientInfos.end())
         return;
@@ -335,8 +320,6 @@ void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_
     if(worldIt == m_worlds.end())
         return;
     auto &world = worldIt->second;
-
-        std::cout<<"Client action:"<<msg->clientTime<<std::endl;
 
     world.addPlayerAction(clientInfos.player_id, msg->playerAction,  msg->clientTime);
 }
@@ -389,13 +372,13 @@ void GameServer::disconnectClient(int clientNbr)
 
 void GameServer::updateWorlds(const pou::Time &elapsedTime)
 {
-    pou::Time tickTime(1.0f/GameServer::TICKRATE);
-    pou::Time totalTime = elapsedTime+m_remainingTime;
+    pou::Time totalTime = m_remainingTime;
 
+    auto tickTime = GameServer::TICKDELAY;
     if(m_allowLocalPlayers)
-        tickTime = pou::Time(1.0f/GameClient::TICKRATE);
+        tickTime = GameClient::TICKDELAY;
 
-    while(totalTime > tickTime)
+    while(totalTime >= tickTime)
     {
         for(auto &world : m_worlds)
             world.second.update(tickTime);
@@ -408,7 +391,6 @@ void GameServer::updateWorlds(const pou::Time &elapsedTime)
 void GameServer::threading()
 {
     pou::Clock clock;
-    pou::Time tickTime(1.0f/GameServer::TICKRATE);
     pou::Time totalTime = pou::Time(0);
 
     clock.restart();
@@ -417,7 +399,7 @@ void GameServer::threading()
         pou::Time elapsedTime = clock.restart();
         totalTime += elapsedTime;
 
-        if(totalTime >= tickTime)
+        if(totalTime >= GameServer::TICKDELAY)
         {
             std::lock_guard<std::mutex> lock(m_serverMutex);
             this->update(totalTime);

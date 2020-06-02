@@ -859,10 +859,7 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
         stream->serializeFloat(pos.z, -SimpleNode::NODE_MAX_POS.z, SimpleNode::NODE_MAX_POS.z, 2);
 
         if(stream->isReading())
-        {
             this->setPosition(pos);
-            std::cout<<"Pos:"<<pos.x<<" "<<pos.y<<" "<<m_position.getLastUpdateTime()<<std::endl;
-        }
     }
 
     bool hasRot = false;

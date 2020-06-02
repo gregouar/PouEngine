@@ -82,8 +82,10 @@ class GameServer
 
 
     public:
-        static const int TICKRATE;
-        static const float SYNCDELAY;
+        static const int        TICKRATE;
+        static const pou::Time  TICKDELAY;
+        static const int        SYNCRATE;
+        static const pou::Time  SYNCDELAY;
         static const int MAX_REWIND_AMOUNT;
 };
 

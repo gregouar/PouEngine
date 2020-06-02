@@ -113,13 +113,6 @@ void GameWorld::rewind(uint32_t time)
     if(!m_scene)
         return;
 
-    /*float tickDelay = 1.0/GameServer::TICKRATE;
-
-    std::cout<<"before:"<<time<<std::endl;
-    time = (uint64_t)(time/tickDelay)*tickDelay;
-    std::cout<<"after:"<<time<<std::endl;
-
-    float maxRewind = tickDelay*pou::NetEngine::getMaxRewindAmount();*/
     if(time < m_curLocalTime - pou::NetEngine::getMaxRewindAmount())
         time = m_curLocalTime - pou::NetEngine::getMaxRewindAmount();
 
@@ -128,7 +121,7 @@ void GameWorld::rewind(uint32_t time)
     m_curLocalTime = time;
 
     while(m_curLocalTime < curTime)
-        this->update(pou::Time(1.0f/GameServer::TICKRATE), true);
+        this->update(GameServer::TICKDELAY, true);
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
