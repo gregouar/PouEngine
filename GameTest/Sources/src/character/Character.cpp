@@ -559,6 +559,18 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     //this->updateSounds();
 }
 
+void Character::rewind(uint32_t time)
+{
+    SceneNode::rewind(time);
+
+    auto oldWalkingDirection = m_walkingDirection.getValue();
+    m_walkingDirection.rewind(time);
+    if(m_walkingDirection.getValue() != oldWalkingDirection)
+        this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
+
+    m_lookingDirection.rewind(time);
+}
+
 void Character::updateWalking(const pou::Time &elapsedTime)
 {
     bool wantToWalk = false;

@@ -53,7 +53,8 @@ NetMessage_WorldSync::NetMessage_WorldSync(int t) : NetMessage(t)
 
 void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
 {
-    stream->serializeUint32(localTime);
+    stream->serializeUint32(localTime); //This is the server time
+    stream->serializeUint32(clientTime); //This is the last known client  time
 
     int nbr_nodes = nodes.size();
     stream->serializeBits(nbr_nodes, GameWorld::NODEID_BITS);
@@ -130,7 +131,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     }
 
     bool newParent = false;
-    if(!stream->isReading() && uint32less(clientTime,nodePtr->getLastParentUpdateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,nodePtr->getLastParentUpdateTime()))
         newParent = true;
     stream->serializeBool(newParent);
     if(newParent)
@@ -138,7 +139,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     else
         nodeSync.parentNodeId = 0;
 
-    nodePtr->serializeNode(stream, clientTime);
+    nodePtr->serializeNode(stream, lastSyncTime);
 }
 
 void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
@@ -163,7 +164,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     stream->serializeBits(spriteEntityId, GameWorld::SPRITEENTITYID_BITS);
 
     bool newSpriteModel = false;
-    if(!stream->isReading() && uint32less(clientTime,spriteEntityPtr->getLastModelUptateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,spriteEntityPtr->getLastModelUptateTime()))
         newSpriteModel = true;
     stream->serializeBool(newSpriteModel);
     if(newSpriteModel)
@@ -178,7 +179,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     }
 
     bool newNode = false;
-    if(!stream->isReading() && uint32less(clientTime,spriteEntityPtr->getLastNodeUpdateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,spriteEntityPtr->getLastNodeUpdateTime()))
         newNode = true;
     stream->serializeBool(newNode);
     if(newNode)
@@ -210,7 +211,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
 
     bool newModel = false;
-    if(!stream->isReading() && uint32less(clientTime,characterPtr->getLastModelUpdateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,characterPtr->getLastModelUpdateTime()))
         newModel = true;
     stream->serializeBool(newModel);
     if(newModel)
@@ -220,7 +221,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
 
     stream->serializeBits(characterSync.nodeId, GameWorld::NODEID_BITS);
 
-    characterPtr->serializeCharacter(stream,clientTime);
+    characterPtr->serializeCharacter(stream,lastSyncTime);
 }
 
 void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
@@ -238,26 +239,16 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
         //playerPtr->setLocalTime(localTime);
         //playerPtr->setSyncAndLocalTime(localTime);
     }
-    ///characterPtr->serializePlayer(stream,clientTime);
+    ///characterPtr->serializePlayer(stream,lastSyncTime);
 }
 
-///
-/// AskForWorldSync
-///
-
-void NetMessage_AskForWorldSync::serializeImpl(pou::Stream *stream)
-{
-    stream->serializeUint32(clientTime);
-}
 
 ///
 /// PlayerAction
 ///
 
-
-void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
+void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
 {
-    stream->serializeUint32(clientTime);
     stream->serializeInt(playerAction.actionType, 0, NBR_PLAYERACTIONTYPES);
 
     if(playerAction.actionType == PlayerActionType_Walk)
@@ -265,5 +256,31 @@ void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
         stream->serializeFloat(playerAction.walkDirection.x,-1,1,2);
         stream->serializeFloat(playerAction.walkDirection.y,-1,1,2);
     }
+}
 
+void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
+{
+    stream->serializeUint32(clientTime);
+    serializePlayerAction(stream, playerAction);
+}
+
+
+///
+/// AskForWorldSync
+///
+
+void NetMessage_AskForWorldSync::serializeImpl(pou::Stream *stream)
+{
+    stream->serializeUint32(lastSyncTime); //This is the last server sync time
+    stream->serializeUint32(localTime); //This is the client local time
+
+    int nbrActions = std::min(lastPlayerActions.size(), size_t(255));
+    stream->serializeBits(nbrActions, 8);
+    lastPlayerActions.resize(nbrActions);
+    for(auto i = 0 ; i < nbrActions ; ++i)
+    {
+        auto& [actionTime, playerAction] = lastPlayerActions[i];
+        stream->serializeUint32(actionTime);
+        serializePlayerAction(stream, playerAction);
+    }
 }

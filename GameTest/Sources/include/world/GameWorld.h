@@ -26,10 +26,13 @@ class GameWorld
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, uint32_t clientTime);
+        void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, uint32_t lastSyncTime);
 
         void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
         void syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT);
+
+        void createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> askForWorldSyncMsg,
+                                 int player_id, uint32_t lastSyncTime);
 
         size_t  askToAddPlayer(bool isLocalPlayer = false);
         bool    askToRemovePlayer(size_t player_id);
@@ -39,6 +42,7 @@ class GameWorld
 
         void updatePlayerSyncDelay(int player_id, uint32_t delay);
         void addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime = -1);
+        void removeAllPlayerActions(int player_id, uint32_t time = -1);
 
         uint32_t getLocalTime();
         uint32_t getLastSyncTime();

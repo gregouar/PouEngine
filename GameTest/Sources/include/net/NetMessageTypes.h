@@ -58,8 +58,9 @@ struct NetMessage_WorldSync : public pou::NetMessage
         return std::make_shared<NetMessage_WorldSync>();
     }
 
-    uint32_t   clientTime;
-    uint32_t   localTime;
+    uint32_t   lastSyncTime;
+    uint32_t   clientTime; //This is the last known client time
+    uint32_t   localTime; //This is the server time
     //int     dayTime;
 
     //int player_id;
@@ -115,7 +116,10 @@ struct NetMessage_AskForWorldSync : public pou::NetMessage
     }
 
     //int world_id;
-    uint32_t clientTime;
+    uint32_t lastSyncTime;
+    uint32_t localTime;
+
+    std::vector< std::pair<uint32_t, PlayerAction> > lastPlayerActions;
 
     virtual void serializeImpl(pou::Stream *stream);
 };

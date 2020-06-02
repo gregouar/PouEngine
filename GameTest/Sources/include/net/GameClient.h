@@ -38,6 +38,7 @@ class GameClient
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
 
+       // uint32_t    m_lastPlayerWalkTime;
         glm::vec2   m_lastPlayerWalkDirection;
 
         GameWorld   m_world;
@@ -49,6 +50,8 @@ class GameClient
         pou::Time m_remainingTime;
 
         pou::Timer m_syncTimer;
+
+        uint32_t    m_lastServerAckTime;
 
         //static const float CLIENTWORLD_SYNC_DELAY;
     public:

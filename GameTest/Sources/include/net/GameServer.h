@@ -15,7 +15,8 @@ struct GameClientInfos
 {
     size_t  world_id;
     size_t  player_id;
-    float   localTime;
+    uint32_t   lastSyncTime;
+    uint32_t   localTime;
 
     bool playerCreated;
     bool isLocalPlayer;

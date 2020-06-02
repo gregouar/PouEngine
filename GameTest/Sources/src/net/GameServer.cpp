@@ -136,7 +136,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             auto &world = m_worlds.find(m_curWorldId)->second;
             size_t player_id = world.askToAddPlayer();
 
-            clientInfos.localTime     = -1;
+            clientInfos.lastSyncTime     = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;
             clientInfos.player_id     = player_id;
         }
@@ -156,6 +156,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
             worldInitMsg->world_id  = clientInfos.world_id;
             worldInitMsg->player_id = clientInfos.player_id;
+            worldInitMsg->clientTime = (uint32_t)(-1);
 
             clientInfos.playerCreated = true;
             world.createWorldInitializationMsg(worldInitMsg);
@@ -165,7 +166,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             continue;
         }
 
-        if(clientInfos.localTime == -1)
+        if(clientInfos.lastSyncTime == (uint32_t)(-1))
             continue;
 
         auto worldIt = m_worlds.find(clientInfos.world_id);
@@ -180,11 +181,12 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             auto worldSyncMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldSync));
 
+            worldSyncMsg->clientTime = clientInfos.localTime;
 
             //.float clientRTT = .5f;//m_server->getRTT(clientNbr);
             ///float delay = .2+GameServer::SYNCDELAY;
             ///world.updatePlayerSyncDelay(clientInfos.player_id,delay);
-            world.createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.localTime);
+            world.createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
             m_server->sendMessage(clientNbr, worldSyncMsg, true);
 
         }
@@ -302,11 +304,49 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(clientInfos.world_id == 0)
         return;
 
-    if(msg->clientTime == (uint32_t)(-1))
+    if(msg->lastSyncTime == (uint32_t)(-1))
         return;
 
-    if(uint32less(clientInfos.localTime,msg->clientTime))
-        clientInfos.localTime = msg->clientTime;
+
+    auto worldIt = m_worlds.find(clientInfos.world_id);
+    if(worldIt == m_worlds.end())
+        return;
+    auto &world = worldIt->second;
+
+
+    if(uint32less(clientInfos.localTime,msg->localTime))
+        world.removeAllPlayerActions(clientInfos.player_id, clientInfos.localTime+1);
+
+    glm::vec2 lastPlayerWalk(0);
+    uint32_t lastPlayerWalkTime = 0;
+
+    for(auto playerActionIt : msg->lastPlayerActions)
+    {
+        auto& [playerActionTime, playerAction] = playerActionIt;
+        if(uint32less(clientInfos.localTime,playerActionTime))
+        {
+            world.addPlayerAction(clientInfos.player_id, playerAction,  playerActionTime);
+            if(playerAction.actionType == PlayerActionType_Walk)
+            {
+                lastPlayerWalk = playerAction.walkDirection;
+                lastPlayerWalkTime = playerActionTime;
+            }
+        }
+    }
+
+    lastPlayerWalkTime += GameClient::TICKRATE/GameClient::SYNCRATE*2;
+    if(lastPlayerWalk != glm::vec2(0) && lastPlayerWalkTime > msg->localTime)
+    {
+        PlayerAction tempAction;
+        tempAction.actionType = PlayerActionType_Walk;
+        tempAction.walkDirection = glm::vec2(0);
+        world.addPlayerAction(clientInfos.player_id, tempAction,  lastPlayerWalkTime);
+    }
+
+    if(uint32less(clientInfos.lastSyncTime,msg->lastSyncTime))
+        clientInfos.lastSyncTime = msg->lastSyncTime;
+    if(uint32less(clientInfos.localTime,msg->localTime))
+        clientInfos.localTime = msg->localTime;
 }
 
 void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)
@@ -351,7 +391,7 @@ void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTi
 
 void GameServer::addClient(int clientNbr, bool isLocalClient)
 {
-    GameClientInfos clientInfos = {0,0,-1,false,isLocalClient};
+    GameClientInfos clientInfos = {0,0,(uint32_t)(-1),0,false,isLocalClient};
     m_clientInfos.insert({clientNbr, clientInfos});
 }
 

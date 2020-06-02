@@ -52,6 +52,7 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
         m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
         if(m_wantedRewind != (uint32_t)(-1))
         {
+            //std::cout<<"Rewind to:"<<m_wantedRewind<<std::endl;
             uint32_t wantedRewind = m_wantedRewind;
             m_wantedRewind = (uint32_t)(-1);
             this->rewind(wantedRewind);
@@ -172,11 +173,34 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint3
     if(clientTime == (uint32_t)(-1))
         clientTime = m_curLocalTime;
 
+    /*auto boundaries = m_playerActions.equal_range(clientTime);
+    for(auto it = boundaries.first ; it != boundaries.second ; ++it)
+        if((int)it->second.first == player_id && it->second.second.actionType == playerAction.actionType)
+            it = m_playerActions.erase(it);*/
+
     m_playerActions.insert({clientTime, {player_id,playerAction}});
+
+    if(pou::NetEngine::getMaxRewindAmount() == 0)
+        return;
 
     if(clientTime <= m_curLocalTime)
     if(m_wantedRewind > clientTime - 1 || m_wantedRewind == (uint32_t)(-1))
         m_wantedRewind = clientTime - 1;
+}
+
+void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
+{
+    if(time == (uint32_t)(-1))
+        time = m_curLocalTime;
+
+    auto actionIt = m_playerActions.lower_bound(time);
+    while(actionIt != m_playerActions.end())
+    {
+        if((int)actionIt->second.first == player_id)
+            actionIt = m_playerActions.erase(actionIt);
+        if(actionIt != m_playerActions.end())
+            ++actionIt;
+    }
 }
 
 /*void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
@@ -389,6 +413,7 @@ void GameWorld::processPlayerActions()
         switch(playerAction.actionType)
         {
             case PlayerActionType_Walk:{
+                //std::cout<<"Process walk action:"<<playerAction.walkDirection.x<<" at "<<m_curLocalTime<<std::endl;
                 player->askToWalk(playerAction.walkDirection);
             }break;
         }

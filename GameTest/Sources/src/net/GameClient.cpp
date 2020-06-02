@@ -10,7 +10,7 @@
 
 const int       GameClient::TICKRATE    = 60;
 const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
-const int       GameClient::SYNCRATE    = 20;
+const int       GameClient::SYNCRATE    = 5;
 const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
 const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 
@@ -25,6 +25,7 @@ GameClient::GameClient() :
     //pou::NetEngine::setMaxRewindAmount(100);
 
     m_lastPlayerWalkDirection = glm::vec2(0);
+    m_lastServerAckTime = (uint32_t)(-1);
 }
 
 GameClient::~GameClient()
@@ -135,19 +136,24 @@ void GameClient::playerWalk(glm::vec2 direction)
 
     if(m_lastPlayerWalkDirection != direction)
     {
-        auto walkMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(pou::NetEngine::createNetMessage(NetMessageType_PlayerAction));
+        /*auto walkMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(pou::NetEngine::createNetMessage(NetMessageType_PlayerAction));
         walkMsg->isReliable = true;
         walkMsg->clientTime = m_world.getLocalTime();
 
         walkMsg->playerAction.actionType    = PlayerActionType_Walk;
         walkMsg->playerAction.walkDirection = direction;
 
-        m_client->sendMessage(walkMsg);
+        m_client->sendMessage(walkMsg);*/
         m_lastPlayerWalkDirection = direction;
+        //m_lastPlayerWalkTime = m_world.getLocalTime();
 
         //m_world.playerWalk(direction);
 
-         m_world.addPlayerAction(m_curPlayerId, walkMsg->playerAction);
+        PlayerAction playerAction;
+        playerAction.actionType     = PlayerActionType_Walk;
+        playerAction.walkDirection  = direction;
+
+        m_world.addPlayerAction(m_curPlayerId, playerAction);
     }
 }
 
@@ -190,6 +196,9 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
             m_world.syncFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
+
+            if(uint32less(m_lastServerAckTime, castMsg->clientTime))
+                m_lastServerAckTime = castMsg->clientTime;
         }break;
     }
 }
@@ -201,7 +210,8 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         m_isWaitingForWorldSync = true;
         auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
         msg->isReliable = true;
-        msg->clientTime = -1;
+        msg->lastSyncTime = -1;
+        msg->localTime = 0;
         m_client->sendMessage(msg, true);
 
         return;
@@ -209,24 +219,26 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
             auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
-            msg->clientTime = m_world.getLastSyncTime();
+
+            if(m_lastPlayerWalkDirection != glm::vec2(0))
+            {
+                PlayerAction playerAction;
+                playerAction.actionType     = PlayerActionType_Walk;
+                playerAction.walkDirection  = m_lastPlayerWalkDirection;
+                m_world.addPlayerAction(m_curPlayerId, playerAction);
+            }
+
+            m_world.createAskForSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }
     }
 
-    pou::Time totalTime = m_remainingTime;
-
-    while(totalTime > GameClient::TICKDELAY)
+    while(m_remainingTime > GameClient::TICKDELAY)
     {
         m_world.update(GameClient::TICKDELAY);
-        totalTime -= GameClient::TICKDELAY;
+        m_remainingTime -= GameClient::TICKDELAY;
     }
-
-    //m_world.update(totalTime);
-    //totalTime = pou::Time(0);
-
-    m_remainingTime = totalTime;
 }
 
 
