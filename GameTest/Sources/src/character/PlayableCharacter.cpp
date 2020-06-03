@@ -104,7 +104,7 @@ void PlayableCharacter::askToAttack(glm::vec2 direction)
 {
     //m_wantToAttackDelay     = DEFAULT_WANTTOATTACK_DELAY;
     m_wantToAttackTimer.reset(DEFAULT_WANTTOATTACK_DELAY);
-    m_wantToAttackDirection = direction;
+    m_wantToAttackDirection.setValue(direction);
 }
 
 void PlayableCharacter::walk(glm::vec2 direction)
@@ -118,10 +118,10 @@ bool PlayableCharacter::attack(glm::vec2 direction, const std::string &animation
     if(m_dashTimer.isActive())
         return (false);
 
-    if(m_isAttacking)
+    if(m_isAttacking.getValue())
         return (false);
 
-    m_lookingAt = SceneNode::getGlobalXYPosition() + direction;
+    m_lookingAt = /*SceneNode::getGlobalXYPosition() +*/ direction;
     this->forceAttackMode();
 
     return (Character::attack(direction, animationName));
@@ -129,7 +129,7 @@ bool PlayableCharacter::attack(glm::vec2 direction, const std::string &animation
 
 void PlayableCharacter::lookAt(glm::vec2 position)
 {
-    if(!m_isAttacking)
+    if(!m_isAttacking.getValue())
         m_lookingAt = position;
 }
 
@@ -143,24 +143,25 @@ void PlayableCharacter::forceAttackMode(bool force)
 void PlayableCharacter::askToDash(glm::vec2 direction)
 {
     //m_wantToDashDelay     = DEFAULT_WANTTODASH_DELAY;
-    m_wantToDashDirection = direction;
+    m_wantToDashDirection.setValue(direction);
     m_wantToDashTimer.reset(DEFAULT_WANTTODASH_DELAY);
 }
 
 bool PlayableCharacter::dash(glm::vec2 direction)
 {
+    std::cout<<"DASH"<<std::endl;
     if(m_dashDelayTimer.isActive())
         return (false);
 
     ///Comment if we want dash to interrupt attack
-    if(m_isAttacking)
+    if(m_isAttacking.getValue())
         return (false);
 
     //m_isAttacking   = false;
     if(direction == glm::vec2(0))
-        m_dashDirection = m_lookingDirection.getValue();
+        m_dashDirection.setValue(m_lookingDirection.getValue());
     else
-        m_dashDirection = direction;
+        m_dashDirection.setValue(direction);
     m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
     m_dashTimer.reset(DEFAULT_DASH_TIME);
 
@@ -173,21 +174,23 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     Character::update(elapsedTime, localTime);
 
-    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+    m_dashDirection.update(elapsedTime, localTime);
+    m_wantToDashDirection.update(elapsedTime, localTime);
+    m_wantToAttackDirection.update(elapsedTime, localTime);
+
+    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     if(!m_isDead)
     {
 
     if(m_wantToDashTimer.isActive())
     {
-        m_wantToDashTimer.update(elapsedTime);
-        if(this->dash(m_wantToDashDirection))
+        if(this->dash(m_wantToDashDirection.getValue()))
             m_wantToDashTimer.reset(0);
     }
     else if(m_wantToAttackTimer.isActive())
     {
-        m_wantToAttackTimer.update(elapsedTime);
-        if(this->attack(m_wantToAttackDirection))
+        if(this->attack(m_wantToAttackDirection.getValue()))
             m_wantToAttackTimer.reset(0);
     }
     else if(m_wantToWalkDirection != m_walkingDirection.getValue())
@@ -195,32 +198,38 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
         this->walk(m_wantToWalkDirection);
     }
 
-    m_dashDelayTimer.update(elapsedTime);
-    if(m_dashTimer.update(elapsedTime))
+    m_wantToDashTimer.update(elapsedTime,localTime);
+    m_wantToAttackTimer.update(elapsedTime,localTime);
+
+    m_dashDelayTimer.update(elapsedTime,localTime);
+    if(m_dashTimer.update(elapsedTime,localTime))
         this->startAnimation("walk");
 
     auto att = m_attributes.getValue();
     if(m_dashTimer.isActive())
     {
+        std::cout<<"DASHING"<<std::endl;
         att.walkingSpeed = DEFAULT_DASH_SPEED;
-        Character::walk(m_dashDirection);
+        Character::walk(m_dashDirection.getValue());
         m_isWalking = true;
     }
     else if(m_dashDelayTimer.isActive())
-        att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed * .25f;
+    {
+        //att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed * .25f;
+
+        Character::walk(glm::vec2(0));
+    }
     else
         att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed;
     m_attributes.setValue(att);
 
     if(m_combatModeTimer.isActive())
     {
-        m_combatModeTimer.update(elapsedTime);
-
         //if(!m_isAttacking)
-        this->setLookingDirection(m_lookingAt - SceneNode::getGlobalXYPosition());
+        this->setLookingDirection(m_lookingAt /*- SceneNode::getGlobalXYPosition()*/);
             //m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
         //SceneNode::setRotation({0,0,desiredRot});
-        if(m_isWalking && !m_isAttacking)
+        if(m_isWalking && !m_isAttacking.getValue())
         {
             bool wantToLateralWalk = false;
 
@@ -251,6 +260,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
         Character::startAnimation("walk", true);
     }
 
+    m_combatModeTimer.update(elapsedTime,localTime);
     }
 
     //for(auto &skeleton : m_skeletons)
@@ -258,6 +268,20 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
 
 }
 
+void PlayableCharacter::rewind(uint32_t time)
+{
+    Character::rewind(time);
+
+    m_combatModeTimer.rewind(time);
+    m_dashDelayTimer.rewind(time);
+    m_dashTimer.rewind(time);
+    m_dashDirection.rewind(time);
+
+    m_wantToAttackDirection.rewind(time);
+    m_wantToDashDirection.rewind(time);
+    m_wantToAttackTimer.rewind(time);
+    m_wantToDashTimer.rewind(time);
+}
 
 const std::list<Hitbox> *PlayableCharacter::getHitboxes() const
 {

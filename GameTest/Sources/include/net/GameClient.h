@@ -24,7 +24,12 @@ class GameClient
         //const pou::NetAddress &getAddress() const;
         unsigned short getPort() const;
 
+        void playerCursor(glm::vec2 direction);
+        void playerLook(glm::vec2 direction);
         void playerWalk(glm::vec2 direction);
+        void playerDash(glm::vec2 direction);
+        void playerAttack(glm::vec2 direction);
+
         void sendMsgTest(bool reliable, bool forceSend);
 
     protected:
@@ -46,6 +51,8 @@ class GameClient
         uint16_t    m_curPlayerId;
         bool        m_isWaitingForWorldSync;
         //pou::Timer  m_syncWorldTimer;
+
+        glm::vec2   m_curCursorPos;
 
         pou::Time m_remainingTime;
 

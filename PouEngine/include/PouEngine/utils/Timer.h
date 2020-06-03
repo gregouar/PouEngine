@@ -3,9 +3,12 @@
 
 #include "PouEngine/Types.h"
 
+
 namespace pou
 {
 
+template<typename T>
+class SyncedAttribute;
 
 class Timer
 {
@@ -23,8 +26,8 @@ class Timer
     protected:
 
     private:
-        pou::Time   m_maxTime;
-        pou::Time   m_elapsedTime;
+        Time   m_maxTime;
+        Time   m_elapsedTime;
         bool        m_isLooping;
 };
 

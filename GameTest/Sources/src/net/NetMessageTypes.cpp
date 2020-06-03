@@ -251,10 +251,13 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
 {
     stream->serializeInt(playerAction.actionType, 0, NBR_PLAYERACTIONTYPES);
 
-    if(playerAction.actionType == PlayerActionType_Walk)
+    if(playerAction.actionType == PlayerActionType_Walk
+    || playerAction.actionType == PlayerActionType_Look
+    || playerAction.actionType == PlayerActionType_Attack
+    || playerAction.actionType == PlayerActionType_Dash)
     {
-        stream->serializeFloat(playerAction.walkDirection.x,-1,1,2);
-        stream->serializeFloat(playerAction.walkDirection.y,-1,1,2);
+        stream->serializeFloat(playerAction.direction.x,-1,1,2);
+        stream->serializeFloat(playerAction.direction.y,-1,1,2);
     }
 }
 

@@ -44,8 +44,12 @@ class GameWorld
         void addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime = -1);
         void removeAllPlayerActions(int player_id, uint32_t time = -1);
 
+        glm::vec2 convertScreenToWorldCoord(glm::vec2 p);
+
         uint32_t getLocalTime();
         uint32_t getLastSyncTime();
+
+        PlayableCharacter *getPlayer(int player_id);
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);

@@ -78,10 +78,18 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = -1;
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
+    if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
+        m_gameServer.playerDash(m_localClientNbr, charDirection);
     m_gameServer.playerWalk(m_localClientNbr, charDirection);
-    //if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
-    //    m_character->askToDash(charDirection);
-    //m_character->walk(charDirection);
+
+
+    m_gameServer.playerCursor(m_localClientNbr, eventsManager->centeredMousePosition());
+
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+        m_gameServer.playerLook(m_localClientNbr, eventsManager->centeredMousePosition());
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
+        m_gameServer.playerAttack(m_localClientNbr, eventsManager->centeredMousePosition());
+
 
 
     if(eventsManager->keyPressed(GLFW_KEY_R))

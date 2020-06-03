@@ -82,7 +82,16 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = -1;
     if(eventsManager->keyIsPressed(GLFW_KEY_RIGHT))
         charDirection.x = 1;
+    if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
+        m_gameClient.playerDash(charDirection);
     m_gameClient.playerWalk(charDirection);
+
+    m_gameClient.playerCursor(eventsManager->centeredMousePosition());
+
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+        m_gameClient.playerLook(eventsManager->centeredMousePosition());
+    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
+        m_gameClient.playerAttack(eventsManager->centeredMousePosition());
 }
 
 

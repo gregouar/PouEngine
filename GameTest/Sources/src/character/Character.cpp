@@ -13,6 +13,7 @@
 const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
 
 Character::Character() : SceneNode(-1,nullptr),
+    m_isAttacking(false,0),
     m_walkingDirection(glm::vec2(0),0),
     m_lookingDirection(glm::vec2(0),0)
 {
@@ -25,7 +26,6 @@ Character::Character() : SceneNode(-1,nullptr),
 
     m_isDead            = false;
     m_isWalking         = true;
-    m_isAttacking       = false;
 
     m_autoLookingDirection = true;
 
@@ -288,7 +288,7 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
     if(m_isDead)
         return (false);
 
-    if(m_isAttacking)
+    if(m_isAttacking.getValue())
         return (false);
 
     if(m_interruptTimer.isActive())
@@ -298,7 +298,7 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
         return (false);
 
     this->startAnimation(animationName,true);
-    m_isAttacking = true;
+    m_isAttacking.setValue(true);
     m_isWalking = false;
     //if(direction != glm::vec2(0))
     this->setLookingDirection(direction);
@@ -313,9 +313,9 @@ bool Character::attack(glm::vec2 direction, const std::string &animationName)
 
 bool Character::stopAttacking()
 {
-    bool wasAttacking = m_isAttacking;
+    bool wasAttacking = m_isAttacking.getValue();
 
-    m_isAttacking = false;
+    m_isAttacking.setValue(false);
     m_alreadyHitCharacters.clear();
     this->startAnimation("stand", true);
 
@@ -345,7 +345,7 @@ bool Character::damage(float damages, glm::vec2 direction)
             isFatal = true;
         }
         m_isDead        = true;
-        m_isAttacking   = false;
+        m_isAttacking.setValue(false);
         m_isWalking     = false;
     }
 
@@ -529,28 +529,29 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
         this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
 
     m_lookingDirection.update(elapsedTime, m_curLocalTime);
+    m_isAttacking.update(elapsedTime, m_curLocalTime);
 
     if(elapsedTime.count() == 0)
         return;
 
     if(m_pushTimer.isActive())
         this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
-    m_pushTimer.update(elapsedTime);
+    m_pushTimer.update(elapsedTime, localTime);
+
+    m_attackDelayTimer.update(elapsedTime,localTime);
 
     if(!m_isDead)
     {
-        m_attackDelayTimer.update(elapsedTime);
-
         //if(m_interruptTimer.isActive()) {}
         //else
-        if(m_isAttacking)
+        if(m_isAttacking.getValue())
             this->updateAttacking(elapsedTime);
         else
             this->updateWalking(elapsedTime);
         this->updateLookingDirection(elapsedTime);
 
 
-        if(m_interruptTimer.update(elapsedTime))
+        if(m_interruptTimer.update(elapsedTime, localTime))
             this->startAnimation("stand");
     }
 
@@ -569,6 +570,11 @@ void Character::rewind(uint32_t time)
         this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
 
     m_lookingDirection.rewind(time);
+
+    m_attackDelayTimer.rewind(time);
+    m_pushTimer.rewind(time);
+    m_interruptTimer.rewind(time);
+    m_isAttacking.rewind(time);
 }
 
 void Character::updateWalking(const pou::Time &elapsedTime)
@@ -610,13 +616,11 @@ void Character::updateWalking(const pou::Time &elapsedTime)
 
 void Character::updateAttacking(const pou::Time &elapsedTime)
 {
+    std::cout<<"IsAttacking"<<std::endl;
     bool isAnimationFinished = true;
     for(auto &skeleton : m_skeletons)
     {
         isAnimationFinished = isAnimationFinished & !skeleton.second->isInAnimation();
-
-         //if(skeleton.second->hasTag("attackTest"))
-           // std::cout<<"attackTest"<<std::endl;
 
         if(skeleton.second->hasTag("attack"))
         for(auto c : m_nearbyCharacters)
@@ -655,7 +659,7 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
         }
     }
 
-    if(isAnimationFinished && m_isAttacking)
+    if(isAnimationFinished && m_isAttacking.getValue())
         this->stopAttacking();
 }
 

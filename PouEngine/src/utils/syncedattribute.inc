@@ -348,7 +348,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 std::cout<<"RealValue:"<<evalValue.x<<std::endl;
                 std::cout<<std::endl;*/
 
-            if(T(isSynced) != T())
+            /*if(T(isSynced) != T())
             {
                 if(!this->m_desyncTimer.isActive())
                     this->m_desyncTimer.reset(1.0f);
@@ -365,7 +365,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                     return (true);
                 }
             } else
-                this->m_desyncTimer.reset(1.0f);
+                this->m_desyncTimer.reset(1.0f);*/
         }
     }
 

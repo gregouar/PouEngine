@@ -114,6 +114,8 @@ void GameWorld::rewind(uint32_t time, bool simulate)
     if(!m_scene)
         return;
 
+    std::cout<<"Rewind !"<<std::endl;
+
     if(time < m_curLocalTime - pou::NetEngine::getMaxRewindAmount())
         time = m_curLocalTime - pou::NetEngine::getMaxRewindAmount();
 
@@ -124,6 +126,7 @@ void GameWorld::rewind(uint32_t time, bool simulate)
     if(simulate)
         while(m_curLocalTime < curTime)
             this->update(GameServer::TICKDELAY, true);
+    std::cout<<"End Rewind!"<<std::endl;
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
@@ -179,6 +182,9 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint3
         if((int)it->second.first == player_id && it->second.second.actionType == playerAction.actionType)
             it = m_playerActions.erase(it);*/
 
+    if(playerAction.direction != glm::vec2(0))
+        playerAction.direction = normalize(playerAction.direction);
+
     m_playerActions.insert({clientTime, {player_id,playerAction}});
 
     if(pou::NetEngine::getMaxRewindAmount() == 0)
@@ -219,6 +225,13 @@ void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
         this->rewind(localTime);
 }*/
 
+glm::vec2 GameWorld::convertScreenToWorldCoord(glm::vec2 p)
+{
+    if(!m_scene || !m_camera)
+        return glm::vec2(0);
+    return m_scene->convertScreenToWorldCoord(p, m_camera);
+}
+
 
 uint32_t GameWorld::getLocalTime()
 {
@@ -230,6 +243,10 @@ uint32_t GameWorld::getLastSyncTime()
     return m_lastSyncTime;
 }
 
+PlayableCharacter *GameWorld::getPlayer(int player_id)
+{
+    return m_syncPlayers.findElement(player_id);
+}
 
 
 /// Protected
@@ -413,9 +430,20 @@ void GameWorld::processPlayerActions()
         auto& playerAction = it->second.second;
         switch(playerAction.actionType)
         {
+            case PlayerActionType_CursorMove:{
+                player->lookAt(/*player->getGlobalXYPosition() +*/ playerAction.direction/* *100.0f*/);
+            }break;
+            case PlayerActionType_Look:{
+                player->setLookingDirection(playerAction.direction);
+            }break;
             case PlayerActionType_Walk:{
-                //std::cout<<"Process walk action:"<<playerAction.walkDirection.x<<" at "<<m_curLocalTime<<std::endl;
-                player->askToWalk(playerAction.walkDirection);
+                player->askToWalk(playerAction.direction);
+            }break;
+            case PlayerActionType_Dash:{
+                player->askToDash(playerAction.direction);
+            }break;
+            case PlayerActionType_Attack:{
+                player->askToAttack(playerAction.direction);
             }break;
         }
     }

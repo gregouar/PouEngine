@@ -18,6 +18,7 @@ GameClient::GameClient() :
     m_world(true, false),
     m_curWorldId(0),
     m_isWaitingForWorldSync(false),
+    m_curCursorPos(0),
     m_remainingTime(0)
 {
     initializeNetMessages();
@@ -127,34 +128,71 @@ void GameClient::sendMsgTest(bool reliable, bool forceSend)
     pou::Logger::write("Client send test message with value:"+std::to_string(testMsg->test_value)+" and id: "+std::to_string(testMsg->id));
 }
 
+
+void GameClient::playerCursor(glm::vec2 direction)
+{
+    m_curCursorPos = direction;
+
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    auto player = m_world.getPlayer(m_curPlayerId);
+    if(player)
+    {
+        player->lookAt(/*player->getGlobalXYPosition() +*/ direction /* *100.0f */);
+    }
+}
+
+void GameClient::playerLook(glm::vec2 direction)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_Look;
+    playerAction.direction  = direction;
+
+    m_world.addPlayerAction(m_curPlayerId, playerAction);
+}
+
 void GameClient::playerWalk(glm::vec2 direction)
 {
     if(!m_client || m_curWorldId == 0)
         return;
 
-   // m_world.playerWalk(m_curPlayerId, direction);
-
     if(m_lastPlayerWalkDirection != direction)
     {
-        /*auto walkMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(pou::NetEngine::createNetMessage(NetMessageType_PlayerAction));
-        walkMsg->isReliable = true;
-        walkMsg->clientTime = m_world.getLocalTime();
-
-        walkMsg->playerAction.actionType    = PlayerActionType_Walk;
-        walkMsg->playerAction.walkDirection = direction;
-
-        m_client->sendMessage(walkMsg);*/
         m_lastPlayerWalkDirection = direction;
-        //m_lastPlayerWalkTime = m_world.getLocalTime();
-
-        //m_world.playerWalk(direction);
-
         PlayerAction playerAction;
-        playerAction.actionType     = PlayerActionType_Walk;
-        playerAction.walkDirection  = direction;
+        playerAction.actionType = PlayerActionType_Walk;
+        playerAction.direction  = direction;
 
         m_world.addPlayerAction(m_curPlayerId, playerAction);
     }
+}
+
+void GameClient::playerDash(glm::vec2 direction)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_Dash;
+    playerAction.direction  = direction;
+
+    m_world.addPlayerAction(m_curPlayerId, playerAction);
+}
+
+void GameClient::playerAttack(glm::vec2 direction)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_Attack;
+    playerAction.direction  = direction;
+
+    m_world.addPlayerAction(m_curPlayerId, playerAction);
 }
 
 ///Protected
@@ -223,10 +261,18 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             if(m_lastPlayerWalkDirection != glm::vec2(0))
             {
                 PlayerAction playerAction;
-                playerAction.actionType     = PlayerActionType_Walk;
-                playerAction.walkDirection  = m_lastPlayerWalkDirection;
+                playerAction.actionType = PlayerActionType_Walk;
+                playerAction.direction  = m_lastPlayerWalkDirection;
                 m_world.addPlayerAction(m_curPlayerId, playerAction);
             }
+
+            //Could add condition to do this only if attackMode is on
+            /**{
+                PlayerAction playerAction;
+                playerAction.actionType = PlayerActionType_CursorMove;
+                playerAction.direction  = glm::normalize(m_curCursorPos);
+                m_world.addPlayerAction(m_curPlayerId, playerAction);
+            }**/
 
             m_world.createAskForSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);

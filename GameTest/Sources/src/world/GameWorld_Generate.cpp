@@ -49,7 +49,7 @@ void GameWorld::generate()
                                 1));
     }
 
-    auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
+    /*auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
     this->syncElement(treeModel);
 
     for(auto x = -3 ; x < 3 ; x++)
@@ -93,7 +93,7 @@ void GameWorld::generate()
         m_scene->getRootNode()->addChildNode(lantern);
 
         this->syncElement(lantern);
-    }
+    }*/
 
     m_scene->update(pou::Time(0));
 }

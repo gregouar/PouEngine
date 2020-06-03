@@ -9,7 +9,7 @@
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/SoundObject.h"
 #include "PouEngine/scene/Skeleton.h"
-#include "PouEngine/utils/Timer.h"
+#include "PouEngine/utils/SyncedTimer.h"
 #include "PouEngine/utils/Stream.h"
 #include "assets/CharacterModelAsset.h"
 
@@ -108,25 +108,25 @@ class Character : public pou::SceneNode
     protected:
         bool      m_isDead;
         bool      m_isWalking;
-        bool      m_isAttacking;
+        pou::SyncedAttribute<bool> m_isAttacking;
         //glm::vec2 m_walkingDirection;
         pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 
         bool      m_autoLookingDirection;
         pou::SyncedAttribute<glm::vec2> m_lookingDirection;
 
-        pou::Timer m_attackDelayTimer;
+        pou::SyncedTimer m_attackDelayTimer;
 
         glm::vec2   m_pushVelocity;
-        pou::Timer  m_pushTimer;
-        pou::Timer  m_interruptTimer;
+        pou::SyncedTimer  m_pushTimer;
+        pou::SyncedTimer  m_interruptTimer;
 
         //float m_walkingSpeed;
         pou::SyncedAttribute<CharacterModelAttributes> m_modelAttributes;
         pou::SyncedAttribute<CharacterAttributes> m_attributes;
 
         std::set<Character*>    m_nearbyCharacters;
-        std::set<Character*>    m_alreadyHitCharacters;
+        std::set<Character*>    m_alreadyHitCharacters; ///Need to also rewind this !
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         uint32_t m_lastCharacterSyncTime;

@@ -62,4 +62,5 @@ bool Timer::isActive()
     return (m_maxTime > Time(0));
 }
 
+
 }

@@ -39,7 +39,11 @@ class GameServer
         void render(pou::RenderWindow *renderWindow, size_t clientNbr);
 
         int addLocalPlayer(); //ClientNbr
+        void playerCursor(size_t clientNbr, glm::vec2 cursorPos, float localTime = -1);
+        void playerLook(size_t clientNbr, glm::vec2 direction, float localTime = -1);
         void playerWalk(size_t clientNbr, glm::vec2 direction, float localTime = -1);
+        void playerDash(size_t clientNbr, glm::vec2 direction, float localTime = -1);
+        void playerAttack(size_t clientNbr, glm::vec2 direction, float localTime = -1);
 
         size_t generateWorld();
         void rewindWorld(size_t world_id, float time);
@@ -62,6 +66,8 @@ class GameServer
         void updateWorlds(const pou::Time &elapsedTime);
 
         void threading();
+
+        std::pair<GameClientInfos*, GameWorld*> getClientInfosAndWorld(size_t clientNbr);
 
     private:
         std::atomic<bool> m_serverIsRunning;

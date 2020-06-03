@@ -7,7 +7,11 @@
 
 enum PlayerActionType
 {
+    PlayerActionType_CursorMove,
     PlayerActionType_Walk,
+    PlayerActionType_Look,
+    PlayerActionType_Attack,
+    PlayerActionType_Dash,
     NBR_PLAYERACTIONTYPES,
 };
 
@@ -15,7 +19,7 @@ struct PlayerAction
 {
     int actionType;
 
-    glm::vec2 walkDirection;
+    glm::vec2 direction;
 };
 
 
@@ -42,6 +46,7 @@ class PlayableCharacter : public Character
         virtual bool dash(glm::vec2 direction = glm::vec2(0,0));
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
+        virtual void rewind(uint32_t time);
 
         virtual const std::list<Hitbox> *getHitboxes() const;
 
@@ -64,23 +69,23 @@ class PlayableCharacter : public Character
     private:
         //bool        m_isInCombatMode;
         //float   m_combatModeDelay;
-        pou::Timer  m_combatModeTimer;
+        pou::SyncedTimer  m_combatModeTimer;
 
         //float       m_wantToAttackDelay;
-        pou::Timer  m_wantToAttackTimer;
-        glm::vec2   m_wantToAttackDirection;
+        pou::SyncedTimer  m_wantToAttackTimer;
+        pou::SyncedAttribute<glm::vec2>   m_wantToAttackDirection;
 
-        pou::Timer  m_dashDelayTimer, m_dashTimer;
+        pou::SyncedTimer  m_dashDelayTimer, m_dashTimer;
         //bool        m_isDashing;
-        glm::vec2   m_dashDirection;
+        pou::SyncedAttribute<glm::vec2>   m_dashDirection;
         //float       m_dashDelay, m_dashTime;
 
         glm::vec2   m_wantToWalkDirection;
         //float       m_normalWalkingSpeed;
 
-        pou::Timer  m_wantToDashTimer;
+        pou::SyncedTimer  m_wantToDashTimer;
         //float       m_wantToDashDelay;
-        glm::vec2   m_wantToDashDirection;
+        pou::SyncedAttribute<glm::vec2>   m_wantToDashDirection;
 
         bool        m_isLateralWalking;
         glm::vec2   m_lookingAt;

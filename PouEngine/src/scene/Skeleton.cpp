@@ -315,6 +315,11 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
     if(m_wantedFrameNbr == -1)
         return;
 
+    if(m_curAnimation == nullptr && m_nextAnimation != nullptr)
+        this->nextAnimation();
+    if(!m_curAnimation)
+        return;
+
 
     if(!m_forceNewAnimation && m_wantedFrameNbr == m_syncedFrameNbr.getValue())
     {

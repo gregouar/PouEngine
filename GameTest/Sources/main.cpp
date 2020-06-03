@@ -45,6 +45,7 @@ int main()
         #else
             createInfos.name = "ProjectW";
             pou::VApp app(createInfos);
+            app.run(PlayerServerTestingState::instance());
             app.run(ClientServerTestingState::instance());
         #endif
 
