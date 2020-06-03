@@ -71,13 +71,13 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     auto itSyncValue = m_syncValues.lower_bound(m_curLocalTime);
 
-    /*if(itSyncValue->first != this->m_curLocalTime)
+    if(itSyncValue->first != this->m_curLocalTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
         else
             (--itSyncValue);
-    }*/
+    }
 
 
     if(itSyncValue != m_syncValues.begin()) //Don't need the condition though

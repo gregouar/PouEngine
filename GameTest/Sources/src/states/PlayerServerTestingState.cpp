@@ -84,8 +84,8 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
     //m_character->walk(charDirection);
 
 
-    if(eventsManager->keyIsPressed(GLFW_KEY_R))
-        m_gameServer.rewindWorld(1,0);
+    if(eventsManager->keyPressed(GLFW_KEY_R))
+        m_gameServer.rewindWorld(1,60);
 }
 
 

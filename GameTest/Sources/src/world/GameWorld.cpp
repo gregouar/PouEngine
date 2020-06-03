@@ -109,7 +109,7 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
-void GameWorld::rewind(uint32_t time)
+void GameWorld::rewind(uint32_t time, bool simulate)
 {
     if(!m_scene)
         return;
@@ -121,8 +121,9 @@ void GameWorld::rewind(uint32_t time)
     m_scene->rewind(time);
     m_curLocalTime = time;
 
-    while(m_curLocalTime < curTime)
-        this->update(GameServer::TICKDELAY, true);
+    if(simulate)
+        while(m_curLocalTime < curTime)
+            this->update(GameServer::TICKDELAY, true);
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
@@ -183,7 +184,7 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint3
     if(pou::NetEngine::getMaxRewindAmount() == 0)
         return;
 
-    if(clientTime <= m_curLocalTime)
+    if(clientTime < m_curLocalTime)
     if(m_wantedRewind > clientTime - 1 || m_wantedRewind == (uint32_t)(-1))
         m_wantedRewind = clientTime - 1;
 }

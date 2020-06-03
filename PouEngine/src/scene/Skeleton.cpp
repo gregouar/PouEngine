@@ -21,13 +21,17 @@ namespace pou
 
 
 Skeleton::Skeleton(SkeletonModelAsset *model) :
-    SceneNode(-1)
+    SceneNode(-1),
+    m_syncedAnimationId(-1,0),
+    m_syncedFrameNbr(-1,0)
 {
     m_nextAnimation     = nullptr;
     m_curAnimation      = nullptr;
     m_curAnimationFrame = nullptr;
     m_forceNewAnimation = false;
-    m_isNewFrame        = false;
+
+    m_wantedFrameNbr = -1;
+    //m_isNewFrame        = false;
 
     this->copyFromModel(model);
 }
@@ -230,8 +234,27 @@ bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
     if(forceStart)
     {
         m_forceNewAnimation = true;
-        m_curAnimation      = m_nextAnimation;
-        m_nextAnimation     = nullptr;
+        m_curFrameTime.setValue(0);
+        this->nextAnimation();
+    }
+
+    return (true);
+}
+
+bool Skeleton::startAnimation(int animationId, bool forceStart)
+{
+    if(m_curAnimation != nullptr && m_curAnimation->getId() == animationId)
+        return (false);
+
+    m_nextAnimation = m_model->findAnimation(animationId);
+
+    if(m_nextAnimation == nullptr)
+        return (false);
+
+    if(forceStart)
+    {
+        m_forceNewAnimation = true;
+        this->nextAnimation();
     }
 
     return (true);
@@ -242,10 +265,10 @@ bool Skeleton::isInAnimation()
     return (m_curAnimation != nullptr);
 }
 
-bool Skeleton::isNewFrame()
+/*bool Skeleton::isNewFrame()
 {
     return m_isNewFrame;
-}
+}*/
 
 bool Skeleton::hasTag(const std::string &tag)
 {
@@ -284,28 +307,67 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
-    m_isNewFrame = false;
-    bool nextFrame = true;
+    m_syncedAnimationId.update(elapsedTime, localTime);
+    m_syncedFrameNbr.update(elapsedTime, localTime);
+    m_curFrameTime.update(elapsedTime, localTime);
 
-    if(!m_forceNewAnimation)
-        //for(auto &cmd : m_animationCommands)
+    //m_isNewFrame = false;
+    if(m_wantedFrameNbr == -1)
+        return;
+
+
+    if(!m_forceNewAnimation && m_wantedFrameNbr == m_syncedFrameNbr.getValue())
+    {
+        float speedFactor = 1.0;
+        if(m_curAnimationFrame != nullptr)
+            speedFactor *= m_curAnimationFrame->getSpeedFactor();
+        m_curFrameTime.setValue(m_curFrameTime.getValue() + elapsedTime.count() * speedFactor);
+
+        bool nextFrame = true;
+
         for(auto cmd = m_animationCommands.begin() ; cmd != m_animationCommands.end() ; ++cmd)
         {
-            float speedFactor = 1.0;
-
-            if(m_curAnimationFrame != nullptr)
-                speedFactor *= m_curAnimationFrame->getSpeedFactor();
-
-            if(!cmd->update(elapsedTime * speedFactor))
+            if(!cmd->update(elapsedTime * speedFactor, localTime))
                 nextFrame = false;
-            /*else
-            {
-                auto c = cmd--;
-                m_animationCommands.erase(c);
-            }*/
         }
 
-    if(nextFrame)
+        if(nextFrame)
+        {
+            m_wantedFrameNbr = m_syncedFrameNbr.getValue() + 1;
+            m_curFrameTime.setValue(0);
+        }
+    }
+
+    if(m_wantedFrameNbr != m_syncedFrameNbr.getValue())
+    {
+        auto wantedFrameNbr = m_wantedFrameNbr;
+        if(wantedFrameNbr < m_syncedFrameNbr.getValue())
+        {
+            //m_syncedFrameNbr.setValue(0);
+            m_nextAnimation = m_curAnimation;
+            this->nextAnimation();
+        }
+        m_wantedFrameNbr = wantedFrameNbr;
+
+        while(m_wantedFrameNbr != m_syncedFrameNbr.getValue())
+        {
+            m_syncedFrameNbr.setValue(m_syncedFrameNbr.getValue()+1);
+            auto [nextFrame, isLooping] = m_curAnimation->nextFrame(m_curAnimationFrame);
+            m_curAnimationFrame = nextFrame;
+            if(isLooping)
+            {
+                m_syncedFrameNbr.setValue(0);
+                m_wantedFrameNbr = 0;
+            }
+        }
+
+        if(m_curAnimationFrame == nullptr)
+            this->nextAnimation();
+        else
+            this->loadAnimationCommands(m_curAnimationFrame, m_curFrameTime.getValue());
+    }
+
+    /*if(nextFrame)
     {
         if(m_curAnimation != nullptr)
         {
@@ -316,20 +378,61 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
 
             if(m_curAnimationFrame == nullptr)
             {
-                m_curAnimation  = m_nextAnimation;
-                m_nextAnimation = nullptr;
+                this->nextAnimation();
             } else {
+                m_syncedFrameNbr.setValue(m_syncedFrameNbr.getValue()+1);
                 this->loadAnimationCommands(m_curAnimationFrame);
+                m_curFrameTime.setValue(0);
                 m_isNewFrame = true;
             }
 
-        } else {
-            m_curAnimation  = m_nextAnimation;
-            m_nextAnimation = nullptr;
-        }
-    }
+        } else
+            this->nextAnimation();
+    }*/
 
     m_forceNewAnimation = false;
+}
+
+void Skeleton::rewind(uint32_t time)
+{
+    SceneNode::rewind(time);
+
+    for(auto& nodeState : m_nodeStates)
+        nodeState.second.rewind(time);
+
+    auto oldAnimationId = m_syncedAnimationId.getValue();
+    auto oldFrameNbr = m_syncedFrameNbr.getValue();
+
+    m_syncedAnimationId.rewind(time);
+    m_syncedFrameNbr.rewind(time);
+    m_curFrameTime.rewind(time);
+
+    auto wantedFrameNbr = m_syncedFrameNbr.getValue();
+    auto oldFrameTime = m_curFrameTime.getValue();
+
+    if(oldAnimationId != m_syncedAnimationId.getValue())
+    {
+        //m_wantedFrameNbr = m_syncedFrameNbr.getValue();
+        this->startAnimation(m_syncedAnimationId.getValue(), true);
+        //m_curAnimation = m_model->findAnimation(m_syncedAnimationId.getValue());
+        //m_nextAnimation = nullptr;
+    }
+    else if(oldFrameNbr != m_syncedFrameNbr.getValue())
+    {
+        m_syncedFrameNbr.setValue(oldFrameNbr);
+        //std::cout<<"RewindFrame from:"<<oldFrameNbr<< " to:"<<m_syncedFrameNbr.getValue()<<std::endl;
+        //m_nextAnimation = m_curAnimation;
+        //m_wantedFrameNbr = m_syncedFrameNbr.getValue();
+    }
+    else
+    {
+        for(auto& command : m_animationCommands)
+            command.rewind(time);
+    }
+
+
+    m_wantedFrameNbr = wantedFrameNbr;
+    m_curFrameTime.setValue(oldFrameTime);
 }
 
 int Skeleton::getNodeState(int nodeId)
@@ -369,7 +472,23 @@ void Skeleton::copyFromModel(SkeletonModelAsset *model)
    // m_rootNode->getChildsByNames(m_nodesByName, true);
 }
 
-void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
+void Skeleton::nextAnimation()
+{
+    m_curAnimation  = m_nextAnimation;
+    m_nextAnimation = nullptr;
+
+    if(m_curAnimation)
+    {
+        m_curAnimationFrame = nullptr;
+        m_syncedAnimationId.setValue(m_curAnimation->getId());
+        m_syncedFrameNbr.setValue(-1);
+        m_wantedFrameNbr = 0;
+    }
+    else
+        m_syncedAnimationId.setValue(-1);
+}
+
+void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame, float curFrameTime)
 {
     m_animationCommands.clear();
 
@@ -383,7 +502,7 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
         auto node = m_nodesById[nodeId];
         if(node != nullptr)
             m_animationCommands.push_back(
-                SkeletalAnimationCommand (&(*cmd), node, &m_nodeStates[node]));
+                SkeletalAnimationCommand (&(*cmd), node, &m_nodeStates[node], curFrameTime));
         //m_animationCommands.back().computeAmount(m_nodeStates[node]);
     }
 
@@ -404,14 +523,14 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame)
 /// SkeletalAnimationCommand    ///
 /**                             **/
 
-
 SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node,
-                                                   SkeletalNodeState *nodeState) :
+                                                   SkeletalNodeState *nodeState, float startingFrameTime) :
     m_model(model),
     m_node(node),
     m_nodeState(nodeState),
-    m_value(0),
-    m_curFrameTime(0),
+    m_value(glm::vec4(0),0),
+    m_curFrameTime(startingFrameTime,0),
+    m_startingFrameTime(startingFrameTime),
     m_amount(0)
 {
     this->computeAmount();
@@ -424,13 +543,13 @@ void SkeletalAnimationCommand::computeAmount()
     m_enabledDirection = m_model->getAmount().second;
 
     if(m_model->getType() == Move_To)
-        m_amount = m_amount - m_nodeState->posisiton;
+        m_amount = m_amount - m_nodeState->posisiton.getValue();
     else if(m_model->getType() == Rotate_To)
-        m_amount = m_amount - m_nodeState->rotation;
+        m_amount = m_amount - m_nodeState->rotation.getValue();
     else if(m_model->getType() == Scale_To)
-        m_amount = m_amount - m_nodeState->scale;
+        m_amount = m_amount - m_nodeState->scale.getValue();
     else if(m_model->getType() == Color_To)
-        m_amount = m_amount - m_nodeState->color;
+        m_amount = m_amount - m_nodeState->color.getValue();
 
     if(m_amount.x == 0) m_enabledDirection.x = false;
     if(m_amount.y == 0) m_enabledDirection.y = false;
@@ -438,9 +557,13 @@ void SkeletalAnimationCommand::computeAmount()
     if(m_amount.w == 0) m_enabledDirection.w = false;
 }
 
-bool SkeletalAnimationCommand::update(const Time &elapsedTime)
+bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 {
-    m_curFrameTime += elapsedTime.count();
+    m_value.update(elapsedTime, curTime);
+    m_curFrameTime.update(elapsedTime, curTime);
+    m_nodeState->update(elapsedTime, curTime);
+
+    m_curFrameTime.setValue(m_curFrameTime.getValue() + elapsedTime.count());
 
     glm::vec4 a = glm::vec4(elapsedTime.count()); // * m_model->getRate();
     glm::vec4 absAmount = glm::abs(m_amount);
@@ -449,10 +572,10 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
         a = a * m_model->getRate();
     else
     {
-        if(m_curFrameTime > m_model->getFrameTime())
-            a = absAmount - m_value;
+        if(m_curFrameTime.getValue() > m_model->getFrameTime())
+            a = absAmount - m_value.getValue();
         else
-            a = a * absAmount/m_model->getFrameTime();
+            a = a * absAmount/(m_model->getFrameTime()-m_startingFrameTime);
     }
 
     bool finished = true;
@@ -469,9 +592,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     if(m_enabledDirection.x)
     {
-        if(m_value.x + a.x >= absAmount.x)
+        if(m_value.getValue().x + a.x >= absAmount.x)
         {
-            finalAmount.x = sign.x * (absAmount.x - m_value.x);
+            finalAmount.x = sign.x * (absAmount.x - m_value.getValue().x);
             m_enabledDirection.x = 0;
         }
         else
@@ -483,9 +606,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     if(m_enabledDirection.y)
     {
-        if(m_value.y + a.y >= absAmount.y)
+        if(m_value.getValue().y + a.y >= absAmount.y)
         {
-            finalAmount.y = sign.y * (absAmount.y - m_value.y);
+            finalAmount.y = sign.y * (absAmount.y - m_value.getValue().y);
             m_enabledDirection.y = 0;
         }
         else
@@ -498,9 +621,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     if(m_enabledDirection.z)
     {
-        if(m_value.z + a.z >= absAmount.z)
+        if(m_value.getValue().z + a.z >= absAmount.z)
         {
-            finalAmount.z = sign.z * (absAmount.z - m_value.z);
+            finalAmount.z = sign.z * (absAmount.z - m_value.getValue().z);
             m_enabledDirection.z = 0;
         }
         else
@@ -512,9 +635,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
 
     if(m_enabledDirection.w)
     {
-        if(m_value.w + a.w >= absAmount.w)
+        if(m_value.getValue().w + a.w >= absAmount.w)
         {
-            finalAmount.w = sign.w * (absAmount.w - m_value.w);
+            finalAmount.w = sign.w * (absAmount.w - m_value.getValue().w);
             m_enabledDirection.w = 0;
         }
         else
@@ -524,27 +647,27 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
         }
     }
 
-    m_value += a;
+    m_value.setValue(m_value.getValue() + a);
 
     if(m_model->getType() == Move_To)
     {
         m_node->move(finalAmount.x,finalAmount.y,finalAmount.z);
-        m_nodeState->posisiton += finalAmount;
+        m_nodeState->posisiton.setValue(m_nodeState->posisiton.getValue() + finalAmount);
     }
     else if(m_model->getType() == Rotate_To)
     {
         m_node->rotate(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z), false);
-        m_nodeState->rotation += finalAmount;
+        m_nodeState->rotation.setValue(m_nodeState->rotation.getValue() + finalAmount);
     }
     else if(m_model->getType() == Scale_To)
     {
         m_node->linearScale(finalAmount.x,finalAmount.y,finalAmount.z);
-        m_nodeState->scale += finalAmount;
+        m_nodeState->scale.setValue(m_nodeState->scale.getValue() + finalAmount);
     }
     else if(m_model->getType() == Color_To)
     {
         m_node->colorize(finalAmount);
-        m_nodeState->color += finalAmount;
+        m_nodeState->color.setValue(m_nodeState->color.getValue() + finalAmount);
     }
     else
         return (true);
@@ -552,15 +675,40 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime)
     return finished;
 }
 
+
+void SkeletalAnimationCommand::rewind(uint32_t time)
+{
+    m_value.rewind(time);
+    m_curFrameTime.rewind(time);
+}
+
 /// ************************  ///
 
 SkeletalNodeState::SkeletalNodeState() :
-    posisiton(0),
-    rotation(0),
-    scale(0),
-    color(0)
+    posisiton(glm::vec4(0),0),
+    rotation(glm::vec4(0),0),
+    scale(glm::vec4(0),0),
+    color(glm::vec4(0),0)
 {
 
 }
+
+void SkeletalNodeState::update(const Time &elapsedTime, uint32_t localTime)
+{
+    posisiton.update(elapsedTime,localTime);
+    rotation.update(elapsedTime,localTime);
+    scale.update(elapsedTime,localTime);
+    color.update(elapsedTime,localTime);
+}
+
+void SkeletalNodeState::rewind(uint32_t time)
+{
+    posisiton.rewind(time);
+    rotation.rewind(time);
+    scale.rewind(time);
+    color.rewind(time);
+}
+
+
 
 }

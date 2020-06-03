@@ -227,7 +227,7 @@ void GameServer::rewindWorld(size_t world_id, float time)
     auto worldIt = m_worlds.find(world_id);
     if(worldIt == m_worlds.end())
         return;
-    worldIt->second.rewind(time);
+    worldIt->second.rewind(worldIt->second.getLocalTime() - time/*, false*/);
 }
 
 /*const pou::NetAddress *GameServer::getAddress() const

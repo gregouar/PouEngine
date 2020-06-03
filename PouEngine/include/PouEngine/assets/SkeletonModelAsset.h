@@ -88,16 +88,17 @@ class SkeletalAnimationFrameModel
 class SkeletalAnimationModel
 {
     public:
-        SkeletalAnimationModel(SkeletonModelAsset *skeletonModel);
+        SkeletalAnimationModel(SkeletonModelAsset *skeletonModel, int id);
         virtual ~SkeletalAnimationModel();
 
         bool loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes = nullptr*/);
 
-        SkeletalAnimationFrameModel* nextFrame(SkeletalAnimationFrameModel* curFrame);
+        std::pair<SkeletalAnimationFrameModel*, bool> nextFrame(SkeletalAnimationFrameModel* curFrame);
 
         void setName(const std::string &name);
 
         const std::string &getName() const;
+        const int getId() const;
         bool isLooping();
 
     private:
@@ -105,6 +106,7 @@ class SkeletalAnimationModel
 
         bool m_isLooping;
         std::string m_name;
+        int m_id;
         std::list<SkeletalAnimationFrameModel> m_frames;
 };
 

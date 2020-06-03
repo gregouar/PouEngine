@@ -164,18 +164,21 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
 void SkeletonModelAsset::loadAnimation(TiXmlElement *element)
 {
     std::string animationName;
-    std::unique_ptr<SkeletalAnimationModel> animationModel(new SkeletalAnimationModel(this));
-
     auto nameAtt = element->Attribute("name");
     if(nameAtt != nullptr)
         animationName = std::string(nameAtt);
     else
         animationName = "Animation"+std::to_string(m_animations.size());
 
+    auto id = this->generateAnimationId(animationName);
+
+    std::unique_ptr<SkeletalAnimationModel> animationModel(new SkeletalAnimationModel(this, id));
+
+
     animationModel->setName(animationName);
     animationModel->loadFromXml(element/*, &m_nodesById*/);
 
-    m_animationById.insert({this->generateAnimationId(animationName), animationModel.get()});
+    m_animationById.insert({id, animationModel.get()});
 
     if(!m_animations.insert(std::make_pair(animationName,std::move(animationModel))).second)
         Logger::warning("Multiple animations named \""+animationName+"\" in the skeleton : "+m_filePath);
@@ -331,8 +334,10 @@ int SkeletonModelAsset::getId(const std::string &name, const std::map<std::strin
 /**                        **/
 
 
-SkeletalAnimationModel::SkeletalAnimationModel(SkeletonModelAsset *skeletonModel) :
-    m_skeletonModel(skeletonModel),m_isLooping(false)
+SkeletalAnimationModel::SkeletalAnimationModel(SkeletonModelAsset *skeletonModel, int id) :
+    m_skeletonModel(skeletonModel),
+    m_isLooping(false),
+    m_id(id)
 {
 
 }
@@ -363,16 +368,21 @@ bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element/*, const std::map
     return (true);
 }
 
-SkeletalAnimationFrameModel* SkeletalAnimationModel::nextFrame(SkeletalAnimationFrameModel* curFrame)
+std::pair<SkeletalAnimationFrameModel*, bool> SkeletalAnimationModel::nextFrame(SkeletalAnimationFrameModel* curFrame)
 {
+    bool loop = false;
+
     if(curFrame == nullptr)
-        return &m_frames.front();
+        return {&m_frames.front(), false};
 
     auto frame = curFrame->m_nextFrame;
     if(frame == nullptr && m_isLooping)
+    {
         frame = &m_frames.front();
+        loop = true;
+    }
 
-    return frame;
+    return {frame,loop};
 }
 
 void SkeletalAnimationModel::setName(const std::string &name)
@@ -383,6 +393,11 @@ void SkeletalAnimationModel::setName(const std::string &name)
 const std::string &SkeletalAnimationModel::getName() const
 {
     return m_name;
+}
+
+const int SkeletalAnimationModel::getId() const
+{
+    return m_id;
 }
 
 bool SkeletalAnimationModel::isLooping()

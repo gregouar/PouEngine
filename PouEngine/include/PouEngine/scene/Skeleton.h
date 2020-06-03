@@ -11,18 +11,23 @@ struct SkeletalNodeState
 {
     SkeletalNodeState();
 
-    glm::vec4   posisiton;
-    glm::vec4   rotation;
-    glm::vec4   scale;
-    glm::vec4   color;
+    void update(const Time &elapsedTime, uint32_t localTime = -1);
+    void rewind(uint32_t time);
+
+    SyncedAttribute<glm::vec4>   posisiton;
+    SyncedAttribute<glm::vec4>   rotation;
+    SyncedAttribute<glm::vec4>   scale;
+    SyncedAttribute<glm::vec4>   color;
 };
 
 class SkeletalAnimationCommand
 {
     public:
-        SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node, SkeletalNodeState *nodeState);
+        SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node, SkeletalNodeState *nodeState,
+                                 float startingFrameTime = 0);
 
-        virtual bool update(const Time &elapsedTime);
+        virtual bool update(const Time &elapsedTime, uint32_t localTime);
+        void rewind(uint32_t time);
 
     protected:
         void computeAmount();
@@ -32,8 +37,10 @@ class SkeletalAnimationCommand
         SceneNode *m_node;
         SkeletalNodeState *m_nodeState;
 
-        glm::vec4 m_value;
-        float     m_curFrameTime;
+        SyncedAttribute<glm::vec4>  m_value;
+        SyncedAttribute<float>      m_curFrameTime;
+
+        float     m_startingFrameTime;
         glm::vec4 m_amount;
         glm::vec4 m_enabledDirection;
 };
@@ -58,7 +65,8 @@ class Skeleton : public SceneNode
         bool attachSound(SoundObject *object, const std::string &soundName);
         bool detachSound(SoundObject *object, const std::string &soundName);
 
-        bool startAnimation(const std::string &animationName, bool forceStart = false); //Probably could add ForceStart
+        bool startAnimation(const std::string &animationName, bool forceStart = false);
+        bool startAnimation(int animationId, bool forceStart = false);
         //could add pause animation etc
 
         bool isInAnimation();
@@ -74,17 +82,20 @@ class Skeleton : public SceneNode
         int getNodeState(int nodeId);
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
+        virtual void rewind(uint32_t time);
 
     protected:
         void copyFromModel(SkeletonModelAsset *model);
 
-        void loadAnimationCommands(SkeletalAnimationFrameModel *frame);
+        void nextAnimation();
+
+        void loadAnimationCommands(SkeletalAnimationFrameModel *frame, float curFrameTime = 0);
 
     protected:
         //SceneNode *m_rootNode;
         std::map<std::string, SceneNode*> m_nodesByName;
         std::map<int, SceneNode*> m_nodesById;
-        std::map<SceneNode*, SkeletalNodeState> m_nodeStates;
+        std::map<SceneNode*, SkeletalNodeState> m_nodeStates; // Could pack this into m_nodesById for better perfs
 
         std::multimap<std::pair<int,int>, SceneObject*> m_limbsPerNodeState;
         std::map<int, int> m_nodesLastState;
@@ -95,10 +106,15 @@ class Skeleton : public SceneNode
         SkeletalAnimationModel *m_nextAnimation, *m_curAnimation;
         SkeletalAnimationFrameModel *m_curAnimationFrame;
         bool m_forceNewAnimation;
-        bool m_isNewFrame;
+        //bool m_isNewFrame;
 
         std::list<SkeletalAnimationCommand> m_animationCommands;
         //bool m_createdRootNode;
+
+        SyncedAttribute<float> m_curFrameTime;
+        SyncedAttribute<int> m_syncedAnimationId;
+        SyncedAttribute<int> m_syncedFrameNbr;
+        int m_wantedFrameNbr;
 };
 
 }

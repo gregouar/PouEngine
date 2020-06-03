@@ -22,7 +22,7 @@ class GameWorld
         void render(pou::RenderWindow *renderWindow);
 
         void generate();
-        void rewind(uint32_t time);
+        void rewind(uint32_t time, bool simulate = true);
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
