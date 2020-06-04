@@ -254,6 +254,7 @@ bool Skeleton::startAnimation(int animationId, bool forceStart)
     if(forceStart)
     {
         m_forceNewAnimation = true;
+        m_curFrameTime.setValue(0);
         this->nextAnimation();
     }
 

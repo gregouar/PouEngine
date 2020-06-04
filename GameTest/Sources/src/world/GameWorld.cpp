@@ -14,6 +14,7 @@ const int    GameWorld::SPRITESHEETID_BITS      =10;
 const int    GameWorld::SPRITEENTITYID_BITS     =16;
 const int    GameWorld::CHARACTERMODELSID_BITS  =12;
 const int    GameWorld::CHARACTERSID_BITS       =16;
+const int    GameWorld::ITEMMODELSID_BITS  =12;
 
 GameWorld::GameWorld(bool renderable, bool isServer) :
     m_scene(nullptr),
@@ -29,6 +30,7 @@ GameWorld::GameWorld(bool renderable, bool isServer) :
     m_syncSpriteEntities.setMax(pow(2,GameWorld::SPRITEENTITYID_BITS));
     m_syncCharacterModels.setMax(pow(2,GameWorld::CHARACTERMODELSID_BITS));
     m_syncCharacters.setMax(pow(2,GameWorld::CHARACTERSID_BITS));
+    m_syncItemModels.setMax(pow(2,GameWorld::ITEMMODELSID_BITS));
 
     m_syncPlayers.setMax(GameWorld::MAX_NBR_PLAYERS);
     m_syncPlayers.enableIdReuse();
@@ -82,13 +84,14 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
     m_scene->update(elapsed_time, m_curLocalTime /**m_syncTime**/);
 
 
-    float cleanTime = m_curLocalTime - 1.0f/GameServer::TICKRATE*pou::NetEngine::getMaxRewindAmount();
-    auto cleanPlayerActionsIt = m_playerActions.lower_bound(m_curLocalTime - cleanTime);
+    uint32_t cleanTime = m_curLocalTime - GameServer::MAX_REWIND_AMOUNT;
+    auto cleanPlayerActionsIt = m_playerActions.lower_bound(cleanTime);
     if(cleanPlayerActionsIt != m_playerActions.begin())
         (--cleanPlayerActionsIt);
 
     if(cleanPlayerActionsIt != m_playerActions.end())
         m_playerActions.erase(m_playerActions.begin(), cleanPlayerActionsIt);
+
    // while(!m_playerActions.empty()
     //&& m_playerActions.begin()->first < ))
       //  m_playerActions.erase(m_playerActions.begin());
@@ -114,7 +117,7 @@ void GameWorld::rewind(uint32_t time, bool simulate)
     if(!m_scene)
         return;
 
-    std::cout<<"Rewind !"<<std::endl;
+    std::cout<<"Rewind from"<<time<<std::endl;
 
     if(time < m_curLocalTime - pou::NetEngine::getMaxRewindAmount())
         time = m_curLocalTime - pou::NetEngine::getMaxRewindAmount();
@@ -126,7 +129,7 @@ void GameWorld::rewind(uint32_t time, bool simulate)
     if(simulate)
         while(m_curLocalTime < curTime)
             this->update(GameServer::TICKDELAY, true);
-    std::cout<<"End Rewind!"<<std::endl;
+    std::cout<<"End Rewind at "<<m_curLocalTime<<std::endl;
 }
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
@@ -314,6 +317,13 @@ size_t GameWorld::syncElement(Character *character)
     return m_syncCharacters.allocateId(character);
 }
 
+size_t GameWorld::syncElement(ItemModelAsset *itemModel)
+{
+    auto id = m_syncItemModels.allocateId(itemModel);
+    m_syncTimeItemModels.insert({m_curLocalTime,id});
+    return id;
+}
+
 size_t GameWorld::syncElement(PlayableCharacter *player)
 {
     this->syncElement((Character*)player);
@@ -437,12 +447,14 @@ void GameWorld::processPlayerActions()
                 player->setLookingDirection(playerAction.direction);
             }break;
             case PlayerActionType_Walk:{
+                //std::cout<<"PlayerWalk:"<<playerAction.direction.x<<" "<<playerAction.direction.y<<" at "<<m_curLocalTime<<std::endl;
                 player->askToWalk(playerAction.direction);
             }break;
             case PlayerActionType_Dash:{
                 player->askToDash(playerAction.direction);
             }break;
             case PlayerActionType_Attack:{
+               // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
                 player->askToAttack(playerAction.direction);
             }break;
         }

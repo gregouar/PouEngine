@@ -17,6 +17,7 @@ struct GameClientInfos
     size_t  player_id;
     uint32_t   lastSyncTime;
     uint32_t   localTime;
+    uint32_t   lastActionTime;
 
     bool playerCreated;
     bool isLocalPlayer;
@@ -94,6 +95,8 @@ class GameServer
         static const int        SYNCRATE;
         static const pou::Time  SYNCDELAY;
         static const int MAX_REWIND_AMOUNT;
+
+        static const bool USEREWIND;
 };
 
 #endif // GAMESERVER_H

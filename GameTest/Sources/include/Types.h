@@ -2,6 +2,7 @@
 #define TYPES_H_INCLUDED
 
 class CharacterModelAsset;
+class ItemModelAsset;
 
 enum DamageType
 {
@@ -21,5 +22,6 @@ enum GearType
 
 template<class AssetType> class AssetHandler;
 typedef pou::AssetHandler<CharacterModelAsset>  CharacterModelsHandler;
+typedef pou::AssetHandler<ItemModelAsset>       ItemModelsHandler;
 
 #endif // TYPES_H_INCLUDED

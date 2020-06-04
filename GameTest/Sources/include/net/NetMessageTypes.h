@@ -71,6 +71,7 @@ struct NetMessage_WorldSync : public pou::NetMessage
     std::vector< std::pair<int,SpriteEntitySync> > spriteEntities;
     std::vector< std::pair<int, std::string > > characterModels; //Id, Path
     std::vector <std::pair<int, CharacterSync > > characters;
+    std::vector< std::pair<int, std::string > > itemModels; //Id, Path
     std::vector <std::pair<int, PlayerSync > > players;
 
     std::vector<int> desyncNodes;
@@ -84,6 +85,7 @@ struct NetMessage_WorldSync : public pou::NetMessage
     virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
     virtual void serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel);
     virtual void serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character);
+    virtual void serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel);
     virtual void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
 };
 

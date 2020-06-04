@@ -54,6 +54,8 @@ void ServerTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
+    if(eventsManager->keyPressed(GLFW_KEY_I))
+        m_gameServer.sendMsgTest(false,true);
     if(eventsManager->keyPressed(GLFW_KEY_O))
         m_gameServer.sendMsgTest(true,false);
 }

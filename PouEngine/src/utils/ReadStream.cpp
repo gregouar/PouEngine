@@ -168,17 +168,19 @@ bool ReadStream::serializeFloat(float &value, float min, float max, uint8_t deci
 {
     assert(min < max);
 
-    decimals = pow(10,decimals);
+    float power = pow(10.0f,decimals);
 
-    int32_t minInt = min*decimals;
-    int32_t maxInt = max*decimals;
+    int32_t minInt = glm::floor(min*power);
+    int32_t maxInt = glm::floor(max*power);
     const int bits = bitsRequired(minInt, maxInt);
 
     int32_t unsigned_value = 0;
     if(!this->serializeBits(unsigned_value,bits))
         return (false);
 
-    value = ((float)unsigned_value)/decimals + min;
+    //std::cout<<"UnsignedValue:"<<unsigned_value<<" in "<<min<<","<<max<<std::endl;
+
+    value = static_cast<float>(unsigned_value)/power + min;
     return (true);
 }
 

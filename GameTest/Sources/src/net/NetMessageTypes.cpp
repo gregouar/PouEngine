@@ -91,6 +91,13 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
         this->serializeCharacter(stream, characters[i]);
     //std::cout<<"Nbr C:"<<nbr_characters<<std::endl;
 
+    int nbr_itemModels = itemModels.size();
+    stream->serializeBits(nbr_itemModels, GameWorld::ITEMMODELSID_BITS);
+    itemModels.resize(nbr_itemModels);
+    for(int i = 0 ; i < nbr_itemModels ; ++i)
+        this->serializeItemModel(stream, itemModels[i]);
+    //std::cout<<"Nbr IM:"<<nbr_itemModels<<std::endl;
+
     int nbr_players = players.size();
     stream->serializeInt(nbr_players, 0, GameWorld::MAX_NBR_PLAYERS);
     players.resize(nbr_players);
@@ -222,6 +229,14 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     stream->serializeBits(characterSync.nodeId, GameWorld::NODEID_BITS);
 
     characterPtr->serializeCharacter(stream,lastSyncTime);
+
+}
+
+void NetMessage_WorldSync::serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel)
+{
+    auto& [ itemModelId, itemModelPath ] = itemModel;
+    stream->serializeBits(itemModelId, GameWorld::ITEMMODELSID_BITS);
+    stream->serializeString(itemModelPath);
 }
 
 void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player)
@@ -239,7 +254,24 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
         //playerPtr->setLocalTime(localTime);
         //playerPtr->setSyncAndLocalTime(localTime);
     }
-    ///characterPtr->serializePlayer(stream,lastSyncTime);
+
+
+    bool newItem = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,playerPtr->getLastItemUpdateTime()))
+        newItem = true;
+    stream->serializeBool(newItem);
+    if(newItem)
+    {
+        for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+            stream->serializeBits(playerSync.itemModelsId[i], GameWorld::ITEMMODELSID_BITS);
+    }
+    else
+    {
+        for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+            playerSync.itemModelsId[i] = 0;
+    }
+
+    ///playerPtr->serializePlayer(stream,lastSyncTime);
 }
 
 
@@ -251,7 +283,8 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
 {
     stream->serializeInt(playerAction.actionType, 0, NBR_PLAYERACTIONTYPES);
 
-    if(playerAction.actionType == PlayerActionType_Walk
+    if(playerAction.actionType == PlayerActionType_CursorMove
+    || playerAction.actionType == PlayerActionType_Walk
     || playerAction.actionType == PlayerActionType_Look
     || playerAction.actionType == PlayerActionType_Attack
     || playerAction.actionType == PlayerActionType_Dash)

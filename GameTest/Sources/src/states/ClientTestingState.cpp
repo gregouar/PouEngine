@@ -74,13 +74,13 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
         m_gameClient.sendMsgTest(false,true);
 
     glm::vec2 charDirection = {0,0};
-    if(eventsManager->keyIsPressed(GLFW_KEY_DOWN))
+    if(eventsManager->keyIsPressed(GLFW_KEY_S))
         charDirection.y = 1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_UP))
+    if(eventsManager->keyIsPressed(GLFW_KEY_W))
         charDirection.y = -1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_LEFT))
+    if(eventsManager->keyIsPressed(GLFW_KEY_A))
         charDirection.x = -1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_RIGHT))
+    if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
         m_gameClient.playerDash(charDirection);

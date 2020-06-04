@@ -24,13 +24,14 @@ PlayableCharacter::PlayableCharacter() : Character()
 
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
-    m_lastPlayerUpdateTime = -1;
-    m_lastPlayerSyncTime = -1;
+    m_lastPlayerUpdateTime  = -1;
+    m_lastPlayerSyncTime    = -1;
+    m_lastItemUpdateTime    = -1;
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
 
 
-    m_position.setSyncPrecision(glm::vec3(16));
+    m_position.setSyncPrecision(glm::vec3(64));
     m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
@@ -62,7 +63,7 @@ bool PlayableCharacter::setModel(CharacterModelAsset *model)
     return (true);
 }
 
-bool PlayableCharacter::loadItem(const std::string &path)
+/*bool PlayableCharacter::loadItem(const std::string &path)
 {
     ItemModelAsset* itemModel = pou::AssetHandler<ItemModelAsset>::loadAssetFromFile(path);
 
@@ -84,6 +85,31 @@ bool PlayableCharacter::loadItem(const std::string &path)
 
     m_gearsModel[type] = itemModel;
     this->updateGearsAttributes();
+
+    return (true);
+}*/
+
+
+bool PlayableCharacter::useItem(ItemModelAsset *itemModel)
+{
+    GearType type = itemModel->getAttributes().type;
+
+    if(type == NBR_GEAR_TYPES)
+        return (false);
+
+    if(m_gearsModel[type] != nullptr)
+    {
+        m_gearsModel[type]->removeFromCharacter(this);
+        //Do Something
+    }
+
+    itemModel->generateOnCharacter(this);
+
+    m_gearsModel[type] = itemModel;
+    this->updateGearsAttributes();
+
+    m_lastItemUpdateTime = m_curLocalTime;
+    this->setLastPlayerUpdateTime(m_curLocalTime);
 
     return (true);
 }
@@ -149,7 +175,6 @@ void PlayableCharacter::askToDash(glm::vec2 direction)
 
 bool PlayableCharacter::dash(glm::vec2 direction)
 {
-    std::cout<<"DASH"<<std::endl;
     if(m_dashDelayTimer.isActive())
         return (false);
 
@@ -178,7 +203,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
     m_wantToDashDirection.update(elapsedTime, localTime);
     m_wantToAttackDirection.update(elapsedTime, localTime);
 
-    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     if(!m_isDead)
     {
@@ -288,6 +313,13 @@ const std::list<Hitbox> *PlayableCharacter::getHitboxes() const
     return &m_hitboxes;
 }
 
+ItemModelAsset *PlayableCharacter::getItemModel(GearType type)
+{
+    if(type == NBR_GEAR_TYPES)
+        return (nullptr);
+    return m_gearsModel[type];
+}
+
 
 void PlayableCharacter::updateGearsAttributes()
 {
@@ -340,3 +372,13 @@ uint32_t PlayableCharacter::getLastPlayerUpdateTime()
 {
     return m_lastPlayerUpdateTime + m_syncDelay;
 }
+
+
+
+uint32_t PlayableCharacter::getLastItemUpdateTime(bool useSyncDelay)
+{
+    if(useSyncDelay)
+        return m_lastItemUpdateTime + m_syncDelay;
+    return m_lastItemUpdateTime;
+}
+

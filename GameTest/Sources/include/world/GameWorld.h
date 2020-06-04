@@ -66,6 +66,7 @@ class GameWorld
         size_t syncElement(pou::SpriteEntity *spriteEntity);
         size_t syncElement(CharacterModelAsset *characterModel);
         size_t syncElement(Character *character);
+        size_t syncElement(ItemModelAsset *characterModel);
         size_t syncElement(PlayableCharacter *player);
 
         void desyncElement(pou::SceneNode *node, bool noDesyncInsert = false);
@@ -112,10 +113,12 @@ class GameWorld
         pou::IdAllocator<pou::SpriteEntity*>        m_syncSpriteEntities;
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
         pou::IdAllocator<Character*>                m_syncCharacters;
+        pou::IdAllocator<ItemModelAsset*>           m_syncItemModels;
         pou::IdAllocator<PlayableCharacter*>        m_syncPlayers;
 
         std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
         std::multimap<uint32_t, int> m_syncTimeCharacterModels;
+        std::multimap<uint32_t, int> m_syncTimeItemModels;
 
         std::multimap<uint32_t, int> m_desyncNodes;
         std::multimap<uint32_t, int> m_desyncCharacters;
@@ -132,6 +135,7 @@ class GameWorld
         static const int        SPRITEENTITYID_BITS;
         static const int        CHARACTERMODELSID_BITS;
         static const int        CHARACTERSID_BITS;
+        static const int        ITEMMODELSID_BITS;
 
 
 };

@@ -49,7 +49,7 @@ void GameWorld::generate()
                                 1));
     }
 
-    /*auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
+    auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
     this->syncElement(treeModel);
 
     for(auto x = -3 ; x < 3 ; x++)
@@ -93,7 +93,7 @@ void GameWorld::generate()
         m_scene->getRootNode()->addChildNode(lantern);
 
         this->syncElement(lantern);
-    }*/
+    }
 
     m_scene->update(pou::Time(0));
 }
@@ -107,6 +107,7 @@ void GameWorld::destroy()
     m_syncSpriteSheets.clear();
     m_syncSpriteEntities.clear();
     m_syncCharacterModels.clear();
+    m_syncItemModels.clear();
     m_syncPlayers.clear();
 
     m_camera = nullptr;
@@ -145,7 +146,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
         if((int)playerIt->first == player_id)
             playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
-        else
+        else if(GameServer::USEREWIND)
             playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
     }
 
@@ -264,6 +265,21 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     }
     //worldSyncMsg->nbr_characters = worldSyncMsg->characters.size();
 
+    {
+        worldSyncMsg->itemModels.clear();
+
+        auto it = m_syncTimeItemModels.upper_bound(lastSyncTime);
+        if(lastSyncTime == (uint32_t)(-1))
+            it = m_syncTimeItemModels.begin();
+
+        for(; it != m_syncTimeItemModels.end() ; ++it)
+        {
+            auto itemModelId = it->second;
+            auto itemModel = m_syncItemModels.findElement(itemModelId);
+            auto &itemModelPath = itemModel->getFilePath();
+            worldSyncMsg->itemModels.push_back({itemModelId, itemModelPath});
+        }
+    }
 
     worldSyncMsg->players.clear();
     for(auto it = m_syncPlayers.begin() ; it != m_syncPlayers.end() ; ++it)
@@ -278,6 +294,15 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
         size_t characterId = 0;
         characterId = m_syncCharacters.findId((Character*)player);
+
+        for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+        {
+            playerSync.itemModelsId[i] = 0;
+
+            auto *itemModel = player->getItemModel((GearType)i);
+            if(itemModel)
+                playerSync.itemModelsId[i] = m_syncItemModels.findId(itemModel);
+        }
 
         playerSync.player = player;
         playerSync.characterId = characterId;
@@ -320,6 +345,8 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
 void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
+
+    //std::cout<<"Received sync from server:"<<worldSyncMsg->localTime<<" "<<m_lastSyncTime<<std::endl;
     //if(worldSyncMsg->localTime <= m_lastSyncTime && m_lastSyncTime != (uint32_t)(-1))
     if(uint32leq(worldSyncMsg->localTime, m_lastSyncTime))
         return;
@@ -377,6 +404,14 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         m_syncCharacterModels.insert(characterModelId, characterModelPtr);
     }
 
+    for(auto &itemModelIt : worldSyncMsg->itemModels)
+    {
+        auto& [ itemModelId, itemModelPath ] = itemModelIt;
+        auto *itemModelPtr = ItemModelsHandler::loadAssetFromFile(itemModelPath);
+        m_syncItemModels.insert(itemModelId, itemModelPtr);
+    }
+
+
     for(auto &playerIt : worldSyncMsg->players)
     {
         auto& [ playerId, playerSync ] = playerIt;
@@ -415,7 +450,8 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         clientPlayer->setInterpolationDelay(0);
         clientPlayer->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
         //player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()+.5);
-        clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
+        clientPlayer->setSyncDelay((uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+1.5*GameServer::TICKRATE);
+        //clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
         clientPlayer->disableWalkSync();
     }
 
@@ -462,6 +498,25 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
         //if(!isNew)
         delete characterSync.character;
+    }
+
+    for(auto &playerIt : worldSyncMsg->players)
+    {
+        auto& [ playerId, playerSync ] = playerIt;
+        auto player = m_syncPlayers.findElement(playerId);
+
+        if(!player)
+            continue;
+
+        for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+        {
+            if(playerSync.itemModelsId[i] != 0)
+            {
+                auto *itemModel = m_syncItemModels.findElement(playerSync.itemModelsId[i]);
+                if(itemModel != nullptr)
+                    player->useItem(itemModel);
+            }
+        }
     }
 
     for(auto &node : worldSyncMsg->nodes)
@@ -590,6 +645,7 @@ void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> 
     }
     ///ADD PLAYER ACTIONS => maybe create world.akskSync
 
+    //std::cout<<"Nbr sended player actions:"<<askForWorldSyncMsg->lastPlayerActions.size()<<std::endl;
 }
 
 bool GameWorld::initPlayer(size_t player_id)
@@ -606,6 +662,7 @@ bool GameWorld::initPlayer(size_t player_id)
         return (0);
     }*/
 
+    player->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
     player->setLocalTime(0);
 
     glm::vec2 pos(glm::linearRand(-100,100), glm::linearRand(-100,100));
@@ -615,7 +672,6 @@ bool GameWorld::initPlayer(size_t player_id)
 
 
     CharacterModelAsset *playerModel;
-
     if(player_id % 3 == 0)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/sithXML.txt");
     else if(player_id % 3 == 1)
@@ -629,6 +685,23 @@ bool GameWorld::initPlayer(size_t player_id)
     m_scene->getRootNode()->addChildNode(player);
 
     player->setPosition(pos);
+
+
+
+    ItemModelAsset *playerWeapon;
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/axeXML.txt");
+    this->syncElement(playerWeapon);
+
+    player->useItem(playerWeapon);
+
+
+    player->setTeam(1);
+
+    for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+    {
+        player->addToNearbyCharacters(it->second);
+        it->second->addToNearbyCharacters(player);
+    }
 
     std::cout<<"New player with id:"<<player_id<<std::endl;
 

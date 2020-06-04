@@ -339,7 +339,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             T deltaMove = wantedNewValue - evalValue;
             auto isSynced = glm::greaterThan(glm::abs(deltaMove), this->m_syncPrecision);
 
-                /*std::cout<<"SyncTime:"<<itSyncValue->first<<std::endl;
+               /*std::cout<<"SyncTime:"<<itSyncValue->first<<std::endl;
                 std::cout<<"NextSyncTime:"<<nextIt->first<<std::endl;
                 std::cout<<"InterpTime:"<<interpTime<<std::endl;
                 std::cout<<"SyncValue:"<<itSyncValue->second.x<<std::endl;

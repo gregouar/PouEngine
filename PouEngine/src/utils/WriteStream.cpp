@@ -237,15 +237,20 @@ bool WriteStream::serializeFloat(float &value, float min, float max, uint8_t dec
 
     value = glm::clamp(value, min, max);
 
-    decimals = pow(10,decimals);
+    float power = pow(10.0f,decimals);
 
-    int32_t minInt = min*decimals;
-    int32_t maxInt = max*decimals;
+    int32_t minInt = glm::floor(min*power);
+    int32_t maxInt = glm::floor(max*power);
     const int bits = bitsRequired(minInt, maxInt);
 
     //m_bits += bits;
 
-    int unsigned_value = (uint32_t)((value - min)*decimals);
+    int unsigned_value = 0;
+
+    if(value >= 0)
+        unsigned_value = glm::floor((value - min)*power);
+    else
+        unsigned_value = glm::ceil((value - min)*power);
 
     return this->serializeBits(unsigned_value,bits);
 }

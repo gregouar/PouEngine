@@ -178,11 +178,12 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
         //std::cout<<"ListSize:"<<netMsgList.reliableMsgMap.size()<<std::endl;
         //std::cout<<"Sending packet seq:"<<packet.sequence<<std::endl;
 
+        bool firstMsg = true;
         for(auto &it : netMsgList.reliableMsgMap)
         {
             WriteStream tempStream;
             auto msgSize = it.second->serialize(&tempStream) + 2;
-            if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
+            if(!firstMsg && curPacketSize + msgSize > MAX_PACKETSIZE /*&& forceNonFragSend*/)
                 break;
             curPacketSize += msgSize;
 
@@ -193,17 +194,20 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
             //std::cout<<"Trying to send msgid:"<<it.second->id<<std::endl;
 
+            firstMsg = false;
+
             if(curPacketSize > MAX_PACKETSIZE)
                 break;
         }
 
+        firstMsg = true;
         for(auto it = netMsgList.nonReliableMsgList.begin() ;
             it != netMsgList.nonReliableMsgList.end() ; ++it)
         {
             WriteStream tempStream;
             auto msgSize = (*it)->serialize(&tempStream) + 2;
 
-            if(curPacketSize + msgSize > MAX_PACKETSIZE && forceNonFragSend)
+            if(!firstMsg && curPacketSize + msgSize > MAX_PACKETSIZE /*&& forceNonFragSend*/)
                 break;
 
             curPacketSize += msgSize;
@@ -212,6 +216,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
             packet.nbrNetMessages++;
 
             it = netMsgList.nonReliableMsgList.erase(it);
+
+            firstMsg = false;
 
             if(curPacketSize > MAX_PACKETSIZE)
                 break;
@@ -506,6 +512,7 @@ void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
     assert(nbr_frags < MAX_PACKETFRAGS);
 
     std::cout<<"Big packet split into "<<nbr_frags<<" parts from size:"<<packetBuffer.buffer.size()<<std::endl;
+    std::cout<<packetBuffer.buffer[0]+(packetBuffer.buffer[1]<<8)+(packetBuffer.buffer[2]<<16)+(packetBuffer.buffer[3]<<24)<<std::endl;
 
     for(auto i = 0 ; i < nbr_frags ; ++i)
     {
@@ -517,7 +524,7 @@ void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
         auto startIt    = packetBuffer.buffer.begin()+ i*MAX_PACKETSIZE;
         auto endIt      = packetBuffer.buffer.end();
         if((i+1)*MAX_PACKETSIZE < (int)packetBuffer.buffer.size())
-            endIt = startIt+MAX_PACKETSIZE+1;
+            endIt = startIt+MAX_PACKETSIZE;///+1;
 
         packet_frag.frag_data.assign(startIt,endIt);
 
@@ -531,7 +538,7 @@ bool UdpPacketsExchanger::reassemblePacket(UdpBuffer &fragBuffer, UdpBuffer &des
     if(!this->readPacket(packet_fragment, fragBuffer))
         return (false);
 
-   // std::cout<<"Packet fragment received : Seq="<<packet_fragment.sequence<<" ("<<packet_fragment.frag_id+1<<"/"<<packet_fragment.nbr_frags<<")"<<std::endl;
+    //std::cout<<"Packet fragment received : Seq="<<packet_fragment.sequence<<" ("<<packet_fragment.frag_id+1<<"/"<<packet_fragment.nbr_frags<<")"<<std::endl;
 
     ClientAddress clientAddress = {fragBuffer.address,packet_fragment.salt};
     auto fragPacketsVectorIt = m_fragPacketsBuffer.find(clientAddress);
@@ -584,6 +591,7 @@ int UdpPacketsExchanger::getMaxPacketSize()
 {
     ReadStream stream;
     UdpPacket_Fragment packet_frag;
+    packet_frag.frag_data.resize(MAX_PACKETSIZE);
     return packet_frag.serialize(&stream);
 }
 

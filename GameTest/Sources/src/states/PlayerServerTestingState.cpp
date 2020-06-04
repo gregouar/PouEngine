@@ -91,6 +91,10 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
         m_gameServer.playerAttack(m_localClientNbr, eventsManager->centeredMousePosition());
 
 
+    if(eventsManager->keyPressed(GLFW_KEY_I))
+        m_gameServer.sendMsgTest(false,true);
+    if(eventsManager->keyPressed(GLFW_KEY_O))
+        m_gameServer.sendMsgTest(true,false);
 
     if(eventsManager->keyPressed(GLFW_KEY_R))
         m_gameServer.rewindWorld(1,60);

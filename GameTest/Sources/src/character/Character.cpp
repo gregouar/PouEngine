@@ -15,9 +15,12 @@ const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
 Character::Character() : SceneNode(-1,nullptr),
     m_isAttacking(false,0),
     m_walkingDirection(glm::vec2(0),0),
-    m_lookingDirection(glm::vec2(0),0)
+    m_lookingDirection(glm::vec2(0),0),
+    m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
+
+    m_team = 0;
 
     m_rotationRadius    = 0.0f;
 
@@ -29,9 +32,9 @@ Character::Character() : SceneNode(-1,nullptr),
 
     m_autoLookingDirection = true;
 
-    m_lastCharacterSyncTime = -1;
-    m_lastCharacterUpdateTime = -1;
-    m_lastModelUpdateTime = -1;
+    m_lastCharacterSyncTime     = -1;
+    m_lastCharacterUpdateTime   = -1;
+    m_lastModelUpdateTime       = -1;
 
     m_disableWalkSync = false;
 }
@@ -237,6 +240,10 @@ void Character::setRotationRadius(float radius)
     if(radius >= 0)
         m_rotationRadius = radius;
 }
+void Character::setTeam(int team)
+{
+    m_team = team;
+}
 
 void Character::disableAutoLookingDirection(bool disable)
 {
@@ -316,7 +323,8 @@ bool Character::stopAttacking()
     bool wasAttacking = m_isAttacking.getValue();
 
     m_isAttacking.setValue(false);
-    m_alreadyHitCharacters.clear();
+    ///m_alreadyHitCharacters.clear();
+    m_alreadyHitCharacters.setValue(std::set<Character*> ());
     this->startAnimation("stand", true);
 
     //if(wasAttacking)
@@ -521,6 +529,7 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
+    m_alreadyHitCharacters.update(elapsedTime, m_curLocalTime);
     m_modelAttributes.update(elapsedTime, m_curLocalTime);
     m_attributes.update(elapsedTime, m_curLocalTime);
     auto oldWalkingDirection = m_walkingDirection.getValue();
@@ -530,6 +539,12 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 
     m_lookingDirection.update(elapsedTime, m_curLocalTime);
     m_isAttacking.update(elapsedTime, m_curLocalTime);
+
+    if(m_curAnimation.update(elapsedTime, m_curLocalTime))
+    {
+        std::cout<<"Start sync animation:"<<m_curAnimation.getValue()<<std::endl;
+        this->startAnimation(m_curAnimation.getValue(), true);
+    }
 
     if(elapsedTime.count() == 0)
         return;
@@ -570,11 +585,16 @@ void Character::rewind(uint32_t time)
         this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
 
     m_lookingDirection.rewind(time);
+    m_curAnimation.rewind(time);
 
     m_attackDelayTimer.rewind(time);
     m_pushTimer.rewind(time);
     m_interruptTimer.rewind(time);
     m_isAttacking.rewind(time);
+
+    m_attributes.rewind(time);
+    m_modelAttributes.rewind(time);
+    m_alreadyHitCharacters.rewind(time);
 }
 
 void Character::updateWalking(const pou::Time &elapsedTime)
@@ -616,7 +636,6 @@ void Character::updateWalking(const pou::Time &elapsedTime)
 
 void Character::updateAttacking(const pou::Time &elapsedTime)
 {
-    std::cout<<"IsAttacking"<<std::endl;
     bool isAnimationFinished = true;
     for(auto &skeleton : m_skeletons)
     {
@@ -624,8 +643,9 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 
         if(skeleton.second->hasTag("attack"))
         for(auto c : m_nearbyCharacters)
+        if(c->m_team != m_team)
         if(c != nullptr && c->isAlive() && c->getHurtboxes() != nullptr
-           && m_alreadyHitCharacters.find(c) == m_alreadyHitCharacters.end())
+           && m_alreadyHitCharacters.getValue().find(c) == m_alreadyHitCharacters.getValue().end())
         for(const auto hurtBox : *c->getHurtboxes())
         if(this->getHitboxes() != nullptr)
         for(const auto hitBox : *this->getHitboxes())
@@ -646,7 +666,9 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
 
                     if(collision)
                     {
-                        m_alreadyHitCharacters.insert(c);
+                        auto alreadyHitCharacters = m_alreadyHitCharacters.getValue();
+                        alreadyHitCharacters.insert(c);
+                        m_alreadyHitCharacters.setValue(alreadyHitCharacters);
 
                         float totalDamages = 0;
                         for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
@@ -659,7 +681,8 @@ void Character::updateAttacking(const pou::Time &elapsedTime)
         }
     }
 
-    if(isAnimationFinished && m_isAttacking.getValue())
+    if(!m_attackDelayTimer.isActive() && m_isAttacking.getValue())
+    //if(isAnimationFinished && m_isAttacking.getValue())
         this->stopAttacking();
 }
 
@@ -714,6 +737,9 @@ void Character::startAnimation(const std::string &name, bool forceStart)
 {
     for(auto &skeleton : m_skeletons)
         skeleton.second->startAnimation(name, forceStart);
+
+    this->setLastCharacterUpdateTime(m_curLocalTime);
+    m_curAnimation.setValue(name);
 }
 
 void Character::addToNearbyCharacters(Character *character)
@@ -762,6 +788,7 @@ void Character::setSyncDelay(uint32_t delay)
     SceneNode::setSyncDelay(delay);
     m_walkingDirection.setSyncDelay(delay);
     m_lookingDirection.setSyncDelay(delay);
+    m_curAnimation.setSyncDelay(delay);
 }
 
 void Character::setSyncAndLocalTime(uint32_t syncTime)
@@ -789,6 +816,7 @@ uint32_t Character::getLastModelUpdateTime(bool useSyncDelay)
         return m_lastModelUpdateTime + m_syncDelay;
     return m_lastModelUpdateTime;
 }
+
 
 void Character::disableWalkSync(bool disable)
 {
@@ -828,7 +856,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         auto att = m_attributes.getValue();
 
         stream->serializeFloat(att.walkingSpeed);
-        stream->serializeFloat(att.life, 0, (int)m_modelAttributes.getValue().maxLife+1, 2);
+        stream->serializeFloat(att.life/*, 0, (int)m_modelAttributes.getValue().maxLife+1, 2*/);
 
         if(stream->isReading())
         {
@@ -877,6 +905,25 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
             this->setLastCharacterUpdateTime(m_lookingDirection.getLastUpdateTime());
         }
     }
+
+   bool updateAnimation = false;
+    if(!stream->isReading() && uint32less(clientTime,m_curAnimation.getLastUpdateTime()))
+        updateAnimation = true;
+    stream->serializeBool(updateAnimation);
+    if(updateAnimation)
+    {
+        std::string curAnimation = m_curAnimation.getValue(true);
+        stream->serializeString(curAnimation);
+
+        //std::cout<<"Serialize:"<<curAnimation<<std::endl;
+
+        if(stream->isReading())
+        {
+            m_curAnimation.setValue(curAnimation, true);
+            this->setLastCharacterUpdateTime(m_curAnimation.getLastUpdateTime());
+        }
+    }
+
 }
 
 bool Character::syncFromCharacter(Character *srcCharacter)
@@ -891,7 +938,13 @@ bool Character::syncFromCharacter(Character *srcCharacter)
     {
         m_walkingDirection.syncFrom(srcCharacter->m_walkingDirection);
         m_lookingDirection.syncFrom(srcCharacter->m_lookingDirection);
+        m_curAnimation.syncFrom(srcCharacter->m_curAnimation);
     }
+
+
+    /*if(uint32less(m_lastCharacterSyncTime, srcCharacter->m_curAnimation.getLastUpdateTime()))
+        this->startAnimation(srcCharacter->m_curAnimation.getValue(), true);*/
+
 
     //std::cout<<"WantedLookingDir:"<<srcCharacter->m_lookingDirection.getValue().x<<" "<<srcCharacter->m_lookingDirection.getValue().y<<std::endl;
     //std::cout<<"WantedWalkingDir:"<<srcCharacter->m_walkingDirection.getValue().x<<" "<<srcCharacter->m_walkingDirection.getValue().y<<std::endl;

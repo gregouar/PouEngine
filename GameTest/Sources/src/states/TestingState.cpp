@@ -64,7 +64,7 @@ void TestingState::init()
     m_character2 = new PlayableCharacter();
     m_character2->loadModel("../data/char1/sithXML.txt");
     m_character2->setPosition(-700,-700,1);
-    m_character2->loadItem("../data/char1/laserSwordXML.txt");
+    ///m_character2->loadItem("../data/char1/laserSwordXML.txt");
     m_scene->getRootNode()->addChildNode(m_character2);
 
     m_croco = new Character();
@@ -472,7 +472,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_PAGE_DOWN))
         m_camVelocity.z = 1.0;*/
 
-    if(eventsManager->keyPressed(GLFW_KEY_1))
+    /**if(eventsManager->keyPressed(GLFW_KEY_1))
         m_character->loadItem("../data/char1/swordXML.txt");
     if(eventsManager->keyPressed(GLFW_KEY_2))
         m_character->loadItem("../data/char1/axeXML.txt");
@@ -481,7 +481,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_4))
         m_character->loadItem("../data/char1/laserSwordXML.txt");
     if(eventsManager->keyPressed(GLFW_KEY_5))
-        m_character->loadItem("../data/char1/energySwordXML.txt");
+        m_character->loadItem("../data/char1/energySwordXML.txt");**/
 
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))

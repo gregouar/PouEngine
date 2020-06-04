@@ -2,6 +2,7 @@
 #define SYNCELEMENTS_H
 
 #include "PouEngine/scene/SpriteEntity.h"
+#include "Types.h"
 
 class Character;
 class PlayableCharacter;
@@ -31,6 +32,7 @@ struct CharacterSync
 
 struct PlayerSync
 {
+    int itemModelsId[NBR_GEAR_TYPES];
     int characterId;
 
     PlayableCharacter *player;

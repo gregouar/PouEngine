@@ -160,7 +160,7 @@ void GameClient::playerWalk(glm::vec2 direction)
     if(!m_client || m_curWorldId == 0)
         return;
 
-    if(m_lastPlayerWalkDirection != direction)
+    if(m_lastPlayerWalkDirection != direction || !GameServer::USEREWIND)
     {
         m_lastPlayerWalkDirection = direction;
         PlayerAction playerAction;
@@ -267,13 +267,14 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             }
 
             //Could add condition to do this only if attackMode is on
-            /**{
+            {
                 PlayerAction playerAction;
                 playerAction.actionType = PlayerActionType_CursorMove;
                 playerAction.direction  = glm::normalize(m_curCursorPos);
                 m_world.addPlayerAction(m_curPlayerId, playerAction);
-            }**/
+            }
 
+            //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
             m_world.createAskForSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);

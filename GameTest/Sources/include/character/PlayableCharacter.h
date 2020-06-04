@@ -31,7 +31,8 @@ class PlayableCharacter : public Character
 
         //virtual bool loadModel(const std::string &path);
         virtual bool setModel(CharacterModelAsset *model);
-        virtual bool loadItem(const std::string &path);
+        //virtual bool loadItem(const std::string &path);
+        virtual bool useItem(ItemModelAsset *itemModel);
 
        // virtual void setWalkingSpeed(float speed);
 
@@ -49,12 +50,14 @@ class PlayableCharacter : public Character
         virtual void rewind(uint32_t time);
 
         virtual const std::list<Hitbox> *getHitboxes() const;
+        ItemModelAsset *getItemModel(GearType type);
 
         bool syncFromPlayer(PlayableCharacter *srcPlayer);
 
         virtual void    setSyncAndLocalTime(uint32_t syncTime);
         void            setLastPlayerUpdateTime(uint32_t time, bool force = false);
         uint32_t        getLastPlayerUpdateTime();
+        uint32_t        getLastItemUpdateTime(bool useSyncDelay = true);
 
     protected:
         virtual void updateGearsAttributes();
@@ -65,6 +68,7 @@ class PlayableCharacter : public Character
 
         uint32_t m_lastPlayerSyncTime;
         uint32_t m_lastPlayerUpdateTime;
+        uint32_t m_lastItemUpdateTime;
 
     private:
         //bool        m_isInCombatMode;

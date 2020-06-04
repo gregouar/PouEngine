@@ -51,6 +51,7 @@ class Character : public pou::SceneNode
 
         virtual void setWalkingSpeed(float speed);
         void setRotationRadius(float radius);
+        void setTeam(int team);
 
         void disableAutoLookingDirection(bool disable = true);
         void setLookingDirection(glm::vec2 direction);
@@ -109,7 +110,6 @@ class Character : public pou::SceneNode
         bool      m_isDead;
         bool      m_isWalking;
         pou::SyncedAttribute<bool> m_isAttacking;
-        //glm::vec2 m_walkingDirection;
         pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 
         bool      m_autoLookingDirection;
@@ -117,25 +117,24 @@ class Character : public pou::SceneNode
 
         pou::SyncedTimer m_attackDelayTimer;
 
-        glm::vec2   m_pushVelocity;
-        pou::SyncedTimer  m_pushTimer;
-        pou::SyncedTimer  m_interruptTimer;
+        glm::vec2           m_pushVelocity;
+        pou::SyncedTimer    m_pushTimer;
+        pou::SyncedTimer    m_interruptTimer;
 
-        //float m_walkingSpeed;
-        pou::SyncedAttribute<CharacterModelAttributes> m_modelAttributes;
-        pou::SyncedAttribute<CharacterAttributes> m_attributes;
+        pou::SyncedAttribute<CharacterModelAttributes>  m_modelAttributes;
+        pou::SyncedAttribute<CharacterAttributes>       m_attributes;
 
         std::set<Character*>    m_nearbyCharacters;
-        std::set<Character*>    m_alreadyHitCharacters; ///Need to also rewind this !
+        pou::SyncedAttribute< std::set<Character*> >    m_alreadyHitCharacters;
         std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
 
         uint32_t m_lastCharacterSyncTime;
         uint32_t m_lastCharacterUpdateTime;
         uint32_t m_lastModelUpdateTime;
-        //float m_lastAttributesUpdateTime;
-        //float m_lastLookingDirectionUpdateTime;
 
         bool m_disableWalkSync;
+
+        int m_team;
 
     private:
         CharacterModelAsset *m_model;
@@ -144,10 +143,12 @@ class Character : public pou::SceneNode
         std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
         //std::map<std::string, pou::SoundObject*> m_soundsMap;
 
-        float m_rotationRadius;
+        float m_rotationRadius; /// => this should go to ModelAttribute
 
         bool m_isDestinationSet;
         glm::vec2 m_destination;
+
+        pou::SyncedAttribute<std::string> m_curAnimation; ///I should find a better way to manage animations (like id, but then I need to list all possible animations in the XML beh)
 
         static const float DEFAULT_INTERRUPT_DELAY;
 };

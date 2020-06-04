@@ -97,6 +97,7 @@ struct UdpPacket
             stream->serializeInt(msg_type, 0, NetEngine::getNbrNetMsgTypes());
             if(stream->isReading())
                 netMessages.push_back(NetEngine::createNetMessage(msg_type));
+
             if(netMessages[i])
                 netMessages[i]->serialize(stream, false);
         }
@@ -133,12 +134,24 @@ struct UdpPacket_Fragment : UdpPacket
 
     bool serializeImpl(Stream *stream)
     {
-        frag_data.resize(MAX_PACKETSIZE);
+        /*frag_data.resize(MAX_PACKETSIZE);
 
         return
             stream->serializeBits(frag_id, 8)
             & stream->serializeBits(nbr_frags, 8)
-            & stream->memcpy(frag_data.data(), frag_data.size());
+            & stream->memcpy(frag_data.data(), frag_data.size());*/
+
+        int frag_size = frag_data.size();
+
+        bool r = true;
+
+        r = r   & stream->serializeBits(frag_id, 8)
+                & stream->serializeBits(nbr_frags, 8)
+                & stream->serializeBits(frag_size, 16);
+
+        frag_data.resize(frag_size);
+
+        return r & stream->memcpy(frag_data.data(), frag_data.size());
     }
 };
 
