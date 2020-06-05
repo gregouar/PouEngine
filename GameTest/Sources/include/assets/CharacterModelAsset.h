@@ -66,7 +66,7 @@ struct SkeletonModelWithAssets
 struct CharacterModelAttributes
 {
     CharacterModelAttributes() : walkingSpeed(0), attackDelay(0),
-         attackDamages(0), immovable(0)
+         maxLife(0), attackDamages(0), immovable(0)
         {}
 
     bool operator==(const CharacterModelAttributes& rhs)

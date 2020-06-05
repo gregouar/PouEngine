@@ -13,6 +13,7 @@
 const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
 
 Character::Character() : SceneNode(-1,nullptr),
+    m_isDead(false,0),
     m_isAttacking(false,0),
     m_walkingDirection(glm::vec2(0),0),
     m_lookingDirection(glm::vec2(0),0),
@@ -27,7 +28,6 @@ Character::Character() : SceneNode(-1,nullptr),
     m_isDestinationSet  = false;
     m_destination       = {0,0};
 
-    m_isDead            = false;
     m_isWalking         = true;
 
     m_autoLookingDirection = true;
@@ -36,7 +36,8 @@ Character::Character() : SceneNode(-1,nullptr),
     m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
-    m_disableWalkSync = false;
+    m_disableWalkSync   = false;
+    m_disableDeath      = false;
 }
 
 Character::~Character()
@@ -215,6 +216,8 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     if(sound == m_sounds.end())
         return (false);
 
+    std::cout<<skeleton->second.get()<<std::endl;
+
     //skeleton->second->detachSound(soundModel->node, sound->second.get());
     //skeleton->second->detachObject(sound->second.get());
     skeleton->second->detachSound(sound->second.get(),soundModel->name);
@@ -292,7 +295,7 @@ void Character::walk(glm::vec2 direction)
 
 bool Character::attack(glm::vec2 direction, const std::string &animationName)
 {
-    if(m_isDead)
+    if(m_isDead.getValue())
         return (false);
 
     if(m_isAttacking.getValue())
@@ -343,21 +346,10 @@ bool Character::damage(float damages, glm::vec2 direction)
     auto att = m_attributes.getValue();
     att.life -= damages;
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
-
-    if(att.life <= 0)
-    {
-        att.life  = 0;
-        if(!m_isDead)
-        {
-            this->startAnimation("death",true);
-            isFatal = true;
-        }
-        m_isDead        = true;
-        m_isAttacking.setValue(false);
-        m_isWalking     = false;
-    }
-
     m_attributes.setValue(att);
+
+    if(att.life <= 0 && !m_disableDeath)
+        isFatal = this->kill(damages);
 
 
     //Do something to compute interrupt amount ?
@@ -399,6 +391,26 @@ bool Character::interrupt(float amount)
     return interrupt;
 }
 
+bool Character::kill(float amount)
+{
+    bool isFatal = false;
+
+    auto att = m_attributes.getValue();
+    att.life  = 0;
+    m_attributes.setValue(att);
+
+    if(!m_isDead.getValue())
+    {
+        this->startAnimation("death",true);
+        isFatal = true;
+    }
+    m_isDead.setValue(true);
+    m_isAttacking.setValue(false);
+    m_isWalking     = false;
+
+    return isFatal;
+}
+
 bool Character::resurrect()
 {
     if(this->isAlive())
@@ -407,7 +419,7 @@ bool Character::resurrect()
     auto att = m_attributes.getValue();
     att.life = m_modelAttributes.getValue().maxLife;
     m_attributes.setValue(att);
-    m_isDead = false;
+    m_isDead.setValue(false);
 
     //this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
@@ -531,20 +543,55 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 
     m_alreadyHitCharacters.update(elapsedTime, m_curLocalTime);
     m_modelAttributes.update(elapsedTime, m_curLocalTime);
+
+    float oldLife = m_attributes.getValue().life;
     m_attributes.update(elapsedTime, m_curLocalTime);
+    if(m_attributes.getValue().life < oldLife)
+    {
+        if(m_attributes.getValue().life <= 0)
+            this->kill(oldLife-m_attributes.getValue().life);
+        else
+            this->interrupt(oldLife-m_attributes.getValue().life);
+    }
+
+    if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0
+       && m_attributes.getValue().life <= 0)
+        this->kill();
+
     auto oldWalkingDirection = m_walkingDirection.getValue();
     m_walkingDirection.update(elapsedTime, m_curLocalTime);
     if(m_walkingDirection.getValue() != oldWalkingDirection)
         this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
 
     m_lookingDirection.update(elapsedTime, m_curLocalTime);
-    m_isAttacking.update(elapsedTime, m_curLocalTime);
 
-    if(m_curAnimation.update(elapsedTime, m_curLocalTime))
+    bool wasAttacking = m_isAttacking.getValue();
+    m_isAttacking.update(elapsedTime, m_curLocalTime);
+    if(!wasAttacking && m_isAttacking.getValue())
+    {
+        m_isAttacking.setValue(false);
+        this->attack();
+    }
+
+    /*bool wasDead = m_isDead.getValue();
+    m_isDead.update(elapsedTime, m_curLocalTime);
+    if(!wasDead && m_isDead.getValue())
+    {
+        m_isDead.setValue(false);
+        this->kill();
+    } else if(wasDead && !m_isDead.getValue())
+    {
+        //std::cout<<"RESUR"<<std::endl;
+        //m_isDead.setValue(true);
+        //this->resurrect();
+        this->startAnimation("stand");
+    }*/
+
+    /**if(m_curAnimation.update(elapsedTime, m_curLocalTime))
     {
         std::cout<<"Start sync animation:"<<m_curAnimation.getValue()<<std::endl;
         this->startAnimation(m_curAnimation.getValue(), true);
-    }
+    }**/
 
     if(elapsedTime.count() == 0)
         return;
@@ -555,7 +602,7 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 
     m_attackDelayTimer.update(elapsedTime,localTime);
 
-    if(!m_isDead)
+    if(!m_isDead.getValue())
     {
         //if(m_interruptTimer.isActive()) {}
         //else
@@ -591,6 +638,7 @@ void Character::rewind(uint32_t time)
     m_pushTimer.rewind(time);
     m_interruptTimer.rewind(time);
     m_isAttacking.rewind(time);
+    m_isDead.rewind(time);
 
     m_attributes.rewind(time);
     m_modelAttributes.rewind(time);
@@ -750,7 +798,7 @@ void Character::addToNearbyCharacters(Character *character)
 
 bool Character::isAlive() const
 {
-    return (!m_isDead);
+    return (!m_isDead.getValue());
 }
 
 const std::list<Hitbox> *Character::getHitboxes() const
@@ -815,6 +863,12 @@ uint32_t Character::getLastModelUpdateTime(bool useSyncDelay)
     if(useSyncDelay)
         return m_lastModelUpdateTime + m_syncDelay;
     return m_lastModelUpdateTime;
+}
+
+
+void Character::disableDeath(bool disable)
+{
+    m_disableDeath =  disable;
 }
 
 
@@ -906,7 +960,21 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }
 
-   bool updateAnimation = false;
+    {
+        bool isAttacking = m_isAttacking.getValue(true);
+        stream->serializeBool(isAttacking);
+        if(stream->isReading())
+            m_isAttacking.setValue(isAttacking, true);
+    }
+
+    /*{
+        bool isDead = m_isDead.getValue(true);
+        stream->serializeBool(isDead);
+        if(stream->isReading())
+            m_isDead.setValue(isDead, true);
+    }*/
+
+   /**bool updateAnimation = false;
     if(!stream->isReading() && uint32less(clientTime,m_curAnimation.getLastUpdateTime()))
         updateAnimation = true;
     stream->serializeBool(updateAnimation);
@@ -922,7 +990,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
             m_curAnimation.setValue(curAnimation, true);
             this->setLastCharacterUpdateTime(m_curAnimation.getLastUpdateTime());
         }
-    }
+    }**/
 
 }
 
@@ -936,15 +1004,12 @@ bool Character::syncFromCharacter(Character *srcCharacter)
     m_attributes.syncFrom(srcCharacter->m_attributes);
     if(!m_disableWalkSync)
     {
+        m_isAttacking.syncFrom(srcCharacter->m_isAttacking);
+        m_isDead.syncFrom(srcCharacter->m_isDead);
         m_walkingDirection.syncFrom(srcCharacter->m_walkingDirection);
         m_lookingDirection.syncFrom(srcCharacter->m_lookingDirection);
-        m_curAnimation.syncFrom(srcCharacter->m_curAnimation);
+        ///m_curAnimation.syncFrom(srcCharacter->m_curAnimation);
     }
-
-
-    /*if(uint32less(m_lastCharacterSyncTime, srcCharacter->m_curAnimation.getLastUpdateTime()))
-        this->startAnimation(srcCharacter->m_curAnimation.getValue(), true);*/
-
 
     //std::cout<<"WantedLookingDir:"<<srcCharacter->m_lookingDirection.getValue().x<<" "<<srcCharacter->m_lookingDirection.getValue().y<<std::endl;
     //std::cout<<"WantedWalkingDir:"<<srcCharacter->m_walkingDirection.getValue().x<<" "<<srcCharacter->m_walkingDirection.getValue().y<<std::endl;

@@ -272,6 +272,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         return (false);*/
 
     uint32_t interpTime = this->m_curLocalTime - m_interpolationDelay;
+    uint32_t syncTime = interpTime;
 
     auto itSyncValue = this->m_syncValues.lower_bound(interpTime);
 
@@ -307,7 +308,8 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             nextIt = std::next(itSyncValue);
             ratio = (float)(interpTime - itSyncValue->first)/(float)(nextIt->first - itSyncValue->first);
         } else {
-            interpTime = itSyncValue->first;
+            //interpTime = itSyncValue->first;
+            syncTime = itSyncValue->first;
         }
 
         if(ratio > 1)
@@ -317,7 +319,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
         if(this->m_syncDelay == 0)
         {
-            this->m_lastSyncTime = interpTime;
+            this->m_lastSyncTime = syncTime;
             this->setValue(wantedNewValue);
             return (true);
         }
@@ -348,13 +350,13 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 std::cout<<"RealValue:"<<evalValue.x<<std::endl;
                 std::cout<<std::endl;*/
 
-            /*if(T(isSynced) != T())
+            if(T(isSynced) != T())
             {
                 if(!this->m_desyncTimer.isActive())
                     this->m_desyncTimer.reset(1.0f);
                 else if(this->m_desyncTimer.update(elapsed_time.count()))
                 {
-                    this->m_lastSyncTime = interpTime;
+                    this->m_lastSyncTime = syncTime;
                     while(evalIt != this->m_rewindValues.end())
                     {
                         evalIt->second += deltaMove;
@@ -365,7 +367,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                     return (true);
                 }
             } else
-                this->m_desyncTimer.reset(1.0f);*/
+                this->m_desyncTimer.reset(1.0f);
         }
     }
 

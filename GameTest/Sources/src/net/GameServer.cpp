@@ -461,6 +461,23 @@ void GameServer::playerAttack(size_t clientNbr, glm::vec2 direction, float local
     world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
 }
 
+
+void GameServer::playerUseItem(size_t clientNbr, size_t itemNbr, float localTime)
+{
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+
+    if(!clientInfos || !world)
+        return;
+
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_UseItem;
+    playerAction.value      = itemNbr;
+
+    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
+}
+
+
+
 void GameServer::addClient(int clientNbr, bool isLocalClient)
 {
     GameClientInfos clientInfos;

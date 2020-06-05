@@ -82,7 +82,6 @@ void GameWorld::generate()
     auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt");
     this->syncElement(lanternModel);
 
-
     for(auto i = 0 ; i < 3 ; ++i)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
@@ -93,6 +92,22 @@ void GameWorld::generate()
         m_scene->getRootNode()->addChildNode(lantern);
 
         this->syncElement(lantern);
+    }
+
+
+
+    auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt");
+    this->syncElement(duckModel);
+
+    for(auto i = 0 ; i < 3 ; i++)
+    {
+        glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        auto *duck = new Character();
+        duck->setModel(duckModel);
+        duck->setPosition(p);
+        m_scene->getRootNode()->addChildNode(duck);
+
+        this->syncElement(duck);
     }
 
     m_scene->update(pou::Time(0));
@@ -148,6 +163,8 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
         else if(GameServer::USEREWIND)
             playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
+        else
+            playerIt->second->setSyncDelay(0);
     }
 
     worldSyncMsg->nodes.clear();
@@ -297,11 +314,21 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
-            playerSync.itemModelsId[i] = 0;
+            playerSync.gearModelsId[i] = 0;
 
             auto *itemModel = player->getItemModel((GearType)i);
             if(itemModel)
-                playerSync.itemModelsId[i] = m_syncItemModels.findId(itemModel);
+                playerSync.gearModelsId[i] = m_syncItemModels.findId(itemModel);
+        }
+
+        playerSync.inventoryItemModelsId.resize(player->getInventorySize());
+        for(size_t i = 0 ; i < playerSync.inventoryItemModelsId.size() ; ++i)
+        {
+            playerSync.inventoryItemModelsId[i] = 0;
+
+            auto *itemModel = player->getItemFromInventory(i);
+            if(itemModel)
+                playerSync.inventoryItemModelsId[i] = m_syncItemModels.findId(itemModel);
         }
 
         playerSync.player = player;
@@ -429,6 +456,15 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
                 if(playerId != (int)clientPlayerId)
                     player->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
+
+
+                player->setTeam(1);
+
+                /*for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+                {
+                    player->addToNearbyCharacters(it->second);
+                    it->second->addToNearbyCharacters(player);
+                }*/
             }
             //continue;
         }
@@ -453,6 +489,12 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         clientPlayer->setSyncDelay((uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+1.5*GameServer::TICKRATE);
         //clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
         clientPlayer->disableWalkSync();
+
+        for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+        {
+            clientPlayer->addToNearbyCharacters(it->second);
+            it->second->addToNearbyCharacters(clientPlayer);
+        }
     }
 
 
@@ -475,9 +517,20 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
             if(characterPtr != clientPlayer)
                 characterPtr->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
+
+            /*for(auto it = m_syncPlayers.begin() ; it != m_syncPlayers.end() ; ++it)
+            {
+                characterPtr->addToNearbyCharacters(it->second);
+                it->second->addToNearbyCharacters(clientPlayer);
+            }*/
+
+            characterPtr->addToNearbyCharacters(clientPlayer);
+            clientPlayer->addToNearbyCharacters(clientPlayer);
+
         }
         //else
         characterPtr->syncFromCharacter(characterSync.character);
+        ///characterPtr->disableDeath();
 
         if(characterSync.characterModelId != 0)
         {
@@ -508,15 +561,19 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         if(!player)
             continue;
 
+        if(player != clientPlayer)
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
-            if(playerSync.itemModelsId[i] != 0)
+            if(playerSync.gearModelsId[i] != 0)
             {
-                auto *itemModel = m_syncItemModels.findElement(playerSync.itemModelsId[i]);
+                auto *itemModel = m_syncItemModels.findElement(playerSync.gearModelsId[i]);
                 if(itemModel != nullptr)
-                    player->useItem(itemModel);
+                    player->useGear(itemModel);
             }
         }
+
+        for(size_t i = 0 ; i < playerSync.inventoryItemModelsId.size() ; ++i)
+            player->addItemToInventory(m_syncItemModels.findElement(playerSync.inventoryItemModelsId[i]),i);
     }
 
     for(auto &node : worldSyncMsg->nodes)
@@ -688,11 +745,28 @@ bool GameWorld::initPlayer(size_t player_id)
 
 
 
+
     ItemModelAsset *playerWeapon;
+
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/swordXML.txt");
+    this->syncElement(playerWeapon);
+    player->addItemToInventory(playerWeapon,1);
+
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/axeXML.txt");
     this->syncElement(playerWeapon);
+    player->addItemToInventory(playerWeapon,2);
 
-    player->useItem(playerWeapon);
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/mokouSwordXML.txt");
+    this->syncElement(playerWeapon);
+    player->addItemToInventory(playerWeapon,3);
+
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/laserSwordXML.txt");
+    this->syncElement(playerWeapon);
+    player->addItemToInventory(playerWeapon,4);
+
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/energySwordXML.txt");
+    this->syncElement(playerWeapon);
+    player->addItemToInventory(playerWeapon,5);
 
 
     player->setTeam(1);

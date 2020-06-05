@@ -98,7 +98,7 @@ class SkeletalAnimationModel
         void setName(const std::string &name);
 
         const std::string &getName() const;
-        const int getId() const;
+        int getId() const;
         bool isLooping();
 
     private:

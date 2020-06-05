@@ -25,10 +25,18 @@
 			<reset node="foliage1" />
 			<reset node="foliage2" />
 			
+			<reset node="trunk" />
+			<reset node="trunk2" />
+			<reset node="trunk3" />
+			<reset node="trunk4" />
+			
 			<state node="foliage0">normal</state>
 			<state node="foliage1">normal</state>
 			<state node="foliage2">normal</state>
 			<!--<command type="colorTo" node="baseTrunk" a=-1 />-->
+			
+			<command type="colorTo" node="trunk" a=0 />
+			<command type="colorTo" node="foliage0" a=0 />
 		</frame>
 		<frame frameTime="1">
 			<command type="moveTo" node="foliage1" y=2 x=-1  />

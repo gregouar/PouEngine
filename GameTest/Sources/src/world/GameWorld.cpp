@@ -457,6 +457,10 @@ void GameWorld::processPlayerActions()
                // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
                 player->askToAttack(playerAction.direction);
             }break;
+            case PlayerActionType_UseItem:{
+               // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
+                player->useGear(playerAction.value);
+            }break;
         }
     }
 }

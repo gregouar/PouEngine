@@ -20,7 +20,7 @@
 	
 	<attributes>
 		<type>weapon</type>
-		<attackDelay>0</attackDelay>
+		<attackDelay>.7</attackDelay>
 		<attackDamages>50</attackDamages>
 	</attributes>
 </item>

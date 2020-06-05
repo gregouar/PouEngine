@@ -32,8 +32,10 @@ struct CharacterSync
 
 struct PlayerSync
 {
-    int itemModelsId[NBR_GEAR_TYPES];
     int characterId;
+
+    int gearModelsId[NBR_GEAR_TYPES];
+    std::vector<int> inventoryItemModelsId;
 
     PlayableCharacter *player;
 };

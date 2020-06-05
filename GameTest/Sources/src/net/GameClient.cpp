@@ -195,6 +195,18 @@ void GameClient::playerAttack(glm::vec2 direction)
     m_world.addPlayerAction(m_curPlayerId, playerAction);
 }
 
+void GameClient::playerUseItem(size_t itemNbr)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    PlayerAction playerAction;
+    playerAction.actionType = PlayerActionType_UseItem;
+    playerAction.value      = itemNbr;
+
+    m_world.addPlayerAction(m_curPlayerId, playerAction);
+}
+
 ///Protected
 
 void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)

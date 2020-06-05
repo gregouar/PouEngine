@@ -26,7 +26,8 @@ PlayableCharacter::PlayableCharacter() : Character()
 
     m_lastPlayerUpdateTime  = -1;
     m_lastPlayerSyncTime    = -1;
-    m_lastItemUpdateTime    = -1;
+    m_lastGearUpdateTime    = -1;
+    m_lastInventoryUpdateTime = -1;
     //m_isDashing         = false;
     //m_dashDelay         = 0.0f;
 
@@ -89,31 +90,78 @@ bool PlayableCharacter::setModel(CharacterModelAsset *model)
     return (true);
 }*/
 
-
-bool PlayableCharacter::useItem(ItemModelAsset *itemModel)
+ItemModelAsset* PlayableCharacter::removeGear(GearType type)
 {
-    GearType type = itemModel->getAttributes().type;
-
     if(type == NBR_GEAR_TYPES)
-        return (false);
+        return (nullptr);
 
     if(m_gearsModel[type] != nullptr)
-    {
         m_gearsModel[type]->removeFromCharacter(this);
-        //Do Something
-    }
+
+    auto oldGear = m_gearsModel[type];
+    m_gearsModel[type] = nullptr;
+
+    this->updateGearsAttributes();
+
+    return (oldGear);
+}
+
+ItemModelAsset* PlayableCharacter::useGear(ItemModelAsset *itemModel)
+{
+    if(!itemModel)
+        return (nullptr);
+
+    GearType type = itemModel->getAttributes().type;
+
+    auto *oldGear= this->removeGear(type);
 
     itemModel->generateOnCharacter(this);
 
     m_gearsModel[type] = itemModel;
     this->updateGearsAttributes();
 
-    m_lastItemUpdateTime = m_curLocalTime;
+    m_lastGearUpdateTime = m_curLocalTime;
     this->setLastPlayerUpdateTime(m_curLocalTime);
 
-    return (true);
+    return (oldGear);
 }
 
+ItemModelAsset* PlayableCharacter::useGear(size_t itemNbr)
+{
+    if(itemNbr >= m_inventory.size())
+        return (nullptr);
+
+    return this->useGear(m_inventory[itemNbr]);
+}
+
+ItemModelAsset* PlayableCharacter::addItemToInventory(ItemModelAsset* newItem, size_t itemNbr)
+{
+    if(itemNbr >= m_inventory.size())
+        m_inventory.resize(itemNbr+1, nullptr);
+    auto oldItem = m_inventory[itemNbr];
+    m_inventory[itemNbr] = newItem;
+
+    m_lastInventoryUpdateTime = m_curLocalTime;
+    this->setLastPlayerUpdateTime(m_curLocalTime);
+
+    return oldItem;
+}
+
+ItemModelAsset* PlayableCharacter::getItemFromInventory(size_t itemNbr)
+{
+    if(itemNbr >= m_inventory.size())
+        return (nullptr);
+    return m_inventory[itemNbr];
+}
+
+ItemModelAsset* PlayableCharacter::removeItemFromInventory(size_t itemNbr)
+{
+    if(itemNbr >= m_inventory.size())
+        return (nullptr);
+    auto oldItem = m_inventory[itemNbr];
+    m_inventory[itemNbr] = nullptr;
+    return oldItem;
+}
 
 /*void PlayableCharacter::setWalkingSpeed(float speed)
 {
@@ -205,7 +253,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
 
     //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
-    if(!m_isDead)
+    if(!m_isDead.getValue())
     {
 
     if(m_wantToDashTimer.isActive())
@@ -320,6 +368,10 @@ ItemModelAsset *PlayableCharacter::getItemModel(GearType type)
     return m_gearsModel[type];
 }
 
+size_t PlayableCharacter::getInventorySize() const
+{
+    return m_inventory.size();
+}
 
 void PlayableCharacter::updateGearsAttributes()
 {
@@ -344,6 +396,11 @@ void PlayableCharacter::updateGearsAttributes()
         att.attackDelay    = m_gearsModel[GearType_Weapon]->getAttributes().attackDelay;
         m_modelAttributes.setValue(att);
     }
+}
+
+void PlayableCharacter::serializePlayer(pou::Stream *stream, uint32_t clientTime)
+{
+
 }
 
 bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
@@ -373,12 +430,17 @@ uint32_t PlayableCharacter::getLastPlayerUpdateTime()
     return m_lastPlayerUpdateTime + m_syncDelay;
 }
 
-
-
-uint32_t PlayableCharacter::getLastItemUpdateTime(bool useSyncDelay)
+uint32_t PlayableCharacter::getLastGearUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
-        return m_lastItemUpdateTime + m_syncDelay;
-    return m_lastItemUpdateTime;
+        return m_lastGearUpdateTime + m_syncDelay;
+    return m_lastGearUpdateTime;
+}
+
+uint32_t PlayableCharacter::getLastInventoryUpdateTime(bool useSyncDelay)
+{
+    if(useSyncDelay)
+        return m_lastInventoryUpdateTime + m_syncDelay;
+    return m_lastInventoryUpdateTime;
 }
 

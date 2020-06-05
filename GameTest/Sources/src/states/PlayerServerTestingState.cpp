@@ -69,6 +69,18 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
+
+    if(eventsManager->keyPressed(GLFW_KEY_1))
+        m_gameServer.playerUseItem(m_localClientNbr,1);
+    if(eventsManager->keyPressed(GLFW_KEY_2))
+        m_gameServer.playerUseItem(m_localClientNbr,2);
+    if(eventsManager->keyPressed(GLFW_KEY_3))
+        m_gameServer.playerUseItem(m_localClientNbr,3);
+    if(eventsManager->keyPressed(GLFW_KEY_4))
+        m_gameServer.playerUseItem(m_localClientNbr,4);
+    if(eventsManager->keyPressed(GLFW_KEY_5))
+        m_gameServer.playerUseItem(m_localClientNbr,5);
+
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
         charDirection.y = 1;

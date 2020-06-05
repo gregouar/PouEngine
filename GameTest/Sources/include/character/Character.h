@@ -15,6 +15,8 @@
 
 struct CharacterAttributes
 {
+    CharacterAttributes() : life(0), walkingSpeed(0){}
+
     bool operator==(const CharacterAttributes& rhs)
     {
         if(life != rhs.life) return (false);
@@ -53,7 +55,6 @@ class Character : public pou::SceneNode
         void setRotationRadius(float radius);
         void setTeam(int team);
 
-        void disableAutoLookingDirection(bool disable = true);
         void setLookingDirection(glm::vec2 direction);
         void setDestination(glm::vec2 destination);
         virtual void walk(glm::vec2 direction);
@@ -61,7 +62,8 @@ class Character : public pou::SceneNode
         virtual bool stopAttacking();
 
         virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0));
-        virtual bool interrupt(float amount);
+        virtual bool interrupt(float amount = 0);
+        virtual bool kill(float amount = 0);
         virtual bool resurrect();
 
         void startAnimation(const std::string &name, bool forceStart = false);
@@ -90,6 +92,8 @@ class Character : public pou::SceneNode
         uint32_t        getLastModelUpdateTime(bool useSyncDelay = true);
         uint32_t        getLastCharacterUpdateTime(bool useSyncDelay = true);
 
+        void disableAutoLookingDirection(bool disable = true);
+        void disableDeath(bool disable = true); //Prevent to kill character before server approval
         void disableWalkSync(bool disable = true);
 
     protected:
@@ -107,8 +111,8 @@ class Character : public pou::SceneNode
 
 
     protected:
-        bool      m_isDead;
-        bool      m_isWalking;
+        bool  m_isWalking;
+        pou::SyncedAttribute<bool> m_isDead;
         pou::SyncedAttribute<bool> m_isAttacking;
         pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 
@@ -132,6 +136,7 @@ class Character : public pou::SceneNode
         uint32_t m_lastCharacterUpdateTime;
         uint32_t m_lastModelUpdateTime;
 
+        bool m_disableDeath;
         bool m_disableWalkSync;
 
         int m_team;

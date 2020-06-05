@@ -12,6 +12,7 @@ enum PlayerActionType
     PlayerActionType_Look,
     PlayerActionType_Attack,
     PlayerActionType_Dash,
+    PlayerActionType_UseItem,
     NBR_PLAYERACTIONTYPES,
 };
 
@@ -19,7 +20,8 @@ struct PlayerAction
 {
     int actionType;
 
-    glm::vec2 direction;
+    glm::vec2   direction;
+    int         value;
 };
 
 
@@ -32,9 +34,13 @@ class PlayableCharacter : public Character
         //virtual bool loadModel(const std::string &path);
         virtual bool setModel(CharacterModelAsset *model);
         //virtual bool loadItem(const std::string &path);
-        virtual bool useItem(ItemModelAsset *itemModel);
+        virtual ItemModelAsset* removeGear(GearType type);
+        virtual ItemModelAsset* useGear(ItemModelAsset *itemModel);
+        virtual ItemModelAsset* useGear(size_t itemNbr);
 
-       // virtual void setWalkingSpeed(float speed);
+        virtual ItemModelAsset* addItemToInventory(ItemModelAsset *itemModel, size_t itemNbr); //itemNbr is position inside inventory
+        virtual ItemModelAsset* getItemFromInventory(size_t itemNbr);
+        virtual ItemModelAsset* removeItemFromInventory(size_t itemNbr);
 
         virtual void askToWalk(glm::vec2 direction);
         virtual void askToAttack(glm::vec2 direction = glm::vec2(0,0));
@@ -51,13 +57,17 @@ class PlayableCharacter : public Character
 
         virtual const std::list<Hitbox> *getHitboxes() const;
         ItemModelAsset *getItemModel(GearType type);
+        size_t getInventorySize() const;
 
+
+        void serializePlayer(pou::Stream *stream, uint32_t clientTime = -1);
         bool syncFromPlayer(PlayableCharacter *srcPlayer);
 
         virtual void    setSyncAndLocalTime(uint32_t syncTime);
         void            setLastPlayerUpdateTime(uint32_t time, bool force = false);
         uint32_t        getLastPlayerUpdateTime();
-        uint32_t        getLastItemUpdateTime(bool useSyncDelay = true);
+        uint32_t        getLastGearUpdateTime(bool useSyncDelay = true);
+        uint32_t        getLastInventoryUpdateTime(bool useSyncDelay = true);
 
     protected:
         virtual void updateGearsAttributes();
@@ -68,7 +78,10 @@ class PlayableCharacter : public Character
 
         uint32_t m_lastPlayerSyncTime;
         uint32_t m_lastPlayerUpdateTime;
-        uint32_t m_lastItemUpdateTime;
+        uint32_t m_lastInventoryUpdateTime;
+        uint32_t m_lastGearUpdateTime;
+
+        std::vector<ItemModelAsset *> m_inventory;
 
     private:
         //bool        m_isInCombatMode;

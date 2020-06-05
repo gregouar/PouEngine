@@ -73,6 +73,17 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);
 
+    if(eventsManager->keyPressed(GLFW_KEY_1))
+        m_gameClient.playerUseItem(1);
+    if(eventsManager->keyPressed(GLFW_KEY_2))
+        m_gameClient.playerUseItem(2);
+    if(eventsManager->keyPressed(GLFW_KEY_3))
+        m_gameClient.playerUseItem(3);
+    if(eventsManager->keyPressed(GLFW_KEY_4))
+        m_gameClient.playerUseItem(4);
+    if(eventsManager->keyPressed(GLFW_KEY_5))
+        m_gameClient.playerUseItem(5);
+
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
         charDirection.y = 1;

@@ -256,22 +256,35 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
     }
 
 
-    bool newItem = false;
-    if(!stream->isReading() && uint32less(lastSyncTime,playerPtr->getLastItemUpdateTime()))
-        newItem = true;
-    stream->serializeBool(newItem);
-    if(newItem)
+    bool newGear = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,playerPtr->getLastGearUpdateTime()))
+        newGear = true;
+    stream->serializeBool(newGear);
+    if(newGear)
     {
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
-            stream->serializeBits(playerSync.itemModelsId[i], GameWorld::ITEMMODELSID_BITS);
+            stream->serializeBits(playerSync.gearModelsId[i], GameWorld::ITEMMODELSID_BITS);
     }
     else
     {
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
-            playerSync.itemModelsId[i] = 0;
+            playerSync.gearModelsId[i] = 0;
     }
 
-    ///playerPtr->serializePlayer(stream,lastSyncTime);
+    bool newInventory = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,playerPtr->getLastInventoryUpdateTime()))
+        newInventory = true;
+    stream->serializeBool(newInventory);
+    if(newInventory)
+    {
+        int nbrItems = playerSync.inventoryItemModelsId.size();
+        stream->serializeBits(nbrItems, 8);
+        playerSync.inventoryItemModelsId.resize(nbrItems);
+        for(auto i = 0 ; i  < nbrItems ; ++i)
+            stream->serializeBits(playerSync.inventoryItemModelsId[i], GameWorld::ITEMMODELSID_BITS);
+    }
+
+    playerPtr->serializePlayer(stream,lastSyncTime);
 }
 
 
@@ -291,6 +304,11 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
     {
         stream->serializeFloat(playerAction.direction.x,-1,1,2);
         stream->serializeFloat(playerAction.direction.y,-1,1,2);
+    }
+
+    if(playerAction.actionType == PlayerActionType_UseItem)
+    {
+        stream->serializeBits(playerAction.value,16);
     }
 }
 

@@ -45,6 +45,7 @@ class GameServer
         void playerWalk(size_t clientNbr, glm::vec2 direction, float localTime = -1);
         void playerDash(size_t clientNbr, glm::vec2 direction, float localTime = -1);
         void playerAttack(size_t clientNbr, glm::vec2 direction, float localTime = -1);
+        void playerUseItem(size_t clientNbr, size_t itemNbr, float localTime = -1);
 
         size_t generateWorld();
         void rewindWorld(size_t world_id, float time);

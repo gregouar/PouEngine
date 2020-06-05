@@ -395,7 +395,7 @@ const std::string &SkeletalAnimationModel::getName() const
     return m_name;
 }
 
-const int SkeletalAnimationModel::getId() const
+int SkeletalAnimationModel::getId() const
 {
     return m_id;
 }

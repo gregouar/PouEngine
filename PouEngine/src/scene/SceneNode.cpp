@@ -120,12 +120,13 @@ void SceneNode::detachSound(SoundObject *e,int id)
     m_attachedSounds.erase(founded);*/
 
     auto founded = m_attachedSounds.equal_range(id);
-    for(auto &s = founded.first ; s != founded.second ; ++s)
-    if(s->second == e)
-    {
-        this->detachObject(e);
-        m_attachedSounds.erase(s);
-    }
+
+    for(auto s = founded.first ; s != founded.second ; ++s)
+        if(s->second == e)
+        {
+            s = m_attachedSounds.erase(s);
+            this->detachObject(e);
+        }
 }
 
 

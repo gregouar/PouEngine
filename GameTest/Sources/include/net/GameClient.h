@@ -29,6 +29,7 @@ class GameClient
         void playerWalk(glm::vec2 direction);
         void playerDash(glm::vec2 direction);
         void playerAttack(glm::vec2 direction);
+        void playerUseItem(size_t itemNbr);
 
         void sendMsgTest(bool reliable, bool forceSend);
 
