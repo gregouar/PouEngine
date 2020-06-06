@@ -159,12 +159,15 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         if(playerIt->second == nullptr)
             continue;
 
-        if((int)playerIt->first == player_id)
-            playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
-        else if(GameServer::USEREWIND)
-            playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
-        else
-            playerIt->second->setSyncDelay(0);
+
+        if(GameServer::USEREWIND)
+        {
+            if((int)playerIt->first == player_id)
+                playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
+            else
+                playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
+        }
+
     }
 
     worldSyncMsg->nodes.clear();
@@ -303,7 +306,8 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     {
         auto player = it->second;
 
-        if(uint32leq(player->getLastPlayerUpdateTime(), lastSyncTime))
+        if(uint32leq(player->getLastPlayerUpdateTime(), lastSyncTime)
+        && (int)it->first != player_id)
             continue;
 
         worldSyncMsg->players.push_back({it->first, PlayerSync()});
@@ -486,8 +490,9 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         clientPlayer->setInterpolationDelay(0);
         clientPlayer->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
         //player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()+.5);
-        clientPlayer->setSyncDelay((uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+1.5*GameServer::TICKRATE);
+        //clientPlayer->setSyncDelay(/*(uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+*/1.5*GameServer::TICKRATE);
         //clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
+
         clientPlayer->disableWalkSync();
 
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)

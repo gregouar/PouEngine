@@ -32,7 +32,7 @@ PlayableCharacter::PlayableCharacter() : Character()
     //m_dashDelay         = 0.0f;
 
 
-    m_position.setSyncPrecision(glm::vec3(64));
+    m_position.setSyncPrecision(glm::vec3(32));
     m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
@@ -251,6 +251,9 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
     m_wantToDashDirection.update(elapsedTime, localTime);
     m_wantToAttackDirection.update(elapsedTime, localTime);
 
+    if(m_timeShift.update(elapsedTime, localTime))
+        this->setSyncDelay(m_timeShift.getValue());
+
     //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     if(!m_isDead.getValue())
@@ -400,17 +403,29 @@ void PlayableCharacter::updateGearsAttributes()
 
 void PlayableCharacter::serializePlayer(pou::Stream *stream, uint32_t clientTime)
 {
-
+    {
+        auto timeShift = m_timeShift.getValue(true);
+        stream->serializeBits(timeShift,12);
+        if(stream->isReading())
+            m_timeShift.setValue(timeShift, true);
+    }
 }
 
 bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
 {
-    if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
-        return (false);
+    ///if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
+       /// return (false);
+
+    m_timeShift.syncFrom(srcPlayer->m_timeShift);
 
     m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
 
     return (true);
+}
+
+void PlayableCharacter::setTimeShift(int shift)
+{
+    m_timeShift.setValue(shift);
 }
 
 void PlayableCharacter::setSyncAndLocalTime(uint32_t syncTime)

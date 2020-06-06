@@ -216,8 +216,6 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     if(sound == m_sounds.end())
         return (false);
 
-    std::cout<<skeleton->second.get()<<std::endl;
-
     //skeleton->second->detachSound(soundModel->node, sound->second.get());
     //skeleton->second->detachObject(sound->second.get());
     skeleton->second->detachSound(sound->second.get(),soundModel->name);

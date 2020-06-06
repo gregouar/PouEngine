@@ -311,6 +311,9 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
 
     auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
 
+    if(!world)
+        return;
+
     uint32_t timeShift = 0;
     if(!GameServer::USEREWIND)
     {
@@ -373,7 +376,10 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(uint32less(clientInfos->lastSyncTime,msg->lastSyncTime))
         clientInfos->lastSyncTime = msg->lastSyncTime;
     if(uint32less(clientInfos->localTime,msg->localTime))
+    {
         clientInfos->localTime = msg->localTime;
+        world->getPlayer(clientInfos->player_id)->setTimeShift(timeShift);
+    }
 }
 
 void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)

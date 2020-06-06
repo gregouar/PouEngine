@@ -63,6 +63,7 @@ class PlayableCharacter : public Character
         void serializePlayer(pou::Stream *stream, uint32_t clientTime = -1);
         bool syncFromPlayer(PlayableCharacter *srcPlayer);
 
+        virtual void    setTimeShift(int shift);
         virtual void    setSyncAndLocalTime(uint32_t syncTime);
         void            setLastPlayerUpdateTime(uint32_t time, bool force = false);
         uint32_t        getLastPlayerUpdateTime();
@@ -73,15 +74,16 @@ class PlayableCharacter : public Character
         virtual void updateGearsAttributes();
 
     protected:
-        std::vector<ItemModelAsset *> m_gearsModel;
         std::list<Hitbox>             m_hitboxes;
+        std::vector<ItemModelAsset *> m_gearsModel;
+        std::vector<ItemModelAsset *> m_inventory;
 
         uint32_t m_lastPlayerSyncTime;
         uint32_t m_lastPlayerUpdateTime;
         uint32_t m_lastInventoryUpdateTime;
         uint32_t m_lastGearUpdateTime;
+        pou::SyncedAttribute<int> m_timeShift;
 
-        std::vector<ItemModelAsset *> m_inventory;
 
     private:
         //bool        m_isInCombatMode;

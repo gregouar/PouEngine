@@ -32,7 +32,6 @@ void PlayerServerTestingState::init()
 
     int localClientNbr = m_gameServer.addLocalPlayer();
     m_localClientNbr = (size_t)localClientNbr;
-    std::cout<<m_localClientNbr<<std::endl;
 
     m_gameUi.init();
 }

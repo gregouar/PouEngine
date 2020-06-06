@@ -306,10 +306,13 @@ void UdpServer::disconnectClient(uint16_t clientNbr, bool sendMsg)
     Logger::write("Client disconnected from: "+m_clients[clientNbr].address.getAddressString()
                   +"("+std::to_string(m_clients[clientNbr].clientSalt)+","+std::to_string(m_clients[clientNbr].serverSalt)+")");
 
-    m_disconnectionList.push_back(clientNbr);
-    m_clients[clientNbr].status = ConnectionStatus_Disconnected;
+    if(m_clients[clientNbr].status != ConnectionStatus_Disconnected)
+    {
+        m_disconnectionList.push_back(clientNbr);
+        m_clients[clientNbr].status = ConnectionStatus_Disconnected;
 
-    this->sendConnectionMsg(clientNbr, ConnectionMessage_Disconnection);
+        this->sendConnectionMsg(clientNbr, ConnectionMessage_Disconnection);
+    }
 }
 
 uint16_t UdpServer::findClientIndex(NetAddress &address, int salt)

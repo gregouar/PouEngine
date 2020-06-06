@@ -56,8 +56,6 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(curTime != (uint32_t)(-1))
         m_curLocalTime = curTime;
 
-   // if(m_timeBeforeRewind != (uint32_t)(-1) && m_curLocalTime > m_timeBeforeRewind)
-    //if(m_curLocalTime != (uint32_t)(-1) && m_curLocalTime > m_timeBeforeRewind)
     if(m_timeBeforeRewind != (uint32_t)(-1) && uint32less(m_timeBeforeRewind, m_curLocalTime))
     {
         if((m_lastUpdateTime < m_curLocalTime || m_lastUpdateTime == (uint32_t)(-1))
