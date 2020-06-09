@@ -92,7 +92,18 @@ int intLog2(int v)
     return r;
 }
 
+float computeWantedRotation(float startingRotation, glm::vec2 position)
+{
+    float wantedRotation = glm::pi<float>()/2.0+glm::atan(position.y, position.x);
 
+    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation+glm::pi<float>()*2.0))
+        wantedRotation += glm::pi<float>()*2.0;
+
+    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation-glm::pi<float>()*2.0))
+        wantedRotation -= glm::pi<float>()*2.0;
+
+    return wantedRotation;
+}
 
 
 }

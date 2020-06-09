@@ -321,7 +321,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
 
         if(clientInfos->localTime != 0)
             timeShift = minActionTime - clientInfos->localTime;
-        else
+        else if(!msg->lastPlayerActions.empty())
             timeShift = minActionTime - msg->lastPlayerActions.begin()->first;
 
         //std::cout<<"LastActionTime:"<<clientInfos->lastActionTime<<std::endl;

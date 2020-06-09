@@ -4,7 +4,7 @@
 
 #include "world/GameWorld.h"
 #include "character/Character.h"
-#include "character/PlayableCharacter.h"
+#include "character/Player.h"
 
 void initializeNetMessages()
 {
@@ -164,8 +164,8 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     if(stream->isReading())
     {
         spriteEntityPtr = new pou::SpriteEntity();
-        //spriteEntityPtr->setSyncAndLocalTime(localTime);
-        spriteEntityPtr->setLocalTime(localTime);
+        spriteEntityPtr->update(pou::Time(0),localTime);
+        //spriteEntityPtr->setLocalTime(localTime);
     }
 
     stream->serializeBits(spriteEntityId, GameWorld::SPRITEENTITYID_BITS);
@@ -210,9 +210,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     if(stream->isReading())
     {
         characterPtr = new Character();
-        //characterPtr->setLocalTime(localTime);
         characterPtr->update(pou::Time(0),localTime);
-        //characterPtr->setSyncAndLocalTime(localTime);
     }
 
     stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
@@ -249,10 +247,8 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 
     if(stream->isReading())
     {
-        playerPtr = new PlayableCharacter();
+        playerPtr = new Player();
         playerPtr->update(pou::Time(0),localTime);
-        //playerPtr->setLocalTime(localTime);
-        //playerPtr->setSyncAndLocalTime(localTime);
     }
 
 

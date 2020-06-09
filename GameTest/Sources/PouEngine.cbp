@@ -30,6 +30,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -55,6 +56,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -84,6 +86,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -111,6 +114,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -140,6 +144,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -169,6 +174,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -198,6 +204,7 @@
 					<Add directory="GameTest/Sources/include/states" />
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="GameTest/Sources/include/character" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -435,8 +442,10 @@
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/character/Character.h" />
+		<Unit filename="include/character/CharacterInput.h" />
+		<Unit filename="include/character/CharacterState.h" />
 		<Unit filename="include/character/Hitbox.h" />
-		<Unit filename="include/character/PlayableCharacter.h" />
+		<Unit filename="include/character/Player.h" />
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
 		<Unit filename="include/net/NetMessageTypes.h" />
@@ -452,8 +461,10 @@
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
 		<Unit filename="src/character/Character.cpp" />
+		<Unit filename="src/character/CharacterInput.cpp" />
+		<Unit filename="src/character/CharacterState.cpp" />
 		<Unit filename="src/character/Hitbox.cpp" />
-		<Unit filename="src/character/PlayableCharacter.cpp" />
+		<Unit filename="src/character/Player.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />
 		<Unit filename="src/net/NetMessageTypes.cpp" />

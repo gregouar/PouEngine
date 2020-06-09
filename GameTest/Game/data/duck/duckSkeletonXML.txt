@@ -131,8 +131,10 @@
 			
 			<command type="moveTo" node="head" z=-9.99 rate=100 />
 			<command type="moveTo" node="body" z=-19 rate=200 />
-			<command type="moveTo" node="footL" z=19 rate=200 />
-			<command type="moveTo" node="footR" z=19 rate=200 />
+			<command type="moveTo" node="legL" z=2 rate=200 />
+			<command type="moveTo" node="legR" z=2 rate=200 />
+			<command type="moveTo" node="footL" z=17 rate=200 />
+			<command type="moveTo" node="footR" z=17 rate=200 />
 			
 			<!--<globalCommand type="colorTo" r=0 g=0 b=0 rate=200 />-->
 			<command type="colorTo" node="body" r=0 g=0 b=0 rate=200 />

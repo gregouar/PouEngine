@@ -134,7 +134,7 @@ void GameWorld::rewind(uint32_t time, bool simulate)
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
-    auto player = new PlayableCharacter();
+    auto player = new Player();
 
     auto player_id = this->syncElement(player);
     if(player_id == 0)
@@ -246,7 +246,7 @@ uint32_t GameWorld::getLastSyncTime()
     return m_lastSyncTime;
 }
 
-PlayableCharacter *GameWorld::getPlayer(int player_id)
+Player *GameWorld::getPlayer(int player_id)
 {
     return m_syncPlayers.findElement(player_id);
 }
@@ -324,7 +324,7 @@ size_t GameWorld::syncElement(ItemModelAsset *itemModel)
     return id;
 }
 
-size_t GameWorld::syncElement(PlayableCharacter *player)
+size_t GameWorld::syncElement(Player *player)
 {
     this->syncElement((Character*)player);
     return m_syncPlayers.allocateId(player);
@@ -353,7 +353,7 @@ void GameWorld::desyncElement(Character *character, bool noDesyncInsert)
     m_syncCharacters.freeElement(character);
 }
 
-void GameWorld::desyncElement(PlayableCharacter *player, bool noDesyncInsert)
+void GameWorld::desyncElement(Player *player, bool noDesyncInsert)
 {
     this->desyncElement((Character*)player, true);
 
@@ -438,10 +438,12 @@ void GameWorld::processPlayerActions()
         }
 
         auto& playerAction = it->second.second;
-        switch(playerAction.actionType)
+        player->processAction(playerAction);
+        /*switch(playerAction.actionType)
         {
             case PlayerActionType_CursorMove:{
-                player->lookAt(/*player->getGlobalXYPosition() +*/ playerAction.direction/* *100.0f*/);
+               // player->lookAt(player->getGlobalXYPosition() + playerAction.direction *100.0f);
+               player->lookAt(playerAction.direction);
             }break;
             case PlayerActionType_Look:{
                 player->setLookingDirection(playerAction.direction);
@@ -461,34 +463,7 @@ void GameWorld::processPlayerActions()
                // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
                 player->useGear(playerAction.value);
             }break;
-        }
+        }*/
     }
 }
-
-
-/*void GameWorld::processPlayerActions(const pou::Time elapsed_time)
-{
-    auto it = m_playerActions.find(m_curLocalTime - elapsed_time.count());
-    if(it == m_playerActions.end())
-        it = m_playerActions.upper_bound(m_curLocalTime - elapsed_time.count());
-    while(it != m_playerActions.end() && it->first <= m_curLocalTime)
-    {
-        auto player_id = it->second.first;
-        auto player = m_syncPlayers.findElement(player_id);
-        if(player == nullptr)
-        {
-            ++it;
-            continue;
-        }
-
-        auto& playerAction = it->second.second;
-        switch(playerAction.actionType)
-        {
-            case PlayerActionType_Walk:{
-                player->askToWalk(playerAction.walkDirection);
-            }break;
-        }
-        ++it;
-    }
-}*/
 

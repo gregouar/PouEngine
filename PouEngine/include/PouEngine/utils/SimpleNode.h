@@ -57,9 +57,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setName(const std::string &name);
         void setRigidity(float rigidity);
 
-        void setLastUpdateTime(uint32_t time, bool force = false);
-        void setLocalTime(uint32_t localTime);
-        virtual void setSyncAndLocalTime(uint32_t syncTime);
+        //void setLocalTime(uint32_t localTime);
         virtual void setSyncDelay(uint32_t delay);
         virtual void setInterpolationDelay(uint32_t delay);
         virtual void setMaxRewind(int maxRewind);
@@ -122,6 +120,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         void computeFlexibleMove(glm::vec3 );
         //void computeFlexibleRotate(float );
+
+        void setLastUpdateTime(uint32_t time, bool force = false);
 
     protected:
         glm::vec3 m_globalPosition;

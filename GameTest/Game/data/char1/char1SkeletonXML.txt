@@ -87,11 +87,11 @@
 	</animation>
 	
 	<animation name="walk" loop="1">
-		<frame>
-			<command type="rotateTo" node="body" z="-20" rate="100" />
+		<frame frameTime=.2>
+			<command type="rotateTo" node="body" z="-20" />
 			<command type="rotateTo" node="shoulderL" z="-10" rate="100" />
 			<command type="rotateTo" node="shoulderR" z="10" rate="100" />
-			<command type="rotateTo" node="weapon" z="-10" rate="100" />
+			<command type="rotateTo" node="weapon" z="-10" />
 			<command type="moveTo" node="footR" x="0" y="-14" rate="100" />
 			<command type="moveTo" node="footL" x="0" y="14" rate="100" />
 			<command type="scaleTo" node="bag" x="0" y="0" rate="2" />

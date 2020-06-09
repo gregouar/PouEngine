@@ -26,8 +26,23 @@ void ClientTestingState::init()
 
     pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
 
+    char dot;
+    int a,b,c,d,port;
+    std::cout<<"Server address: ";
+    if (std::cin.peek() != '\n')
+        std::cin>>a>>dot>>b>>dot>>c>>dot>>d;
+    else
+        a=127, b=0, c=0, d=1;
+
+    if(std::cin.peek() != '\n')
+       std::cin>>dot>>port;
+    else
+        port=46969;
+
+    std::cout<<a<<"."<<b<<"."<<c<<"."<<d<<":"<<port<<std::endl;
+
     m_gameClient.create();
-    m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,46969));
+    m_gameClient.connectToServer(pou::NetAddress(a,b,c,d,port));
 
     m_gameUi.init();
 }
@@ -68,7 +83,7 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_Z))
         m_gameClient.disconnectFromServer();
     if(eventsManager->keyPressed(GLFW_KEY_X))
-        m_gameClient.connectToServer(pou::NetAddress(127,0,0,1,46969));
+        m_gameClient.connectToServer(m_gameClient.getServerAddress()/*pou::NetAddress(192,168,0,5,46969)*/);
 
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameClient.sendMsgTest(false,true);

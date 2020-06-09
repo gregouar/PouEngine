@@ -285,22 +285,13 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
     return (true);
 }
 
-void SimpleNode::setLocalTime(uint32_t localTime)
+/*void SimpleNode::setLocalTime(uint32_t localTime)
 {
     //if(localTime < 0)
         //localTime = -1;
     m_curLocalTime = localTime;
     this->update();
-}
-
-void SimpleNode::setSyncAndLocalTime(uint32_t syncTime)
-{
-    //if(syncTime < 0)
-        //syncTime = -1;
-    m_lastSyncTime = syncTime;
-
-    this->setLocalTime(syncTime);
-}
+}*/
 
 void SimpleNode::setSyncDelay(uint32_t delay)
 {

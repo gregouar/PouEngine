@@ -26,8 +26,8 @@ class Hitbox
     protected:
 
     private:
-        std::string     m_skeleton;
-        std::string     m_node;
+        std::string     m_skeleton; ///Replace by ID !
+        std::string     m_node; ///Replace by ID !
 
         std::vector<float>  m_factors;
         pou::MathTools::Box m_box;

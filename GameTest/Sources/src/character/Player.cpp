@@ -1,49 +1,33 @@
-#include "character/PlayableCharacter.h"
+#include "character/Player.h"
 
 #include "PouEngine/assets/AssetHandler.h"
 
-const float PlayableCharacter::DEFAULT_COMBATMODE_DELAY = 3.0f;
-const float PlayableCharacter::DEFAULT_WANTTOATTACK_DELAY = .1f;
-const float PlayableCharacter::DEFAULT_DASH_DELAY = .5f;
-const float PlayableCharacter::DEFAULT_DASH_TIME = .15f;
-const float PlayableCharacter::DEFAULT_DASH_SPEED = 1500.0f;
-const float PlayableCharacter::DEFAULT_WANTTODASH_DELAY = .5f;
-
-PlayableCharacter::PlayableCharacter() : Character()
+const float Player::DEFAULT_DASH_DELAY = .5f;
+const float Player::DEFAULT_DASH_TIME = .15f;
+const float Player::DEFAULT_DASH_SPEED = 1500.0f;
+Player::Player(bool userControlled) :
+    Character(userControlled ? std::make_shared<PlayerInput>() : std::make_shared<CharacterInput>()),
+    m_userControlled(userControlled)
 {
-    //m_normalWalkingSpeed = 250.0f;
-
-    //m_isInCombatMode    = false;
-    //m_combatModeDelay   = 0.0f;
-
-    //m_wantToAttackDelay = 0.0f;
-
-    m_isLateralWalking  = false;
-    m_lookingAt         = glm::vec2(0);
-    m_wantToWalkDirection = glm::vec2(0);
-
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
     m_lastPlayerUpdateTime  = -1;
     m_lastPlayerSyncTime    = -1;
     m_lastGearUpdateTime    = -1;
     m_lastInventoryUpdateTime = -1;
-    //m_isDashing         = false;
-    //m_dashDelay         = 0.0f;
-
 
     m_position.setSyncPrecision(glm::vec3(32));
     m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 
-PlayableCharacter::~PlayableCharacter()
+Player::~Player()
 {
     //dtor
 }
 
 
-/*bool PlayableCharacter::loadModel(const std::string &path)
+/*bool Player::loadModel(const std::string &path)
 {
     if(!Character::loadModel(path))
         return (false);
@@ -53,18 +37,17 @@ PlayableCharacter::~PlayableCharacter()
     return (true);
 }*/
 
-bool PlayableCharacter::setModel(CharacterModelAsset *model)
+bool Player::setModel(CharacterModelAsset *model)
 {
     if(!Character::setModel(model))
         return (false);
 
-    //m_normalWalkingSpeed = m_modelAttributes.getValue().walkingSpeed;
     this->setLastPlayerUpdateTime(m_curLocalTime);
 
     return (true);
 }
 
-/*bool PlayableCharacter::loadItem(const std::string &path)
+/*bool Player::loadItem(const std::string &path)
 {
     ItemModelAsset* itemModel = pou::AssetHandler<ItemModelAsset>::loadAssetFromFile(path);
 
@@ -90,7 +73,7 @@ bool PlayableCharacter::setModel(CharacterModelAsset *model)
     return (true);
 }*/
 
-ItemModelAsset* PlayableCharacter::removeGear(GearType type)
+ItemModelAsset* Player::removeGear(GearType type)
 {
     if(type == NBR_GEAR_TYPES)
         return (nullptr);
@@ -106,7 +89,7 @@ ItemModelAsset* PlayableCharacter::removeGear(GearType type)
     return (oldGear);
 }
 
-ItemModelAsset* PlayableCharacter::useGear(ItemModelAsset *itemModel)
+ItemModelAsset* Player::useGear(ItemModelAsset *itemModel)
 {
     if(!itemModel)
         return (nullptr);
@@ -126,7 +109,7 @@ ItemModelAsset* PlayableCharacter::useGear(ItemModelAsset *itemModel)
     return (oldGear);
 }
 
-ItemModelAsset* PlayableCharacter::useGear(size_t itemNbr)
+ItemModelAsset* Player::useGear(size_t itemNbr)
 {
     if(itemNbr >= m_inventory.size())
         return (nullptr);
@@ -134,7 +117,7 @@ ItemModelAsset* PlayableCharacter::useGear(size_t itemNbr)
     return this->useGear(m_inventory[itemNbr]);
 }
 
-ItemModelAsset* PlayableCharacter::addItemToInventory(ItemModelAsset* newItem, size_t itemNbr)
+ItemModelAsset* Player::addItemToInventory(ItemModelAsset* newItem, size_t itemNbr)
 {
     if(itemNbr >= m_inventory.size())
         m_inventory.resize(itemNbr+1, nullptr);
@@ -147,14 +130,14 @@ ItemModelAsset* PlayableCharacter::addItemToInventory(ItemModelAsset* newItem, s
     return oldItem;
 }
 
-ItemModelAsset* PlayableCharacter::getItemFromInventory(size_t itemNbr)
+ItemModelAsset* Player::getItemFromInventory(size_t itemNbr)
 {
     if(itemNbr >= m_inventory.size())
         return (nullptr);
     return m_inventory[itemNbr];
 }
 
-ItemModelAsset* PlayableCharacter::removeItemFromInventory(size_t itemNbr)
+ItemModelAsset* Player::removeItemFromInventory(size_t itemNbr)
 {
     if(itemNbr >= m_inventory.size())
         return (nullptr);
@@ -163,128 +146,66 @@ ItemModelAsset* PlayableCharacter::removeItemFromInventory(size_t itemNbr)
     return oldItem;
 }
 
-/*void PlayableCharacter::setWalkingSpeed(float speed)
+void Player::processAction(const PlayerAction &playerAction)
 {
-    Character::setWalkingSpeed(speed);
-    m_normalWalkingSpeed = m_modelAttributes.getValue().walkingSpeed;
-}*/
+    if(playerAction.actionType == PlayerActionType_UseItem)
+    {
+        this->useGear(playerAction.value);
+        return;
+    }
 
-void PlayableCharacter::askToWalk(glm::vec2 direction)
-{
-    m_wantToWalkDirection = direction;
+    if(!m_userControlled)
+        return;
+
+    auto playerInput = std::dynamic_pointer_cast<PlayerInput>(m_input);
+    playerInput->processAction(playerAction);
 }
 
-void PlayableCharacter::askToAttack(glm::vec2 direction)
+void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    //m_wantToAttackDelay     = DEFAULT_WANTTOATTACK_DELAY;
-    m_wantToAttackTimer.reset(DEFAULT_WANTTOATTACK_DELAY);
-    m_wantToAttackDirection.setValue(direction);
-}
+    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
-void PlayableCharacter::walk(glm::vec2 direction)
-{
-    Character::walk(direction);
-    m_wantToWalkDirection = m_walkingDirection.getValue();
-}
-
-bool PlayableCharacter::attack(glm::vec2 direction, const std::string &animationName)
-{
-    if(m_dashTimer.isActive())
-        return (false);
-
-    if(m_isAttacking.getValue())
-        return (false);
-
-    m_lookingAt = /*SceneNode::getGlobalXYPosition() +*/ direction;
-    this->forceAttackMode();
-
-    return (Character::attack(direction, animationName));
-}
-
-void PlayableCharacter::lookAt(glm::vec2 position)
-{
-    if(!m_isAttacking.getValue())
-        m_lookingAt = position;
-}
-
-void PlayableCharacter::forceAttackMode(bool force)
-{
-    //m_isInCombatMode    = true;
-    m_combatModeTimer.reset(DEFAULT_COMBATMODE_DELAY);
-    //m_combatModeDelay   = DEFAULT_COMBATMODE_DELAY;
-}
-
-void PlayableCharacter::askToDash(glm::vec2 direction)
-{
-    //m_wantToDashDelay     = DEFAULT_WANTTODASH_DELAY;
-    m_wantToDashDirection.setValue(direction);
-    m_wantToDashTimer.reset(DEFAULT_WANTTODASH_DELAY);
-}
-
-bool PlayableCharacter::dash(glm::vec2 direction)
-{
-    if(m_dashDelayTimer.isActive())
-        return (false);
-
-    ///Comment if we want dash to interrupt attack
-    if(m_isAttacking.getValue())
-        return (false);
-
-    //m_isAttacking   = false;
-    if(direction == glm::vec2(0))
-        m_dashDirection.setValue(m_lookingDirection.getValue());
-    else
-        m_dashDirection.setValue(direction);
-    m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
-    m_dashTimer.reset(DEFAULT_DASH_TIME);
-
-    this->startAnimation("dash",true);
-
-    return (true);
-}
-
-void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
-{
     Character::update(elapsedTime, localTime);
 
-    m_dashDirection.update(elapsedTime, localTime);
+    /*m_dashDirection.update(elapsedTime, localTime);
     m_wantToDashDirection.update(elapsedTime, localTime);
     m_wantToAttackDirection.update(elapsedTime, localTime);
 
     if(m_timeShift.update(elapsedTime, localTime))
         this->setSyncDelay(m_timeShift.getValue());
 
-    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+    if(m_wantToWalkDirection != m_walkingDirection.getValue())
+        this->walk(m_wantToWalkDirection);
+
 
     if(!m_isDead.getValue())
     {
 
-    if(m_wantToDashTimer.isActive())
+    if(m_wantToDashTimer.isActive()) //=>This should maybe go to inputComponent
     {
         if(this->dash(m_wantToDashDirection.getValue()))
             m_wantToDashTimer.reset(0);
     }
-    else if(m_wantToAttackTimer.isActive())
+    else if(m_wantToAttackTimer.isActive()) //=>This should maybe go to inputComponent
     {
         if(this->attack(m_wantToAttackDirection.getValue()))
             m_wantToAttackTimer.reset(0);
     }
-    else if(m_wantToWalkDirection != m_walkingDirection.getValue())
+    else if(m_wantToWalkDirection != m_walkingDirection.getValue()) //=>This should maybe go to inputComponent
     {
         this->walk(m_wantToWalkDirection);
     }
 
     m_wantToDashTimer.update(elapsedTime,localTime);
-    m_wantToAttackTimer.update(elapsedTime,localTime);
+    m_wantToAttackTimer.update(elapsedTime,localTime);*/
 
-    m_dashDelayTimer.update(elapsedTime,localTime);
+    /*m_dashDelayTimer.update(elapsedTime,localTime);
     if(m_dashTimer.update(elapsedTime,localTime))
         this->startAnimation("walk");
 
     auto att = m_attributes.getValue();
     if(m_dashTimer.isActive())
     {
-        std::cout<<"DASHING"<<std::endl;
         att.walkingSpeed = DEFAULT_DASH_SPEED;
         Character::walk(m_dashDirection.getValue());
         m_isWalking = true;
@@ -292,7 +213,6 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
     else if(m_dashDelayTimer.isActive())
     {
         //att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed * .25f;
-
         Character::walk(glm::vec2(0));
     }
     else
@@ -302,7 +222,7 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
     if(m_combatModeTimer.isActive())
     {
         //if(!m_isAttacking)
-        this->setLookingDirection(m_lookingAt /*- SceneNode::getGlobalXYPosition()*/);
+        this->setLookingDirection(m_lookingAt);
             //m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
         //SceneNode::setRotation({0,0,desiredRot});
         if(m_isWalking && !m_isAttacking.getValue())
@@ -334,49 +254,30 @@ void PlayableCharacter::update(const pou::Time &elapsedTime, uint32_t localTime)
     {
         m_isLateralWalking = false;
         Character::startAnimation("walk", true);
-    }
+    }*/
 
-    m_combatModeTimer.update(elapsedTime,localTime);
-    }
-
-    //for(auto &skeleton : m_skeletons)
-      //  std::cout<<skeleton.second->getCurrentAnimationName()<<std::endl;
-
+    /*m_combatModeTimer.update(elapsedTime,localTime); //=>This should maybe go to inputComponent
+    }*/
 }
 
-void PlayableCharacter::rewind(uint32_t time)
-{
-    Character::rewind(time);
-
-    m_combatModeTimer.rewind(time);
-    m_dashDelayTimer.rewind(time);
-    m_dashTimer.rewind(time);
-    m_dashDirection.rewind(time);
-
-    m_wantToAttackDirection.rewind(time);
-    m_wantToDashDirection.rewind(time);
-    m_wantToAttackTimer.rewind(time);
-    m_wantToDashTimer.rewind(time);
-}
-
-const std::list<Hitbox> *PlayableCharacter::getHitboxes() const
+const std::list<Hitbox> *Player::getHitboxes() const
 {
     return &m_hitboxes;
 }
 
-ItemModelAsset *PlayableCharacter::getItemModel(GearType type)
+ItemModelAsset *Player::getItemModel(GearType type)
 {
     if(type == NBR_GEAR_TYPES)
         return (nullptr);
     return m_gearsModel[type];
 }
 
-size_t PlayableCharacter::getInventorySize() const
+size_t Player::getInventorySize() const
 {
     return m_inventory.size();
 }
 
-void PlayableCharacter::updateGearsAttributes()
+void Player::updateGearsAttributes()
 {
     m_hitboxes.clear();
 
@@ -401,7 +302,7 @@ void PlayableCharacter::updateGearsAttributes()
     }
 }
 
-void PlayableCharacter::serializePlayer(pou::Stream *stream, uint32_t clientTime)
+void Player::serializePlayer(pou::Stream *stream, uint32_t clientTime)
 {
     {
         auto timeShift = m_timeShift.getValue(true);
@@ -411,7 +312,7 @@ void PlayableCharacter::serializePlayer(pou::Stream *stream, uint32_t clientTime
     }
 }
 
-bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
+bool Player::syncFromPlayer(Player *srcPlayer)
 {
     ///if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
        /// return (false);
@@ -423,36 +324,30 @@ bool PlayableCharacter::syncFromPlayer(PlayableCharacter *srcPlayer)
     return (true);
 }
 
-void PlayableCharacter::setTimeShift(int shift)
+void Player::setTimeShift(int shift)
 {
     m_timeShift.setValue(shift);
 }
 
-void PlayableCharacter::setSyncAndLocalTime(uint32_t syncTime)
-{
-    Character::setSyncAndLocalTime(syncTime);
-    m_lastPlayerSyncTime = m_lastSyncTime;
-}
-
-void PlayableCharacter::setLastPlayerUpdateTime(uint32_t time, bool force)
+void Player::setLastPlayerUpdateTime(uint32_t time, bool force)
 {
     if(force || m_lastPlayerUpdateTime == (uint32_t)(-1) || m_lastPlayerUpdateTime < time)
         m_lastPlayerUpdateTime = time;
 }
 
-uint32_t PlayableCharacter::getLastPlayerUpdateTime()
+uint32_t Player::getLastPlayerUpdateTime()
 {
     return m_lastPlayerUpdateTime + m_syncDelay;
 }
 
-uint32_t PlayableCharacter::getLastGearUpdateTime(bool useSyncDelay)
+uint32_t Player::getLastGearUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastGearUpdateTime + m_syncDelay;
     return m_lastGearUpdateTime;
 }
 
-uint32_t PlayableCharacter::getLastInventoryUpdateTime(bool useSyncDelay)
+uint32_t Player::getLastInventoryUpdateTime(bool useSyncDelay)
 {
     if(useSyncDelay)
         return m_lastInventoryUpdateTime + m_syncDelay;

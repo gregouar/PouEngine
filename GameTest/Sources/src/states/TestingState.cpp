@@ -56,12 +56,12 @@ void TestingState::init()
     auto music = pou::AudioEngine::createEvent("event:/Music");
     pou::AudioEngine::playEvent(music);
 
-    m_character = new PlayableCharacter();
+    m_character = new Player();
     m_character->loadModel("../data/char1/mokouXML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
-    m_character2 = new PlayableCharacter();
+    m_character2 = new Player();
     m_character2->loadModel("../data/char1/sithXML.txt");
     m_character2->setPosition(-700,-700,1);
     ///m_character2->loadItem("../data/char1/laserSwordXML.txt");
@@ -70,7 +70,7 @@ void TestingState::init()
     m_croco = new Character();
     m_croco->loadModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
-    m_croco->setRotationRadius(110.0f);
+    ///m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
 
     m_duck = new Character();
@@ -396,7 +396,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
 
     //if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
        // m_croco->setDestination(worldMousePos);
-    if(m_activeCroc)
+   /** if(m_activeCroc)
     {
         if(glm::length(m_croco->getGlobalXYPosition() - m_character->getGlobalXYPosition()) > 150.0f)
         {
@@ -423,7 +423,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
             } else if(m_character->isAlive())
                 duck->attack(m_character->getGlobalXYPosition() - duck->getGlobalXYPosition());
         }
-    }
+    }**/
 
     m_sunAngleVelocity = 0.0;
     if(eventsManager->keyIsPressed(GLFW_KEY_I))
@@ -441,7 +441,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyPressed(GLFW_KEY_C))
         m_activeCroc = !m_activeCroc;
 
-    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+    /**if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
         m_character->setLookingDirection(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
         m_character->askToAttack(eventsManager->mousePosition()-glm::vec2(1024.0/2.0,768.0/2.0));
@@ -449,7 +449,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_E))
         m_character2->setDestination(worldMousePos);
     if(eventsManager->keyIsPressed(GLFW_KEY_F))
-        m_character2->attack();
+        m_character2->attack();**/
 
 
     if(eventsManager->keyPressed(GLFW_KEY_G))
@@ -493,24 +493,24 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
 
-    if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
+    /**if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
         m_character->askToDash(charDirection);
 
     m_character->walk(charDirection);
 
     m_character->lookAt(worldMousePos);
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
-        m_character->forceAttackMode();
+        m_character->forceAttackMode();**/
 
     /*if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
         m_croco->walk({0,-1});
     else
         m_croco->walk({0,0});*/
-    if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
+   /** if(eventsManager->keyIsPressed(GLFW_KEY_SPACE))
     {
         //m_character->startAnimation("attack",true);
         m_character2->askToAttack();
-    }
+    }**/
 
 
     /*if(eventsManager->keyPressed(GLFW_KEY_Z))

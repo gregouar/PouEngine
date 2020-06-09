@@ -5,7 +5,7 @@
 
 #include "PouEngine/scene/SceneNode.h"
 #include "net/SyncElements.h"
-#include "character/PlayableCharacter.h"
+#include "character/Player.h"
 
 
 enum NetMessageType

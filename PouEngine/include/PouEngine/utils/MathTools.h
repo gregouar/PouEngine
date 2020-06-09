@@ -20,6 +20,9 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
 
 int intLog2(int v);
 
+
+float computeWantedRotation(float startingRotation, glm::vec2 position);
+
 }
 
 bool uint32less(uint32_t lhs, uint32_t rhs);

@@ -22,7 +22,9 @@ class GameClient
         void render(pou::RenderWindow *renderWindow);
 
         //const pou::NetAddress &getAddress() const;
+        const pou::NetAddress &getServerAddress() const;
         unsigned short getPort() const;
+
 
         void playerCursor(glm::vec2 direction);
         void playerLook(glm::vec2 direction);

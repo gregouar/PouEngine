@@ -61,20 +61,12 @@ bool SceneObject::isAShadowCaster()
     return m_isAShadowCaster;
 }
 
-void SceneObject::setLocalTime(uint32_t time)
+/*void SceneObject::setLocalTime(uint32_t time)
 {
     //if(time < 0)
       //  time =-1;
     m_curLocalTime = time;
-}
-
-void SceneObject::setSyncAndLocalTime(uint32_t time)
-{
-    //if(time < 0)
-      //  time = 0;
-    this->setLocalTime(time);
-    m_lastSyncTime = time;
-}
+}*/
 
 void SceneObject::setLastUpdateTime(uint32_t time, bool force)
 {

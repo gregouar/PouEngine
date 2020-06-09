@@ -25,15 +25,16 @@ class SceneObject : public NotificationListener
         bool isAnEntity();
         bool isAShadowCaster();
 
-        void setLocalTime(uint32_t time);
-        virtual void setSyncAndLocalTime(uint32_t time);
-        void setLastUpdateTime(uint32_t time, bool force = false);
+        //void setLocalTime(uint32_t time);
         uint32_t getLastUpdateTime();
         uint32_t getLastNodeUpdateTime();
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
         virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;
+
+    protected:
+        void setLastUpdateTime(uint32_t time, bool force = false);
 
     protected:
 

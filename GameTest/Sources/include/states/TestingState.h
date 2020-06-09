@@ -12,7 +12,7 @@
 #include "ui/GameUi.h"
 
 #include "character/Character.h"
-#include "character/PlayableCharacter.h"
+#include "character/Player.h"
 
 class TestingState : public pou::GameState, public Singleton<TestingState>
 {
@@ -51,7 +51,7 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
                             *m_cursorLightNode;
         pou::SpriteEntity *m_testChar;
 
-        PlayableCharacter *m_character, *m_character2;
+        Player *m_character, *m_character2;
 
         Character  *m_croco, *m_duck;
         std::list<Character *> m_duckSwarm;

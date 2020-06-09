@@ -8,7 +8,7 @@
 #include "PouEngine/renderers/RenderWindow.h"
 
 #include "character/Character.h"
-#include "character/PlayableCharacter.h"
+#include "character/Player.h"
 #include "net/NetMessageTypes.h"
 
 
@@ -49,7 +49,7 @@ class GameWorld
         uint32_t getLocalTime();
         uint32_t getLastSyncTime();
 
-        PlayableCharacter *getPlayer(int player_id);
+        Player *getPlayer(int player_id);
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);
@@ -67,11 +67,11 @@ class GameWorld
         size_t syncElement(CharacterModelAsset *characterModel);
         size_t syncElement(Character *character);
         size_t syncElement(ItemModelAsset *characterModel);
-        size_t syncElement(PlayableCharacter *player);
+        size_t syncElement(Player *player);
 
         void desyncElement(pou::SceneNode *node, bool noDesyncInsert = false);
         void desyncElement(Character *character, bool noDesyncInsert = false);
-        void desyncElement(PlayableCharacter *player, bool noDesyncInsert = false);
+        void desyncElement(Player *player, bool noDesyncInsert = false);
 
         void updateSunLight(const pou::Time elapsed_time);
 
@@ -114,7 +114,7 @@ class GameWorld
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
         pou::IdAllocator<Character*>                m_syncCharacters;
         pou::IdAllocator<ItemModelAsset*>           m_syncItemModels;
-        pou::IdAllocator<PlayableCharacter*>        m_syncPlayers;
+        pou::IdAllocator<Player*>        m_syncPlayers;
 
         std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
         std::multimap<uint32_t, int> m_syncTimeCharacterModels;

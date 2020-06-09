@@ -5,7 +5,7 @@
 #include "Types.h"
 
 class Character;
-class PlayableCharacter;
+class Player;
 
 struct NodeSync
 {
@@ -37,7 +37,7 @@ struct PlayerSync
     int gearModelsId[NBR_GEAR_TYPES];
     std::vector<int> inventoryItemModelsId;
 
-    PlayableCharacter *player;
+    Player *player;
 };
 
 #endif // SYNCELEMENTS_H

@@ -66,7 +66,7 @@ struct SkeletonModelWithAssets
 struct CharacterModelAttributes
 {
     CharacterModelAttributes() : walkingSpeed(0), attackDelay(0),
-         maxLife(0), attackDamages(0), immovable(0)
+         maxLife(0), attackDamages(0), immovable(0), rotationRadius(0)
         {}
 
     bool operator==(const CharacterModelAttributes& rhs)
@@ -76,6 +76,7 @@ struct CharacterModelAttributes
         if(maxLife != rhs.maxLife) return (false);
         if(attackDamages != rhs.attackDamages) return (false);
         if(immovable != rhs.immovable) return (false);
+        if(rotationRadius != rhs.rotationRadius) return (false);
         return (true);
     }
 
@@ -84,6 +85,7 @@ struct CharacterModelAttributes
     float maxLife;
     float attackDamages;
     bool  immovable;
+    float rotationRadius;
 };
 
 

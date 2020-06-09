@@ -439,6 +439,10 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
     if(e != nullptr)
         m_attributes.immovable = pou::Parser::parseBool(e->GetText());
 
+    e = element->FirstChildElement("rotationRadius");
+    if(e != nullptr)
+        m_attributes.rotationRadius = pou::Parser::parseFloat(e->GetText());
+
     return (true);
 }
 

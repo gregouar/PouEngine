@@ -83,6 +83,11 @@ bool GameClient::disconnectFromServer()
     return r;
 }
 
+const pou::NetAddress &GameClient::getServerAddress() const
+{
+    return m_client->getServerAddress();
+}
+
 
 void GameClient::update(const pou::Time &elapsedTime)
 {
@@ -139,7 +144,11 @@ void GameClient::playerCursor(glm::vec2 direction)
     auto player = m_world.getPlayer(m_curPlayerId);
     if(player)
     {
-        player->lookAt(/*player->getGlobalXYPosition() +*/ direction /* *100.0f */);
+        PlayerAction action;
+        action.actionType = PlayerActionType_CursorMove;
+        action.direction = direction;
+        player->processAction(action);
+        ///player->lookAt(direction);
     }
 }
 

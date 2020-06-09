@@ -452,7 +452,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         {
             if(playerSync.characterId != 0)
             {
-                player = new PlayableCharacter();
+                player = new Player();
                 ///if(playerId != (int)clientPlayerId)
                     ///player->disableAutoLookingDirection();
                 m_syncPlayers.insert(playerId, player);
@@ -493,7 +493,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         //clientPlayer->setSyncDelay(/*(uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+*/1.5*GameServer::TICKRATE);
         //clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
 
-        clientPlayer->disableWalkSync();
+        clientPlayer->disableInputSync();
 
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
         {
@@ -672,6 +672,10 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             continue;
 
         this->desyncElement(characterPtr);
+
+        for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+            it->second->removeFromNearbyCharacters(characterPtr);
+
         delete characterPtr;
     }
 
@@ -715,22 +719,18 @@ bool GameWorld::initPlayer(size_t player_id)
     auto player = m_syncPlayers.findElement(player_id);
     if(!player)
         return (false);
-    //auto player = new PlayableCharacter();
 
-    /*auto player_id = this->syncElement(player);
-    if(player_id == 0)
-    {
-        delete player;
-        return (0);
-    }*/
+    ///player->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
+    ///player->setLocalTime(0);
 
-    player->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
-    player->setLocalTime(0);
+    player->update(pou::Time(0), 0);
 
     glm::vec2 pos(glm::linearRand(-100,100), glm::linearRand(-100,100));
     player->setPosition(pos);
 
-    player->setLocalTime(m_curLocalTime);
+    player->update(pou::Time(0), m_curLocalTime);
+
+    ///player->setLocalTime(m_curLocalTime);
 
 
     CharacterModelAsset *playerModel;
@@ -747,8 +747,6 @@ bool GameWorld::initPlayer(size_t player_id)
     m_scene->getRootNode()->addChildNode(player);
 
     player->setPosition(pos);
-
-
 
 
     ItemModelAsset *playerWeapon;
@@ -773,7 +771,6 @@ bool GameWorld::initPlayer(size_t player_id)
     this->syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,5);
 
-
     player->setTeam(1);
 
     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
@@ -796,10 +793,9 @@ bool GameWorld::removePlayer(size_t player_id)
 
     this->desyncElement(player);
 
-   // m_syncNodes.freeElement(player);
-   // m_syncCharacters.freeElement(player);
+     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+            it->second->removeFromNearbyCharacters(player);
 
-   // m_scene->getRootNode()->removeChildNode(player);
     delete player;
 
     return m_syncPlayers.freeId(player_id);
