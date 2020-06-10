@@ -2,9 +2,6 @@
 
 #include "PouEngine/assets/AssetHandler.h"
 
-const float Player::DEFAULT_DASH_DELAY = .5f;
-const float Player::DEFAULT_DASH_TIME = .15f;
-const float Player::DEFAULT_DASH_SPEED = 1500.0f;
 Player::Player(bool userControlled) :
     Character(userControlled ? std::make_shared<PlayerInput>() : std::make_shared<CharacterInput>()),
     m_userControlled(userControlled)
@@ -163,101 +160,12 @@ void Player::processAction(const PlayerAction &playerAction)
 
 void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     Character::update(elapsedTime, localTime);
 
-    /*m_dashDirection.update(elapsedTime, localTime);
-    m_wantToDashDirection.update(elapsedTime, localTime);
-    m_wantToAttackDirection.update(elapsedTime, localTime);
-
     if(m_timeShift.update(elapsedTime, localTime))
         this->setSyncDelay(m_timeShift.getValue());
-
-    if(m_wantToWalkDirection != m_walkingDirection.getValue())
-        this->walk(m_wantToWalkDirection);
-
-
-    if(!m_isDead.getValue())
-    {
-
-    if(m_wantToDashTimer.isActive()) //=>This should maybe go to inputComponent
-    {
-        if(this->dash(m_wantToDashDirection.getValue()))
-            m_wantToDashTimer.reset(0);
-    }
-    else if(m_wantToAttackTimer.isActive()) //=>This should maybe go to inputComponent
-    {
-        if(this->attack(m_wantToAttackDirection.getValue()))
-            m_wantToAttackTimer.reset(0);
-    }
-    else if(m_wantToWalkDirection != m_walkingDirection.getValue()) //=>This should maybe go to inputComponent
-    {
-        this->walk(m_wantToWalkDirection);
-    }
-
-    m_wantToDashTimer.update(elapsedTime,localTime);
-    m_wantToAttackTimer.update(elapsedTime,localTime);*/
-
-    /*m_dashDelayTimer.update(elapsedTime,localTime);
-    if(m_dashTimer.update(elapsedTime,localTime))
-        this->startAnimation("walk");
-
-    auto att = m_attributes.getValue();
-    if(m_dashTimer.isActive())
-    {
-        att.walkingSpeed = DEFAULT_DASH_SPEED;
-        Character::walk(m_dashDirection.getValue());
-        m_isWalking = true;
-    }
-    else if(m_dashDelayTimer.isActive())
-    {
-        //att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed * .25f;
-        Character::walk(glm::vec2(0));
-    }
-    else
-        att.walkingSpeed = m_modelAttributes.getValue().walkingSpeed;
-    m_attributes.setValue(att);
-
-    if(m_combatModeTimer.isActive())
-    {
-        //if(!m_isAttacking)
-        this->setLookingDirection(m_lookingAt);
-            //m_lookingDirection = m_lookingAt - SceneNode::getGlobalXYPosition();
-        //SceneNode::setRotation({0,0,desiredRot});
-        if(m_isWalking && !m_isAttacking.getValue())
-        {
-            bool wantToLateralWalk = false;
-
-            if(m_walkingDirection.getValue() != glm::vec2(0))
-            {
-                float deltaRotation = abs(Character::computeWantedRotation(SceneNode::getEulerRotation().z,
-                                           m_walkingDirection.getValue())-SceneNode::getEulerRotation().z);
-
-                if(deltaRotation > glm::pi<float>()*.25 && deltaRotation <  glm::pi<float>()*.75)
-                    wantToLateralWalk = true;
-            }
-
-            if(wantToLateralWalk && !m_isLateralWalking)
-            {
-                Character::startAnimation("lateralWalk", true);
-                m_isLateralWalking = true;
-            }
-            else if(!wantToLateralWalk && m_isLateralWalking)
-            {
-                Character::startAnimation("walk", true);
-                m_isLateralWalking = false;
-            }
-        }
-    }
-    else if(m_isWalking && m_isLateralWalking)
-    {
-        m_isLateralWalking = false;
-        Character::startAnimation("walk", true);
-    }*/
-
-    /*m_combatModeTimer.update(elapsedTime,localTime); //=>This should maybe go to inputComponent
-    }*/
 }
 
 const std::list<Hitbox> *Player::getHitboxes() const

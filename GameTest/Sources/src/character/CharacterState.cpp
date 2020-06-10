@@ -22,12 +22,12 @@ void CharacterState::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
 }
 
-void CharacterState::entered()
+void CharacterState::entered(CharacterInput *input)
 {
 
 }
 
-void CharacterState::leaving()
+void CharacterState::leaving(CharacterInput *input)
 {
 
 }
@@ -78,6 +78,13 @@ void CharacterState_Standing::handleInput(CharacterInput *input)
 {
     m_lookingDirection = input->getLookingDirectionInput();
 
+    auto [isDashing, dashingDirection] = input->getDashingInputs();
+    if(isDashing)
+    {
+        this->switchState(CharacterStateType_Dashing);
+        return;
+    }
+
     auto [isAttacking, attackingDirection] = input->getAttackingInputs();
     if(isAttacking)
     {
@@ -98,7 +105,7 @@ void CharacterState_Standing::update(const pou::Time &elapsedTime, uint32_t loca
     this->rotateCharacterToward(elapsedTime, m_lookingDirection);
 }
 
-void CharacterState_Standing::entered()
+void CharacterState_Standing::entered(CharacterInput *input)
 {
     m_character->startAnimation("stand", false);
 }
@@ -124,6 +131,13 @@ void CharacterState_Walking::handleInput(CharacterInput *input)
 {
     m_lookingDirection = input->getLookingDirectionInput();
 
+    auto [isDashing, dashingDirection] = input->getDashingInputs();
+    if(isDashing)
+    {
+        this->switchState(CharacterStateType_Dashing);
+        return;
+    }
+
     auto [isAttacking, attackingDirection] = input->getAttackingInputs();
     if(isAttacking)
     {
@@ -137,6 +151,7 @@ void CharacterState_Walking::handleInput(CharacterInput *input)
         this->switchState(CharacterStateType_Standing);
         return;
     }
+
     m_walkingDirection = walkingDirection;
 }
 
@@ -172,13 +187,15 @@ void CharacterState_Walking::update(const pou::Time &elapsedTime, uint32_t local
     }
 }
 
-void CharacterState_Walking::entered()
+void CharacterState_Walking::entered(CharacterInput *input)
 {
+    this->handleInput(input);
+
     m_character->startAnimation("walk");
     m_isLateralWalking = false;
 }
 
-void CharacterState_Walking::leaving()
+void CharacterState_Walking::leaving(CharacterInput *input)
 {
     m_character->startAnimation("stand");
 }
@@ -206,6 +223,8 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
         //this->popState(); ?
         this->switchState(CharacterStateType_Standing);
     }
+
+    this->rotateCharacterToward(elapsedTime, m_attackingDirection);
 
     for(auto enemy : m_character->getNearbyCharacters())
     {
@@ -266,17 +285,79 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
     }
 }
 
-void CharacterState_Attacking::entered()
+void CharacterState_Attacking::entered(CharacterInput *input)
 {
     m_character->startAnimation("attack");
     m_attackTimer.reset(m_character->getModelAttributes().attackDelay);
     m_alreadyHitCharacters.clear();
+
+    auto attackingDirection = input->getAttackingInputs().second;
+    if(attackingDirection == glm::vec2(0))
+        attackingDirection = input->getLookingDirectionInput();
+    m_attackingDirection = attackingDirection;
+}
+
+
+///
+/// CharacterState_Dashing
+///
+
+const float CharacterState_Dashing::DEFAULT_DASH_DELAY = .5f;
+//const float CharacterState_Dashing::DEFAULT_DASH_TIME = .15f;
+//const float CharacterState_Dashing::DEFAULT_DASH_SPEED = 1500.0f;
+const float CharacterState_Dashing::DEFAULT_DASH_TIME = .3f;
+const float CharacterState_Dashing::DEFAULT_DASH_SPEED = 750.0f;
+
+CharacterState_Dashing::CharacterState_Dashing(Character *character) :
+    CharacterState(CharacterStateType_Dashing,character)
+{
+
+}
+
+CharacterState_Dashing::~CharacterState_Dashing()
+{
+
+}
+
+void CharacterState_Dashing::update(const pou::Time &elapsedTime, uint32_t localTime)
+{
+    auto elapsedDashTime = std::min(elapsedTime,m_dashTimer.remainingTime());
+    float walkingAmount = DEFAULT_DASH_SPEED*elapsedDashTime.count();
+    glm::vec2 charMove = walkingAmount*m_dashingDirection;
+    m_character->move(charMove);
+
+    this->rotateCharacterToward(elapsedTime*2, m_dashingDirection);
+
+    m_dashTimer.update(elapsedTime);
+
+    if(m_dashDelayTimer.update(elapsedTime))
+        this->switchState(CharacterStateType_Standing);
+}
+
+void CharacterState_Dashing::entered(CharacterInput *input)
+{
+    m_character->startAnimation("dash");
+    m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
+    m_dashTimer.reset(DEFAULT_DASH_TIME);
+
+    auto dashingDirection = input->getDashingInputs().second;
+    if(dashingDirection == glm::vec2(0))
+        dashingDirection = input->getLookingDirectionInput();
+    m_dashingDirection = dashingDirection;
+}
+
+void CharacterState_Dashing::leaving(CharacterInput *input)
+{
+    m_character->startAnimation("stand");
 }
 
 
 ///
 /// CharacterState_Interrupted
 ///
+
+const float CharacterState_Interrupted::DEFAULT_INTERRUPT_DELAY = .5f;
+const float CharacterState_Interrupted::DEFAULT_PUSH_TIME = .2f;
 
 CharacterState_Interrupted::CharacterState_Interrupted(Character *character) :
     CharacterState(CharacterStateType_Interrupted,character)
@@ -291,19 +372,72 @@ CharacterState_Interrupted::~CharacterState_Interrupted()
 
 void CharacterState_Interrupted::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
+    if(m_pushTimer.isActive())
+    {
+        auto elapsedPushTime = std::min(elapsedTime,m_pushTimer.remainingTime());
+        glm::vec2 charMove = m_pushDirection*(float)elapsedPushTime.count();
+        m_character->move(charMove);
+
+        m_pushTimer.update(elapsedTime);
+    }
+
+
     if(m_interruptTimer.update(elapsedTime) || !m_interruptTimer.isActive())
     {
         //popState ?
         this->switchState(CharacterStateType_Standing);
     }
+
+
 }
 
-void CharacterState_Interrupted::entered()
+void CharacterState_Interrupted::entered(CharacterInput *input)
 {
     m_character->startAnimation("interrupt");
-    m_interruptTimer.reset(Character::DEFAULT_INTERRUPT_DELAY); ///Could be computed from something or something
+    m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY); ///Could be computed from something or something
+
+    auto [pushedInput, pushedDirection] = input->getPushedInputs();
+    if(pushedInput)
+    {
+        m_pushDirection = pushedDirection;
+        m_pushTimer.reset(DEFAULT_PUSH_TIME);
+    }
 }
 
+
+///
+/// CharacterState_Pushed
+///
+
+/*const float CharacterState_Pushed::DEFAULT_PUSH_TIME = .5f;
+
+CharacterState_Pushed::CharacterState_Pushed(Character *character) :
+    CharacterState(CharacterStateType_Pushed,character)
+{
+
+}
+
+CharacterState_Pushed::~CharacterState_Pushed()
+{
+
+}
+
+void CharacterState_Pushed::update(const pou::Time &elapsedTime, uint32_t localTime)
+{
+    auto elapsedPushTime = std::min(elapsedTime,m_pushTimer.remainingTime());
+    glm::vec2 charMove = m_pushDirection*elapsedPushTime.count();
+    m_character->move(charMove);
+
+    CharacterStateType_Interrupted::update(elapsedTime, localTime);
+}
+
+void CharacterState_Interrupted::entered(CharacterInput *input)
+{
+    CharacterState_Interrupted::entered(input);
+
+    m_pushDirection = input->getPushedInputs().second;
+    m_pushTimer.reset(DEFAULT_PUSH_TIME);
+}*/
 
 
 ///
@@ -321,7 +455,7 @@ CharacterState_Dead::~CharacterState_Dead()
 
 }
 
-void CharacterState_Dead::entered()
+void CharacterState_Dead::entered(CharacterInput *input)
 {
     m_character->startAnimation("death");
 }

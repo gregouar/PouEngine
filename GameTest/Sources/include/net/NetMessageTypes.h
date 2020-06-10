@@ -15,7 +15,7 @@ enum NetMessageType
     NetMessageType_WorldInit,
     NetMessageType_WorldSync,
     NetMessageType_AskForWorldSync,
-    NetMessageType_PlayerAction,
+    //NetMessageType_PlayerAction,
     NBR_RELIABLEMESSAGETYPES,
 };
 
@@ -126,7 +126,7 @@ struct NetMessage_AskForWorldSync : public pou::NetMessage
     virtual void serializeImpl(pou::Stream *stream);
 };
 
-struct NetMessage_PlayerAction : public pou::NetMessage
+/*struct NetMessage_PlayerAction : public pou::NetMessage
 {
     NetMessage_PlayerAction() : NetMessage(){}
     NetMessage_PlayerAction(int t) : NetMessage(t){}
@@ -138,12 +138,9 @@ struct NetMessage_PlayerAction : public pou::NetMessage
 
     uint32_t clientTime;
     PlayerAction playerAction;
-    /*int     playerActionType;
-
-    glm::vec2 walkDirection;*/
 
     virtual void serializeImpl(pou::Stream *stream);
-};
+};*/
 
 
 

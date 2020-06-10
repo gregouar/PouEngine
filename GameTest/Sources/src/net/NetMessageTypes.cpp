@@ -16,8 +16,8 @@ void initializeNetMessages()
         std::make_unique<NetMessage_WorldSync> (NetMessageType_WorldSync)));
     pou::NetEngine::addNetMessageModel(std::move(
         std::make_unique<NetMessage_AskForWorldSync> (NetMessageType_AskForWorldSync)));
-    pou::NetEngine::addNetMessageModel(std::move(
-        std::make_unique<NetMessage_PlayerAction> (NetMessageType_PlayerAction)));
+    //pou::NetEngine::addNetMessageModel(std::move(
+      //  std::make_unique<NetMessage_PlayerAction> (NetMessageType_PlayerAction)));
 }
 
 ///
@@ -290,7 +290,10 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 
 void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
 {
-    stream->serializeInt(playerAction.actionType, 0, NBR_PLAYERACTIONTYPES);
+    int actionType = (int)playerAction.actionType;
+    stream->serializeInt(actionType, 0, NBR_PLAYERACTIONTYPES);
+    if(stream->isReading())
+        playerAction.actionType = (PlayerActionType)actionType;
 
     if(playerAction.actionType == PlayerActionType_CursorMove
     || playerAction.actionType == PlayerActionType_Walk
@@ -308,11 +311,11 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
     }
 }
 
-void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
+/*void NetMessage_PlayerAction::serializeImpl(pou::Stream *stream)
 {
     stream->serializeUint32(clientTime);
     serializePlayerAction(stream, playerAction);
-}
+}*/
 
 
 ///

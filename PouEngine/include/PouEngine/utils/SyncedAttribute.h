@@ -21,8 +21,8 @@ class SyncedAttribute
         virtual void syncFrom(const SyncedAttribute<T> &t);
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
-        void setValue(const T &t, bool forceUpdate = false);
-        void setValue(const T &t, uint32_t curLocalTime, bool forceUpdate = false);
+        bool setValue(const T &t, bool forceUpdate = false);
+        bool setValue(const T &t, uint32_t curLocalTime, bool forceUpdate = false);
         const T& getValue(bool useRewind = false) const;
 
         uint32_t getLastUpdateTime(bool useRewind = true) const;

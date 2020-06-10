@@ -21,6 +21,8 @@ class Timer
         virtual int update(float elapsedTime);
         virtual int update(const Time &elapsedTime);
 
+        Time remainingTime();
+
         bool isActive();
 
     protected:

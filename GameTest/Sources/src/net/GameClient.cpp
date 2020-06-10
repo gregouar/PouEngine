@@ -13,6 +13,7 @@ const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
 const int       GameClient::SYNCRATE    = 5;
 const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
 const float     GameClient::INTERPOLATIONDELAY = 0.0f;
+const uint32_t  GameClient::MAX_PLAYER_REWIND = 200;
 
 GameClient::GameClient() :
     m_world(true, false),
@@ -134,7 +135,28 @@ void GameClient::sendMsgTest(bool reliable, bool forceSend)
 }
 
 
-void GameClient::playerCursor(glm::vec2 direction)
+
+void GameClient::processPlayerAction(const PlayerAction &action)
+{
+    if(!m_client || m_curWorldId == 0)
+        return;
+
+    if(action.actionType == PlayerActionType_CursorMove)
+    {
+        m_curCursorPos = action.direction;
+        auto player = m_world.getPlayer(m_curPlayerId);
+        if(player)
+            player->processAction(action);
+        return;
+    }
+
+    if(action.actionType == PlayerActionType_Walk)
+        m_lastPlayerWalkDirection = action.direction;
+
+    m_world.addPlayerAction(m_curPlayerId, action);
+}
+
+/*void GameClient::playerCursor(glm::vec2 direction)
 {
     m_curCursorPos = direction;
 
@@ -214,7 +236,7 @@ void GameClient::playerUseItem(size_t itemNbr)
     playerAction.value      = itemNbr;
 
     m_world.addPlayerAction(m_curPlayerId, playerAction);
-}
+}*/
 
 ///Protected
 
@@ -279,13 +301,13 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         {
             auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
 
-            if(m_lastPlayerWalkDirection != glm::vec2(0))
+            /*if(m_lastPlayerWalkDirection != glm::vec2(0))
             {
                 PlayerAction playerAction;
                 playerAction.actionType = PlayerActionType_Walk;
                 playerAction.direction  = m_lastPlayerWalkDirection;
                 m_world.addPlayerAction(m_curPlayerId, playerAction);
-            }
+            }*/
 
             //Could add condition to do this only if attackMode is on
             {

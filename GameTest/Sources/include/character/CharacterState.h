@@ -15,9 +15,9 @@ enum CharacterStateTypes
     CharacterStateType_Standing,
     CharacterStateType_Walking,
     CharacterStateType_Attacking,
-   // CharacterStateType_Dashing,
+    CharacterStateType_Dashing,
     CharacterStateType_Interrupted,
-   // CharacterStateType_Pushed,
+    //CharacterStateType_Pushed,
     CharacterStateType_Dead,
     NBR_CharacterStateTypes
 };
@@ -32,8 +32,8 @@ class CharacterState
         virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
-        virtual void entered();
-        virtual void leaving();
+        virtual void entered(CharacterInput *input);
+        virtual void leaving(CharacterInput *input);
 
     protected:
         void switchState(CharacterStateTypes stateType/*, CharacterInput *input*/);
@@ -56,7 +56,7 @@ class CharacterState_Standing : public CharacterState
         virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
-        virtual void entered();
+        virtual void entered(CharacterInput *input);
 
     protected:
         glm::vec2 m_lookingDirection;
@@ -74,8 +74,8 @@ class CharacterState_Walking : public CharacterState
         virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
-        virtual void entered();
-        virtual void leaving();
+        virtual void entered(CharacterInput *input);
+        virtual void leaving(CharacterInput *input);
 
     protected:
         glm::vec2 m_lookingDirection;
@@ -94,16 +94,40 @@ class CharacterState_Attacking : public CharacterState
         //virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
-        virtual void entered();
+        virtual void entered(CharacterInput *input);
 
     protected:
 
     private:
-        pou::Timer m_attackTimer;
+        pou::Timer  m_attackTimer;
+        glm::vec2   m_attackingDirection;
 
         std::set<Character*> m_alreadyHitCharacters;
 };
 
+class CharacterState_Dashing : public CharacterState
+{
+    public:
+        CharacterState_Dashing(Character *character);
+        virtual ~CharacterState_Dashing();
+
+        //virtual void handleInput(CharacterInput *input);
+        virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
+
+        virtual void entered(CharacterInput *input);
+        virtual void leaving(CharacterInput *input);
+
+    protected:
+        glm::vec2 m_dashingDirection;
+
+    private:
+        pou::Timer  m_dashDelayTimer,
+                    m_dashTimer;
+
+        static const float DEFAULT_DASH_DELAY;
+        static const float DEFAULT_DASH_TIME;
+        static const float DEFAULT_DASH_SPEED;
+};
 
 class CharacterState_Interrupted : public CharacterState
 {
@@ -114,13 +138,39 @@ class CharacterState_Interrupted : public CharacterState
         //virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
-        virtual void entered();
+        virtual void entered(CharacterInput *input);
 
     protected:
 
     private:
         pou::Timer m_interruptTimer;
+
+        glm::vec2   m_pushDirection;
+        pou::Timer  m_pushTimer;
+
+    static const float DEFAULT_INTERRUPT_DELAY;
+    static const float DEFAULT_PUSH_TIME;
 };
+
+/*class CharacterState_Pushed : public CharacterState_Interrupted
+{
+    public:
+        CharacterState_Pushed(Character *character);
+        virtual ~CharacterState_Pushed();
+
+        //virtual void handleInput(CharacterInput *input);
+        virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
+
+        virtual void entered(CharacterInput *input);
+
+    protected:
+
+    private:
+        glm::vec2   m_pushDirection;
+        pou::Timer  m_pushTimer;
+
+    static const float DEFAULT_PUSH_TIME;
+};*/
 
 
 class CharacterState_Dead : public CharacterState
@@ -132,7 +182,7 @@ class CharacterState_Dead : public CharacterState
         //virtual void handleInput(CharacterInput *input);
         //virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
-        virtual void entered();
+        virtual void entered(CharacterInput *input);
 
     protected:
 

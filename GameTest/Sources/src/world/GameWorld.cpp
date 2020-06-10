@@ -6,6 +6,7 @@
 #include "PouEngine/renderers/SceneRenderer.h"
 
 #include "net/GameServer.h"
+#include "net/GameClient.h"
 
 const int GameWorld::MAX_NBR_PLAYERS = 4;
 
@@ -22,8 +23,8 @@ GameWorld::GameWorld(bool renderable, bool isServer) :
     m_isServer(isServer),
     m_curLocalTime(0),
     m_lastSyncTime(-1),
-    m_camera(nullptr),
-    m_wantedRewind(-1)
+    m_camera(nullptr)
+   /// m_wantedRewind(-1)
 {
     m_syncNodes.setMax(pow(2,GameWorld::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld::SPRITESHEETID_BITS));
@@ -42,14 +43,14 @@ GameWorld::~GameWorld()
 }
 
 
-void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
+void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 {
     /**this->processPlayerActions(elapsed_time);
     //if(m_isServer)
         m_curLocalTime += elapsed_time.count();**/
 
     //m_curLocalTime += elapsed_time.count();
-    if(!isRewinding)
+   /** if(!isRewinding)
     {
         m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
         if(m_wantedRewind != (uint32_t)(-1))
@@ -59,7 +60,7 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
             m_wantedRewind = (uint32_t)(-1);
             this->rewind(wantedRewind);
         }
-    }
+    }**/
 
     this->processPlayerActions();
 
@@ -84,7 +85,7 @@ void GameWorld::update(const pou::Time elapsed_time, bool isRewinding)
     m_scene->update(elapsed_time, m_curLocalTime /**m_syncTime**/);
 
 
-    uint32_t cleanTime = m_curLocalTime - GameServer::MAX_REWIND_AMOUNT;
+    uint32_t cleanTime = m_curLocalTime - GameClient::MAX_PLAYER_REWIND;///GameServer::MAX_REWIND_AMOUNT;
     auto cleanPlayerActionsIt = m_playerActions.lower_bound(cleanTime);
     if(cleanPlayerActionsIt != m_playerActions.begin())
         (--cleanPlayerActionsIt);
@@ -112,7 +113,7 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     }
 }
 
-void GameWorld::rewind(uint32_t time, bool simulate)
+/**void GameWorld::rewind(uint32_t time, bool simulate)
 {
     if(!m_scene)
         return;
@@ -130,7 +131,7 @@ void GameWorld::rewind(uint32_t time, bool simulate)
         while(m_curLocalTime < curTime)
             this->update(GameServer::TICKDELAY, true);
     std::cout<<"End Rewind at "<<m_curLocalTime<<std::endl;
-}
+}**/
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
@@ -175,7 +176,7 @@ void GameWorld::updatePlayerSyncDelay(int player_id, uint32_t delay)
     player->setSyncDelay(delay);
 }
 
-void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime)
+void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime)
 {
     if(clientTime == (uint32_t)(-1))
         clientTime = m_curLocalTime;
@@ -185,17 +186,19 @@ void GameWorld::addPlayerAction(int player_id, PlayerAction &playerAction, uint3
         if((int)it->second.first == player_id && it->second.second.actionType == playerAction.actionType)
             it = m_playerActions.erase(it);*/
 
-    if(playerAction.direction != glm::vec2(0))
-        playerAction.direction = normalize(playerAction.direction);
+    PlayerAction action = playerAction;
 
-    m_playerActions.insert({clientTime, {player_id,playerAction}});
+    if(action.direction != glm::vec2(0))
+        action.direction = normalize(action.direction);
 
-    if(pou::NetEngine::getMaxRewindAmount() == 0)
+    m_playerActions.insert({clientTime, {player_id,action}});
+
+    /**if(pou::NetEngine::getMaxRewindAmount() == 0)
         return;
 
     if(clientTime < m_curLocalTime)
     if(m_wantedRewind > clientTime - 1 || m_wantedRewind == (uint32_t)(-1))
-        m_wantedRewind = clientTime - 1;
+        m_wantedRewind = clientTime - 1;**/
 }
 
 void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
@@ -433,37 +436,12 @@ void GameWorld::processPlayerActions()
         auto player = m_syncPlayers.findElement(player_id);
         if(player == nullptr)
         {
-            ++it;
+           // ++it;
             continue;
         }
 
         auto& playerAction = it->second.second;
         player->processAction(playerAction);
-        /*switch(playerAction.actionType)
-        {
-            case PlayerActionType_CursorMove:{
-               // player->lookAt(player->getGlobalXYPosition() + playerAction.direction *100.0f);
-               player->lookAt(playerAction.direction);
-            }break;
-            case PlayerActionType_Look:{
-                player->setLookingDirection(playerAction.direction);
-            }break;
-            case PlayerActionType_Walk:{
-                //std::cout<<"PlayerWalk:"<<playerAction.direction.x<<" "<<playerAction.direction.y<<" at "<<m_curLocalTime<<std::endl;
-                player->askToWalk(playerAction.direction);
-            }break;
-            case PlayerActionType_Dash:{
-                player->askToDash(playerAction.direction);
-            }break;
-            case PlayerActionType_Attack:{
-               // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
-                player->askToAttack(playerAction.direction);
-            }break;
-            case PlayerActionType_UseItem:{
-               // std::cout<<"PlayerAttack at "<<m_curLocalTime<<std::endl;
-                player->useGear(playerAction.value);
-            }break;
-        }*/
     }
 }
 

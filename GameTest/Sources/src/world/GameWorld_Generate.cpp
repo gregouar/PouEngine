@@ -154,7 +154,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     worldSyncMsg->lastSyncTime      = lastSyncTime;
     worldSyncMsg->localTime         = m_curLocalTime;
 
-    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+    /**for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
         if(playerIt->second == nullptr)
             continue;
@@ -167,8 +167,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             else
                 playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
         }
-
-    }
+    }**/
 
     worldSyncMsg->nodes.clear();
     for(auto it = m_syncNodes.begin() ; it != m_syncNodes.end() ; ++it)
@@ -187,7 +186,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
         nodeSync.node = nodePtr;
     }
-    //worldSyncMsg->nbr_nodes = worldSyncMsg->nodes.size();
 
 
     {
@@ -203,9 +201,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             worldSyncMsg->spriteSheets.push_back({spriteSheetId,spriteSheetPath});
         }
     }
-
-   // worldSyncMsg->nbr_spriteSheets = worldSyncMsg->spriteSheets.size();
-
 
     worldSyncMsg->spriteEntities.clear();
     for(auto it = m_syncSpriteEntities.begin() ; it != m_syncSpriteEntities.end() ; ++it)
@@ -238,7 +233,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         spriteEntitySync.spriteId = spriteModel->getSpriteId();
         spriteEntitySync.nodeId = nodeId;
     }
-    //worldSyncMsg->nbr_spriteEntities = worldSyncMsg->spriteEntities.size();
 
 
     {
@@ -257,16 +251,12 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         }
     }
 
-    //worldSyncMsg->nbr_characterModels = worldSyncMsg->characterModels.size();
-
-
-    //std::cout<<"Nbr Char:"<<m_syncCharacters.size()<<std::endl;
     worldSyncMsg->characters.clear();
     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
     {
         auto character = it->second;
-        if(uint32leq(character->getLastCharacterUpdateTime(), lastSyncTime))
-            continue;
+        ///if(uint32leq(character->getLastCharacterUpdateTime(), lastSyncTime))
+          ///  continue;
 
         worldSyncMsg->characters.push_back({it->first, CharacterSync()});
         auto &characterSync = worldSyncMsg->characters.back().second;
@@ -283,7 +273,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         characterSync.characterModelId = characterModelId;
         characterSync.nodeId = nodeId;
     }
-    //worldSyncMsg->nbr_characters = worldSyncMsg->characters.size();
 
     {
         worldSyncMsg->itemModels.clear();
@@ -338,7 +327,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         playerSync.player = player;
         playerSync.characterId = characterId;
     }
-    //worldSyncMsg->nbr_players = worldSyncMsg->players.size();
 
     if(lastSyncTime != (uint32_t)(-1))
     {
@@ -376,13 +364,8 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
 void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
-
-    //std::cout<<"Received sync from server:"<<worldSyncMsg->localTime<<" "<<m_lastSyncTime<<std::endl;
-    //if(worldSyncMsg->localTime <= m_lastSyncTime && m_lastSyncTime != (uint32_t)(-1))
     if(uint32leq(worldSyncMsg->localTime, m_lastSyncTime))
         return;
-
-    //std::cout<<"ClientLocalTime:"<<m_curLocalTime<<" vs server sync time:"<<worldSyncMsg->localTime<<std::endl;
 
     //if(worldSyncMsg->localTime > m_lastSyncTime)
     {
@@ -413,13 +396,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         //std::cout<<"WorldSync!"<<std::endl;
 
     }
-
-    /**if(m_curLocalTime > m_lastSyncTime)
-    {
-        int64_t delta = (m_curLocalTime - m_lastSyncTime)*1000;
-        std::this_thread::sleep_for(std::chrono::milliseconds(delta));
-        m_curLocalTime = m_lastSyncTime;
-    }**/
 
     for(auto &spriteSheetIt : worldSyncMsg->spriteSheets)
     {
@@ -452,15 +428,22 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         {
             if(playerSync.characterId != 0)
             {
-                player = new Player();
-                ///if(playerId != (int)clientPlayerId)
-                    ///player->disableAutoLookingDirection();
+                if(playerId == (int)clientPlayerId)
+                    player = new Player();
+                else
+                    player = new Player(false);
+
+
                 m_syncPlayers.insert(playerId, player);
                 m_syncCharacters.insert(playerSync.characterId, player);
 
                 if(playerId != (int)clientPlayerId)
                     player->setInterpolationDelay(GameClient::INTERPOLATIONDELAY*GameServer::TICKRATE);
-
+                else
+                {
+                    player->disableInputSync();
+                    player->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
+                }
 
                 player->setTeam(1);
 
@@ -470,12 +453,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
                     it->second->addToNearbyCharacters(player);
                 }*/
             }
-            //continue;
         }
-
-        ///TEST///
-        ///player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()*10);
-        ///TEST///
 
         if(player)
             player->syncFromPlayer(playerSync.player);
@@ -487,14 +465,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
     auto clientPlayer = m_syncPlayers.findElement(clientPlayerId);
     if(clientPlayer)
     {
-        clientPlayer->setInterpolationDelay(0);
-        clientPlayer->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
-        //player->setSyncDelay(RTT+pou::NetEngine::getSyncDelay()+.5);
-        //clientPlayer->setSyncDelay(/*(uint32_t)(RTT*GameServer::TICKRATE)+pou::NetEngine::getSyncDelay()+*/1.5*GameServer::TICKRATE);
-        //clientPlayer->setSyncDelay(1.5*GameServer::TICKRATE);
-
-        clientPlayer->disableInputSync();
-
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
         {
             clientPlayer->addToNearbyCharacters(it->second);
@@ -515,7 +485,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         if(characterPtr == nullptr)
         {
             characterPtr = new Character();
-            ///characterPtr->disableAutoLookingDirection();
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
             //isNew = true;
@@ -554,7 +523,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
             }
         }
 
-        //if(!isNew)
         delete characterSync.character;
     }
 
@@ -585,7 +553,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
     {
         auto& [ nodeId, nodeSync ] = node;
 
-        //If not nullptr, then the Node is a Character
         auto nodePtr = m_syncNodes.findElement(nodeId);
 
         if(nodePtr == nullptr)
@@ -598,10 +565,6 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         }
 
         nodePtr->syncFromNode(nodeSync.node);
-
-        /*auto player = m_syncPlayers.findElement(1);
-        if(player == nodePtr)
-        std::cout<<player->getPosition().x<<" vs "<<nodeSync.node->getPosition().x<<std::endl;*/
 
         delete nodeSync.node;
     }
@@ -709,9 +672,6 @@ void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> 
             askForWorldSyncMsg->lastPlayerActions.push_back({actionIt->first, playerAction});
         ++actionIt;
     }
-    ///ADD PLAYER ACTIONS => maybe create world.akskSync
-
-    //std::cout<<"Nbr sended player actions:"<<askForWorldSyncMsg->lastPlayerActions.size()<<std::endl;
 }
 
 bool GameWorld::initPlayer(size_t player_id)
@@ -731,7 +691,6 @@ bool GameWorld::initPlayer(size_t player_id)
     player->update(pou::Time(0), m_curLocalTime);
 
     ///player->setLocalTime(m_curLocalTime);
-
 
     CharacterModelAsset *playerModel;
     if(player_id % 3 == 0)

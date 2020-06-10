@@ -57,6 +57,11 @@ int Timer::update(const Time &elapsedTime)
     return (0);
 }
 
+Time Timer::remainingTime()
+{
+    return m_maxTime-m_elapsedTime;
+}
+
 bool Timer::isActive()
 {
     return (m_maxTime > Time(0));

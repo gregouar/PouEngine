@@ -84,7 +84,7 @@ void ClientServerTestingState::handleEvents(const EventsManager *eventsManager)
         charDirection.x = -1;
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
-    m_gameClient.playerWalk(charDirection);
+    m_gameClient.processPlayerAction({PlayerActionType_Walk, charDirection});
     //if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
     //    m_character->askToDash(charDirection);
     //m_character->walk(charDirection);

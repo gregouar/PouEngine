@@ -11,9 +11,9 @@ const int   GameServer::TICKRATE    = 60;
 const pou::Time GameServer::TICKDELAY(1.0f/GameServer::TICKRATE);
 const int   GameServer::SYNCRATE    = 20;
 const pou::Time GameServer::SYNCDELAY(1.0f/GameServer::SYNCRATE);
-const int   GameServer::MAX_REWIND_AMOUNT = 200;
+///const int   GameServer::MAX_REWIND_AMOUNT = 200;
 
-const bool   GameServer::USEREWIND = false;
+///const bool   GameServer::USEREWIND = false;
 
 GameServer::GameServer() :
     m_serverIsRunning(false),
@@ -24,8 +24,8 @@ GameServer::GameServer() :
     initializeNetMessages();
     pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
 
-    if(GameServer::USEREWIND)
-        pou::NetEngine::setMaxRewindAmount(GameServer::MAX_REWIND_AMOUNT);
+    /**if(GameServer::USEREWIND)
+        pou::NetEngine::setMaxRewindAmount(GameServer::MAX_REWIND_AMOUNT);**/
 }
 
 GameServer::~GameServer()
@@ -186,15 +186,8 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldSync));
 
             worldSyncMsg->clientTime = clientInfos.localTime;
-
-            //.float clientRTT = .5f;//m_server->getRTT(clientNbr);
-            ///float delay = .2+GameServer::SYNCDELAY;
-            ///world.updatePlayerSyncDelay(clientInfos.player_id,delay);
             world.createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
             m_server->sendMessage(clientNbr, worldSyncMsg, true);
-
-            //std::cout<<"Send sync msg:"<<clientInfos.lastSyncTime<<" "<<world.getLocalTime()<<std::endl;
-
         }
     }
 }
@@ -228,13 +221,13 @@ size_t GameServer::generateWorld()
    return (m_curWorldId);
 }
 
-void GameServer::rewindWorld(size_t world_id, float time)
+/**void GameServer::rewindWorld(size_t world_id, uint32_t time)
 {
     auto worldIt = m_worlds.find(world_id);
     if(worldIt == m_worlds.end())
         return;
-    worldIt->second.rewind(worldIt->second.getLocalTime() - time/*, false*/);
-}
+    worldIt->second.rewind(worldIt->second.getLocalTime() - time);
+}**/
 
 /*const pou::NetAddress *GameServer::getAddress() const
 {
@@ -296,11 +289,10 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
             this->updateClientSync(clientNbr, castMsg);
         }break;
 
-
-        case NetMessageType_PlayerAction:{
+        /*case NetMessageType_PlayerAction:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(msg);
-            this->processPlayerActions(clientNbr, castMsg);
-        }break;
+            this->processPlayerAction(clientNbr, castMsg->playerAction,  castMsg->clientTime);
+        }break;*/
     }
 }
 
@@ -315,7 +307,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         return;
 
     uint32_t timeShift = 0;
-    if(!GameServer::USEREWIND)
+    ///if(!GameServer::USEREWIND)
     {
         auto minActionTime = std::max(world->getLocalTime(), clientInfos->lastActionTime);
 
@@ -328,9 +320,9 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         //std::cout<<"TimeShift:"<<timeShift<<std::endl;
     }
 
-    if(GameServer::USEREWIND )
+    /**if(GameServer::USEREWIND )
         if(uint32less(clientInfos->localTime,msg->localTime))
-            world->removeAllPlayerActions(clientInfos->player_id, clientInfos->localTime+timeShift+1);
+            world->removeAllPlayerActions(clientInfos->player_id, clientInfos->localTime+timeShift+1);**/
 
     glm::vec2 lastPlayerWalk(0);
     uint32_t lastPlayerWalkTime = 0;
@@ -352,10 +344,13 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
             }
             //std::cout<<"Client ActionTime:"<<playerActionTime<<std::endl;
             //std::cout<<"Server ActionTime:"<<playerActionTime+timeShift<<std::endl;
+
+            if(playerAction.actionType == PlayerActionType_CursorMove)
+                std::cout<<"CursorCliebnt:"<<playerAction.direction.x<<" "<<playerAction.direction.y<<std::endl;
         }
     }
 
-    if(GameServer::USEREWIND )
+    /**if(GameServer::USEREWIND )
     {
         lastPlayerWalkTime += GameClient::TICKRATE/GameClient::SYNCRATE*2;
         if(lastPlayerWalk != glm::vec2(0) && lastPlayerWalkTime > msg->localTime)
@@ -365,7 +360,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
             tempAction.direction    = glm::vec2(0);
             world->addPlayerAction(clientInfos->player_id, tempAction,  lastPlayerWalkTime+timeShift);
         }
-    } else {
+    } else**/ {
         PlayerAction tempAction;
         tempAction.actionType   = PlayerActionType_Walk;
         tempAction.direction    = glm::vec2(0);
@@ -382,106 +377,13 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     }
 }
 
-void GameServer::processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg)
+void GameServer::processPlayerAction(size_t clientNbr, const PlayerAction &action, uint32_t localTime)
 {
     auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
 
     if(world)
-        world->addPlayerAction(clientInfos->player_id, msg->playerAction,  msg->clientTime);
+        world->addPlayerAction(clientInfos->player_id, action,localTime);
 }
-
-void GameServer::playerCursor(size_t clientNbr, glm::vec2 cursorPos, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_CursorMove;
-    playerAction.direction = cursorPos;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
-void GameServer::playerLook(size_t clientNbr, glm::vec2 direction, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Look;
-    playerAction.direction = direction;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
-
-void GameServer::playerWalk(size_t clientNbr, glm::vec2 direction, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    if(clientInfos->lastPlayerWalkDirection == direction)
-        return;
-
-    clientInfos->lastPlayerWalkDirection = direction;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Walk;
-    playerAction.direction = direction;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
-void GameServer::playerDash(size_t clientNbr, glm::vec2 direction, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Dash;
-    playerAction.direction = direction;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
-
-void GameServer::playerAttack(size_t clientNbr, glm::vec2 direction, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Attack;
-    playerAction.direction = direction;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
-
-void GameServer::playerUseItem(size_t clientNbr, size_t itemNbr, float localTime)
-{
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
-
-    if(!clientInfos || !world)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_UseItem;
-    playerAction.value      = itemNbr;
-
-    world->addPlayerAction(clientInfos->player_id, playerAction, localTime);
-}
-
 
 
 void GameServer::addClient(int clientNbr, bool isLocalClient)
@@ -489,7 +391,6 @@ void GameServer::addClient(int clientNbr, bool isLocalClient)
     GameClientInfos clientInfos;
     clientInfos.isLocalPlayer = isLocalClient;
     clientInfos.lastActionTime = 0;
-    clientInfos.lastPlayerWalkDirection = glm::vec2(0);
     clientInfos.lastSyncTime = (uint32_t)(-1);
     clientInfos.localTime = 0;
     clientInfos.playerCreated = false;

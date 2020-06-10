@@ -61,9 +61,9 @@ class Player : public Character
         //pou::SyncedAttribute<glm::vec2>   m_dashDirection;
         //float       m_dashDelay, m_dashTime;
 
-        static const float DEFAULT_DASH_DELAY;
+        /*static const float DEFAULT_DASH_DELAY;
         static const float DEFAULT_DASH_TIME;
-        static const float DEFAULT_DASH_SPEED;
+        static const float DEFAULT_DASH_SPEED;*/
 };
 
 #endif // PLAYABLECHARACTER_H

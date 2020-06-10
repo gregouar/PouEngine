@@ -122,20 +122,19 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 }
 
 template<typename T>
-void SyncedAttribute<T>::setValue(const T &t, bool forceUpdate)
+bool SyncedAttribute<T>::setValue(const T &t, bool forceUpdate)
 {
-    this->setValue(t, m_curLocalTime, forceUpdate);
+    return this->setValue(t, m_curLocalTime, forceUpdate);
 }
 
 template<typename T>
-void SyncedAttribute<T>::setValue(const T &t, uint32_t curLocalTime, bool forceUpdate)
+bool SyncedAttribute<T>::setValue(const T &t, uint32_t curLocalTime, bool forceUpdate)
 {
     if(m_value == t && m_lastUpdateTime != (uint32_t)(-1) && !forceUpdate)
-        return;
+        return (false);
 
     m_value = t;
     if(uint32less(m_lastUpdateTime, curLocalTime))
-    //if(curLocalTime > m_lastUpdateTime || m_lastUpdateTime == (uint32_t)(-1))
         m_lastUpdateTime = curLocalTime;
 
     if(m_maxRewindAmount > 0 && curLocalTime  != (uint32_t)(-1))
@@ -144,6 +143,8 @@ void SyncedAttribute<T>::setValue(const T &t, uint32_t curLocalTime, bool forceU
         if(m_rewindValues.size() >= m_maxRewindAmount)
             m_rewindValues.erase(m_rewindValues.begin());
     }
+
+    return (true);
 }
 
 template<typename T>

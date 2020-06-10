@@ -19,7 +19,11 @@ enum PlayerActionType
 
 struct PlayerAction
 {
-    int actionType;
+    PlayerAction(PlayerActionType type = NBR_PLAYERACTIONTYPES);
+    PlayerAction(PlayerActionType type, glm::vec2 d);
+    PlayerAction(PlayerActionType type, int v);
+
+    PlayerActionType actionType;
 
     glm::vec2   direction;
     int         value;
@@ -35,14 +39,33 @@ class CharacterInput
         virtual void syncFrom(CharacterInput *input);
         virtual void serialize(pou::Stream *stream, uint32_t clientTime);
 
+        void setPush(bool pushing, glm::vec2 direction = glm::vec2(0));
+
         virtual void setSyncDelay(uint32_t delay);
 
         glm::vec2 getLookingAt(); //Passively looking at
         glm::vec2 getLookingDirectionInput(); //Actively looking toward
         std::pair<bool, glm::vec2>   getWalkingInputs();
         std::pair<bool, glm::vec2>   getAttackingInputs();
+        std::pair<bool, glm::vec2>   getDashingInputs();
+        std::pair<bool, glm::vec2>   getPushedInputs();
+
+        uint32_t getLastUpdateTime();
 
     protected:
+        void setLookingAt(glm::vec2 direction);
+        void setLookingDirection(glm::vec2 direction);
+        void setWalkingDirection(glm::vec2 direction);
+        void setAttacking(bool attackingInput, glm::vec2 direction = glm::vec2(0));
+        void setDashing(bool dashingInput, glm::vec2 direction = glm::vec2(0));
+
+        void setLastUpdateTime(uint32_t time);
+
+    protected:
+
+    private:
+        uint32_t m_lastUpdateTime;
+
         pou::SyncedAttribute<glm::vec2> m_lookingAt; //Passively looking at
         pou::SyncedAttribute<glm::vec2> m_lookingDirection; //Actively looking toward
 
@@ -51,7 +74,11 @@ class CharacterInput
         pou::SyncedAttribute<bool>      m_attackingInput;
         pou::SyncedAttribute<glm::vec2> m_attackingDirection;
 
-    private:
+        pou::SyncedAttribute<bool>      m_dashingInput;
+        pou::SyncedAttribute<glm::vec2> m_dashingDirection;
+
+        pou::SyncedAttribute<bool>      m_pushedInput;
+        pou::SyncedAttribute<glm::vec2> m_pushedDirection;
 };
 
 class PlayerInput : public CharacterInput
@@ -67,7 +94,14 @@ class PlayerInput : public CharacterInput
     protected:
 
     private:
-        //glm::vec2       m_wantToWalkDirection;
+        bool            m_wantToLookAt;
+        glm::vec2       m_wantToLookAtDirection;
+
+        bool            m_wantToLook;
+        glm::vec2       m_wantedLookingDirection;
+
+        bool            m_wantToWalk;
+        glm::vec2       m_wantedWalkingDirection;
 
         pou::Timer      m_combatModeTimer;
 

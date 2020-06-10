@@ -10,7 +10,6 @@
 
 //typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
-const float Character::DEFAULT_INTERRUPT_DELAY = .5f;
 
 Character::Character() : Character(std::make_shared<CharacterInput> ())
 {
@@ -20,23 +19,14 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(-1,nullptr),
     m_input(characterInput),
     m_isDead(false,0),
-    //m_isAttacking(false,0),
-    //m_walkingDirection(glm::vec2(0),0),
-    //m_lookingDirection(glm::vec2(0),0),
     m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
 
     m_team = 0;
 
-    m_rotationRadius    = 0.0f;
-
     m_isDestinationSet  = false;
     m_destination       = {0,0};
-
-   // m_isWalking         = true;
-
-    //m_autoLookingDirection = true;
 
     m_lastCharacterSyncTime     = -1;
     m_lastCharacterUpdateTime   = -1;
@@ -48,7 +38,9 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_states[CharacterStateType_Standing]       = std::make_unique<CharacterState_Standing>(this);
     m_states[CharacterStateType_Walking]        = std::make_unique<CharacterState_Walking>(this);
     m_states[CharacterStateType_Attacking]      = std::make_unique<CharacterState_Attacking>(this);
+    m_states[CharacterStateType_Dashing]        = std::make_unique<CharacterState_Dashing>(this);
     m_states[CharacterStateType_Interrupted]    = std::make_unique<CharacterState_Interrupted>(this);
+    //m_states[CharacterStateType_Pushed]         = std::make_unique<CharacterState_Pushed>(this);
     m_states[CharacterStateType_Dead]           = std::make_unique<CharacterState_Dead>(this);
 
     m_curState = nullptr;
@@ -205,14 +197,8 @@ bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &sk
     if(skeleton == m_skeletons.end())
         return (false);
 
-    //auto *skelPtr = skeleton->second.get();
-
     auto *soundObject = this->addSound(soundModel);
     skeleton->second->attachSound(soundObject,soundModel->name);
-    //skelPtr->attachSound(soundObject,skelPtr->getModel()->getSoundId(soundModel.name));
-
-   // skeleton->attachSound(targetCharacter->addSound(&sound),
-   //                       skeletonModel.second.skeleton->getSoundId(sound.name));
 
     return (true);
 }
@@ -232,8 +218,6 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     if(sound == m_sounds.end())
         return (false);
 
-    //skeleton->second->detachSound(soundModel->node, sound->second.get());
-    //skeleton->second->detachObject(sound->second.get());
     skeleton->second->detachSound(sound->second.get(),soundModel->name);
     m_sounds.erase(sound);
 
@@ -244,102 +228,6 @@ void Character::setTeam(int team)
 {
     m_team = team;
 }
-
-/*void Character::disableAutoLookingDirection(bool disable)
-{
-    m_autoLookingDirection = !disable;
-}*/
-
-/*void Character::setLookingDirection(glm::vec2 direction)
-{
-    if(direction == glm::vec2(0))
-        return;
-
-    direction = glm::normalize(direction);
-    if(m_lookingDirection.getValue() != direction)
-    {
-        m_lookingDirection.setValue(direction);
-        this->setLastCharacterUpdateTime(m_curLocalTime);
-    }
-}*/
-
-/*void Character::setDestination(glm::vec2 destination)
-{
-    if(m_destination != destination || !m_isDestinationSet)
-    {
-        m_destination       = destination;
-        m_isDestinationSet  = true;
-        //this->setLastCharacterUpdateTime(m_curLocalTime);
-    }
-}
-
-void Character::walk(glm::vec2 direction)
-{
-     if(m_attributes.getValue().walkingSpeed <= 0)
-        return;
-
-    if(direction != glm::vec2(0))
-        direction = glm::normalize(direction);
-    if(m_walkingDirection.getValue() != direction
-    || m_lastCharacterUpdateTime < 0)
-    {
-        m_walkingDirection.setValue(direction);
-        if(direction != glm::vec2(0))
-            this->setLookingDirection(m_walkingDirection.getValue()); ///=> move this to state
-            //m_lookingDirection = m_walkingDirection;
-
-        this->setLastCharacterUpdateTime(m_curLocalTime);
-    }
-}*/
-
-/*bool Character::attack(glm::vec2 direction, const std::string &animationName)
-{*/
-    /*if(m_isDead.getValue())
-        return (false);
-
-    if(m_isAttacking.getValue())
-        return (false);
-
-    if(m_interruptTimer.isActive())
-        return (false);
-
-    if(m_attackDelayTimer.isActive())
-        return (false);
-
-    this->startAnimation(animationName,true);
-    m_isAttacking.setValue(true);
-    m_isWalking = false;
-    //if(direction != glm::vec2(0))
-    this->setLookingDirection(direction);
-
-    m_attackDelayTimer.reset(m_modelAttributes.getValue().attackDelay);
-
-    this->setLastCharacterUpdateTime(m_curLocalTime);
-
-    return (true);*/
-
-   /* this->switchState(CharacterStateType_Attacking);
-
-    return (true);
-}*/
-
-/*
-bool Character::stopAttacking()
-{*/
-   /** bool wasAttacking = m_isAttacking.getValue();
-
-    m_isAttacking.setValue(false);
-    ///m_alreadyHitCharacters.clear();
-    m_alreadyHitCharacters.setValue(std::set<Character*> ());
-    this->startAnimation("stand", true);
-
-    //if(wasAttacking)
-      //  this->setLastCharacterUpdateTime(m_curLocalTime);
-
-    return wasAttacking;**/
-/*
-    return 1;
-}*/
 
 bool Character::damage(float damages, glm::vec2 direction)
 {
@@ -357,15 +245,12 @@ bool Character::damage(float damages, glm::vec2 direction)
         isFatal = this->kill(damages);
     else
     {
-        //Do something to compute interrupt amount ?
-        this->interrupt(damages);
-
         if(!m_modelAttributes.getValue().immovable)
         if(direction != glm::vec2(0) && damages >= m_modelAttributes.getValue().maxLife*.25)
-        {
-            m_pushTimer.reset(.1f);
-            m_pushVelocity = glm::normalize(direction)*200.0f;
-        }
+            m_input->setPush(true, glm::normalize(direction)*200.0f);
+
+        //Do something to compute interrupt amount ?
+        this->interrupt(damages);
     }
 
     //this->m_lastAttributesUpdateTime = m_curLocalTime;
@@ -374,54 +259,14 @@ bool Character::damage(float damages, glm::vec2 direction)
     return isFatal;
 }
 
-bool Character::interrupt(float amount)
+void Character::interrupt(float amount)
 {
     ///Could be flagged in inputComponent and then used in state or something so that we do not interrupt when dead
     this->switchState(CharacterStateType_Interrupted);
-
-
-    /**bool interrupt = true;
-
-    if(!this->isAlive())
-        return (false);
-
-    if(!m_interruptTimer.isActive())
-    {
-        this->stopAttacking();
-        m_isWalking     = false;
-
-        this->startAnimation("interrupt",true);
-        m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY);
-        m_attackDelayTimer.reset(0);
-        //m_isAttacking   = false;
-
-        //this->setLastCharacterUpdateTime(m_curLocalTime);
-    }
-
-    return interrupt;**/
-    return 1;
 }
 
 bool Character::kill(float amount)
 {
-    /*bool isFatal = false;
-
-    auto att = m_attributes.getValue();
-    att.life  = 0;
-    m_attributes.setValue(att);
-
-    if(!m_isDead.getValue())
-    {
-        this->startAnimation("death",true);
-        isFatal = true;
-    }
-    m_isDead.setValue(true);
-    //m_isAttacking.setValue(false);
-    //m_isWalking     = false;
-
-    return isFatal;*/
-
-
     auto att = m_attributes.getValue();
     att.life  = 0;
     m_attributes.setValue(att);
@@ -546,19 +391,6 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
     }
 }**/
 
-/*float Character::computeWantedRotation(float startingRotation, glm::vec2 position)
-{
-    float wantedRotation = glm::pi<float>()/2.0+glm::atan(position.y, position.x);
-
-    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation+glm::pi<float>()*2.0))
-        wantedRotation += glm::pi<float>()*2.0;
-
-    if(glm::abs(wantedRotation-startingRotation) >= glm::abs(wantedRotation-startingRotation-glm::pi<float>()*2.0))
-        wantedRotation -= glm::pi<float>()*2.0;
-
-    return wantedRotation;
-}*/
-
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
@@ -567,14 +399,8 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     m_curState->handleInput(m_input.get());
     m_curState->update(elapsedTime, localTime);
 
-  //  m_walkingDirection.update(elapsedTime, localTime);
 
-    //this->updateLookingDirection(elapsedTime);
-
-
-    /*m_alreadyHitCharacters.update(elapsedTime, m_curLocalTime);
     m_modelAttributes.update(elapsedTime, m_curLocalTime);
-
     float oldLife = m_attributes.getValue().life;
     m_attributes.update(elapsedTime, m_curLocalTime);
     if(m_attributes.getValue().life < oldLife)
@@ -597,22 +423,7 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
        && m_attributes.getValue().life <= 0)
         this->kill();
 
-    auto oldWalkingDirection = m_walkingDirection.getValue();
-    m_walkingDirection.update(elapsedTime, m_curLocalTime);
-    if(m_walkingDirection.getValue() != oldWalkingDirection)
-        this->walk(m_walkingDirection.getValue());                   //So that we update walk virtual method of Player
-
-    m_lookingDirection.update(elapsedTime, m_curLocalTime);
-
-    bool wasAttacking = m_isAttacking.getValue();
-    m_isAttacking.update(elapsedTime, m_curLocalTime);
-    if(!wasAttacking && m_isAttacking.getValue())
-    {
-        m_isAttacking.setValue(false);
-        this->attack();
-    }*/
-
-    /**bool wasDead = m_isDead.getValue();
+      /**bool wasDead = m_isDead.getValue();
     m_isDead.update(elapsedTime, m_curLocalTime);
     if(!wasDead && m_isDead.getValue())
     {
@@ -631,32 +442,6 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
         std::cout<<"Start sync animation:"<<m_curAnimation.getValue()<<std::endl;
         this->startAnimation(m_curAnimation.getValue(), true);
     }**/
-
-    /*if(elapsedTime.count() == 0)
-        return;
-
-    if(m_pushTimer.isActive())
-        this->move(m_pushVelocity*static_cast<float>(elapsedTime.count()));
-    m_pushTimer.update(elapsedTime, localTime);
-
-    m_attackDelayTimer.update(elapsedTime,localTime);
-
-    if(!m_isDead.getValue())
-    {
-        //if(m_interruptTimer.isActive()) {}
-        //else
-        if(m_isAttacking.getValue())
-            this->updateAttacking(elapsedTime);
-        else
-            this->updateWalking(elapsedTime);
-        this->updateLookingDirection(elapsedTime);
-
-
-        if(m_interruptTimer.update(elapsedTime, localTime))
-            this->startAnimation("stand");
-    }*/
-
-    //m_nearbyCharacters.clear();
 }
 
 void Character::rewind(uint32_t time)
@@ -682,133 +467,6 @@ void Character::rewind(uint32_t time)
     //m_alreadyHitCharacters.rewind(time);*/
 }
 
-/*void Character::updateWalking(const pou::Time &elapsedTime)
-{
-    bool wantToWalk = false;
-
-    if(m_interruptTimer.isActive())
-        return;
-
-    if(m_isDestinationSet)
-        wantToWalk = this->walkToDestination(elapsedTime);
-
-    //std::cout<<"WalkingDir:"<<m_walkingDirection.getValue().x<<" "<<m_walkingDirection.getValue().y<<" ("<<this<<std::endl;
-
-    if(m_walkingDirection.getValue() != glm::vec2(0))
-    {
-        float walkingAmount = m_attributes.getValue().walkingSpeed*elapsedTime.count();
-        //m_walkingDirection = glm::normalize(m_walkingDirection);
-        glm::vec2 charMove = walkingAmount*m_walkingDirection.getValue();
-        //m_lookingDirection = m_walkingDirection;
-        SceneNode::move(charMove);
-        wantToWalk = true;
-    }
-
-    if(m_attributes.getValue().walkingSpeed <= 0)
-        wantToWalk = false;
-
-    if(wantToWalk && !m_isWalking)
-    {
-        this->startAnimation("walk", true);
-        m_isWalking = true;
-    }
-    else if(!wantToWalk && m_isWalking)
-    {
-        this->startAnimation("stand", true);
-        m_isWalking = false;
-    }
-}*/
-
-/*void Character::updateAttacking(const pou::Time &elapsedTime)
-{
-    bool isAnimationFinished = true;
-    for(auto &skeleton : m_skeletons)
-    {
-        isAnimationFinished = isAnimationFinished & !skeleton.second->isInAnimation();
-
-        if(skeleton.second->hasTag("attack"))
-        for(auto c : m_nearbyCharacters)
-        if(c->m_team != m_team)
-        if(c != nullptr && c->isAlive() && c->getHurtboxes() != nullptr
-           && m_alreadyHitCharacters.getValue().find(c) == m_alreadyHitCharacters.getValue().end())
-        for(const auto hurtBox : *c->getHurtboxes())
-        if(this->getHitboxes() != nullptr)
-        for(const auto hitBox : *this->getHitboxes())
-        {
-            auto hitSkeleton    = this->m_skeletons.find(hitBox.getSkeleton());
-            auto hurtSkeleton   = c->m_skeletons.find(hurtBox.getSkeleton());
-
-            if(hitSkeleton != this->m_skeletons.end() &&
-               hurtSkeleton != c->m_skeletons.end())
-            {
-                auto hitNode    = hitSkeleton->second->findNode(hitBox.getNode());
-                auto hurtNode   = hurtSkeleton->second->findNode(hurtBox.getNode());
-
-                if(hitNode != nullptr && hurtNode != nullptr)
-                {
-                    bool collision = pou::MathTools::detectBoxCollision(hitBox.getBox(),hurtBox.getBox(),
-                                                                        hitNode,hurtNode);
-
-                    if(collision)
-                    {
-                        auto alreadyHitCharacters = m_alreadyHitCharacters.getValue();
-                        alreadyHitCharacters.insert(c);
-                        m_alreadyHitCharacters.setValue(alreadyHitCharacters);
-
-                        float totalDamages = 0;
-                        for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
-                            totalDamages += m_modelAttributes.getValue().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
-
-                        c->damage(totalDamages,c->getGlobalXYPosition()-this->getGlobalXYPosition());
-                    }
-                }
-            }
-        }
-    }
-
-    if(!m_attackDelayTimer.isActive() && m_isAttacking.getValue())
-    //if(isAnimationFinished && m_isAttacking.getValue())
-        this->stopAttacking();
-}*/
-
-/*void Character::rotateToward(const pou::Time &elapsedTime, glm::vec2 direction)
-{
-    if(direction == glm::vec2(0))
-        direction = glm::vec2(0,-1);
-
-    ///Introduce animationRotationSpeed
-    if(!m_modelAttributes.getValue().immovable)
-    {
-        float curRotation = SceneNode::getEulerRotation().z;
-        float rotationAmount = elapsedTime.count()*10.0f;
-        float wantedRotation = pou::MathTools::computeWantedRotation( curRotation, direction );
-
-        if(glm::abs(wantedRotation - curRotation) < rotationAmount)
-            SceneNode::setRotation({0,0,wantedRotation});
-        else
-            SceneNode::rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
-    }
-}*/
-
-/*void Character::updateSounds()
-{
-    for(auto &skeleton : m_skeletons)
-    {
-        auto skelPtr = skeleton.second.get();
-        if(skelPtr->isNewFrame())
-        {
-            auto soundTags = skelPtr->getTagValues("playSound");
-            for(auto it = soundTags.first ; it != soundTags.second ; ++it)
-            {
-                auto soundTag = it->second.value;
-                auto foundedSound = m_soundsMap.find(soundTag);
-                if(foundedSound != m_soundsMap.end())
-                    foundedSound->second->play();
-            }
-        }
-    }
-}*/
-
 void Character::startAnimation(const std::string &name, bool forceStart)
 {
     for(auto &skeleton : m_skeletons)
@@ -823,7 +481,6 @@ void Character::addToNearbyCharacters(Character *character)
     m_nearbyCharacters.insert(character);
 }
 
-
 void Character::removeFromNearbyCharacters(Character *character)
 {
     m_nearbyCharacters.erase(character);
@@ -833,8 +490,6 @@ std::set<Character*> &Character::getNearbyCharacters()
 {
     return m_nearbyCharacters;
 }
-
-
 
 bool Character::isAlive() const
 {
@@ -901,9 +556,13 @@ void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
 
 uint32_t Character::getLastCharacterUpdateTime(bool useSyncDelay)
 {
+    auto lastUpdate = m_lastCharacterUpdateTime;
     if(useSyncDelay)
-        return m_lastCharacterUpdateTime + m_syncDelay; ///SHOULD USE SYNC DELAY ONLY ON SERVER SIDE HEH
-    return m_lastCharacterUpdateTime;
+        lastUpdate += m_syncDelay; ///SHOULD USE SYNC DELAY ONLY ON SERVER SIDE HEH
+
+    lastUpdate = std::max(m_input->getLastUpdateTime(), lastUpdate);
+
+    return lastUpdate;
 }
 
 uint32_t Character::getLastModelUpdateTime(bool useSyncDelay)
@@ -1016,10 +675,10 @@ void Character::switchState(CharacterStateTypes stateType)
         return;
 
     if(m_curState)
-        m_curState->leaving();
+        m_curState->leaving(m_input.get());
     m_curState = m_states[stateType].get();
-    m_curState->entered();
-    m_curState->handleInput(m_input.get());
+    m_curState->entered(m_input.get());
+    //m_curState->handleInput(m_input.get());
 }
 
 

@@ -25,13 +25,14 @@ class GameClient
         const pou::NetAddress &getServerAddress() const;
         unsigned short getPort() const;
 
-
-        void playerCursor(glm::vec2 direction);
+        /*void playerCursor(glm::vec2 direction);
         void playerLook(glm::vec2 direction);
         void playerWalk(glm::vec2 direction);
         void playerDash(glm::vec2 direction);
         void playerAttack(glm::vec2 direction);
-        void playerUseItem(size_t itemNbr);
+        void playerUseItem(size_t itemNbr);*/
+
+        void processPlayerAction(const PlayerAction &action);
 
         void sendMsgTest(bool reliable, bool forceSend);
 
@@ -70,6 +71,7 @@ class GameClient
         static const int        SYNCRATE;
         static const pou::Time  SYNCDELAY;
         static const float      INTERPOLATIONDELAY;
+        static const uint32_t   MAX_PLAYER_REWIND;
 };
 
 #endif // GAMECLIENT_H

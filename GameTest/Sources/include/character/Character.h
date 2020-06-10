@@ -56,7 +56,7 @@ class Character : public pou::SceneNode
         void setTeam(int team);
 
         virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0));
-        virtual bool interrupt(float amount = 0);
+        virtual void interrupt(float amount = 0);
         virtual bool kill(float amount = 0);
         virtual bool resurrect();
 
@@ -108,10 +108,6 @@ class Character : public pou::SceneNode
 
         pou::SyncedAttribute<bool> m_isDead;
 
-        glm::vec2           m_pushVelocity;
-        pou::SyncedTimer    m_pushTimer;
-        pou::SyncedTimer    m_interruptTimer;
-
         pou::SyncedAttribute<CharacterModelAttributes>  m_modelAttributes;
         pou::SyncedAttribute<CharacterAttributes>       m_attributes;
 
@@ -135,15 +131,12 @@ class Character : public pou::SceneNode
         std::map<LimbModel*, std::unique_ptr<pou::SceneEntity> >    m_limbs;
         std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
 
-        float m_rotationRadius; /// => this should go to ModelAttribute
-
         bool m_isDestinationSet;
         glm::vec2 m_destination;
 
         pou::SyncedAttribute<std::string> m_curAnimation; ///I should find a better way to manage animations (like id, but then I need to list all possible animations in the XML beh)
 
     public:
-        static const float DEFAULT_INTERRUPT_DELAY;
 };
 
 #endif // CHARACTER_H

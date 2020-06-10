@@ -18,11 +18,11 @@ class GameWorld
         GameWorld(bool renderable, bool isServer);
         virtual ~GameWorld();
 
-        void update(const pou::Time elapsed_time, bool isRewinding = false);
+        void update(const pou::Time elapsed_time/*, bool isRewinding = false*/);
         void render(pou::RenderWindow *renderWindow);
 
         void generate();
-        void rewind(uint32_t time, bool simulate = true);
+        ///void rewind(uint32_t time, bool simulate = true);
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
@@ -41,7 +41,7 @@ class GameWorld
         //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
 
         void updatePlayerSyncDelay(int player_id, uint32_t delay);
-        void addPlayerAction(int player_id, PlayerAction &playerAction, uint32_t clientTime = -1);
+        void addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime = -1);
         void removeAllPlayerActions(int player_id, uint32_t time = -1);
 
         glm::vec2 convertScreenToWorldCoord(glm::vec2 p);
@@ -125,7 +125,7 @@ class GameWorld
         std::multimap<uint32_t, int> m_desyncPlayers;
 
         std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
-        uint32_t m_wantedRewind;
+        ///uint32_t m_wantedRewind;
 
     public:
         static const int        MAX_NBR_PLAYERS;
