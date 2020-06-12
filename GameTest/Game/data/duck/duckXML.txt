@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <character>
+	<aiscript path="default" />
+
 	<spritesheet name="mainSpriteSheet" path="duckSpritesheetXML.txt" />
 	
 	<soundbank path="duckSoundBank.bank" />

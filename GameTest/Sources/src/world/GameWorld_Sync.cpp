@@ -385,6 +385,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         ///TEST
         ///characterPtr->setReconciliationDelay(deltaRTT);
         if(characterId != (int)clientPlayerId)
+            //characterPtr->setReconciliationDelay(deltaRTT*2,0);
             characterPtr->setReconciliationDelay(0,1/*deltaRTT*/);
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
         ///
@@ -393,7 +394,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         {
             auto *characterModel = m_syncCharacterModels.findElement(characterSync.characterModelId);
             if(characterModel != nullptr)
-                characterPtr->setModel(characterModel);
+                characterPtr->createFromModel(characterModel);
         }
 
         if(characterSync.nodeId != 0)

@@ -35,6 +35,8 @@ class CharacterInput
         CharacterInput();
         virtual ~CharacterInput();
 
+        virtual void reset();
+
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         virtual void syncFrom(CharacterInput *input);
         virtual void serialize(pou::Stream *stream, uint32_t clientTime);
@@ -52,13 +54,14 @@ class CharacterInput
 
         uint32_t getLastUpdateTime();
 
-    protected:
+    //protected:
         void setLookingAt(glm::vec2 direction);
         void setLookingDirection(glm::vec2 direction);
         void setWalkingDirection(glm::vec2 direction);
         void setAttacking(bool attackingInput, glm::vec2 direction = glm::vec2(0));
         void setDashing(bool dashingInput, glm::vec2 direction = glm::vec2(0));
 
+    protected:
         void setLastUpdateTime(uint32_t time);
 
     protected:

@@ -36,6 +36,12 @@ CharacterInput::~CharacterInput()
     //dtor
 }
 
+void CharacterInput::reset()
+{
+    m_walkingDirection.setValue(glm::vec2(0));
+    m_attackingInput.setValue(0);
+    m_dashingInput.setValue(0);
+}
 
 void CharacterInput::update(const pou::Time &elapsedTime, uint32_t localTime)
 {

@@ -110,6 +110,7 @@ class CharacterModelAsset : public pou::Asset
 
     protected:
         bool loadFromXML(TiXmlHandle *);
+        bool loadAiScript(TiXmlElement *element);
         bool loadSpriteSheet(TiXmlElement *element);
         bool loadLightModel(TiXmlElement *element);
         bool loadSoundBank(TiXmlElement *element);
@@ -118,6 +119,8 @@ class CharacterModelAsset : public pou::Asset
         bool loadAttributes(TiXmlElement *element);
 
     private:
+        AiScriptModelAsset *m_aiScriptModel;
+
         std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
         std::map<std::string, pou::LightModel>          m_lightModels;
         std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;

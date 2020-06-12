@@ -12,6 +12,8 @@
 #include "PouEngine/utils/Parser.h"
 
 #include "character/Character.h"
+#include "ai/AiScriptedComponent.h"
+#include "assets/AiScriptModelAsset.h"
 
 CharacterModelAsset::CharacterModelAsset() :
     CharacterModelAsset(-1)
@@ -20,7 +22,8 @@ CharacterModelAsset::CharacterModelAsset() :
 }
 
 
-CharacterModelAsset::CharacterModelAsset(const pou::AssetTypeId id) : Asset(id)
+CharacterModelAsset::CharacterModelAsset(const pou::AssetTypeId id) : Asset(id),
+    m_aiScriptModel(nullptr)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
@@ -86,6 +89,14 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
     }
 
+    if(m_aiScriptModel)
+    {
+        auto aiScript = std::make_shared<AiScriptedComponent>(targetCharacter);
+        aiScript->createFromModel(m_aiScriptModel);
+        targetCharacter->setAiComponent(aiScript);
+    }
+
+
     return (true);
 }
 
@@ -131,7 +142,16 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
     if(hdl == nullptr)
         return (false);
 
-    TiXmlElement* element = hdl->FirstChildElement("spritesheet").Element();
+    TiXmlElement* element;
+
+    element = hdl->FirstChildElement("aiscript").Element();
+    if(element != nullptr)
+    {
+        if(!this->loadAiScript(element))
+            loaded = false;
+    }
+
+    element = hdl->FirstChildElement("spritesheet").Element();
     while(element != nullptr)
     {
         if(!this->loadSpriteSheet(element))
@@ -183,6 +203,17 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
         pou::Logger::write("Character model loaded from file: "+m_filePath);
 
     return (loaded);
+}
+
+bool CharacterModelAsset::loadAiScript(TiXmlElement *element)
+{
+    auto pathAtt = element->Attribute("path");
+    if(pathAtt == nullptr)
+        return (false);
+
+    m_aiScriptModel = AiScriptModelsHandler::loadAssetFromFile(std::string(pathAtt));
+
+    return (true);
 }
 
 bool CharacterModelAsset::loadSpriteSheet(TiXmlElement *element)

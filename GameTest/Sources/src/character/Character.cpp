@@ -2,11 +2,14 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
-#include "assets/CharacterModelAsset.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/utils/MathTools.h"
+
+
+#include "assets/CharacterModelAsset.h"
+#include "ai/AiComponent.h"
 
 //typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
@@ -67,12 +70,12 @@ void Character::cleanup()
     m_skeletons.clear();
 }
 
-bool Character::loadModel(const std::string &path)
+bool Character::createFromModel(const std::string &path)
 {
-    return this->setModel(CharacterModelsHandler::loadAssetFromFile(path));
+    return this->createFromModel(CharacterModelsHandler::loadAssetFromFile(path));
 }
 
-bool Character::setModel(CharacterModelAsset *model)
+bool Character::createFromModel(CharacterModelAsset *model)
 {
     this->cleanup();
     m_model = model;
@@ -82,6 +85,8 @@ bool Character::setModel(CharacterModelAsset *model)
 
     if(!m_model->generateCharacter(this))
        return (false);
+
+    //m_aiComponent = std::make_unique<AiComponent>(this);
 
     m_modelAttributes.setValue(m_model->getAttributes());
 
@@ -94,10 +99,14 @@ bool Character::setModel(CharacterModelAsset *model)
         this->disableRotationSync();
 
     m_lastModelUpdateTime = m_curLocalTime;
-
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
+}
+
+void Character::setAiComponent(std::shared_ptr<AiComponent> aiComponent)
+{
+    m_aiComponent = aiComponent;
 }
 
 bool Character::addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name)
@@ -401,6 +410,9 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
+    if(m_aiComponent)
+        m_aiComponent->update(elapsedTime, localTime);
+
     m_input->update(elapsedTime, localTime);
     m_curState->handleInput(m_input.get());
     m_curState->update(elapsedTime, localTime);
@@ -528,6 +540,11 @@ pou::Skeleton *Character::getSkeleton(const std::string &skeletonName)
     if(skeletonIt == m_skeletons.end())
         return (nullptr);
     return skeletonIt->second.get();
+}
+
+CharacterInput *Character::getInput()
+{
+    return m_input.get();
 }
 
 const CharacterAttributes &Character::getAttributes() const

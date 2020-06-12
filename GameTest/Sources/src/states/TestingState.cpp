@@ -57,31 +57,31 @@ void TestingState::init()
     pou::AudioEngine::playEvent(music);
 
     m_character = new Player();
-    m_character->loadModel("../data/char1/mokouXML.txt");
+    m_character->createFromModel("../data/char1/mokouXML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
     m_character2 = new Player();
-    m_character2->loadModel("../data/char1/sithXML.txt");
+    m_character2->createFromModel("../data/char1/sithXML.txt");
     m_character2->setPosition(-700,-700,1);
     ///m_character2->loadItem("../data/char1/laserSwordXML.txt");
     m_scene->getRootNode()->addChildNode(m_character2);
 
     m_croco = new Character();
-    m_croco->loadModel("../data/croco/crocoXML.txt");
+    m_croco->createFromModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
     ///m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
 
     m_duck = new Character();
-    m_duck->loadModel("../data/duck/duckXML.txt");
+    m_duck->createFromModel("../data/duck/duckXML.txt");
     m_duck->setPosition(-200,70,1);
     m_scene->getRootNode()->addChildNode(m_duck);
 
     for(auto i = 1 ; i < 10 ; i++)
     {
         m_duckSwarm.push_back(new Character());
-        m_duckSwarm.back()->loadModel("../data/duck/duckXML.txt");
+        m_duckSwarm.back()->createFromModel("../data/duck/duckXML.txt");
         m_duckSwarm.back()->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-1000*i,1000*i),1);
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
     }
@@ -143,7 +143,7 @@ void TestingState::init()
         if(x == 0)
             p = glm::vec2(30,0);
         m_trees.push_back(new Character());
-        m_trees.back()->loadModel("../data/grasslands/treeXML.txt");
+        m_trees.back()->createFromModel("../data/grasslands/treeXML.txt");
         m_trees.back()->setPosition(p);
         m_trees.back()->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_trees.back()->scale(glm::vec3(
@@ -200,7 +200,7 @@ void TestingState::init()
         //glm::vec2 p = glm::vec2(300,100);
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         auto *lantern = new Character();
-        lantern->loadModel("../data/poleWithLantern/poleWithLanternXML.txt");
+        lantern->createFromModel("../data/poleWithLantern/poleWithLanternXML.txt");
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_scene->getRootNode()->addChildNode(lantern);

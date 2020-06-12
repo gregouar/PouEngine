@@ -62,7 +62,7 @@ void GameWorld::generate()
 
         auto tree = new Character();
 
-        tree->setModel(treeModel);
+        tree->createFromModel(treeModel);
         tree->setPosition(p);
         tree->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         tree->scale(glm::vec3(
@@ -86,7 +86,7 @@ void GameWorld::generate()
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         auto *lantern = new Character();
-        lantern->setModel(lanternModel);
+        lantern->createFromModel(lanternModel);
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_scene->getRootNode()->addChildNode(lantern);
@@ -103,7 +103,7 @@ void GameWorld::generate()
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         auto *duck = new Character();
-        duck->setModel(duckModel);
+        duck->createFromModel(duckModel);
         duck->setPosition(p);
         m_scene->getRootNode()->addChildNode(duck);
 

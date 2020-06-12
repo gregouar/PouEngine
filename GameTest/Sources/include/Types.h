@@ -3,6 +3,7 @@
 
 class CharacterModelAsset;
 class ItemModelAsset;
+class AiScriptModelAsset;
 
 enum DamageType
 {
@@ -23,5 +24,6 @@ enum GearType
 template<class AssetType> class AssetHandler;
 typedef pou::AssetHandler<CharacterModelAsset>  CharacterModelsHandler;
 typedef pou::AssetHandler<ItemModelAsset>       ItemModelsHandler;
+typedef pou::AssetHandler<AiScriptModelAsset>   AiScriptModelsHandler;
 
 #endif // TYPES_H_INCLUDED

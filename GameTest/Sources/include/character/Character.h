@@ -15,6 +15,8 @@
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"
 
+class AiComponent;
+
 struct CharacterAttributes
 {
     CharacterAttributes() : life(0), walkingSpeed(0){}
@@ -42,8 +44,10 @@ class Character : public pou::SceneNode
         Character(std::shared_ptr<CharacterInput> characterInput);
         virtual ~Character();
 
-        virtual bool loadModel(const std::string &path);
-        virtual bool setModel(CharacterModelAsset *model);
+        virtual bool createFromModel(const std::string &path);
+        virtual bool createFromModel(CharacterModelAsset *model);
+
+        virtual void setAiComponent(std::shared_ptr<AiComponent> aiComponent);
 
         virtual pou::SceneEntity *addLimb(LimbModel *limbModel); //return nullptr if error
         virtual pou::SoundObject *addSound(SoundModel *soundModel); //return nullptr if error
@@ -76,6 +80,7 @@ class Character : public pou::SceneNode
 
         CharacterModelAsset *getModel() const;
         pou::Skeleton       *getSkeleton(const std::string &skeletonName);
+        CharacterInput      *getInput();
 
         const CharacterAttributes       &getAttributes() const;
         const CharacterModelAttributes  &getModelAttributes() const;
@@ -127,6 +132,8 @@ class Character : public pou::SceneNode
         CharacterModelAsset*    m_model;
         std::unique_ptr<CharacterState> m_states[NBR_CharacterStateTypes];
         CharacterState*         m_curState;
+
+        std::shared_ptr<AiComponent> m_aiComponent;
 
         std::map<LimbModel*, std::unique_ptr<pou::SceneEntity> >    m_limbs;
         std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;

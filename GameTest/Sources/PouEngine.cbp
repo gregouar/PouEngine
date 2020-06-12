@@ -31,6 +31,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -57,6 +58,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -87,6 +89,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -115,6 +118,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -145,6 +149,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -175,6 +180,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -205,6 +211,7 @@
 					<Add directory="GameTest/Sources/include/ui" />
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
+					<Add directory="GameTest/Sources/include/ai" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -439,6 +446,9 @@
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanExtProxies.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/VulkanHelpers.cpp" />
 		<Unit filename="include/Types.h" />
+		<Unit filename="include/ai/AiComponent.h" />
+		<Unit filename="include/ai/AiScriptedComponent.h" />
+		<Unit filename="include/assets/AiScriptModelAsset.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/character/Character.h" />
@@ -458,6 +468,9 @@
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/ai/AiComponent.cpp" />
+		<Unit filename="src/ai/AiScriptedComponent.cpp" />
+		<Unit filename="src/assets/AiScriptModelAsset.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
 		<Unit filename="src/character/Character.cpp" />
@@ -476,6 +489,7 @@
 		<Unit filename="src/ui/GameUi.cpp" />
 		<Unit filename="src/world/GameWorld.cpp" />
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
+		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
