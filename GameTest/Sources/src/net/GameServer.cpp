@@ -306,7 +306,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(!world)
         return;
 
-    uint32_t timeShift = 0;
+    int32_t timeShift = 0;
     ///if(!GameServer::USEREWIND)
     {
         auto minActionTime = std::max(world->getLocalTime(), clientInfos->lastActionTime);
@@ -316,8 +316,10 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         else if(!msg->lastPlayerActions.empty())
             timeShift = minActionTime - msg->lastPlayerActions.begin()->first;
 
-        //std::cout<<"LastActionTime:"<<clientInfos->lastActionTime<<std::endl;
-        //std::cout<<"TimeShift:"<<timeShift<<std::endl;
+       // timeShift = std::max(0,timeShift);
+
+       // std::cout<<"LastActionTime:"<<clientInfos->lastActionTime<<std::endl;
+       // std::cout<<"TimeShift:"<<timeShift<<std::endl;
     }
 
     /**if(GameServer::USEREWIND )
@@ -344,9 +346,6 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
             }
             //std::cout<<"Client ActionTime:"<<playerActionTime<<std::endl;
             //std::cout<<"Server ActionTime:"<<playerActionTime+timeShift<<std::endl;
-
-            if(playerAction.actionType == PlayerActionType_CursorMove)
-                std::cout<<"CursorCliebnt:"<<playerAction.direction.x<<" "<<playerAction.direction.y<<std::endl;
         }
     }
 
@@ -373,7 +372,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     if(uint32less(clientInfos->localTime,msg->localTime))
     {
         clientInfos->localTime = msg->localTime;
-        world->getPlayer(clientInfos->player_id)->setTimeShift(timeShift);
+        ///world->getPlayer(clientInfos->player_id)->setTimeShift(timeShift);
     }
 }
 

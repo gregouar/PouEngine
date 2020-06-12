@@ -58,8 +58,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setRigidity(float rigidity);
 
         //void setLocalTime(uint32_t localTime);
-        virtual void setSyncDelay(uint32_t delay);
-        virtual void setInterpolationDelay(uint32_t delay);
+        virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
         virtual void setMaxRewind(int maxRewind);
         void disableRotationSync(bool disable = true);
 
@@ -91,8 +90,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
 
-        uint32_t getLastUpdateTime(bool useSyncDelay = true);
-        uint32_t getLastParentUpdateTime(bool useSyncDelay = true);
+        uint32_t getLastUpdateTime();
+        uint32_t getLastParentUpdateTime();
         uint32_t getLocalTime();
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
@@ -145,7 +144,6 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::map<NodeTypeId, SimpleNode*> m_childs;
 
         uint32_t m_curLocalTime;
-        uint32_t m_syncDelay;
         uint32_t m_lastSyncTime;
         uint32_t m_lastUpdateTime;
         uint32_t m_lastParentUpdateTime;

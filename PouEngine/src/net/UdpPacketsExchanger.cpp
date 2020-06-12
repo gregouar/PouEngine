@@ -512,7 +512,6 @@ void UdpPacketsExchanger::fragmentPacket(UdpBuffer &packetBuffer)
     assert(nbr_frags < MAX_PACKETFRAGS);
 
     std::cout<<"Big packet split into "<<nbr_frags<<" parts from size:"<<packetBuffer.buffer.size()<<std::endl;
-    std::cout<<packetBuffer.buffer[0]+(packetBuffer.buffer[1]<<8)+(packetBuffer.buffer[2]<<16)+(packetBuffer.buffer[3]<<24)<<std::endl;
 
     for(auto i = 0 ; i < nbr_frags ; ++i)
     {

@@ -32,6 +32,10 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
+    m_position.setReconciliationPrecision(glm::vec3(2));
+    m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
+    m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
+
     m_disableInputSync  = false;
     m_disableDeath      = false;
 
@@ -288,6 +292,8 @@ bool Character::resurrect()
     m_attributes.setValue(att);
     m_isDead.setValue(false);
 
+    this->switchState(CharacterStateType_Standing);
+
     //this->m_lastAttributesUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
 
@@ -412,10 +418,11 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     }
     else if (m_attributes.getValue().life > oldLife)
     {
-        if(m_attributes.getValue().life > 0)
+        //if(m_attributes.getValue().life > 0)
+        if(m_isDead.getValue() && m_attributes.getValue().life > 0)
         {
             this->resurrect();
-            this->startAnimation("stand");
+            //this->startAnimation("stand");
         }
     }
 
@@ -539,13 +546,12 @@ int Character::getTeam() const
 }
 
 
-void Character::setSyncDelay(uint32_t delay)
+void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    SceneNode::setSyncDelay(delay);
-    /*m_walkingDirection.setSyncDelay(delay);
-    m_lookingDirection.setSyncDelay(delay);*/
-    m_input->setSyncDelay(delay);
-    m_curAnimation.setSyncDelay(delay);
+    SceneNode::setReconciliationDelay(serverDelay, clientDelay);
+    m_input->setReconciliationDelay(serverDelay, clientDelay);
+    m_curAnimation.setReconciliationDelay(serverDelay, clientDelay);
+    m_attributes.setReconciliationDelay(serverDelay, clientDelay);
 }
 
 void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
@@ -554,21 +560,17 @@ void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
         m_lastCharacterUpdateTime = time;
 }
 
-uint32_t Character::getLastCharacterUpdateTime(bool useSyncDelay)
+uint32_t Character::getLastCharacterUpdateTime()
 {
     auto lastUpdate = m_lastCharacterUpdateTime;
-    if(useSyncDelay)
-        lastUpdate += m_syncDelay; ///SHOULD USE SYNC DELAY ONLY ON SERVER SIDE HEH
 
     lastUpdate = std::max(m_input->getLastUpdateTime(), lastUpdate);
 
     return lastUpdate;
 }
 
-uint32_t Character::getLastModelUpdateTime(bool useSyncDelay)
+uint32_t Character::getLastModelUpdateTime()
 {
-    if(useSyncDelay)
-        return m_lastModelUpdateTime + m_syncDelay;
     return m_lastModelUpdateTime;
 }
 
@@ -608,7 +610,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }
 
-    bool updateAttributes = true;///false;
+    bool updateAttributes = false;
     if(!stream->isReading() && uint32less(clientTime,m_attributes.getLastUpdateTime()))
         updateAttributes = true;
     stream->serializeBool(updateAttributes);

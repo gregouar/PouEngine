@@ -41,7 +41,7 @@ class CharacterInput
 
         void setPush(bool pushing, glm::vec2 direction = glm::vec2(0));
 
-        virtual void setSyncDelay(uint32_t delay);
+        virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
 
         glm::vec2 getLookingAt(); //Passively looking at
         glm::vec2 getLookingDirectionInput(); //Actively looking toward

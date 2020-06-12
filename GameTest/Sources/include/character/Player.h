@@ -32,10 +32,10 @@ class Player : public Character
         void serializePlayer(pou::Stream *stream, uint32_t clientTime = -1);
         bool syncFromPlayer(Player *srcPlayer);
 
-        virtual void    setTimeShift(int shift);
+        ///virtual void    setTimeShift(int shift);
         uint32_t        getLastPlayerUpdateTime();
-        uint32_t        getLastGearUpdateTime(bool useSyncDelay = true);
-        uint32_t        getLastInventoryUpdateTime(bool useSyncDelay = true);
+        uint32_t        getLastGearUpdateTime();
+        uint32_t        getLastInventoryUpdateTime();
 
     protected:
         virtual void updateGearsAttributes();
@@ -51,7 +51,7 @@ class Player : public Character
         uint32_t m_lastPlayerUpdateTime;
         uint32_t m_lastInventoryUpdateTime;
         uint32_t m_lastGearUpdateTime;
-        pou::SyncedAttribute<int> m_timeShift;
+        ///pou::SyncedAttribute<int> m_timeShift;
 
         bool m_userControlled;
 

@@ -23,20 +23,21 @@ class SyncedAttribute
 
         bool setValue(const T &t, bool forceUpdate = false);
         bool setValue(const T &t, uint32_t curLocalTime, bool forceUpdate = false);
-        const T& getValue(bool useRewind = false) const;
+        //const T& getValue(bool useRewind = false) const;
+        const T& getValue() const;
 
-        uint32_t getLastUpdateTime(bool useRewind = true) const;
+        //uint32_t getLastUpdateTime(bool useRewind = true) const;
+        uint32_t getLastUpdateTime() const;
         uint32_t getSyncTime() const;
 
         bool rewind(uint32_t time);
 
-        void setSyncPrecision(T precision);
-        void setSyncDelay(uint32_t time);
+        void setReconciliationPrecision(T precision);
+        void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1); //-1 means it takes the server value
         void setMaxRewindAmount(size_t maxRewind);
 
     protected:
         T m_value;
-        //T m_syncValue;
         std::map<uint32_t, T> m_syncValues;
 
         bool m_firstSync;
@@ -49,9 +50,9 @@ class SyncedAttribute
         size_t m_maxRewindAmount;
         std::map<uint32_t, T> m_rewindValues;
 
-        uint32_t   m_syncDelay;
-        T       m_syncPrecision;
-        //T m_wantedNewSyncValue;
+        uint32_t    m_reconciliationDelay_client,
+                    m_reconciliationDelay_server;
+        T       m_reconciliationPrecision;
         Timer m_desyncTimer;
 
 
@@ -67,12 +68,9 @@ class LinSyncedAttribute : public SyncedAttribute<T>
         LinSyncedAttribute();
         LinSyncedAttribute(const T &t, uint32_t curTime);
 
-       // virtual void syncFrom(const LinSyncedAttribute<T> &t);
-
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
         void setModuloRange(const T& min, const T& max);
-        void setInterpolationDelay(uint32_t delay);
 
     protected:
         T computeWantedValue(T &value);
@@ -81,14 +79,6 @@ class LinSyncedAttribute : public SyncedAttribute<T>
         bool m_useModulo;
         T   m_minModuloValue,
             m_maxModuloValue;
-
-        //T m_lastSyncValue;
-        //float m_lastSyncTime;
-
-        uint32_t m_interpolationDelay;
-
-
-        //std::list< std::pair<float, T> > m_syncTimesAndValuesList;
 };
 
 }

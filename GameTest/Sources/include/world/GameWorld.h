@@ -40,7 +40,6 @@ class GameWorld
 
         //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
 
-        void updatePlayerSyncDelay(int player_id, uint32_t delay);
         void addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime = -1);
         void removeAllPlayerActions(int player_id, uint32_t time = -1);
 

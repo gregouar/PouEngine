@@ -23,7 +23,6 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0),
     m_curLocalTime(0),
-    m_syncDelay(0),
     m_lastSyncTime(-1),
     m_lastUpdateTime(-1),
     m_lastParentUpdateTime(-1),
@@ -293,21 +292,13 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
     this->update();
 }*/
 
-void SimpleNode::setSyncDelay(uint32_t delay)
+void SimpleNode::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    m_position.setSyncDelay(delay);
-    m_eulerRotations.setSyncDelay(delay);
-    m_scale.setSyncDelay(delay);
-
-    m_syncDelay = delay;
+    m_position.setReconciliationDelay(serverDelay, clientDelay);
+    m_eulerRotations.setReconciliationDelay(serverDelay, clientDelay);
+    m_scale.setReconciliationDelay(serverDelay, clientDelay);
 }
 
-void SimpleNode::setInterpolationDelay(uint32_t delay)
-{
-    m_position.setInterpolationDelay(delay);
-    m_eulerRotations.setInterpolationDelay(delay);
-    m_scale.setInterpolationDelay(delay);
-}
 
 void SimpleNode::setMaxRewind(int maxRewind)
 {
@@ -585,17 +576,13 @@ void SimpleNode::setLastUpdateTime(uint32_t time, bool force)
         m_lastUpdateTime = time;
 }
 
-uint32_t SimpleNode::getLastUpdateTime(bool useSyncDelay)
+uint32_t SimpleNode::getLastUpdateTime()
 {
-    if(useSyncDelay)
-        return m_lastUpdateTime + m_syncDelay;
     return m_lastUpdateTime;
 }
 
-uint32_t SimpleNode::getLastParentUpdateTime(bool useSyncDelay)
+uint32_t SimpleNode::getLastParentUpdateTime()
 {
-    if(useSyncDelay)
-        return m_lastParentUpdateTime + m_syncDelay;
     return m_lastParentUpdateTime;
 }
 
@@ -844,7 +831,7 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
     stream->serializeBool(hasPos);
     if(hasPos)
     {
-        glm::vec3 pos = m_position.getValue(true);
+        glm::vec3 pos = m_position.getValue();
         stream->serializeFloat(pos.x, -SimpleNode::NODE_MAX_POS.x, SimpleNode::NODE_MAX_POS.x, 0);
         stream->serializeFloat(pos.y, -SimpleNode::NODE_MAX_POS.y, SimpleNode::NODE_MAX_POS.y, 0);
         stream->serializeFloat(pos.z, -SimpleNode::NODE_MAX_POS.z, SimpleNode::NODE_MAX_POS.z, 2);
@@ -859,7 +846,7 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
     stream->serializeBool(hasRot);
     if(hasRot)
     {
-        glm::vec3 rot = m_eulerRotations.getValue(true);
+        glm::vec3 rot = m_eulerRotations.getValue();
         stream->serializeFloat(rot.x, -3.14, 3.14, 2);
         stream->serializeFloat(rot.y, -3.14, 3.14, 2);
         stream->serializeFloat(rot.z, -3.14, 3.14, 2);
@@ -876,7 +863,7 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
     stream->serializeBool(hasScale);
     if(hasScale)
     {
-        glm::vec3 scale = m_scale.getValue(true);
+        glm::vec3 scale = m_scale.getValue();
         stream->serializeFloat(scale.x, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
         stream->serializeFloat(scale.y, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);
         stream->serializeFloat(scale.z, -SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_MAX_SCALE, SimpleNode::NODE_SCALE_DECIMALS);

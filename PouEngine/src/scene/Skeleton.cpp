@@ -1,6 +1,7 @@
 #include "PouEngine/scene/Skeleton.h"
 
 #include "PouEngine/utils/Logger.h"
+#include "PouEngine/utils/MathTools.h"
 
 namespace pou
 {
@@ -551,7 +552,10 @@ void SkeletalAnimationCommand::computeAmount()
     if(m_model->getType() == Move_To)
         m_amount = m_amount - m_nodeState->posisiton.getValue();
     else if(m_model->getType() == Rotate_To)
+    {
+        m_amount = MathTools::computeWantedRotation(m_nodeState->rotation.getValue(), m_amount, false);
         m_amount = m_amount - m_nodeState->rotation.getValue();
+    }
     else if(m_model->getType() == Scale_To)
         m_amount = m_amount - m_nodeState->scale.getValue();
     else if(m_model->getType() == Color_To)
@@ -663,7 +667,7 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
     else if(m_model->getType() == Rotate_To)
     {
         m_node->rotate(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z), false);
-        m_nodeState->rotation.setValue(m_nodeState->rotation.getValue() + finalAmount);
+        m_nodeState->rotation.setValue(glm::mod(m_nodeState->rotation.getValue() + finalAmount,360.0f));
     }
     else if(m_model->getType() == Scale_To)
     {

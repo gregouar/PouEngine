@@ -137,7 +137,7 @@
 			<command type="moveTo" node="footR" z=17 rate=200 />
 			
 			<!--<globalCommand type="colorTo" r=0 g=0 b=0 rate=200 />-->
-			<command type="colorTo" node="body" r=0 g=0 b=0 rate=200 />
+			<command type="colorTo" node="body" r=-.25 g=-.25 b=-.25 rate=200 />
 			
 		</frame>
 	</animation>

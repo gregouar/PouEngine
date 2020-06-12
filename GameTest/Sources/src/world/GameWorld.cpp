@@ -145,7 +145,11 @@ size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
     }
 
     if(isLocalPlayer)
+    {
         this->createPlayerCamera(player_id);
+        auto music = pou::AudioEngine::createEvent("event:/Music");
+        pou::AudioEngine::playEvent(music);
+    }
 
     m_addedPlayersList.push_back(player_id);
     return player_id;
@@ -166,14 +170,6 @@ bool GameWorld::isPlayerCreated(size_t player_id)
     if(!player)
         return (false);
     return (player->getLastPlayerUpdateTime() != (uint32_t)(-1));
-}
-
-void GameWorld::updatePlayerSyncDelay(int player_id, uint32_t delay)
-{
-    auto player = m_syncPlayers.findElement(player_id);
-    if(player == nullptr)
-        return;
-    player->setSyncDelay(delay);
 }
 
 void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime)

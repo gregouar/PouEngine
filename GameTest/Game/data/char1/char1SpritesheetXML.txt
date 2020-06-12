@@ -46,6 +46,16 @@
 		<center 	x="2" 	y="10" 	/>
 		<position 	x="24" 	y="48" 	/>
 	</sprite>
+	<sprite name="upperLegs">
+		<size 		x="30" 	y="14" 	/>
+		<center 	x="15" 	y="7" 	/>
+		<position 	x="24" 	y="114" 	/>
+	</sprite>
+	<sprite name="lowerLegs">
+		<size 		x="26" 	y="10" 	/>
+		<center 	x="13" 	y="5" 	/>
+		<position 	x="26" 	y="98" 	/>
+	</sprite>
 	
 	<sprite name="sword" castShadow="true">
 		<size 		x="64" 	y="64" 	/>

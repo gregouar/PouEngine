@@ -3,7 +3,7 @@
 	<node name="root"> 
 		<node name="center" z=25>
 			<node name="body" >
-				<node name="bag" x="0" y="4" z="1" />
+				<node name="bag" x="0" y="4" z="10" />
 				<node name="shoulderL" x="-16" y="-4" z="15" />
 				<node name="shoulderR" x="16" y="-4" z="15" />
 				<node name="handL" x="-8" y="-8" z="8" />
@@ -17,8 +17,18 @@
 					</node>
 				</node>
 				<node name="bodyHB" z=1 />
+				
+				<node name="upperBody" z=15 />
+				
+				<node name="upperLegs" z=-10>
+					<node name="lowerLegs" z=-10>
+					</node>
+				</node>
 			</node>
 			<node name="head" z=25 />
+			
+			
+			
 			<node name="footL" x="-10" y="4" z=-24 />
 			<node name="footR" x="10" y="4" z=-24 />
 		</node>
@@ -265,11 +275,49 @@
 		
 		<frame frameTime=.1>
 			<sound>dashSound</sound>
-			<command type="rotateTo" node="center" x=180 />
+			<command type="rotateTo" node="center" x=120 />
+			<command type="rotateTo" node="shoulderL" x=-120 />
+			<command type="rotateTo" node="shoulderR" x=-120 />
+			<command type="rotateTo" node="head" x=-120 />
+			<command type="rotateTo" node="footL" x=-120 />
+			<command type="rotateTo" node="footR" x=-120 />
+			<command type="rotateTo" node="bag" x=-120 />
+			<command type="rotateTo" node="upperBody" x=-120 />
+			
+			<command type="moveTo" node="center" z=-10 />
+			<command type="moveTo" node="footL" z=24 />
+			<command type="moveTo" node="footR" z=24 />
+			
+			
+			<command type="rotateTo" node="body" z=30 />
 		</frame>
 		
 		<frame frameTime=.1>
-			<command type="rotateTo" node="center" x=0 />
+			<command type="rotateTo" node="center" x=240 />
+			<command type="rotateTo" node="shoulderL" x=-240 />
+			<command type="rotateTo" node="shoulderR" x=-240 />
+			<command type="rotateTo" node="head" x=-240 />
+			<command type="rotateTo" node="footL" x=-240 />
+			<command type="rotateTo" node="footR" x=-240 />
+			<command type="rotateTo" node="bag" x=-240 />
+			<command type="rotateTo" node="upperBody" x=-240 />
+		</frame>
+		
+		<frame frameTime=.1>
+			<command type="rotateTo" node="center" x=360 />
+			<command type="rotateTo" node="shoulderL" x=-360 />
+			<command type="rotateTo" node="shoulderR" x=-360 />
+			<command type="rotateTo" node="head" x=-360 />
+			<command type="rotateTo" node="footL" x=-360 />
+			<command type="rotateTo" node="footR" x=-360 />
+			<command type="rotateTo" node="bag" x=-360 />
+			<command type="rotateTo" node="upperBody" x=-360 />
+			
+			<command type="moveTo" node="center" z=0 />
+			<command type="moveTo" node="footL" z=0 />
+			<command type="moveTo" node="footR" z=0 />
+			
+			<command type="rotateTo" node="body" z=0 />
 		</frame>
 	</animation>
 </skeleton>

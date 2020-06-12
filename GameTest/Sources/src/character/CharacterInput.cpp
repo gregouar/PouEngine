@@ -73,7 +73,7 @@ void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
     stream->serializeBool(updateWalking);
     if(updateWalking)
     {
-        auto walking = m_walkingDirection.getValue(true);
+        auto walking = m_walkingDirection.getValue();
 
         stream->serializeFloat(walking.x,-1,1,2);
         stream->serializeFloat(walking.y,-1,1,2);
@@ -88,7 +88,7 @@ void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
     stream->serializeBool(updateLooking);
     if(updateLooking)
     {
-        auto looking = m_lookingDirection.getValue(true);
+        auto looking = m_lookingDirection.getValue();
 
         stream->serializeFloat(looking.x,-1,1,2);
         stream->serializeFloat(looking.y,-1,1,2);
@@ -98,26 +98,26 @@ void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
     }
 
     {
-        bool isAttacking = m_attackingInput.getValue(true);
+        bool isAttacking = m_attackingInput.getValue();
         stream->serializeBool(isAttacking);
         if(stream->isReading())
             m_attackingInput.setValue(isAttacking, true);
     }
 
     {
-        bool isDashing = m_dashingInput.getValue(true);
+        bool isDashing = m_dashingInput.getValue();
         stream->serializeBool(isDashing);
         if(stream->isReading())
             m_dashingInput.setValue(isDashing, true);
     }
 }
 
-void CharacterInput::setSyncDelay(uint32_t delay)
+void CharacterInput::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    m_lookingDirection.setSyncDelay(delay);
-    m_walkingDirection.setSyncDelay(delay);
-    m_attackingInput.setSyncDelay(delay);
-    m_dashingInput.setSyncDelay(delay);
+    m_lookingDirection.setReconciliationDelay(serverDelay, clientDelay);
+    m_walkingDirection.setReconciliationDelay(serverDelay, clientDelay);
+    m_attackingInput.setReconciliationDelay(serverDelay, clientDelay);
+    m_dashingInput.setReconciliationDelay(serverDelay, clientDelay);
 }
 
 glm::vec2 CharacterInput::getLookingAt()
@@ -256,7 +256,6 @@ void PlayerInput::update(const pou::Time &elapsedTime, uint32_t localTime)
 
     if(m_wantToLookAt)
     {
-        std::cout<<"Car:"<<m_wantToLookAtDirection.x<<" "<<m_wantToLookAtDirection.y<<std::endl;
         this->setLookingAt(m_wantToLookAtDirection);
         m_wantToLookAt = false;
     }
@@ -284,10 +283,7 @@ void PlayerInput::update(const pou::Time &elapsedTime, uint32_t localTime)
         this->setDashing(false);
 
     if(m_combatModeTimer.isActive())
-    {
         this->setLookingDirection(this->getLookingAt());
-        std::cout<<"Fer:"<<this->getLookingAt().x<<" "<<this->getLookingAt().y<<std::endl;
-    }
     else if(this->getWalkingInputs().second != glm::vec2(0))
         this->setLookingDirection(this->getWalkingInputs().second);
 }

@@ -10,7 +10,7 @@
 
 const int       GameClient::TICKRATE    = 60;
 const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
-const int       GameClient::SYNCRATE    = 5;
+const int       GameClient::SYNCRATE    = 10;
 const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
 const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 const uint32_t  GameClient::MAX_PLAYER_REWIND = 200;
@@ -24,7 +24,7 @@ GameClient::GameClient() :
 {
     initializeNetMessages();
     pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
-    //pou::NetEngine::setMaxRewindAmount(100);
+    pou::NetEngine::setMaxRewindAmount(200);
 
     m_lastPlayerWalkDirection = glm::vec2(0);
     m_lastServerAckTime = (uint32_t)(-1);
@@ -141,14 +141,14 @@ void GameClient::processPlayerAction(const PlayerAction &action)
     if(!m_client || m_curWorldId == 0)
         return;
 
-    if(action.actionType == PlayerActionType_CursorMove)
+    /**if(action.actionType == PlayerActionType_CursorMove)
     {
         m_curCursorPos = action.direction;
         auto player = m_world.getPlayer(m_curPlayerId);
         if(player)
             player->processAction(action);
         return;
-    }
+    }**/
 
     if(action.actionType == PlayerActionType_Walk)
         m_lastPlayerWalkDirection = action.direction;
@@ -310,12 +310,12 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             }*/
 
             //Could add condition to do this only if attackMode is on
-            {
+            /**{
                 PlayerAction playerAction;
                 playerAction.actionType = PlayerActionType_CursorMove;
                 playerAction.direction  = glm::normalize(m_curCursorPos);
                 m_world.addPlayerAction(m_curPlayerId, playerAction);
-            }
+            }**/
 
             //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
             m_world.createAskForSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);

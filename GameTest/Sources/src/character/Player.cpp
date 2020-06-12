@@ -13,9 +13,9 @@ Player::Player(bool userControlled) :
     m_lastGearUpdateTime    = -1;
     m_lastInventoryUpdateTime = -1;
 
-    m_position.setSyncPrecision(glm::vec3(32));
-    m_eulerRotations.setSyncPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_scale.setSyncPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
+    m_position.setReconciliationPrecision(glm::vec3(8));
+    m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
+    m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 }
 
 Player::~Player()
@@ -160,12 +160,21 @@ void Player::processAction(const PlayerAction &playerAction)
 
 void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+   // std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+
+    /**if(m_timeShift.update(elapsedTime, localTime))
+    {
+        int timeShift = m_timeShift.getValue();
+        if(timeShift > 0)
+            this->setReconciliationDelay(0, timeShift);
+        else
+            this->setReconciliationDelay(-timeShift-1, 1);
+
+       //this->setSyncDelay(m_timeShift.getValue());
+    }**/
 
     Character::update(elapsedTime, localTime);
 
-    if(m_timeShift.update(elapsedTime, localTime))
-        this->setSyncDelay(m_timeShift.getValue());
 }
 
 const std::list<Hitbox> *Player::getHitboxes() const
@@ -212,12 +221,12 @@ void Player::updateGearsAttributes()
 
 void Player::serializePlayer(pou::Stream *stream, uint32_t clientTime)
 {
-    {
-        auto timeShift = m_timeShift.getValue(true);
-        stream->serializeBits(timeShift,12);
+    /**{
+        auto timeShift = m_timeShift.getValue();
+        stream->serializeInt(timeShift,-255,255);
         if(stream->isReading())
             m_timeShift.setValue(timeShift, true);
-    }
+    }**/
 }
 
 bool Player::syncFromPlayer(Player *srcPlayer)
@@ -225,17 +234,17 @@ bool Player::syncFromPlayer(Player *srcPlayer)
     ///if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
        /// return (false);
 
-    m_timeShift.syncFrom(srcPlayer->m_timeShift);
+    ///m_timeShift.syncFrom(srcPlayer->m_timeShift);
 
     m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
 
     return (true);
 }
 
-void Player::setTimeShift(int shift)
+/**void Player::setTimeShift(int shift)
 {
     m_timeShift.setValue(shift);
-}
+}**/
 
 void Player::setLastPlayerUpdateTime(uint32_t time, bool force)
 {
@@ -245,20 +254,16 @@ void Player::setLastPlayerUpdateTime(uint32_t time, bool force)
 
 uint32_t Player::getLastPlayerUpdateTime()
 {
-    return m_lastPlayerUpdateTime + m_syncDelay;
+    return m_lastPlayerUpdateTime;
 }
 
-uint32_t Player::getLastGearUpdateTime(bool useSyncDelay)
+uint32_t Player::getLastGearUpdateTime()
 {
-    if(useSyncDelay)
-        return m_lastGearUpdateTime + m_syncDelay;
     return m_lastGearUpdateTime;
 }
 
-uint32_t Player::getLastInventoryUpdateTime(bool useSyncDelay)
+uint32_t Player::getLastInventoryUpdateTime()
 {
-    if(useSyncDelay)
-        return m_lastInventoryUpdateTime + m_syncDelay;
     return m_lastInventoryUpdateTime;
 }
 

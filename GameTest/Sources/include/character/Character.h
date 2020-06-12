@@ -84,9 +84,9 @@ class Character : public pou::SceneNode
         void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
         bool syncFromCharacter(Character *srcCharacter);
 
-        virtual void    setSyncDelay(uint32_t delay);
-        uint32_t        getLastModelUpdateTime(bool useSyncDelay = true);
-        uint32_t        getLastCharacterUpdateTime(bool useSyncDelay = true);
+        virtual void    setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        uint32_t        getLastModelUpdateTime();
+        uint32_t        getLastCharacterUpdateTime();
 
         void disableDeath(bool disable = true); //Prevent to kill character before server approval
         void disableInputSync(bool disable = true); //<= maybe I should use some kind of inputComponent or syncComponent ?
