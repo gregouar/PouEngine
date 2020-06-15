@@ -160,7 +160,7 @@ void Player::processAction(const PlayerAction &playerAction)
 
 void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+   // std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
 
     /**if(m_timeShift.update(elapsedTime, localTime))
     {
@@ -229,16 +229,17 @@ void Player::serializePlayer(pou::Stream *stream, uint32_t clientTime)
     }**/
 }
 
-bool Player::syncFromPlayer(Player *srcPlayer)
+void Player::syncFromPlayer(Player *srcPlayer)
 {
+    if(m_disableSync)
+        return;
+
     ///if(uint32less(srcPlayer->getLastPlayerUpdateTime(),m_lastPlayerSyncTime))
        /// return (false);
 
     ///m_timeShift.syncFrom(srcPlayer->m_timeShift);
 
     m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
-
-    return (true);
 }
 
 /**void Player::setTimeShift(int shift)

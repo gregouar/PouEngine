@@ -164,10 +164,10 @@ bool MaterialAsset::loadFromXML(TiXmlHandle *hdl)
 }
 
 
-void MaterialAsset::notify(NotificationSender* sender, NotificationType notification,
-                           size_t dataSize, char* data)
+void MaterialAsset::notify(NotificationSender* sender, int notificationType,
+                           void* data)
 {
-    if(notification == Notification_AssetLoaded)
+    if(notificationType == NotificationType_AssetLoaded)
     if(sender == m_albedoMap || sender == m_heightMap
        || sender == m_normalMap || sender == m_rmeMap)
     {
@@ -181,7 +181,7 @@ void MaterialAsset::notify(NotificationSender* sender, NotificationType notifica
         }
     }
 
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_albedoMap)
             m_albedoMap = nullptr;

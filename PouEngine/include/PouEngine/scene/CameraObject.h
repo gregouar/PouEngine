@@ -26,8 +26,8 @@ class CameraObject : public SceneObject
         glm::vec2 getViewportOffset();
         glm::vec2 getViewportExtent();
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
     protected:
         void updateListeningPosition();
 

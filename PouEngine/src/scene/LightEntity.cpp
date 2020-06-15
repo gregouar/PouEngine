@@ -172,12 +172,12 @@ void LightEntity::setDirection(glm::vec3 direction)
 {
     if(m_lightModel.direction != direction)
     {
-        glm::vec3 oldDirection = m_lightModel.direction;
+        //glm::vec3 oldDirection = m_lightModel.direction;
         m_lightModel.direction = direction;
         this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
 
-        this->sendNotification(Notification_UpdateShadow, sizeof(oldDirection), (char*)(&oldDirection));
+        //this->sendNotification(NotificationType_UpdateShadow, &oldDirection);
     }
 }
 
@@ -262,10 +262,10 @@ LightDatum LightEntity::getLightDatum()
 }
 
 /// Protected ///
-void LightEntity::notify(NotificationSender *sender, NotificationType type,
-                         size_t dataSize, char* data)
+void LightEntity::notify(NotificationSender *sender, int notificationType,
+                         void* data)
 {
-    if(type == Notification_NodeMoved)
+    if(notificationType == NotificationType_NodeMoved)
         this->updateDatum();
 }
 

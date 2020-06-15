@@ -123,7 +123,7 @@ void SpriteModel::setTexture(TextureAsset *texture)
         else
             m_isReady = true;
 
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -156,7 +156,7 @@ void SpriteModel::setMaterial(MaterialAsset *material)
         if(m_material)
             m_rme = m_material->getRmeFactor();
 
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -165,7 +165,7 @@ void SpriteModel::setSize(glm::vec2 size)
     if(m_size != size)
     {
         m_size = size;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -174,7 +174,7 @@ void SpriteModel::setCenter(glm::vec2 pos)
     if(m_center != pos)
     {
         m_center = pos;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -185,7 +185,7 @@ void SpriteModel::setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelativ
         m_texturePosition       = pos;
         m_textureExtent         = extent;
         m_useRelativeTextureRect = isRelative;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -203,7 +203,7 @@ void SpriteModel::setColor(Color color)
     if(m_color != color)
     {
         m_color = color;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -212,7 +212,7 @@ void SpriteModel::setRme(glm::vec3 rme)
     if(m_rme != rme)
     {
         m_rme = rme;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
 }
 
@@ -372,20 +372,20 @@ SpriteModel* SpriteModel::getNextSpriteModel()
 }
 
 
-void SpriteModel::notify(NotificationSender *sender, NotificationType notification,
-                            size_t dataSize, char* data)
+void SpriteModel::notify(NotificationSender *sender, int notificationType,
+                         void* data)
 {
-    if(notification == Notification_AssetLoaded)
+    if(notificationType == NotificationType_AssetLoaded)
     {
         m_isReady = true;
-        this->sendNotification(Notification_ModelChanged);
+        this->sendNotification(NotificationType_ModelChanged);
     }
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_texture)
         {
             m_texture = nullptr;
-            this->sendNotification(Notification_ModelChanged);
+            this->sendNotification(NotificationType_ModelChanged);
         }
     }
 }

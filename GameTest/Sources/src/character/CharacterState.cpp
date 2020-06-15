@@ -276,7 +276,8 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                             totalDamages += m_character->getModelAttributes().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
 
                         enemy->damage(totalDamages,
-                                      enemy->getGlobalXYPosition()-m_character->getGlobalXYPosition());
+                                      enemy->getGlobalXYPosition()-m_character->getGlobalXYPosition(),
+                                      m_character->areDamagesOnlyCosmetic());
                     }
                 }
 

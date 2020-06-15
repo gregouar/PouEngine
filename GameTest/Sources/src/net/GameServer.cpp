@@ -243,6 +243,18 @@ unsigned short GameServer::getPort() const
     return m_server->getPort();
 }
 
+
+Player* GameServer::getPlayer(size_t clientNbr)
+{
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+
+    if(!world)
+        return (nullptr);
+
+    return world->getPlayer(clientInfos->player_id);
+}
+
+
 void GameServer::sendMsgTest(bool reliable, bool forceSend)
 {
     for(auto i = 0 ; i < m_server->getMaxNbrClients() ; ++i)
@@ -284,10 +296,20 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
                 this->disconnectClient(clientNbr);
         }break;
 
-        case NetMessageType_AskForWorldSync:{
-            auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(msg);
+        case NetMessageType_PlayerSync:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(msg);
             this->updateClientSync(clientNbr, castMsg);
         }break;
+
+        case NetMessageType_PlayerEvent:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerEvent>(msg);
+            this->processPlayerEvent(clientNbr, castMsg);
+        }break;
+
+        /*case NetMessageType_AskForWorldSync:{
+            auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(msg);
+            this->updateClientSync(clientNbr, castMsg);
+        }break;*/
 
         /*case NetMessageType_PlayerAction:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(msg);
@@ -296,7 +318,38 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
     }
 }
 
-void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg)
+void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_PlayerSync> msg)
+{
+    if(msg->lastSyncTime == (uint32_t)(-1))
+        return;
+
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+
+    if(!world)
+        return;
+
+    world->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientNbr));
+
+    if(uint32less(clientInfos->lastSyncTime,msg->lastSyncTime))
+        clientInfos->lastSyncTime = msg->lastSyncTime;
+    if(uint32less(clientInfos->localTime,msg->localTime))
+    {
+        clientInfos->localTime = msg->localTime;
+        ///world->getPlayer(clientInfos->player_id)->setTimeShift(timeShift);
+    }
+}
+
+void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_PlayerEvent> msg)
+{
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+
+    if(!world)
+        return;
+
+    world->processPlayerEvent(msg, clientInfos->player_id);
+}
+
+/*void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg)
 {
     if(msg->lastSyncTime == (uint32_t)(-1))
         return;
@@ -325,7 +378,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
     /**if(GameServer::USEREWIND )
         if(uint32less(clientInfos->localTime,msg->localTime))
             world->removeAllPlayerActions(clientInfos->player_id, clientInfos->localTime+timeShift+1);**/
-
+/*
     glm::vec2 lastPlayerWalk(0);
     uint32_t lastPlayerWalkTime = 0;
 
@@ -359,7 +412,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
             tempAction.direction    = glm::vec2(0);
             world->addPlayerAction(clientInfos->player_id, tempAction,  lastPlayerWalkTime+timeShift);
         }
-    } else**/ {
+    } else**//* {
         PlayerAction tempAction;
         tempAction.actionType   = PlayerActionType_Walk;
         tempAction.direction    = glm::vec2(0);
@@ -374,7 +427,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskF
         clientInfos->localTime = msg->localTime;
         ///world->getPlayer(clientInfos->player_id)->setTimeShift(timeShift);
     }
-}
+}*/
 
 void GameServer::processPlayerAction(size_t clientNbr, const PlayerAction &action, uint32_t localTime)
 {

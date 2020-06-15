@@ -40,7 +40,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
         virtual void copyFrom(const SimpleNode* srcNode);
-        virtual bool syncFromNode(SimpleNode* srcNode);
+        virtual void syncFromNode(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -61,6 +61,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
         virtual void setMaxRewind(int maxRewind);
         void disableRotationSync(bool disable = true);
+        void disableSync(bool disable = true);
 
         void scale(float scale);
         void scale(glm::vec3 scale);
@@ -97,8 +98,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
         virtual void rewind(uint32_t time);
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
 
         virtual void serializeNode(Stream *stream, uint32_t localTime = -1);
@@ -152,6 +153,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         //float m_lastScaleUpdateTime;
 
         bool m_disableRotationSync;
+        bool m_disableSync;
 
     private:
         NodeTypeId m_id;

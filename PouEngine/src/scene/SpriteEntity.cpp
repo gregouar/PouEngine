@@ -417,16 +417,16 @@ void SpriteEntity::update(const Time &elapsedTime, uint32_t localTime)
     }
 }
 
-void SpriteEntity::notify(NotificationSender *sender, NotificationType notification,
-                             size_t dataSize, char* data)
+void SpriteEntity::notify(NotificationSender *sender, int notificationType,
+                          void* data)
 {
-    if(notification == Notification_AssetLoaded ||
-       notification == Notification_TextureChanged ||
-       notification == Notification_ModelChanged ||
-       notification == Notification_NodeMoved)
+    if(notificationType == NotificationType_AssetLoaded ||
+       notificationType == NotificationType_TextureChanged ||
+       notificationType == NotificationType_ModelChanged ||
+       notificationType == NotificationType_NodeMoved)
         this->updateDatum();
 
-    /*if(notification == Notification_UpdateShadow)
+    /*if(notification == NotificationType_UpdateShadow)
     {
         if(m_spriteModel != nullptr)
         {
@@ -436,7 +436,7 @@ void SpriteEntity::notify(NotificationSender *sender, NotificationType notificat
         }
     }*/
 
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_spriteModel)
         {

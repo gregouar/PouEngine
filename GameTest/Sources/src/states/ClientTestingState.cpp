@@ -126,8 +126,10 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
 
 void ClientTestingState::update(const pou::Time &elapsedTime)
 {
-    //m_gameUi.updateCharacterLife(m_character->getAttributes().life,
-    //                             m_character->getAttributes().maxLife);
+    auto player = m_gameClient.getPlayer();
+    if(player)
+        m_gameUi.updateCharacterLife(player->getAttributes().life,
+                                     player->getModelAttributes().maxLife);
 
 
     m_gameUi.update(elapsedTime);

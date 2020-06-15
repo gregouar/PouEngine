@@ -54,10 +54,10 @@ bool MeshAsset::loadFromFile(const std::string &filePath)
     return this->loadFromXML(&hdl);
 }
 
-void MeshAsset::notify(NotificationSender* sender, NotificationType notification,
-                       size_t dataSize, char* data)
+void MeshAsset::notify(NotificationSender* sender, int notificationType,
+                       void* data)
 {
-    if(notification == Notification_AssetLoaded)
+    if(notificationType == NotificationType_AssetLoaded)
     if(sender == m_material)
     {
         m_materialsLoaded = true;
@@ -65,12 +65,12 @@ void MeshAsset::notify(NotificationSender* sender, NotificationType notification
             m_loaded = true, Asset::loadNow();
     }
 
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_material)
         {
             m_material = nullptr;
-            this->sendNotification(Notification_TextureChanged);
+            this->sendNotification(NotificationType_TextureChanged);
         }
     }
 

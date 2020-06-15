@@ -119,9 +119,10 @@ void UiProgressBar::setVerticalOrientation(bool b)
 }*/
 
 
-void UiProgressBar::update(const Time &elapsedTime)
+void UiProgressBar::update(const Time &elapsedTime, uint32_t localTime)
 {
     float p = (m_value-m_minValue)/(m_maxValue-m_minValue);
+
     if(m_isVertical)
     {
         UiElement::setSize({m_totalSize.x,m_totalSize.y*p});
@@ -137,7 +138,7 @@ void UiProgressBar::update(const Time &elapsedTime)
         //m_bar->setTextureExtent({m_orBarTextureExtent.x*p, m_orBarTextureExtent.y});
     }
 
-    UiPicture::update(elapsedTime);
+    UiPicture::update(elapsedTime,localTime);
 }
 
 

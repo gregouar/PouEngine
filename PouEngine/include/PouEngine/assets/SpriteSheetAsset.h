@@ -28,8 +28,8 @@ class SpriteSheetAsset : public Asset, public NotificationListener
 
         int getSpriteId(const std::string &spriteName) const;
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
 
     protected:

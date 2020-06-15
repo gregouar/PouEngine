@@ -304,17 +304,17 @@ int SpriteSheetAsset::generateSpriteId(const std::string &spriteName)
 
 
 
-void SpriteSheetAsset::notify(NotificationSender* sender, NotificationType notification,
-                           size_t dataSize, char* data)
+void SpriteSheetAsset::notify(NotificationSender* sender, int notificationType,
+                              void* data)
 {
-    if(notification == Notification_AssetLoaded)
+    if(notificationType == NotificationType_AssetLoaded)
         if(sender == m_texture)
         {
             m_loaded = true, Asset::loadNow();
             Logger::write("Sprite sheet loaded from file: "+m_filePath);
         }
 
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_texture)
             m_texture = nullptr;

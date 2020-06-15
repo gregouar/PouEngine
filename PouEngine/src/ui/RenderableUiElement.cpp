@@ -96,13 +96,13 @@ void RenderableUiElement::render(UiRenderer *renderer)
 }
 
 
-void RenderableUiElement::notify(NotificationSender *sender, NotificationType notification,
-                             size_t dataSize, char* data)
+void RenderableUiElement::notify(NotificationSender *sender, int notificationType,
+                                 void* data)
 {
-    if(notification == Notification_AssetLoaded ||
-       notification == Notification_TextureChanged ||
-       notification == Notification_ModelChanged ||
-       notification == Notification_NodeMoved)
+    if(notificationType == NotificationType_AssetLoaded ||
+       notificationType == NotificationType_TextureChanged ||
+       notificationType == NotificationType_ModelChanged ||
+       notificationType == NotificationType_NodeMoved)
         this->updateDatum();
 }
 

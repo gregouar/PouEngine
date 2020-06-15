@@ -101,7 +101,13 @@ void GameWorld::generate()
 
     for(auto i = 0 ; i < 3 ; i++)
     {
-        glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        glm::vec2 p;
+
+        do
+        {
+            p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        }while(glm::length(p) < 500.0f);
+
         auto *duck = new Character();
         duck->createFromModel(duckModel);
         duck->setPosition(p);

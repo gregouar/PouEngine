@@ -135,7 +135,10 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
-    auto player = new Player();
+    auto player = new Player(isLocalPlayer);
+
+    if(!isLocalPlayer)
+        player->disableDamageDealing();
 
     auto player_id = this->syncElement(player);
     if(player_id == 0)
@@ -313,7 +316,9 @@ size_t GameWorld::syncElement(CharacterModelAsset *characterModel)
 size_t GameWorld::syncElement(Character *character)
 {
     this->syncElement((pou::SceneNode*)character);
-    return m_syncCharacters.allocateId(character);
+    int id = m_syncCharacters.allocateId(character);
+    character->setSyncId(id);
+    return id;
 }
 
 size_t GameWorld::syncElement(ItemModelAsset *itemModel)

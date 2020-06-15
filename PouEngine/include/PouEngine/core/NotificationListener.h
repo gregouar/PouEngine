@@ -20,10 +20,11 @@ class NotificationListener
 
         void stopListeningTo(NotificationSender*);
         void startListeningTo(NotificationSender*);
+        void startListeningTo(NotificationSender*, int notificationType);
 
     protected:
-        virtual void notify(NotificationSender*, NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) = 0;
+        virtual void notify(NotificationSender*, int notificationType,
+                            void* data = nullptr) = 0;
 
     private:
         void addSender(NotificationSender*);

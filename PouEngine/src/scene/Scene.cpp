@@ -199,8 +199,8 @@ void Scene::setAmbientLight(Color color)
 }
 
 
-void Scene::notify(NotificationSender *sender, NotificationType notification,
-                   size_t dataSize, char* data)
+void Scene::notify(NotificationSender *sender, int notificationType,
+                   void* data)
 {
 
 }

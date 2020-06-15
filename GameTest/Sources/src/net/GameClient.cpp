@@ -3,14 +3,16 @@
 #include "net/NetMessageTypes.h"
 #include "PouEngine/Types.h"
 #include "PouEngine/utils/Profiler.h"
+#include "PouEngine/core/MessageBus.h"
 
 #include "net/GameServer.h"
+#include "logic/GameMessageTypes.h"
 
 //const float GameClient::CLIENTWORLD_SYNC_DELAY = 0.1;
 
 const int       GameClient::TICKRATE    = 60;
 const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
-const int       GameClient::SYNCRATE    = 10;
+const int       GameClient::SYNCRATE    = 30;
 const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
 const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 const uint32_t  GameClient::MAX_PLAYER_REWIND = 200;
@@ -28,6 +30,8 @@ GameClient::GameClient() :
 
     m_lastPlayerWalkDirection = glm::vec2(0);
     m_lastServerAckTime = (uint32_t)(-1);
+
+    pou::MessageBus::addListener(this, GameMessageType_CharacterDamaged);
 }
 
 GameClient::~GameClient()
@@ -87,6 +91,14 @@ bool GameClient::disconnectFromServer()
 const pou::NetAddress &GameClient::getServerAddress() const
 {
     return m_client->getServerAddress();
+}
+
+Player* GameClient::getPlayer()
+{
+    if(!m_client || m_curWorldId == 0)
+        return (nullptr);
+
+    return m_world.getPlayer(m_curPlayerId);
 }
 
 
@@ -276,7 +288,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
-            m_world.syncFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
+            m_world.syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
 
             if(uint32less(m_lastServerAckTime, castMsg->clientTime))
                 m_lastServerAckTime = castMsg->clientTime;
@@ -289,7 +301,8 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     if(m_curWorldId == 0 && !m_isWaitingForWorldSync)
     {
         m_isWaitingForWorldSync = true;
-        auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+        //auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+        auto msg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(pou::NetEngine::createNetMessage(NetMessageType_PlayerSync));
         msg->isReliable = true;
         msg->lastSyncTime = -1;
         msg->localTime = 0;
@@ -299,7 +312,8 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     } else if(m_curWorldId != 0) {
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
-            auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+            //auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+            auto msg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(pou::NetEngine::createNetMessage(NetMessageType_PlayerSync));
 
             /*if(m_lastPlayerWalkDirection != glm::vec2(0))
             {
@@ -318,7 +332,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             }**/
 
             //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
-            m_world.createAskForSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
+            m_world.createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }
@@ -331,4 +345,28 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     }
 }
 
+void GameClient::notify(pou::NotificationSender*, int notificationType, void* data)
+{
 
+    auto player = m_world.getPlayer(m_curPlayerId);
+    if(!player)
+        return;
+
+    auto playerEventMsg = std::dynamic_pointer_cast<NetMessage_PlayerEvent>(pou::NetEngine::createNetMessage(NetMessageType_PlayerEvent));
+
+    if(notificationType == GameMessageType_CharacterDamaged)
+    {
+        GameMessage_CharacterDamaged *gameMsg = static_cast<GameMessage_CharacterDamaged*>(data);
+
+        if(gameMsg->character == player)
+            return;
+
+        playerEventMsg->isReliable  = true;
+        playerEventMsg->eventType   = PlayerEventType_CharacterDamaged;
+        playerEventMsg->syncId      = gameMsg->character->getSyncId();
+        playerEventMsg->direction   = gameMsg->direction;
+        playerEventMsg->amount      = gameMsg->damages;
+
+        m_client->sendMessage(playerEventMsg);
+    }
+}

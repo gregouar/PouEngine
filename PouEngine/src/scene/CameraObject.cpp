@@ -85,13 +85,13 @@ void CameraObject::updateListeningPosition()
     }
 }
 
-void CameraObject::notify(NotificationSender *sender, NotificationType notification,
-                             size_t dataSize, char* data)
+void CameraObject::notify(NotificationSender *sender, int notificationType,
+                          void* data)
 {
-    if(notification == Notification_NodeMoved)
+    if(notificationType == NotificationType_NodeMoved)
         this->updateListeningPosition();
 
-    SceneObject::notify(sender,notification,dataSize,data);
+    SceneObject::notify(sender,notificationType,data);
 }
 
 

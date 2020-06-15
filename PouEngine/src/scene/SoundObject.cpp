@@ -54,13 +54,13 @@ void SoundObject::updateSoundPosition()
 }
 
 
-void SoundObject::notify(NotificationSender *sender, NotificationType notification,
-                             size_t dataSize, char* data)
+void SoundObject::notify(NotificationSender *sender, int notificationType,
+                         void* data)
 {
-    if(notification == Notification_NodeMoved)
+    if(notificationType == NotificationType_NodeMoved)
         this->updateSoundPosition();
 
-    SceneObject::notify(sender,notification,dataSize,data);
+    SceneObject::notify(sender,notificationType,data);
 }
 
 

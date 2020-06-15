@@ -202,15 +202,15 @@ glm::vec2 MeshEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
         renderer->addToMeshesVbo(m_mesh->getMesh(), this->getMeshDatum());
 }*/
 
-void MeshEntity::notify(NotificationSender *sender, NotificationType notification,
-                        size_t dataSize, char* data)
+void MeshEntity::notify(NotificationSender *sender, int notificationType,
+                        void* data)
 {
-    if(notification == Notification_AssetLoaded ||
-       notification == Notification_TextureChanged ||
-       notification == Notification_NodeMoved)
+    if(notificationType == NotificationType_AssetLoaded ||
+       notificationType == NotificationType_TextureChanged ||
+       notificationType == NotificationType_NodeMoved)
         this->updateDatum();
 
-    if(notification == Notification_SenderDestroyed)
+    if(notificationType == NotificationType_SenderDestroyed)
     {
         if(sender == m_mesh)
             m_mesh = nullptr;

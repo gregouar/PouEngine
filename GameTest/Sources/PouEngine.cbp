@@ -32,6 +32,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -59,6 +60,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -90,6 +92,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -119,6 +122,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -150,6 +154,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -181,6 +186,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -212,6 +218,7 @@
 					<Add directory="GameTest/Sources/include/world" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="PouEngine/include/PouEngine/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -257,6 +264,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/Config.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/EventsManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/GameState.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/MessageBus.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationListener.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationSender.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
@@ -374,6 +382,7 @@
 		<Unit filename="../../PouEngine/src/core/Config.cpp" />
 		<Unit filename="../../PouEngine/src/core/EventsManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/GameState.cpp" />
+		<Unit filename="../../PouEngine/src/core/MessageBus.cpp" />
 		<Unit filename="../../PouEngine/src/core/NotificationListener.cpp" />
 		<Unit filename="../../PouEngine/src/core/NotificationSender.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
@@ -456,6 +465,7 @@
 		<Unit filename="include/character/CharacterState.h" />
 		<Unit filename="include/character/Hitbox.h" />
 		<Unit filename="include/character/Player.h" />
+		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
 		<Unit filename="include/net/NetMessageTypes.h" />

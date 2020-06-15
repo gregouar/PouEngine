@@ -29,8 +29,8 @@ class MeshAsset : public Asset, public NotificationListener
         virtual ~MeshAsset();
 
         bool loadFromFile(const std::string &filePath);
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
         void setMaterial(AssetTypeId materialId);
         void setMaterial(MaterialAsset* material);

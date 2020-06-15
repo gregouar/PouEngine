@@ -108,7 +108,7 @@ bool Asset::loadNow()
     if(!m_loaded)
         return (false);
 
-    this->sendNotification(Notification_AssetLoaded);
+    this->sendNotification(NotificationType_AssetLoaded);
     return (true);
 }
 

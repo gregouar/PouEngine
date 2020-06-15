@@ -224,7 +224,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
     m_dayTime = worldInitMsg->dayTime;
 
-    this->syncFromMsg(worldInitMsg, worldInitMsg->player_id,0);
+    this->syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
     m_curLocalTime = m_lastSyncTime;
 
     this->createPlayerCamera(worldInitMsg->player_id);
@@ -236,7 +236,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 }
 
 
-void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
+void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
     if(uint32leq(worldSyncMsg->localTime, m_lastSyncTime))
         return;
@@ -315,6 +315,9 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
                 m_syncCharacters.insert(playerSync.characterId, player);
 
                 if(playerId != (int)clientPlayerId)
+                    player->disableDamageDealing();
+
+                /**if(playerId != (int)clientPlayerId)
                 {
 
                 }
@@ -322,7 +325,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
                 {
                     player->disableInputSync();
                     player->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
-                }
+                }**/
 
                 player->setTeam(1);
 
@@ -364,6 +367,7 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         if(characterPtr == nullptr)
         {
             characterPtr = new Character();
+            characterPtr->setSyncId(characterId);
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
 
@@ -384,9 +388,9 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
 
         ///TEST
         ///characterPtr->setReconciliationDelay(deltaRTT);
-        if(characterId != (int)clientPlayerId)
+        //if(characterId != (int)clientPlayerId)
             //characterPtr->setReconciliationDelay(deltaRTT*2,0);
-            characterPtr->setReconciliationDelay(0,1/*deltaRTT*/);
+            characterPtr->setReconciliationDelay(0,deltaRTT);
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
         ///
 
@@ -540,13 +544,120 @@ void GameWorld::syncFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, 
         if(playerIt->first != clientPlayerId)
             playerIt->second->setReconciliationDelay(deltaRTT*2,0);
         else
-            playerIt->second->setReconciliationDelay(0,deltaRTT*1.5);
+        {
+            playerIt->second->disableSync();
+            playerIt->second->setReconciliationDelay(0,0);
+        }
+            ///playerIt->second->setReconciliationDelay(0,deltaRTT*1.5);
     }
     ///
 }
 
 
-void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> askForWorldSyncMsg,
+void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg,
+                         int player_id, uint32_t lastSyncTime)
+{
+    playerSyncMsg->lastSyncTime   = getLastSyncTime();
+    playerSyncMsg->localTime      = getLocalTime();
+
+    /*auto playerSync     = m_syncPlayers.findElement(player_id);
+    auto characterSync  = m_syncCharacters.findElement(playerSync->characterId);
+    auto nodeSync       = m_syncNodes.findElement(characterSync->nodeId)*/
+
+    auto player  = m_syncPlayers.findElement(player_id);
+
+    PlayerSync playerSync;
+    {
+        size_t characterId = m_syncCharacters.findId((Character*)player);
+
+        for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+        {
+            playerSync.gearModelsId[i] = 0;
+
+            auto *itemModel = player->getItemModel((GearType)i);
+            if(itemModel)
+                playerSync.gearModelsId[i] = m_syncItemModels.findId(itemModel);
+        }
+
+        playerSync.inventoryItemModelsId.resize(player->getInventorySize());
+        for(size_t i = 0 ; i < playerSync.inventoryItemModelsId.size() ; ++i)
+        {
+            playerSync.inventoryItemModelsId[i] = 0;
+
+            auto *itemModel = player->getItemFromInventory(i);
+            if(itemModel)
+                playerSync.inventoryItemModelsId[i] = m_syncItemModels.findId(itemModel);
+        }
+
+        playerSync.player = player;
+        playerSync.characterId = characterId;
+    }
+
+    CharacterSync characterSync;
+    {
+        size_t nodeId = 0;
+        nodeId = m_syncNodes.findId((pou::SceneNode*)player);
+
+        characterSync.character = player;
+        characterSync.characterModelId = 0;
+        characterSync.nodeId = nodeId;
+    }
+
+    NodeSync nodeSync;
+    {
+        nodeSync.node = player;
+    }
+
+
+    playerSyncMsg->nodeSync         = nodeSync;
+    playerSyncMsg->characterSync    = characterSync;
+    playerSyncMsg->playerSync       = playerSync;
+}
+
+
+void GameWorld::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> worldSyncMsg, size_t clientPlayerId, float RTT)
+{
+    auto player = m_syncPlayers.findElement(clientPlayerId);
+
+    player->syncFromNode(worldSyncMsg->nodeSync.node);
+    player->syncFromCharacter(worldSyncMsg->characterSync.character);
+    player->syncFromPlayer(worldSyncMsg->playerSync.player);
+
+    for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
+    {
+        if(worldSyncMsg->playerSync.gearModelsId[i] != 0)
+        {
+            auto *itemModel = m_syncItemModels.findElement(worldSyncMsg->playerSync.gearModelsId[i]);
+            if(itemModel != nullptr)
+                player->useGear(itemModel);
+        }
+    }
+
+    for(size_t i = 0 ; i < worldSyncMsg->playerSync.inventoryItemModelsId.size() ; ++i)
+        player->addItemToInventory(m_syncItemModels.findElement(worldSyncMsg->playerSync.inventoryItemModelsId[i]),i);
+}
+
+void GameWorld::processPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg, size_t clientPlayerId)
+{
+    switch((PlayerEventType)playerEventMsg->eventType)
+    {
+        case PlayerEventType_CharacterDamaged:{
+
+            auto character = m_syncCharacters.findElement(playerEventMsg->syncId);
+            if(!character)
+                break;
+
+            character->damage(playerEventMsg->amount, playerEventMsg->direction);
+
+        }break;
+
+
+        case NBR_PLAYEREVENTTYPES:{
+        }break;
+    }
+}
+
+/*void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> askForWorldSyncMsg,
                                     int player_id, uint32_t lastSyncTime)
 {
     askForWorldSyncMsg->lastSyncTime   = getLastSyncTime();
@@ -564,5 +675,7 @@ void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> 
             askForWorldSyncMsg->lastPlayerActions.push_back({actionIt->first, playerAction});
         ++actionIt;
     }
-}
+}*/
+
+
 

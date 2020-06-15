@@ -77,7 +77,7 @@ void SceneNode::attachObject(SceneObject *e)
         if(e->setParentNode(this) != nullptr)
             Logger::warning("Attaching entity which has already a parent node");
 
-        e->notify(this, Notification_NodeMoved);
+        e->notify(this, NotificationType_NodeMoved);
     } else
         Logger::error("Cannot attach null entity");
 }
@@ -190,8 +190,7 @@ void SceneNode::syncFromNode(SceneNode* srcNode)
         //&& srcNode->m_lastColorUpdateTime != -1)
        // this->setColor(srcNode->getColor());
 
-    if(!SimpleNode::syncFromNode((SimpleNode*) srcNode))
-        return;
+    SimpleNode::syncFromNode((SimpleNode*) srcNode);
 }
 
 void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
@@ -266,9 +265,9 @@ SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
 {
     if(sender == m_parent)
     {
-        if(type == Notification_NodeMoved)
+        if(type == NotificationType_NodeMoved)
             this->updateGlobalPosition();
-        if(type == Notification_SenderDestroyed)
+        if(type == NotificationType_SenderDestroyed)
         {
             m_parent = nullptr;
             this->updateGlobalPosition();

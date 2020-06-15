@@ -30,8 +30,8 @@ class SceneObject : public NotificationListener
         uint32_t getLastNodeUpdateTime();
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
     protected:
         void setLastUpdateTime(uint32_t time, bool force = false);

@@ -48,6 +48,8 @@ class GameServer
         size_t generateWorld();
         ///void rewindWorld(size_t world_id, uint32_t time);
 
+        Player* getPlayer(size_t clientNbr);
+
         //const pou::NetAddress *getAddress() const;
         unsigned short getPort() const;
 
@@ -58,7 +60,8 @@ class GameServer
 
         void processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg);
         //void processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg);
-        void updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg);
+        void updateClientSync(int clientNbr, std::shared_ptr<NetMessage_PlayerSync> msg);
+        void processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_PlayerEvent> msg);
 
         void addClient(int clientNbr, bool isLocalClient = false);
         void disconnectClient(int clientNbr);

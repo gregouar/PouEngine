@@ -116,8 +116,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void updateDirectionnalShadow(glm::vec3 oldDirection, glm::vec3 newDirection);
         void deleteDirectionnalShadow(glm::vec3 direction);*/
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
     protected:
         void setSpriteId(size_t id);

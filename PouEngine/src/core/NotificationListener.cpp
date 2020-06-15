@@ -45,4 +45,15 @@ void NotificationListener::startListeningTo(NotificationSender* sender)
     }
 }
 
+
+void NotificationListener::startListeningTo(NotificationSender* sender, int notificationType)
+{
+    if(sender != nullptr)
+    {
+        m_senders.insert(sender);
+        sender->addToNotificationList(this, notificationType);
+    }
+}
+
+
 }

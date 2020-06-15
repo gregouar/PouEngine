@@ -10,6 +10,7 @@
 
 #include "assets/CharacterModelAsset.h"
 #include "ai/AiComponent.h"
+#include "logic/GameMessageTypes.h"
 
 //typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
@@ -21,6 +22,7 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(-1,nullptr),
     m_input(characterInput),
+    m_syncId(0),
     m_isDead(false,0),
     m_curAnimation(std::string(), 0)
 {
@@ -41,6 +43,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
 
     m_disableInputSync  = false;
     m_disableDeath      = false;
+    m_disableDamageDealing = false;
 
     m_states[CharacterStateType_Standing]       = std::make_unique<CharacterState_Standing>(this);
     m_states[CharacterStateType_Walking]        = std::make_unique<CharacterState_Walking>(this);
@@ -237,12 +240,17 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     return (true);
 }
 
+void Character::setSyncId(int id)
+{
+    m_syncId = id;
+}
+
 void Character::setTeam(int team)
 {
     m_team = team;
 }
 
-bool Character::damage(float damages, glm::vec2 direction)
+bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
 {
     if(damages == 0)
         return (false);
@@ -250,7 +258,17 @@ bool Character::damage(float damages, glm::vec2 direction)
     bool isFatal = false;
 
     auto att = m_attributes.getValue();
-    att.life -= damages;
+    if(!onlyCosmetic)
+    {
+        att.life -= damages;
+
+        GameMessage_CharacterDamaged msg;
+        msg.character   = this;
+        msg.damages     = damages;
+        msg.direction   = direction;
+
+        pou::MessageBus::postMessage(GameMessageType_CharacterDamaged, &msg);
+    }
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
     m_attributes.setValue(att);
 
@@ -562,6 +580,10 @@ int Character::getTeam() const
     return m_team;
 }
 
+uint32_t Character::getSyncId() const
+{
+    return m_syncId;
+}
 
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
@@ -603,6 +625,16 @@ void Character::disableInputSync(bool disable)
     m_disableInputSync = disable;
 }
 
+
+void Character::disableDamageDealing(bool disable)
+{
+    m_disableDamageDealing = disable;
+}
+
+bool Character::areDamagesOnlyCosmetic()
+{
+    return m_disableDamageDealing;
+}
 
 void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
 {
@@ -667,10 +699,13 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
 
 }
 
-bool Character::syncFromCharacter(Character *srcCharacter)
+void Character::syncFromCharacter(Character *srcCharacter)
 {
     ///if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime() && m_lastCharacterSyncTime != (uint32_t)(-1))
        /// return (false);
+
+    if(m_disableSync)
+        return;
 
     m_modelAttributes.syncFrom(srcCharacter->m_modelAttributes);
     m_attributes.syncFrom(srcCharacter->m_attributes);
@@ -681,7 +716,7 @@ bool Character::syncFromCharacter(Character *srcCharacter)
 
     m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
 
-    return (true);
+    //return (true);
 }
 
 

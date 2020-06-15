@@ -89,15 +89,16 @@ enum AssetLoadSource
 
 enum NotificationType
 {
-    Notification_SenderDestroyed,
-    Notification_AssetLoaded,
-    Notification_NodeMoved,
-    Notification_UpdateCmb,
-    Notification_ModelChanged,
-    Notification_TextureChanged,
-    Notification_TextureIsAboutToChange,
-    Notification_UpdateShadow,
-   // Notification_LightMoved,
+    NotificationType_SenderDestroyed,
+    NotificationType_AssetLoaded,
+    NotificationType_NodeMoved,
+    NotificationType_UpdateCmb,
+    NotificationType_ModelChanged,
+    NotificationType_TextureChanged,
+    NotificationType_TextureIsAboutToChange,
+    //NotificationType_UpdateShadow,
+    NotificationType_Custom,
+   // NotificationType_LightMoved,
 };
 
 enum LightType

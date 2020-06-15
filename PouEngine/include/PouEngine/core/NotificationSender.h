@@ -13,22 +13,24 @@ class NotificationListener;
 
 class NotificationSender
 {
+    friend class MessageBus;
+
     public:
         NotificationSender();
         virtual ~NotificationSender();
 
         void addToAllNotificationList(NotificationListener *);
-        void addToNotificationList(NotificationListener *, NotificationType);
+        void addToNotificationList(NotificationListener *, int notificationType);
 
-        void removeFromNotificationList(NotificationListener *, NotificationType);
+        void removeFromNotificationList(NotificationListener *, int notificationType);
         void removeFromAllNotificationList(NotificationListener *);
 
     protected:
-        void sendNotification(NotificationType, size_t dataSize = 0, char* data = nullptr);
+        void sendNotification(int notificationType, void* data = nullptr);
 
     private:
         std::set<NotificationListener*> m_listenerToNotifyEverything;
-        std::map<NotificationType, std::set<NotificationListener*> > m_listenerToNotify;
+        std::map<int, std::set<NotificationListener*> > m_listenerToNotify;
 };
 
 }

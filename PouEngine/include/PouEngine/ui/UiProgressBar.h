@@ -29,7 +29,7 @@ class UiProgressBar : public UiPicture
         //void setBarElement(UiElement *bar);
 
 
-        virtual void update(const Time &elapsedTime);
+        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
     protected:
 

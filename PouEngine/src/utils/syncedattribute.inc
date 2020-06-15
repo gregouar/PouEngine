@@ -88,6 +88,7 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(m_firstSync)
     {
         m_firstSync = false;
+        this->m_rewindValues.clear();
         m_lastSyncTime = itSyncValue->first;
         this->setValue(itSyncValue->second);
         return (true);
@@ -306,6 +307,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(this->m_firstSync)
     {
         this->m_lastSyncTime = interpTime;
+        this->m_rewindValues.clear();
         this->setValue(itSyncValue->second);
         this->m_firstSync = false;
         return (true);
@@ -331,9 +333,12 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
         if(this->m_reconciliationDelay_client == 0)
         {
-            this->m_lastSyncTime = syncTime;
-            this->setValue(wantedNewValue);
-            return (true);
+            if(uint32less(this->m_lastSyncTime, syncTime))
+            {
+                this->m_lastSyncTime = syncTime;
+                this->setValue(wantedNewValue);
+                return (true);
+            }
         }
         else
         {
@@ -364,7 +369,16 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
             if(T(isSynced) != T())
             {
-                if(!this->m_desyncTimer.isActive())
+                deltaMove *= elapsed_time.count()*2;
+                while(evalIt != this->m_rewindValues.end())
+                {
+                    evalIt->second += deltaMove;
+                    ++evalIt;
+                }
+                this->setValue(this->m_value+deltaMove);
+                return true;
+
+                /*if(!this->m_desyncTimer.isActive())
                     this->m_desyncTimer.reset(1.0f);
                 else if(this->m_desyncTimer.update(elapsed_time.count()))
                 {
@@ -377,7 +391,7 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                     this->setValue(this->m_value+deltaMove);
                     this->m_desyncTimer.reset(1.0f);
                     return (true);
-                }
+                }*/
             } else
                 this->m_desyncTimer.reset(1.0f);
         }

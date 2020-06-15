@@ -4,10 +4,11 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/net/NetEngine.h"
 #include "PouEngine/renderers/RenderWindow.h"
+#include "PouEngine/core/NotificationListener.h"
 
 #include "world/GameWorld.h"
 
-class GameClient
+class GameClient : public pou::NotificationListener
 {
     public:
         GameClient();
@@ -24,6 +25,8 @@ class GameClient
         //const pou::NetAddress &getAddress() const;
         const pou::NetAddress &getServerAddress() const;
         unsigned short getPort() const;
+
+        Player *getPlayer();
 
         /*void playerCursor(glm::vec2 direction);
         void playerLook(glm::vec2 direction);
@@ -43,6 +46,9 @@ class GameClient
         void processMessage(std::shared_ptr<pou::NetMessage> msg);
 
         void updateWorld(const pou::Time &elapsedTime);
+
+        virtual void notify(pou::NotificationSender*, int notificationType,
+                            void* data);
 
     private:
         std::unique_ptr<pou::AbstractClient> m_client;

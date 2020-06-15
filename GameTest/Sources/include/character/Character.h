@@ -57,9 +57,10 @@ class Character : public pou::SceneNode
         virtual bool addSoundToSkeleton(SoundModel *soundModel, const std::string &skeleton);
         virtual bool removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeleton);
 
+        void setSyncId(int id);
         void setTeam(int team);
 
-        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0));
+        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0), bool onlyCosmetic = false);
         virtual void interrupt(float amount = 0);
         virtual bool kill(float amount = 0);
         virtual bool resurrect();
@@ -85,16 +86,20 @@ class Character : public pou::SceneNode
         const CharacterAttributes       &getAttributes() const;
         const CharacterModelAttributes  &getModelAttributes() const;
         int getTeam() const;
+        uint32_t getSyncId() const;
 
         void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
-        bool syncFromCharacter(Character *srcCharacter);
+        virtual void syncFromCharacter(Character *srcCharacter);
 
         virtual void    setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
         uint32_t        getLastModelUpdateTime();
         uint32_t        getLastCharacterUpdateTime();
 
-        void disableDeath(bool disable = true); //Prevent to kill character before server approval
-        void disableInputSync(bool disable = true); //<= maybe I should use some kind of inputComponent or syncComponent ?
+        void disableDeath(bool disable = true); //Could be used to prevent to kill character before server approval
+        void disableInputSync(bool disable = true);
+        void disableDamageDealing(bool disable = true); //Used to only show cosmetic effect of damages
+
+        bool areDamagesOnlyCosmetic();
 
     protected:
         void cleanup();
@@ -125,10 +130,12 @@ class Character : public pou::SceneNode
 
         bool m_disableDeath;
         bool m_disableInputSync;
+        bool m_disableDamageDealing;
 
         int m_team;
 
     private:
+        uint32_t m_syncId;
         CharacterModelAsset*    m_model;
         std::unique_ptr<CharacterState> m_states[NBR_CharacterStateTypes];
         CharacterState*         m_curState;

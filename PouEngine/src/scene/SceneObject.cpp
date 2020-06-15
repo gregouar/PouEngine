@@ -89,12 +89,12 @@ void SceneObject::update(const Time &elapsedTime, uint32_t localTime)
     m_curLocalTime = localTime;
 }
 
-void SceneObject::notify(NotificationSender* sender, NotificationType type,
-                         size_t dataSize, char* data)
+void SceneObject::notify(NotificationSender* sender, int notificationType,
+                         void* data)
 {
     if(sender == (NotificationSender*)m_parentNode)
     {
-        if(type == Notification_SenderDestroyed)
+        if(notificationType == NotificationType_SenderDestroyed)
             m_parentNode = nullptr;
     }
 }

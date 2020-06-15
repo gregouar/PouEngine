@@ -50,8 +50,8 @@ class MeshEntity : public ShadowCaster
         MeshDatum getMeshDatum();
         glm::vec3 getScale();
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance);
 

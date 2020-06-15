@@ -121,8 +121,10 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
 
 void PlayerServerTestingState::update(const pou::Time &elapsedTime)
 {
-    //m_gameUi.updateCharacterLife(m_character->getAttributes().life,
-    //                             m_character->getAttributes().maxLife);
+    auto player = m_gameServer.getPlayer(m_localClientNbr);
+    if(player)
+        m_gameUi.updateCharacterLife(player->getAttributes().life,
+                                     player->getModelAttributes().maxLife);
 
     m_gameUi.update(elapsedTime);
     m_gameServer.update(elapsedTime);
@@ -131,13 +133,6 @@ void PlayerServerTestingState::update(const pou::Time &elapsedTime)
 void PlayerServerTestingState::draw(pou::RenderWindow *renderWindow)
 {
     m_gameServer.render(renderWindow, m_localClientNbr);
-
-    /*if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
-    {
-        pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        if(m_scene)
-            m_scene->render(renderer, m_camera);
-    }*/
 
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
     {

@@ -14,9 +14,17 @@ enum NetMessageType
     NetMessageType_Test,
     NetMessageType_WorldInit,
     NetMessageType_WorldSync,
-    NetMessageType_AskForWorldSync,
+    NetMessageType_PlayerSync,
+    NetMessageType_PlayerEvent,
+    //NetMessageType_AskForWorldSync,
     //NetMessageType_PlayerAction,
     NBR_RELIABLEMESSAGETYPES,
+};
+
+enum PlayerEventType
+{
+    PlayerEventType_CharacterDamaged,
+    NBR_PLAYEREVENTTYPES,
 };
 
 void initializeNetMessages();
@@ -66,13 +74,13 @@ struct NetMessage_WorldSync : public pou::NetMessage
     //int player_id;
 
     //int nbr_nodes;
-    std::vector<std::pair<int, NodeSync> > nodes; //NodeId, Node
+    std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
     std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
     std::vector< std::pair<int,SpriteEntitySync> > spriteEntities;
     std::vector< std::pair<int, std::string > > characterModels; //Id, Path
-    std::vector <std::pair<int, CharacterSync > > characters;
+    std::vector< std::pair<int, CharacterSync > > characters;
     std::vector< std::pair<int, std::string > > itemModels; //Id, Path
-    std::vector <std::pair<int, PlayerSync > > players;
+    std::vector< std::pair<int, PlayerSync > > players;
 
     std::vector<int> desyncNodes;
     std::vector<int> desyncCharacters;
@@ -107,7 +115,7 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
 };
 
 
-struct NetMessage_AskForWorldSync : public pou::NetMessage
+/**struct NetMessage_AskForWorldSync : public pou::NetMessage
 {
     NetMessage_AskForWorldSync() : NetMessage(){}
     NetMessage_AskForWorldSync(int t) : NetMessage(t){}
@@ -122,6 +130,54 @@ struct NetMessage_AskForWorldSync : public pou::NetMessage
     uint32_t localTime;
 
     std::vector< std::pair<uint32_t, PlayerAction> > lastPlayerActions;
+
+    virtual void serializeImpl(pou::Stream *stream);
+};*/
+
+struct NetMessage_PlayerSync : public pou::NetMessage
+{
+    NetMessage_PlayerSync() : NetMessage(), nodeBuffer(0){}
+    NetMessage_PlayerSync(int t) : NetMessage(t), nodeBuffer(0){}
+
+    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
+    {
+        return std::make_shared<NetMessage_PlayerSync>();
+    }
+
+    //int world_id;
+    uint32_t lastSyncTime;
+    uint32_t localTime;
+
+    pou::SceneNode  nodeBuffer;
+    Character       characterBuffer;
+    Player          playerBuffer;
+
+    NodeSync        nodeSync;
+    CharacterSync   characterSync;
+    PlayerSync      playerSync;
+
+    //Add list of events (damage monsters, etc => NEED REDUNDANCY OR USE RELIABLE ???)
+
+    virtual void serializeImpl(pou::Stream *stream);
+};
+
+struct NetMessage_PlayerEvent : public pou::NetMessage
+{
+
+    NetMessage_PlayerEvent() : NetMessage(){}
+    NetMessage_PlayerEvent(int t) : NetMessage(t){}
+
+    virtual std::shared_ptr<pou::NetMessage> msgAllocator()
+    {
+        return std::make_shared<NetMessage_PlayerEvent>();
+    }
+
+    //uint32_t localTime;
+
+    int         eventType;
+    int         syncId;
+    glm::vec2   direction;
+    float       amount;
 
     virtual void serializeImpl(pou::Stream *stream);
 };

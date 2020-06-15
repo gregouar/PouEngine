@@ -30,7 +30,8 @@ class Player : public Character
         size_t getInventorySize() const;
 
         void serializePlayer(pou::Stream *stream, uint32_t clientTime = -1);
-        bool syncFromPlayer(Player *srcPlayer);
+
+        virtual void syncFromPlayer(Player *srcPlayer);
 
         ///virtual void    setTimeShift(int shift);
         uint32_t        getLastPlayerUpdateTime();

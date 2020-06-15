@@ -26,7 +26,8 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_lastSyncTime(-1),
     m_lastUpdateTime(-1),
     m_lastParentUpdateTime(-1),
-    m_disableRotationSync(false)
+    m_disableRotationSync(false),
+    m_disableSync(false)
 {
     m_parent = nullptr;
     m_id = id;
@@ -269,10 +270,13 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     }
 }
 
-bool SimpleNode::syncFromNode(SimpleNode* srcNode)
+void SimpleNode::syncFromNode(SimpleNode* srcNode)
 {
     //if(m_lastSyncTime > srcNode->getLastUpdateTime() && m_lastSyncTime != (uint32_t)(-1))
       //  return (false);
+
+    if(m_disableSync)
+        return;
 
     m_position.syncFrom(srcNode->m_position);
     if(!m_disableRotationSync)
@@ -281,7 +285,7 @@ bool SimpleNode::syncFromNode(SimpleNode* srcNode)
 
     m_lastSyncTime = srcNode->m_curLocalTime;
 
-    return (true);
+    //return (true);
 }
 
 /*void SimpleNode::setLocalTime(uint32_t localTime)
@@ -310,6 +314,11 @@ void SimpleNode::setMaxRewind(int maxRewind)
 void SimpleNode::disableRotationSync(bool disable)
 {
     m_disableRotationSync = disable;
+}
+
+void SimpleNode::disableSync(bool disable)
+{
+    m_disableSync = disable;
 }
 
 void SimpleNode::move(float x, float y)
@@ -728,7 +737,7 @@ void SimpleNode::updateModelMatrix()
         m_invModelMatrix = m_invModelMatrix * m_parent->getInvModelMatrix();
 
     m_needToUpdateModelMat = false;
-    this->sendNotification(Notification_NodeMoved);
+    this->sendNotification(NotificationType_NodeMoved);
 }
 
 
@@ -762,7 +771,7 @@ if(m_rigidity != 1.0 && m_parent != nullptr)
         m_invModelMatrix = glm::translate(m_invModelMatrix, -m_parent->getGlobalPosition());
 
     m_needToUpdateModelMat = false;
-    this->sendNotification(Notification_NodeMoved);
+    this->sendNotification(NotificationType_NodeMoved);
 }*/
 
 
@@ -808,14 +817,14 @@ void SimpleNode::computeFlexibleMove(glm::vec3 m)
             child.second->computeFlexibleRotate(rot);
 }*/
 
-void SimpleNode::notify(NotificationSender* sender, NotificationType type,
-                       size_t dataSize, char* data)
+void SimpleNode::notify(NotificationSender* sender, int notificationType,
+                        void* data)
 {
     if(sender == m_parent)
     {
-        if(type == Notification_NodeMoved)
+        if(notificationType == NotificationType_NodeMoved)
             this->updateGlobalPosition();
-        if(type == Notification_SenderDestroyed)
+        if(notificationType == NotificationType_SenderDestroyed)
         {
             m_parent = nullptr;
             this->updateGlobalPosition();

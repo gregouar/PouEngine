@@ -91,8 +91,8 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
 
         LightDatum getLightDatum();
 
-        virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;
+        virtual void notify(NotificationSender* , int notificationType,
+                            void* data = nullptr) override;
 
 
     protected:
