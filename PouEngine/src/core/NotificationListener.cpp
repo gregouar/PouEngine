@@ -35,6 +35,15 @@ void NotificationListener::stopListeningTo(NotificationSender* sender)
     }
 }
 
+void NotificationListener::stopListeningTo(NotificationSender* sender, int notificationType)
+{
+    if(sender != nullptr)
+    {
+        m_senders.erase(sender);
+        sender->removeFromNotificationList(this, notificationType);
+    }
+}
+
 void NotificationListener::startListeningTo(NotificationSender* sender)
 {
     this->stopListeningTo(sender);

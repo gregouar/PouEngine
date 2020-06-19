@@ -12,7 +12,7 @@ struct SkeletalNodeState
     SkeletalNodeState();
 
     void update(const Time &elapsedTime, uint32_t localTime = -1);
-    void rewind(uint32_t time);
+    ///void rewind(uint32_t time);
 
     SyncedAttribute<glm::vec4>   posisiton;
     SyncedAttribute<glm::vec4>   rotation;
@@ -27,7 +27,7 @@ class SkeletalAnimationCommand
                                  float startingFrameTime = 0);
 
         virtual bool update(const Time &elapsedTime, uint32_t localTime);
-        void rewind(uint32_t time);
+        ///void rewind(uint32_t time);
 
     protected:
         void computeAmount();
@@ -82,7 +82,7 @@ class Skeleton : public SceneNode
         int getNodeState(int nodeId);
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
-        virtual void rewind(uint32_t time);
+        ///virtual void rewind(uint32_t time);
 
     protected:
         void copyFromModel(SkeletonModelAsset *model);

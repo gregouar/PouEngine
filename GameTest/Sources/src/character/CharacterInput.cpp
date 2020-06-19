@@ -28,6 +28,7 @@ CharacterInput::CharacterInput() :
     m_dashingInput(false,0),
     m_pushedInput(false,0)
 {
+    //m_lookingDirection.setReconciliationPrecision(glm::vec2(.2f));
     //ctor
 }
 

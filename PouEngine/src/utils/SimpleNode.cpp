@@ -664,7 +664,7 @@ void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
         node.second->update(elapsedTime,localTime);
 }
 
-void SimpleNode::rewind(uint32_t time)
+/**void SimpleNode::rewind(uint32_t time)
 {
     m_position.rewind(time);
     m_eulerRotations.rewind(time);
@@ -672,7 +672,7 @@ void SimpleNode::rewind(uint32_t time)
 
     for(auto node : m_childs)
         node.second->rewind(time);
-}
+}**/
 
 void SimpleNode::updateGlobalPosition()
 {

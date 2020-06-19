@@ -2,7 +2,8 @@
 
 AiScriptedComponent::AiScriptedComponent(Character *character):
     AiComponent(character),
-    m_model(nullptr)
+    m_model(nullptr),
+    m_target(nullptr)
 {
     //ctor
 }
@@ -34,7 +35,29 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
 
     input->reset();
 
-    Character *closetEnemy;
+    if(m_target)
+    {
+        glm::vec2 direction = m_target->getGlobalXYPosition() - m_character->getGlobalXYPosition();
+
+        float distance = glm::dot(direction,direction);
+
+        if(distance > 1000.0f * 1000.0f)
+        {
+            m_target = nullptr;
+            this->stopListeningTo(m_target,pou::NotificationType_SenderDestroyed);
+        }
+        else if(distance > 70.0f*70.0f)
+        {
+            input->setWalkingDirection(direction);
+            input->setLookingDirection(direction);
+        }
+        else
+            input->setAttacking(true, direction);
+
+        return;
+    }
+
+    Character *closestEnemy;
     float closestDistance = -1;
 
     for(auto enemy : m_character->getNearbyCharacters())
@@ -48,22 +71,28 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
                                   enemy->getGlobalPosition() - m_character->getGlobalPosition());
         if(closestDistance == -1 || closestDistance > distance)
         {
-            closetEnemy = enemy;
+            closestEnemy = enemy;
             closestDistance = distance;
         }
     }
 
     if(closestDistance != -1 && closestDistance < 300.0f*300.0f)
     {
-        glm::vec2 direction = closetEnemy->getGlobalXYPosition() - m_character->getGlobalXYPosition();
-        if(closestDistance > 70.0f*70.0f)
-        {
-            input->setWalkingDirection(direction);
-            input->setLookingDirection(direction);
-        }
-        else
-            input->setAttacking(true, direction);
+        m_target = closestEnemy;
+        this->startListeningTo(m_target,pou::NotificationType_SenderDestroyed);
     }
 
+}
+
+
+void AiScriptedComponent::notify(pou::NotificationSender* sender, int notificationType, void* data)
+{
+    AiComponent::notify(sender, notificationType, data);
+
+    if(notificationType == pou::NotificationType_SenderDestroyed)
+    {
+        if(sender == m_target)
+            m_target = nullptr;
+    }
 }
 

@@ -254,6 +254,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5),(int64_t)0);
         uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75),(int64_t)0);
 
+        /*uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.5),(int64_t)0);
+        uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.6),(int64_t)0);
+        uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.4),(int64_t)0);*/
+
         if(m_lastSyncTime == (uint32_t)(-1))
             m_curLocalTime = desiredLocalTime;
 
@@ -390,7 +394,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         ///characterPtr->setReconciliationDelay(deltaRTT);
         //if(characterId != (int)clientPlayerId)
             //characterPtr->setReconciliationDelay(deltaRTT*2,0);
-            characterPtr->setReconciliationDelay(0,deltaRTT);
+
+        characterPtr->setReconciliationDelay(0,deltaRTT*1);
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
         ///
 
@@ -542,7 +547,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
     for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
         if(playerIt->first != clientPlayerId)
-            playerIt->second->setReconciliationDelay(deltaRTT*2,0);
+            playerIt->second->setReconciliationDelay(deltaRTT*1.5,0);
         else
         {
             playerIt->second->disableSync();
@@ -559,10 +564,6 @@ void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playe
 {
     playerSyncMsg->lastSyncTime   = getLastSyncTime();
     playerSyncMsg->localTime      = getLocalTime();
-
-    /*auto playerSync     = m_syncPlayers.findElement(player_id);
-    auto characterSync  = m_syncCharacters.findElement(playerSync->characterId);
-    auto nodeSync       = m_syncNodes.findElement(characterSync->nodeId)*/
 
     auto player  = m_syncPlayers.findElement(player_id);
 

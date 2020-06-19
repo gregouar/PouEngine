@@ -20,7 +20,7 @@ class Scene : public NotificationListener
         virtual void cleanAll();
 
         virtual void update(const Time &elapsedTime, float localTime = -1);
-        virtual void rewind(float time);
+        ///virtual void rewind(float time);
 
         virtual void render(SceneRenderer *renderer, CameraObject *camera);
 

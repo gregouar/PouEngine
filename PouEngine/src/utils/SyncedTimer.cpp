@@ -65,10 +65,10 @@ bool SyncedTimer::isActive()
 }
 
 
-void SyncedTimer::rewind(uint32_t time)
+/**void SyncedTimer::rewind(uint32_t time)
 {
     m_maxTime.rewind(time);
     m_elapsedTime.rewind(time);
-}
+}**/
 
 }

@@ -19,6 +19,7 @@ class NotificationListener
         virtual ~NotificationListener();
 
         void stopListeningTo(NotificationSender*);
+        void stopListeningTo(NotificationSender*, int notificationType);
         void startListeningTo(NotificationSender*);
         void startListeningTo(NotificationSender*, int notificationType);
 

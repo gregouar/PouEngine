@@ -72,7 +72,7 @@ class Character : public pou::SceneNode
         std::set<Character*> &getNearbyCharacters();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
-        virtual void rewind(uint32_t time);
+        ///virtual void rewind(uint32_t time);
 
         bool isAlive() const;
 

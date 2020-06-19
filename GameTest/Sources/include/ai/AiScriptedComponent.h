@@ -15,9 +15,14 @@ class AiScriptedComponent : public AiComponent
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
     protected:
+        virtual void notify(pou::NotificationSender*, int notificationType,
+                            void* data) override;
+
+    protected:
         AiScriptModelAsset *m_model;
 
     private:
+        Character *m_target;
 };
 
 #endif // AISCRIPTEDCOMPONENT_H

@@ -136,11 +136,8 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
     auto player = new Player(isLocalPlayer);
-
-    if(!isLocalPlayer)
-        player->disableDamageDealing();
-
     auto player_id = this->syncElement(player);
+
     if(player_id == 0)
     {
         delete player;
@@ -150,8 +147,12 @@ size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
     if(isLocalPlayer)
     {
         this->createPlayerCamera(player_id);
+
+        ///Move this to world generation something something
         auto music = pou::AudioEngine::createEvent("event:/Music");
         pou::AudioEngine::playEvent(music);
+    } else {
+        player->disableDamageDealing();
     }
 
     m_addedPlayersList.push_back(player_id);

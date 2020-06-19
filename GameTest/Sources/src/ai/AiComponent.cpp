@@ -14,3 +14,8 @@ AiComponent::~AiComponent()
 void AiComponent::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
 }
+
+void AiComponent::notify(pou::NotificationSender*, int notificationType, void* data)
+{
+
+}

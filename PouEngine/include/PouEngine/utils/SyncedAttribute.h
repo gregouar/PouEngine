@@ -30,7 +30,7 @@ class SyncedAttribute
         uint32_t getLastUpdateTime() const;
         uint32_t getSyncTime() const;
 
-        bool rewind(uint32_t time);
+        ///bool rewind(uint32_t time);
 
         void setReconciliationPrecision(T precision);
         void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1); //-1 means it takes the server value
@@ -53,11 +53,11 @@ class SyncedAttribute
         uint32_t    m_reconciliationDelay_client,
                     m_reconciliationDelay_server;
         T       m_reconciliationPrecision;
-        Timer m_desyncTimer;
+        ///Timer m_desyncTimer;
 
 
-        uint32_t m_timeBeforeRewind;
-        T m_valueBeforeRewind;
+        /**uint32_t m_timeBeforeRewind;
+        T m_valueBeforeRewind;**/
 };
 
 

@@ -18,7 +18,7 @@ class SyncedTimer
         virtual int update(float elapsedTime, uint32_t localTime = -1);
         virtual int update(const Time &elapsedTime, uint32_t localTime = -1);
 
-        virtual void rewind(uint32_t time);
+        ///virtual void rewind(uint32_t time);
 
         bool isActive();
 

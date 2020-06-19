@@ -400,7 +400,7 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
     m_forceNewAnimation = false;
 }
 
-void Skeleton::rewind(uint32_t time)
+/**void Skeleton::rewind(uint32_t time)
 {
     SceneNode::rewind(time);
 
@@ -440,7 +440,7 @@ void Skeleton::rewind(uint32_t time)
 
     m_wantedFrameNbr = wantedFrameNbr;
     m_curFrameTime.setValue(oldFrameTime);
-}
+}**/
 
 int Skeleton::getNodeState(int nodeId)
 {
@@ -686,11 +686,11 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 }
 
 
-void SkeletalAnimationCommand::rewind(uint32_t time)
+/**void SkeletalAnimationCommand::rewind(uint32_t time)
 {
     m_value.rewind(time);
     m_curFrameTime.rewind(time);
-}
+}**/
 
 /// ************************  ///
 
@@ -711,13 +711,13 @@ void SkeletalNodeState::update(const Time &elapsedTime, uint32_t localTime)
     color.update(elapsedTime,localTime);
 }
 
-void SkeletalNodeState::rewind(uint32_t time)
+/**void SkeletalNodeState::rewind(uint32_t time)
 {
     posisiton.rewind(time);
     rotation.rewind(time);
     scale.rewind(time);
     color.rewind(time);
-}
+}**/
 
 
 

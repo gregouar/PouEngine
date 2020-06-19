@@ -206,8 +206,6 @@ bool GameWorld::initPlayer(size_t player_id)
         it->second->addToNearbyCharacters(player);
     }
 
-    std::cout<<"New player with id:"<<player_id<<std::endl;
-
     return player_id;
 }
 

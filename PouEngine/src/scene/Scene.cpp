@@ -42,10 +42,10 @@ void Scene::update(const Time &elapsedTime, float localTime)
    // m_renderingData.update();
 }
 
-void Scene::rewind(float time)
+/**void Scene::rewind(float time)
 {
     m_rootNode.rewind(time);
-}
+}**/
 
 void Scene::render(SceneRenderer *renderer, CameraObject *camera)
 {

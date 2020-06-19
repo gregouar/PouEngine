@@ -22,8 +22,8 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(-1,nullptr),
     m_input(characterInput),
-    m_syncId(0),
     m_isDead(false,0),
+    m_syncId(0),
     m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
@@ -37,7 +37,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
-    m_position.setReconciliationPrecision(glm::vec3(2));
+    m_position.setReconciliationPrecision(glm::vec3(32));
     m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
@@ -258,7 +258,7 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
     bool isFatal = false;
 
     auto att = m_attributes.getValue();
-    if(!onlyCosmetic)
+    if(!onlyCosmetic && !m_disableDamageDealing)
     {
         att.life -= damages;
 
@@ -441,6 +441,8 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     m_attributes.update(elapsedTime, m_curLocalTime);
     if(m_attributes.getValue().life < oldLife)
     {
+        std::cout<<"OldLife:"<<oldLife<<std::endl;
+        std::cout<<"NewLife:"<<m_attributes.getValue().life<<std::endl;
         if(m_attributes.getValue().life <= 0)
             this->kill(oldLife-m_attributes.getValue().life);
         else
@@ -448,6 +450,8 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     }
     else if (m_attributes.getValue().life > oldLife)
     {
+        std::cout<<"OldLife:"<<oldLife<<std::endl;
+        std::cout<<"NewLife:"<<m_attributes.getValue().life<<std::endl;
         //if(m_attributes.getValue().life > 0)
         if(m_isDead.getValue() && m_attributes.getValue().life > 0)
         {
@@ -481,10 +485,10 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     }**/
 }
 
-void Character::rewind(uint32_t time)
+/**void Character::rewind(uint32_t time)
 {
     SceneNode::rewind(time);
-
+**/
   /*  auto oldWalkingDirection = m_walkingDirection.getValue();
     m_walkingDirection.rewind(time);
     if(m_walkingDirection.getValue() != oldWalkingDirection)
@@ -502,7 +506,7 @@ void Character::rewind(uint32_t time)
     m_attributes.rewind(time);
     m_modelAttributes.rewind(time);
     //m_alreadyHitCharacters.rewind(time);*/
-}
+/**}**/
 
 void Character::startAnimation(const std::string &name, bool forceStart)
 {
@@ -732,7 +736,6 @@ void Character::switchState(CharacterStateTypes stateType)
         m_curState->leaving(m_input.get());
     m_curState = m_states[stateType].get();
     m_curState->entered(m_input.get());
-    //m_curState->handleInput(m_input.get());
 }
 
 
