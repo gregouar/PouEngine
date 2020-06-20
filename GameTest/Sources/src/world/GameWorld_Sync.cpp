@@ -358,6 +358,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         }
     }*/
 
+    //std::cout<<"SyncRTT:"<<deltaRTT<<std::endl;
+
 
    // std::cout<<"Nbr Char (client):"<<m_syncCharacters.size()<<std::endl;
     for(auto &characterIt : worldSyncMsg->characters)
@@ -382,10 +384,17 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
                 it->second->addToNearbyCharacters(characterPtr);
             }
 
+            ///TEST
+            characterPtr->disableInputSync();
+            ///
+
             /*characterPtr->addToNearbyCharacters(clientPlayer);
             clientPlayer->addToNearbyCharacters(clientPlayer);*/
 
         }
+
+
+
         //else
         characterPtr->syncFromCharacter(characterSync.character);
         ///characterPtr->disableDeath();
@@ -394,10 +403,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         ///characterPtr->setReconciliationDelay(deltaRTT);
         //if(characterId != (int)clientPlayerId)
             //characterPtr->setReconciliationDelay(deltaRTT*2,0);
-
         characterPtr->setReconciliationDelay(0,deltaRTT*1);
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
         ///
+
 
         if(characterSync.characterModelId != 0)
         {
@@ -547,7 +556,13 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
     for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
         if(playerIt->first != clientPlayerId)
+        {
             playerIt->second->setReconciliationDelay(deltaRTT*1.5,0);
+
+            ///TEST
+            playerIt->second->disableInputSync(false);
+            ///
+        }
         else
         {
             playerIt->second->disableSync();

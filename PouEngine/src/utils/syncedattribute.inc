@@ -125,27 +125,26 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         }
         T evalValue = evalIt->second;
 
-        if(!(evalValue == itSyncValue->second))
+        /*if(!(evalValue == itSyncValue->second))
         {
             this->m_lastSyncTime = itSyncValue->first;
             this->setValue(itSyncValue->second);
-            ///this->m_desyncTimer.reset(1.0f);
             return (true);
-        }
+        }*/
 
-        /*if(!(evalValue == itSyncValue->second))
+        if(!(evalValue == itSyncValue->second))
         {
             if(!this->m_desyncTimer.isActive())
-                this->m_desyncTimer.reset(1.0f);
+                this->m_desyncTimer.reset(.5f);
             else if(this->m_desyncTimer.update(elapsed_time.count()))
             {
                 this->m_lastSyncTime = itSyncValue->first;
                 this->setValue(itSyncValue->second);
-                this->m_desyncTimer.reset(1.0f);
+                this->m_desyncTimer.reset(.2f);
                 return (true);
             }
         } else
-            this->m_desyncTimer.reset(1.0f);*/
+            this->m_desyncTimer.reset(.2f);
      }
 
 

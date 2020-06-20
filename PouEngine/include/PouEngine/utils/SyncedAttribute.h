@@ -53,7 +53,7 @@ class SyncedAttribute
         uint32_t    m_reconciliationDelay_client,
                     m_reconciliationDelay_server;
         T       m_reconciliationPrecision;
-        ///Timer m_desyncTimer;
+        Timer   m_desyncTimer;
 
 
         /**uint32_t m_timeBeforeRewind;

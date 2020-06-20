@@ -57,7 +57,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         return;
     }
 
-    Character *closestEnemy;
+    Character *closestEnemy = nullptr;
     float closestDistance = -1;
 
     for(auto enemy : m_character->getNearbyCharacters())

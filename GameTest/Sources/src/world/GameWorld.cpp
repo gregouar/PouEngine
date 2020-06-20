@@ -45,6 +45,7 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 {
+
     /**this->processPlayerActions(elapsed_time);
     //if(m_isServer)
         m_curLocalTime += elapsed_time.count();**/
@@ -65,6 +66,8 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     this->processPlayerActions();
 
     m_curLocalTime++;
+
+    //std::cout<<"LocalTime:"<<m_curLocalTime<<std::endl;
 
     if(!m_scene)
         return;
