@@ -13,10 +13,10 @@ namespace pou
 
 
 Scene::Scene() :
-    m_rootNode(0, this)
+    m_rootNode(/**0,**/ this)
 {
     m_rootNode.setPosition(0,0,0);
-    m_curNewId = 0;
+    ///m_curNewId = 0;
 
     m_projectionFactor  = 1000.0f;
     m_viewAngle         = glm::mat4(1.0);
@@ -30,8 +30,8 @@ Scene::~Scene()
 
 void Scene::cleanAll()
 {
-    m_rootNode.removeAndDestroyAllChilds();
-    this->destroyAllCreatedObjects();
+    m_rootNode.removeAllChilds();
+    ///this->destroyAllCreatedObjects();
     m_renderingData.cleanup();
 }
 
@@ -106,7 +106,7 @@ SceneNode *Scene::getRootNode()
     return &m_rootNode;
 }
 
-CameraObject* Scene::createCamera()
+/**CameraObject* Scene::createCamera()
 {
     CameraObject* camera = new CameraObject();
     this->addCreatedObject(this->generateObjectId(), camera);
@@ -137,7 +137,7 @@ LightEntity *Scene::createLightEntity(LightType type, Color color, float intensi
     entity->setIntensity(intensity);
     this->addCreatedObject(this->generateObjectId(), entity);
     return entity;
-}
+}*
 
 
 void Scene::addCreatedObject(const ObjectTypeId id, SceneObject* obj)
@@ -177,7 +177,7 @@ void Scene::destroyAllCreatedObjects()
         if(it.second != nullptr)
             delete it.second;
     m_createdObjects.clear();
-}
+}**/
 
 
 glm::vec2 Scene::convertScreenToWorldCoord(glm::vec2 p, CameraObject *cam)
@@ -206,10 +206,10 @@ void Scene::notify(NotificationSender *sender, int notificationType,
 
 }
 
-ObjectTypeId Scene::generateObjectId()
+/**ObjectTypeId Scene::generateObjectId()
 {
     return m_curNewId++;
-}
+}**/
 
 
 }

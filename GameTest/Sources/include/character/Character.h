@@ -49,8 +49,8 @@ class Character : public pou::SceneNode
 
         virtual void setAiComponent(std::shared_ptr<AiComponent> aiComponent);
 
-        virtual pou::SceneEntity *addLimb(LimbModel *limbModel); //return nullptr if error
-        virtual pou::SoundObject *addSound(SoundModel *soundModel); //return nullptr if error
+        virtual std::shared_ptr<pou::SceneEntity> addLimb(LimbModel *limbModel); //return nullptr if error
+        virtual std::shared_ptr<pou::SoundObject> addSound(SoundModel *soundModel); //return nullptr if error
 
         virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
         virtual bool removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeleton);
@@ -67,9 +67,9 @@ class Character : public pou::SceneNode
 
         void startAnimation(const std::string &name, bool forceStart = true);
 
-        void addToNearbyCharacters(Character *character);
-        void removeFromNearbyCharacters(Character *character);
-        std::set<Character*> &getNearbyCharacters();
+        void addToNearbyCharacters(std::shared_ptr<Character> character);
+        void removeFromNearbyCharacters(std::shared_ptr<Character> character);
+        std::set< std::shared_ptr<Character> > &getNearbyCharacters();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -104,7 +104,7 @@ class Character : public pou::SceneNode
     protected:
         void cleanup();
 
-        virtual bool addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name);
+        virtual bool addSkeleton(std::shared_ptr<pou::Skeleton> skeleton, const std::string &name);
 
         virtual void switchState(CharacterStateTypes stateType);
 
@@ -121,8 +121,8 @@ class Character : public pou::SceneNode
         pou::SyncedAttribute<CharacterModelAttributes>  m_modelAttributes;
         pou::SyncedAttribute<CharacterAttributes>       m_attributes;
 
-        std::set<Character*>    m_nearbyCharacters;
-        std::map<std::string, std::unique_ptr<pou::Skeleton> > m_skeletons;
+        std::set<std::shared_ptr<Character> >    m_nearbyCharacters;
+        std::map<std::string, std::shared_ptr<pou::Skeleton> > m_skeletons;
 
         uint32_t m_lastCharacterSyncTime;
         uint32_t m_lastCharacterUpdateTime;
@@ -142,8 +142,8 @@ class Character : public pou::SceneNode
 
         std::shared_ptr<AiComponent> m_aiComponent;
 
-        std::map<LimbModel*, std::unique_ptr<pou::SceneEntity> >    m_limbs;
-        std::map<SoundModel*, std::unique_ptr<pou::SoundObject> >   m_sounds;
+        std::map<LimbModel*, std::shared_ptr<pou::SceneEntity> >    m_limbs;
+        std::map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
 
         bool m_isDestinationSet;
         glm::vec2 m_destination;

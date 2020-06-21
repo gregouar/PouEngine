@@ -138,7 +138,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             characterModelId = m_syncCharacterModels.findId(characterModel);
 
         size_t nodeId = 0;
-        nodeId = m_syncNodes.findId((pou::SceneNode*)character);
+        nodeId = m_syncNodes.findId((pou::SceneNode*)character.get());
 
         characterSync.character = character;
         characterSync.characterModelId = characterModelId;
@@ -174,7 +174,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         auto &playerSync  = worldSyncMsg->players.back().second;
 
         size_t characterId = 0;
-        characterId = m_syncCharacters.findId((Character*)player);
+        characterId = m_syncCharacters.findId(player.get());
 
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
@@ -311,9 +311,9 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             if(playerSync.characterId != 0)
             {
                 if(playerId == (int)clientPlayerId)
-                    player = new Player();
+                    player = std::make_shared<Player>();
                 else
-                    player = new Player(false);
+                    player = std::make_shared<Player>(false);
 
                 m_syncPlayers.insert(playerId, player);
                 m_syncCharacters.insert(playerSync.characterId, player);
@@ -342,9 +342,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         }
 
         if(player)
-            player->syncFromPlayer(playerSync.player);
-
-        delete playerSync.player;
+            player->syncFromPlayer(playerSync.player.get());
     }
 
 
@@ -372,7 +370,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         //bool isNew = false;
         if(characterPtr == nullptr)
         {
-            characterPtr = new Character();
+            characterPtr = std::make_shared<Character>();
             characterPtr->setSyncId(characterId);
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
@@ -396,7 +394,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
 
         //else
-        characterPtr->syncFromCharacter(characterSync.character);
+        characterPtr->syncFromCharacter(characterSync.character.get());
         ///characterPtr->disableDeath();
 
         ///TEST
@@ -424,8 +422,6 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
                 m_syncNodes.insert(characterSync.nodeId, characterPtr);
             }
         }
-
-        delete characterSync.character;
     }
 
     for(auto &playerIt : worldSyncMsg->players)
@@ -463,9 +459,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             m_syncNodes.insert(nodeId, nodePtr);
         }
 
-        nodePtr->syncFromNode(nodeSync.node);
-
-        delete nodeSync.node;
+        nodePtr->syncFromNode(nodeSync.node.get());
     }
 
     for(auto &node : worldSyncMsg->nodes)
@@ -490,12 +484,12 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         //bool isNew = false;
         if(spriteEntity == nullptr)
         {
-            spriteEntity = m_scene->createSpriteEntity();
+            spriteEntity = std::make_shared<pou::SpriteEntity>();
             m_syncSpriteEntities.insert(spriteEntityId, spriteEntity);
             //isNew = true;
         }
 
-        spriteEntity->syncFrom(spriteEntitySync.spriteEntity);
+        spriteEntity->syncFrom(spriteEntitySync.spriteEntity.get());
 
         if(spriteEntitySync.spriteSheetId != 0 && spriteEntitySync.spriteId != 0)
         {
@@ -509,12 +503,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
         if(spriteEntitySync.nodeId != 0)
         {
-            auto *node = m_syncNodes.findElement(spriteEntitySync.nodeId);
+            auto node = m_syncNodes.findElement(spriteEntitySync.nodeId);
             if(node != nullptr)
                 node->attachObject(spriteEntity);
         }
-
-        delete spriteEntitySync.spriteEntity;
     }
 
     for(auto desyncPlayer : worldSyncMsg->desyncPlayers)
@@ -523,8 +515,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(!playerPtr)
             continue;
 
-        this->desyncElement(playerPtr);
-        delete playerPtr;
+        this->desyncElement(playerPtr.get());
     }
 
     for(auto desyncCharacter : worldSyncMsg->desyncCharacters)
@@ -533,12 +524,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(!characterPtr)
             continue;
 
-        this->desyncElement(characterPtr);
+        this->desyncElement(characterPtr.get());
 
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(characterPtr);
-
-        delete characterPtr;
     }
 
     for(auto desyncNode : worldSyncMsg->desyncNodes)
@@ -547,8 +536,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(!nodePtr)
             continue;
 
-        this->desyncElement(nodePtr);
-        delete nodePtr;
+        this->desyncElement(nodePtr.get());
     }
 
 
@@ -584,7 +572,7 @@ void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playe
 
     PlayerSync playerSync;
     {
-        size_t characterId = m_syncCharacters.findId((Character*)player);
+        size_t characterId = m_syncCharacters.findId(player);
 
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
@@ -612,7 +600,7 @@ void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playe
     CharacterSync characterSync;
     {
         size_t nodeId = 0;
-        nodeId = m_syncNodes.findId((pou::SceneNode*)player);
+        nodeId = m_syncNodes.findId(player);
 
         characterSync.character = player;
         characterSync.characterModelId = 0;
@@ -635,9 +623,9 @@ void GameWorld::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> worldSy
 {
     auto player = m_syncPlayers.findElement(clientPlayerId);
 
-    player->syncFromNode(worldSyncMsg->nodeSync.node);
-    player->syncFromCharacter(worldSyncMsg->characterSync.character);
-    player->syncFromPlayer(worldSyncMsg->playerSync.player);
+    player->syncFromNode(worldSyncMsg->nodeSync.node.get());
+    player->syncFromCharacter(worldSyncMsg->characterSync.character.get());
+    player->syncFromPlayer(worldSyncMsg->playerSync.player.get());
 
     for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
     {

@@ -4,10 +4,11 @@
 namespace pou
 {
 
-UserInterface::UserInterface()
+UserInterface::UserInterface() :
+    m_rootElement(this)
 {
-    m_rootElement   = new UiElement(0,this);
-    m_curNewId      = 0;
+   /// m_rootElement   = new UiElement(/**0,**/this);
+    ///m_curNewId      = 0;
 }
 
 UserInterface::~UserInterface()
@@ -17,40 +18,42 @@ UserInterface::~UserInterface()
 
 void UserInterface::cleanup()
 {
-    delete m_rootElement;
-    for(auto *element : m_createdElements)
+    ///delete m_rootElement;
+    /**for(auto *element : m_createdElements)
         delete element;
-    m_createdElements.clear();
+    m_createdElements.clear();**/
+
+    m_rootElement.removeAllChilds();
 }
 
 void UserInterface::handleEvents(const EventsManager *eventManager)
 {
-    m_rootElement->handleEvents(eventManager);
+    m_rootElement.handleEvents(eventManager);
 }
 
 void UserInterface::update(const Time &elapsedTime)
 {
-    m_rootElement->update(elapsedTime);
+    m_rootElement.update(elapsedTime);
 }
 
 void UserInterface::render(UiRenderer *renderer)
 {
-    m_rootElement->render(renderer);
+    m_rootElement.render(renderer);
 }
 
-UiPicture* UserInterface::createUiPicture(bool addToInterface)
+std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
 {
-    auto *element = new UiPicture(++m_curNewId, this);
+    auto element = std::make_shared<UiPicture>(/**++m_curNewId,**/ this);
     if(addToInterface)
-        m_rootElement->addChildNode(element);
+        m_rootElement.addChildNode(element);
     return element;
 }
 
-UiProgressBar* UserInterface::createProgressBar(bool addToInterface)
+std::shared_ptr<UiProgressBar> UserInterface::createProgressBar(bool addToInterface)
 {
-    auto *element = new UiProgressBar(++m_curNewId, this);
+    auto element = std::make_shared<UiProgressBar>(/**++m_curNewId,**/ this);
     if(addToInterface)
-        m_rootElement->addChildNode(element);
+        m_rootElement.addChildNode(element);
     return element;
 }
 

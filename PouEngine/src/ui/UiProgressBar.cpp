@@ -5,8 +5,8 @@
 namespace pou
 {
 
-UiProgressBar::UiProgressBar(const NodeTypeId id, UserInterface *interface) :
-    UiPicture(id,interface),
+UiProgressBar::UiProgressBar(/**const NodeTypeId id,**/ UserInterface *interface) :
+    UiPicture(/**id,**/interface),
     m_value(0.0f),
     m_minValue(0.0f),
     m_maxValue(1.0f),

@@ -112,7 +112,7 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         auto renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        m_scene->render(renderer, m_camera);
+        m_scene->render(renderer, m_camera.get());
     }
 }
 
@@ -138,14 +138,11 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
 
 size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
 {
-    auto player = new Player(isLocalPlayer);
+    auto player = std::make_shared<Player>(isLocalPlayer);
     auto player_id = this->syncElement(player);
 
     if(player_id == 0)
-    {
-        delete player;
         return (0);
-    }
 
     if(isLocalPlayer)
     {
@@ -248,7 +245,7 @@ glm::vec2 GameWorld::convertScreenToWorldCoord(glm::vec2 p)
 {
     if(!m_scene || !m_camera)
         return glm::vec2(0);
-    return m_scene->convertScreenToWorldCoord(p, m_camera);
+    return m_scene->convertScreenToWorldCoord(p, m_camera.get());
 }
 
 
@@ -264,7 +261,7 @@ uint32_t GameWorld::getLastSyncTime()
 
 Player *GameWorld::getPlayer(int player_id)
 {
-    return m_syncPlayers.findElement(player_id);
+    return m_syncPlayers.findElement(player_id).get();
 }
 
 
@@ -278,7 +275,8 @@ void GameWorld::createScene()
 
     if(m_isRenderable)
     {
-        m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
+        m_sunLight = std::make_shared<pou::LightEntity>();
+        m_sunLight->setType(pou::LightType_Directional);
         m_sunLight->enableShadowCasting();
         m_sunLight->setShadowMapExtent({1024,1024});
         m_sunLight->setShadowBlurRadius(10);
@@ -293,17 +291,17 @@ void GameWorld::createPlayerCamera(size_t player_id)
     {
         auto player = m_syncPlayers.findElement(player_id);
 
-        m_camera = m_scene->createCamera();
-        auto listeningCamera = m_scene->createCamera();
+        m_camera = std::make_shared<pou::CameraObject>();
+        auto listeningCamera = std::make_shared<pou::CameraObject>();
         listeningCamera -> setListening(true);
-        auto *cameraNode = player->createChildNode();
+        auto cameraNode = player->createChildNode();
         cameraNode->attachObject(m_camera);
         cameraNode = cameraNode->createChildNode(0,0,250);
         cameraNode->attachObject(listeningCamera);
     }
 }
 
-size_t GameWorld::syncElement(pou::SceneNode *node)
+size_t GameWorld::syncElement(std::shared_ptr<pou::SceneNode> node)
 {
     return m_syncNodes.allocateId(node);
 }
@@ -315,7 +313,7 @@ size_t GameWorld::syncElement(pou::SpriteSheetAsset *spriteSheet)
     return id;
 }
 
-size_t GameWorld::syncElement(pou::SpriteEntity *spriteEntity)
+size_t GameWorld::syncElement(std::shared_ptr<pou::SpriteEntity> spriteEntity)
 {
     return m_syncSpriteEntities.allocateId(spriteEntity);
 }
@@ -327,9 +325,9 @@ size_t GameWorld::syncElement(CharacterModelAsset *characterModel)
     return id;
 }
 
-size_t GameWorld::syncElement(Character *character)
+size_t GameWorld::syncElement(std::shared_ptr<Character> character)
 {
-    this->syncElement((pou::SceneNode*)character);
+    this->syncElement((std::shared_ptr<pou::SceneNode>)character);
     int id = m_syncCharacters.allocateId(character);
     character->setSyncId(id);
     return id;
@@ -342,9 +340,9 @@ size_t GameWorld::syncElement(ItemModelAsset *itemModel)
     return id;
 }
 
-size_t GameWorld::syncElement(Player *player)
+size_t GameWorld::syncElement(std::shared_ptr<Player> player)
 {
-    this->syncElement((Character*)player);
+    this->syncElement((std::shared_ptr<Character>)player);
     return m_syncPlayers.allocateId(player);
 }
 

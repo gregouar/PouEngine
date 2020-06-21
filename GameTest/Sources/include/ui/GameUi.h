@@ -21,8 +21,8 @@ class GameUi : public pou::UserInterface
 
     private:
         //std::unique_ptr<pou::UserInterface>     m_mainInterface;
-        pou::UiPicture         *m_uiPictureTest;
-        pou::UiProgressBar     *m_lifeBar;
+        std::shared_ptr<pou::UiPicture>     m_uiPictureTest;
+        std::shared_ptr<pou::UiProgressBar> m_lifeBar;
 };
 
 #endif // GAMEUI_H

@@ -5,6 +5,7 @@
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/utils/IdAllocator.h"
+#include "PouEngine/utils/IdPtrAllocator.h"
 #include "PouEngine/renderers/RenderWindow.h"
 
 #include "character/Character.h"
@@ -67,15 +68,15 @@ class GameWorld
         bool    initPlayer(size_t player_id);
         bool    removePlayer(size_t player_id);
 
-        size_t syncElement(pou::SceneNode *node);
+        size_t syncElement(std::shared_ptr<pou::SceneNode> node);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet);
-        size_t syncElement(pou::SpriteEntity *spriteEntity);
+        size_t syncElement(std::shared_ptr<pou::SpriteEntity> spriteEntity);
         size_t syncElement(CharacterModelAsset *characterModel);
-        size_t syncElement(Character *character);
+        size_t syncElement(std::shared_ptr<Character> character);
         size_t syncElement(ItemModelAsset *characterModel);
-        size_t syncElement(Player *player);
+        size_t syncElement(std::shared_ptr<Player> player);
 
-        void desyncElement(pou::SceneNode *node, bool noDesyncInsert = false);
+        void desyncElement(pou::SceneNode* node, bool noDesyncInsert = false);
         void desyncElement(Character *character, bool noDesyncInsert = false);
         void desyncElement(Player *player, bool noDesyncInsert = false);
 
@@ -107,20 +108,21 @@ class GameWorld
         uint32_t m_syncTime;
         uint32_t m_lastSyncTime;
 
-        pou::CameraObject *m_camera;
-        pou::LightEntity  *m_sunLight;
+        std::shared_ptr<pou::CameraObject> m_camera;
+        std::shared_ptr<pou::LightEntity>  m_sunLight;
         float              m_dayTime; //Between 0 and 360
 
         std::list<int> m_addedPlayersList;
         std::list<int> m_removedPlayersList;
 
-        pou::IdAllocator<pou::SceneNode*>           m_syncNodes;
+        ///Move all this to some worldNetComponent
+        pou::IdPtrAllocator<pou::SceneNode>         m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
-        pou::IdAllocator<pou::SpriteEntity*>        m_syncSpriteEntities;
+        pou::IdPtrAllocator<pou::SpriteEntity>      m_syncSpriteEntities;
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
-        pou::IdAllocator<Character*>                m_syncCharacters;
+        pou::IdPtrAllocator<Character>              m_syncCharacters;
         pou::IdAllocator<ItemModelAsset*>           m_syncItemModels;
-        pou::IdAllocator<Player*>        m_syncPlayers;
+        pou::IdPtrAllocator<Player>                 m_syncPlayers;
 
         std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
         std::multimap<uint32_t, int> m_syncTimeCharacterModels;

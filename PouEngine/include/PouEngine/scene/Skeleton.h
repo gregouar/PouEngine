@@ -53,7 +53,7 @@ class Skeleton : public SceneNode
         Skeleton(SkeletonModelAsset *model);
         virtual ~Skeleton();
 
-        bool attachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object);
+        bool attachLimb(const std::string &boneName, const std::string &stateName, std::shared_ptr<SceneObject> object);
         bool detachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object);
 
         void attachLimbsOfState(int nodeId, int stateId);
@@ -62,7 +62,7 @@ class Skeleton : public SceneNode
         void detachLimbsOfDifferentState(const std::string &boneName, const std::string &stateName);*/
         //bool detachAllLimbs(const std::string &boneName);
 
-        bool attachSound(SoundObject *object, const std::string &soundName);
+        bool attachSound(std::shared_ptr<SoundObject> object, const std::string &soundName);
         bool detachSound(SoundObject *object, const std::string &soundName);
 
         bool startAnimation(const std::string &animationName, bool forceStart = false);
@@ -97,7 +97,7 @@ class Skeleton : public SceneNode
         std::map<int, SceneNode*> m_nodesById;
         std::map<SceneNode*, SkeletalNodeState> m_nodeStates; // Could pack this into m_nodesById for better perfs
 
-        std::multimap<std::pair<int,int>, SceneObject*> m_limbsPerNodeState;
+        std::multimap<std::pair<int,int>, std::shared_ptr<SceneObject> > m_limbsPerNodeState;
         std::map<int, int> m_nodesLastState;
 
     private:

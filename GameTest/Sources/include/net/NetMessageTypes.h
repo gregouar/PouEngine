@@ -136,8 +136,8 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
 
 struct NetMessage_PlayerSync : public pou::NetMessage
 {
-    NetMessage_PlayerSync() : NetMessage(), nodeBuffer(0){}
-    NetMessage_PlayerSync(int t) : NetMessage(t), nodeBuffer(0){}
+    NetMessage_PlayerSync() : NetMessage(){}
+    NetMessage_PlayerSync(int t) : NetMessage(t){}
 
     virtual std::shared_ptr<pou::NetMessage> msgAllocator()
     {
@@ -148,15 +148,10 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     uint32_t lastSyncTime;
     uint32_t localTime;
 
-    pou::SceneNode  nodeBuffer;
-    Character       characterBuffer;
-    Player          playerBuffer;
-
     NodeSync        nodeSync;
     CharacterSync   characterSync;
     PlayerSync      playerSync;
 
-    //Add list of events (damage monsters, etc => NEED REDUNDANCY OR USE RELIABLE ???)
 
     virtual void serializeImpl(pou::Stream *stream);
 };

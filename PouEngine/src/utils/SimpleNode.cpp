@@ -12,7 +12,7 @@ const float     SimpleNode::NODE_MAX_SCALE       = 100.0f;
 const uint8_t   SimpleNode::NODE_SCALE_DECIMALS  = 2;
 
 
-SimpleNode::SimpleNode(const NodeTypeId id) :
+SimpleNode::SimpleNode(/**const NodeTypeId id**/) :
     m_globalPosition(glm::vec3(0)),
     m_position(glm::vec3(0), 0),
     m_eulerRotations(glm::vec3(0),0),
@@ -30,8 +30,8 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
     m_disableSync(false)
 {
     m_parent = nullptr;
-    m_id = id;
-    m_curNewId = 0;
+    ///m_id = id;
+    ///m_curNewId = 0;
     m_needToUpdateModelMat = true;
 
     ///m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
@@ -40,13 +40,90 @@ SimpleNode::SimpleNode(const NodeTypeId id) :
 
 SimpleNode::~SimpleNode()
 {
-    if(m_parent != nullptr)
+    this->destroy();
+    /**if(m_parent != nullptr)
         m_parent->removeChildNode(this);
-    this->removeAndDestroyAllChilds();
+    this->removeAndDestroyAllChilds();**/
+}
+
+void SimpleNode::destroy()
+{
+    if(m_parent)
+        m_parent->removeChildNode(this);
+    m_parent = nullptr;
+}
+
+void SimpleNode::addChildNode(std::shared_ptr<SimpleNode> childNode)
+{
+    if(this->containsChildNode(childNode))
+        return;
+
+    m_childs.push_back(childNode);
+    childNode->setParent(this);
+}
+
+bool SimpleNode::removeChildNode(std::shared_ptr<SimpleNode> childNode)
+{
+    return this->removeChildNode(childNode.get());
+}
+
+bool SimpleNode::removeChildNode(SimpleNode *childNode)
+{
+    for(auto childIt = m_childs.begin() ; childIt != m_childs.end() ; ++childIt)
+        if(childIt->get() == childNode)
+        {
+            m_childs.erase(childIt);
+            return (true);
+        }
+    return (false);
+}
+
+void SimpleNode::removeAllChilds()
+{
+    m_childs.clear();
+}
+
+std::shared_ptr<SimpleNode> SimpleNode::createChildNode(float x, float y, float z)
+{
+    auto newNode = this->createChildNode();
+    if(newNode)
+        newNode->setPosition(x,y,z);
+    return newNode;
 }
 
 
-void SimpleNode::addChildNode(SimpleNode* node)
+std::shared_ptr<SimpleNode> SimpleNode::createChildNode(float x, float y)
+{
+    return this->createChildNode(x,y,0);
+}
+
+std::shared_ptr<SimpleNode> SimpleNode::createChildNode(glm::vec2 p)
+{
+    return this->createChildNode(p.x, p.y);
+}
+
+std::shared_ptr<SimpleNode> SimpleNode::createChildNode(glm::vec3 p)
+{
+    return this->createChildNode(p.x, p.y, p.z);
+}
+
+std::shared_ptr<SimpleNode> SimpleNode::createChildNode()
+{
+    std::shared_ptr<SimpleNode> newNode = this->nodeAllocator();
+    this->addChildNode(newNode);
+
+    return newNode;
+}
+
+bool SimpleNode::containsChildNode(std::shared_ptr<SimpleNode> childNode)
+{
+    for(auto &child : m_childs)
+        if(child == childNode)
+            return (true);
+    return (false);
+}
+
+/**void SimpleNode::addChildNode(SimpleNode* st)
 {
     NodeTypeId id = this->generateId();
     this->addChildNode(id, node);
@@ -249,7 +326,7 @@ void SimpleNode::removeAndDestroyAllChilds(bool destroyNonCreatedChilds)
 
     m_childs.clear();
     m_createdChildsList.clear();
-}
+}**/
 
 void SimpleNode::copyFrom(const SimpleNode* srcNode)
 {
@@ -266,7 +343,7 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     {
         auto newNode = this->createChildNode();
         if(newNode != nullptr)
-            newNode->copyFrom(child.second);
+            newNode->copyFrom(child.get());
     }
 }
 
@@ -342,7 +419,7 @@ void SimpleNode::move(glm::vec3 p)
         child.second->move((child.second->getRigidity()-1.0f)*p);*/
 
     for(auto child : m_childs)
-        child.second->computeFlexibleMove(p);
+        child->computeFlexibleMove(p);
 
     this->setPosition(this->getPosition()+p);
 }
@@ -519,10 +596,10 @@ const glm::mat4 &SimpleNode::getInvModelMatrix() const
     return m_invModelMatrix;
 }
 
-NodeTypeId SimpleNode::getId() const
+/**NodeTypeId SimpleNode::getId() const
 {
     return m_id;
-}
+}**/
 
 const std::string &SimpleNode::getName() const
 {
@@ -539,24 +616,24 @@ SimpleNode* SimpleNode::getParent()
     return m_parent;
 }
 
-SimpleNode* SimpleNode::getChild(const NodeTypeId id)
+/**SimpleNode* SimpleNode::getChild(const NodeTypeId id)
 {
     auto childsIt = m_childs.find(id);
     if(childsIt == m_childs.end())
         return (nullptr);
     return childsIt->second;
-}
+}**/
 
 SimpleNode* SimpleNode::getChildByName(const std::string &name, bool recursiveSearch)
 {
     for(auto child : m_childs)
     {
-        if(child.second->getName() == name)
-            return child.second;
+        if(child->getName() == name)
+            return child.get();
 
         if(recursiveSearch)
         {
-            SimpleNode* res = child.second->getChildByName(name,true);
+            auto res = child->getChildByName(name,true);
             if(res != nullptr)
                 return res;
         }
@@ -575,7 +652,7 @@ void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResM
     }
 
     for(auto child : m_childs)
-        child.second->getNodesByName(namesAndResMap);
+        child->getNodesByName(namesAndResMap);
 }
 
 
@@ -606,10 +683,10 @@ uint32_t SimpleNode::getLocalTime()
 }*/
 
 
-void SimpleNode::setId(const NodeTypeId id)
+/**void SimpleNode::setId(const NodeTypeId id)
 {
     m_id = id;
-}
+}**/
 
 void SimpleNode::setParent(SimpleNode *p)
 {
@@ -635,15 +712,15 @@ void SimpleNode::setParent(SimpleNode *p)
     }
 }
 
-SimpleNode* SimpleNode::nodeAllocator(NodeTypeId id)
+std::shared_ptr<SimpleNode> SimpleNode::nodeAllocator(/**NodeTypeId id**/)
 {
-    return new SimpleNode(id);
+    return std::make_shared<SimpleNode>(/**id**/);
 }
 
-NodeTypeId SimpleNode::generateId()
+/**NodeTypeId SimpleNode::generateId()
 {
     return m_curNewId++;
-}
+}**/
 
 
 void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
@@ -661,7 +738,7 @@ void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
 
 
     for(auto node : m_childs)
-        node.second->update(elapsedTime,localTime);
+        node->update(elapsedTime,localTime);
 }
 
 /**void SimpleNode::rewind(uint32_t time)
@@ -791,13 +868,13 @@ void SimpleNode::computeFlexibleMove(glm::vec3 m)
 
         glm::vec3 mp = m+glm::vec3(np.x-p.x,np.y-p.y,0);
         for(auto child : m_childs)
-            child.second->computeFlexibleMove(mp);
+            child->computeFlexibleMove(mp);
 
         this->setPosition(np);
 
     } else
         for(auto child : m_childs)
-            child.second->computeFlexibleMove(m);
+            child->computeFlexibleMove(m);
 }
 
 /*void SimpleNode::computeFlexibleRotate(float rot)

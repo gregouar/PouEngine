@@ -8,8 +8,8 @@
 namespace pou
 {
 
-SceneNode::SceneNode(const NodeTypeId id) :
-    SimpleNode(id),
+SceneNode::SceneNode(/**const NodeTypeId id**/) :
+    ///SimpleNode(id),
     m_color(glm::vec4(1.0f),0),
     m_finalColor(1.0f)//,
     //m_lastColorUpdateTime(-1)
@@ -17,8 +17,8 @@ SceneNode::SceneNode(const NodeTypeId id) :
     m_scene = nullptr;
 }
 
-SceneNode::SceneNode(const NodeTypeId id, Scene* scene) :
-    SceneNode(id)
+SceneNode::SceneNode(/**const NodeTypeId id,**/ Scene* scene) :
+    SceneNode(/**id**/)
 {
     this->setScene(scene);
 }
@@ -29,50 +29,46 @@ SceneNode::~SceneNode()
 }
 
 
-SceneNode* SceneNode::createChildNode()
+std::shared_ptr<SceneNode> SceneNode::createChildNode()
 {
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode());
+    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode());
 }
 
-SceneNode* SceneNode::createChildNode(float x, float y)
+std::shared_ptr<SceneNode> SceneNode::createChildNode(float x, float y)
 {
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode(x,y));
+    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(x,y));
 }
 
-SceneNode* SceneNode::createChildNode(float x, float y, float z)
+std::shared_ptr<SceneNode> SceneNode::createChildNode(float x, float y, float z)
 {
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode(x,y,z));
+    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(x,y,z));
 }
 
-SceneNode* SceneNode::createChildNode(glm::vec2 p)
+std::shared_ptr<SceneNode> SceneNode::createChildNode(glm::vec2 p)
 {
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode(p));
+    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(p));
 }
 
-SceneNode* SceneNode::createChildNode(glm::vec3 p)
+std::shared_ptr<SceneNode> SceneNode::createChildNode(glm::vec3 p)
 {
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode(p));
+    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(p));
 }
 
-SceneNode* SceneNode::createChildNode(const NodeTypeId id)
-{
-    return dynamic_cast<SceneNode*>(SimpleNode::createChildNode(id));
-}
 
-void SceneNode::attachObject(SceneObject *e)
+void SceneNode::attachObject(std::shared_ptr<SceneObject> e)
 {
     if(e != nullptr)
     {
         m_attachedObjects.push_back(e);
 
         if(e->isAnEntity())
-            m_attachedEntities.push_back(dynamic_cast<SceneEntity*>(e));
+            m_attachedEntities.push_back(std::dynamic_pointer_cast<SceneEntity>(e));
 
         if(e->isALight())
-            m_attachedLights.push_back(dynamic_cast<LightEntity*>(e));
+            m_attachedLights.push_back(std::dynamic_pointer_cast<LightEntity>(e));
 
         if(e->isAShadowCaster())
-            m_attachedShadowCasters.push_back(dynamic_cast<ShadowCaster*>(e));
+            m_attachedShadowCasters.push_back(std::dynamic_pointer_cast<ShadowCaster>(e));
 
         if(e->setParentNode(this) != nullptr)
             Logger::warning("Attaching entity which has already a parent node");
@@ -82,7 +78,7 @@ void SceneNode::attachObject(SceneObject *e)
         Logger::error("Cannot attach null entity");
 }
 
-void SceneNode::attachSound(SoundObject *e, int id)
+void SceneNode::attachSound(std::shared_ptr<SoundObject> e, int id)
 {
     this->attachObject(e);
     m_attachedSounds.insert({id,e});
@@ -90,13 +86,53 @@ void SceneNode::attachSound(SoundObject *e, int id)
 
 void SceneNode::detachObject(SceneObject *e)
 {
+    if(!e)
+        return;
+
     if(e->getParentNode() != this)
     {
         Logger::warning("Tried to detach object from non-parent node");
         return;
     }
 
-    m_attachedObjects.remove(e);
+    for(auto it = m_attachedObjects.begin() ; it != m_attachedObjects.end() ; ++it)
+    if(it->get() == e)
+    {
+        m_attachedObjects.erase(it);
+        break;
+    }
+
+    if(e->isAnEntity())
+    {
+        for(auto it = m_attachedEntities.begin() ; it != m_attachedEntities.end() ; ++it)
+        if(it->get() == e)
+        {
+            m_attachedEntities.erase(it);
+            break;
+        }
+    }
+
+    if(e->isALight())
+    {
+        for(auto it = m_attachedLights.begin() ; it != m_attachedLights.end() ; ++it)
+        if(it->get() == e)
+        {
+            m_attachedLights.erase(it);
+            break;
+        }
+    }
+
+    if(e->isAShadowCaster())
+    {
+        for(auto it = m_attachedShadowCasters.begin() ; it != m_attachedShadowCasters.end() ; ++it)
+        if(it->get() == e)
+        {
+            m_attachedShadowCasters.erase(it);
+            break;
+        }
+    }
+
+    /**m_attachedObjects.remove(e);
 
     if(e != nullptr && e->isAnEntity())
         m_attachedEntities.remove(dynamic_cast<SceneEntity*>(e));
@@ -105,7 +141,7 @@ void SceneNode::detachObject(SceneObject *e)
         m_attachedLights.remove(dynamic_cast<LightEntity*>(e));
 
     if(e != nullptr && e->isAShadowCaster())
-        m_attachedShadowCasters.remove(dynamic_cast<ShadowCaster*>(e));
+        m_attachedShadowCasters.remove(dynamic_cast<ShadowCaster*>(e));**/
 
     e->setParentNode(nullptr);
 }
@@ -122,7 +158,7 @@ void SceneNode::detachSound(SoundObject *e,int id)
     auto founded = m_attachedSounds.equal_range(id);
 
     for(auto s = founded.first ; s != founded.second ; ++s)
-        if(s->second == e)
+        if(s->second.get() == e)
         {
             s = m_attachedSounds.erase(s);
             this->detachObject(e);
@@ -133,7 +169,7 @@ void SceneNode::detachSound(SoundObject *e,int id)
 void SceneNode::detachAllObjects()
 {
     while(!m_attachedObjects.empty())
-        this->detachObject(m_attachedObjects.back());
+        this->detachObject(m_attachedObjects.back().get());
 
     m_attachedSounds.clear();
 }
@@ -172,7 +208,7 @@ void SceneNode::setScene(Scene *scene)
     m_scene = scene;
 
     for(auto node : m_childs)
-        dynamic_cast<SceneNode*>(node.second)->setScene(scene);
+        std::dynamic_pointer_cast<SceneNode>(node)->setScene(scene);
 }
 
 void SceneNode::setParent(SimpleNode *p)
@@ -201,14 +237,14 @@ void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
 
     for(auto light : m_attachedLights)
         if(light->isVisible())
-            renderingInstance->addToShadowLightsList(light);
+            renderingInstance->addToShadowLightsList(light.get());
 
     for(auto shadowCaster : m_attachedShadowCasters)
         if(shadowCaster->isVisible())
-            renderingInstance->addToShadowCastersList(shadowCaster);
+            renderingInstance->addToShadowCastersList(shadowCaster.get());
 
     for(auto node : m_childs)
-        dynamic_cast<SceneNode*>(node.second)->generateRenderingData(renderingInstance);
+        std::dynamic_pointer_cast<SceneNode>(node)->generateRenderingData(renderingInstance);
 }
 
 bool SceneNode::playSound(int id)
@@ -249,9 +285,9 @@ void SceneNode::updateGlobalPosition()
     SimpleNode::updateGlobalPosition();
 }
 
-SimpleNode* SceneNode::nodeAllocator(NodeTypeId id)
+std::shared_ptr<SimpleNode> SceneNode::nodeAllocator(/**NodeTypeId id**/)
 {
-    return new SceneNode(id);
+    return std::make_shared<SceneNode>(/**id**/);
 }
 
 

@@ -15,29 +15,35 @@ namespace pou
 class SimpleNode : public NotificationSender, public NotificationListener
 {
     public:
-        SimpleNode(const NodeTypeId);
+        SimpleNode(/**const NodeTypeId**/);
         virtual ~SimpleNode();
 
-        void addChildNode(SimpleNode*);
-        void addChildNode(const NodeTypeId id, SimpleNode*);
+        void destroy();
 
-        void moveChildNode(SimpleNode* node, SimpleNode* target);
-        void moveChildNode(const NodeTypeId id, SimpleNode* target);
+        void addChildNode(std::shared_ptr<SimpleNode> childNode);
+        ///void addChildNode(const NodeTypeId id, SimpleNode*);
 
-        virtual SimpleNode* removeChildNode(SimpleNode*);
-        virtual SimpleNode* removeChildNode(const NodeTypeId id);
+        ///void moveChildNode(std::shared_ptr<SimpleNode> childNode, SimpleNode* target);
+        ///void moveChildNode(const NodeTypeId id, SimpleNode* target);
 
-        SimpleNode* createChildNode();
-        SimpleNode* createChildNode(float, float );
-        SimpleNode* createChildNode(float, float, float );
-        SimpleNode* createChildNode(glm::vec2 );
-        SimpleNode* createChildNode(glm::vec3 );
-        SimpleNode* createChildNode(const NodeTypeId id);
+        virtual bool removeChildNode(SimpleNode *childNode);
+        virtual bool removeChildNode(std::shared_ptr<SimpleNode> childNode);
+        void removeAllChilds();
+        ///virtual SimpleNode* removeChildNode(const NodeTypeId id);
 
-        bool destroyChildNode(SimpleNode*);
-        bool destroyChildNode(const NodeTypeId id);
+        std::shared_ptr<SimpleNode> createChildNode();
+        std::shared_ptr<SimpleNode> createChildNode(float, float );
+        std::shared_ptr<SimpleNode> createChildNode(float, float, float );
+        std::shared_ptr<SimpleNode> createChildNode(glm::vec2 );
+        std::shared_ptr<SimpleNode> createChildNode(glm::vec3 );
+        ///SimpleNode* createChildNode(const NodeTypeId id);
 
-        void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
+        ///bool destroyChildNode(std::shared_ptr<SimpleNode> childNode);
+        ///bool destroyChildNode(const NodeTypeId id);
+
+        ///void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
+
+        bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
         virtual void copyFrom(const SimpleNode* srcNode);
         virtual void syncFromNode(SimpleNode* srcNode);
@@ -82,11 +88,11 @@ class SimpleNode : public NotificationSender, public NotificationListener
         const glm::mat4 &getModelMatrix() const;
         const glm::mat4 &getInvModelMatrix() const;
 
-        NodeTypeId getId()  const;
+        ///NodeTypeId getId()  const;
         const std::string &getName()  const;
         float getRigidity() const;
         SimpleNode* getParent();
-        SimpleNode* getChild(const NodeTypeId id);
+        ///SimpleNode* getChild(const NodeTypeId id);
         SimpleNode* getChildByName(const std::string &name, bool recursiveSearch = true);
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
@@ -106,13 +112,15 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
 
     protected:
-        virtual SimpleNode* nodeAllocator(NodeTypeId);
+        virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
-        virtual void setParent(SimpleNode *);
+        virtual void setParent(SimpleNode *parentNode);
+
+        /**virtual void setParent(SimpleNode *);
         void setId(const NodeTypeId );
         NodeTypeId generateId();
 
-        void addCreatedChildNode(SimpleNode*);
+        void addCreatedChildNode(SimpleNode*);**/
 
         void askForUpdateModelMatrix();
         virtual void updateGlobalPosition();
@@ -141,8 +149,9 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::mat4 m_modelMatrix;
         glm::mat4 m_invModelMatrix;
 
-        SimpleNode *m_parent;
-        std::map<NodeTypeId, SimpleNode*> m_childs;
+        SimpleNode* m_parent;
+        ///std::map<NodeTypeId, SimpleNode*> m_childs;
+        std::vector< std::shared_ptr<SimpleNode> > m_childs;
 
         uint32_t m_curLocalTime;
         uint32_t m_lastSyncTime;
@@ -156,11 +165,11 @@ class SimpleNode : public NotificationSender, public NotificationListener
         bool m_disableSync;
 
     private:
-        NodeTypeId m_id;
+        ///NodeTypeId m_id;
         std::string m_name;
-        std::set<NodeTypeId> m_createdChildsList;
+        ///std::set<NodeTypeId> m_createdChildsList;
 
-        int m_curNewId;
+        ///int m_curNewId;
 
         bool m_needToUpdateModelMat;
 

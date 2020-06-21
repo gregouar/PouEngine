@@ -155,7 +155,7 @@ enum ConnectionStatus
 typedef std::chrono::duration<double, std::chrono::seconds::period> Time;
 
 typedef unsigned int AssetTypeId;
-typedef unsigned int NodeTypeId;
+///typedef unsigned int NodeTypeId;
 typedef unsigned int ObjectTypeId;
 typedef unsigned int SoundTypeId;
 

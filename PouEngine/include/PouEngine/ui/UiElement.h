@@ -14,7 +14,7 @@ class UserInterface;
 class UiElement : public SimpleNode
 {
     public:
-        UiElement(const NodeTypeId, UserInterface *interface);
+        UiElement( UserInterface *interface);
         virtual ~UiElement();
 
         virtual void setSize(glm::vec2 s); //use this one for children
@@ -26,7 +26,7 @@ class UiElement : public SimpleNode
         virtual void render(UiRenderer *renderer);
 
     protected:
-        virtual SimpleNode* nodeAllocator(NodeTypeId);
+        virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
     protected:
         UserInterface *m_interface;

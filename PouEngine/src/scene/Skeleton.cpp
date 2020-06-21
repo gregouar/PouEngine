@@ -22,7 +22,7 @@ namespace pou
 
 
 Skeleton::Skeleton(SkeletonModelAsset *model) :
-    SceneNode(-1),
+   /// SceneNode(-1),
     m_frameNbr(-1)
     //m_syncedAnimationId(-1,0),
     //m_syncedFrameNbr(-1,0)
@@ -44,7 +44,7 @@ Skeleton::~Skeleton()
         delete m_rootNode;*/
 }
 
-bool Skeleton::attachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object)
+bool Skeleton::attachLimb(const std::string &boneName, const std::string &stateName, std::shared_ptr<SceneObject> object)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -93,7 +93,7 @@ bool Skeleton::detachLimb(const std::string &boneName, const std::string &stateN
     auto limbsPerNodeState = m_limbsPerNodeState.equal_range({m_model->getNodeId(boneName),
                                                              m_model->getStateId(stateName)});
     for(auto it = limbsPerNodeState.first ; it != limbsPerNodeState.second ; ++it)
-        if(it->second == object)
+        if(it->second.get() == object)
         {
             m_limbsPerNodeState.erase(it);
             break;
@@ -184,7 +184,7 @@ void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
 
     auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, oldStateId});
     for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
-        node->second->detachObject(limbIt->second);
+        node->second->detachObject(limbIt->second.get());
 }
 
 
@@ -205,7 +205,7 @@ void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
     return (true);
 }*/
 
-bool Skeleton::attachSound(SoundObject *soundObject, const std::string &soundName)
+bool Skeleton::attachSound(std::shared_ptr<SoundObject> soundObject, const std::string &soundName)
 {
     if(m_model == nullptr)
         return (false);

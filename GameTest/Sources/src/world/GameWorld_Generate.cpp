@@ -24,21 +24,25 @@ void GameWorld::generate()
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     {
-        pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+        auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
         this->syncElement(grassNode);
 
-        pou::SpriteEntity *spriteEntity = nullptr;
+        auto spriteEntity = std::make_shared<pou::SpriteEntity>();
 
         int rd = x+y;//glm::linearRand(0,96);
         int modulo = 4;
         if(abs(rd % modulo) == 0)
-            spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_2"));
+            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
+            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_2"));
         else if(abs(rd % modulo) == 1)
-            spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_1"));
+            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
+            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_1"));
         else if(abs(rd % modulo) == 2)
-            spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3"));
+            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
+            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3"));
         else if(abs(rd % modulo) == 3)
-            spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4"));
+            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
+            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4"));
 
         grassNode->attachObject(spriteEntity);
         this->syncElement(spriteEntity);
@@ -60,7 +64,7 @@ void GameWorld::generate()
         if(x == 0)
             p = glm::vec3(230,0,0);
 
-        auto tree = new Character();
+        auto tree = std::make_shared<Character>();
 
         tree->createFromModel(treeModel);
         tree->setPosition(p);
@@ -85,7 +89,7 @@ void GameWorld::generate()
     for(auto i = 0 ; i < 3 ; ++i)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
-        auto *lantern = new Character();
+        auto lantern = std::make_shared<Character>();
         lantern->createFromModel(lanternModel);
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
@@ -108,7 +112,7 @@ void GameWorld::generate()
             p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         }while(glm::length(p) < 500.0f);
 
-        auto *duck = new Character();
+        auto duck = std::make_shared<Character>();
         duck->createFromModel(duckModel);
         duck->setPosition(p);
         m_scene->getRootNode()->addChildNode(duck);
@@ -133,8 +137,8 @@ void GameWorld::destroy()
 
     m_camera = nullptr;
 
-    for(auto character : m_syncCharacters)
-        delete character.second;
+    /*for(auto character : m_syncCharacters)
+        delete character.second;*/
     m_syncCharacters.clear();
 
     if(m_scene)
@@ -213,15 +217,13 @@ bool GameWorld::removePlayer(size_t player_id)
 {
     auto player = m_syncPlayers.findElement(player_id);
 
-    if(player == nullptr)
+    if(!player)
         return (false);
-
-    this->desyncElement(player);
 
      for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(player);
 
-    delete player;
+    this->desyncElement(player.get());
 
     return m_syncPlayers.freeId(player_id);
 }

@@ -20,7 +20,7 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 }
 
-Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(-1,nullptr),
+Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(/**-1,**/nullptr),
     m_input(characterInput),
     m_isDead(false,0),
     m_syncId(0),
@@ -112,60 +112,59 @@ void Character::setAiComponent(std::shared_ptr<AiComponent> aiComponent)
     m_aiComponent = aiComponent;
 }
 
-bool Character::addSkeleton(std::unique_ptr<pou::Skeleton> skeleton, const std::string &name)
+bool Character::addSkeleton(std::shared_ptr<pou::Skeleton> skeleton, const std::string &name)
 {
     return (m_skeletons.insert({name,std::move(skeleton)}).second);
 }
 
-pou::SceneEntity *Character::addLimb(LimbModel *limbModel)
+std::shared_ptr<pou::SceneEntity> Character::addLimb(LimbModel *limbModel)
 {
     if(limbModel->spriteModel != nullptr)
     {
-        std::unique_ptr<pou::SpriteEntity> limbEntity(new pou::SpriteEntity());
+        auto limbEntity = std::make_shared<pou::SpriteEntity>();
 
         limbEntity->setSpriteModel(limbModel->spriteModel);
         limbEntity->setOrdering(pou::ORDERED_BY_Z);
         limbEntity->setInheritRotation(true);
 
-        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
-        return (limb.first->second.get());
+        m_limbs.insert({limbModel, limbEntity});
+        return limbEntity;
     }
     else if(limbModel->mesh != nullptr)
     {
-        std::unique_ptr<pou::MeshEntity> limbEntity(new pou::MeshEntity());
+        auto limbEntity = std::make_shared<pou::MeshEntity>();
 
         limbEntity->setMesh(limbModel->mesh);
         limbEntity->setShadowCastingType(pou::ShadowCasting_All);
 
-        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
-        return (limb.first->second.get());
+        m_limbs.insert({limbModel, limbEntity});
+        return limbEntity;
     }
     else if(limbModel->lightModel != nullptr)
     {
-        std::unique_ptr<pou::LightEntity> limbEntity(new pou::LightEntity());
+        auto limbEntity = std::make_shared<pou::LightEntity>();
 
         limbEntity->setModel(*limbModel->lightModel);
 
-        auto limb = m_limbs.insert({limbModel, std::move(limbEntity)});
-        return (limb.first->second.get());
+        m_limbs.insert({limbModel, limbEntity});
+        return limbEntity;
     }
 
     return (nullptr);
 }
 
-pou::SoundObject *Character::addSound(SoundModel *soundModel)
+std::shared_ptr<pou::SoundObject> Character::addSound(SoundModel *soundModel)
 {
-    std::unique_ptr<pou::SoundObject> soundObject(new pou::SoundObject());
+    auto soundObject = std::make_shared<pou::SoundObject> ();
 
     if(soundModel->isEvent)
         soundObject->setSoundEventModel(soundModel->path);
 
-    auto sound = m_sounds.insert({soundModel, std::move(soundObject)});
-    auto *soundPtr = sound.first->second.get();
+    m_sounds.insert({soundModel, soundObject});
 
     //this->attachObject(soundPtr);
     //m_soundsMap.insert({soundModel->tag, soundPtr});
-    return (soundPtr);
+    return soundObject;
 }
 
 bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skeletonName)
@@ -175,7 +174,7 @@ bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skele
     if(skeleton == m_skeletons.end())
         return (false);
 
-    auto *sceneEntity = this->addLimb(limbModel);
+    auto sceneEntity = this->addLimb(limbModel);
     skeleton->second->attachLimb(limbModel->node,
                                  limbModel->state,
                                  sceneEntity);
@@ -213,7 +212,7 @@ bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &sk
     if(skeleton == m_skeletons.end())
         return (false);
 
-    auto *soundObject = this->addSound(soundModel);
+    auto soundObject = this->addSound(soundModel);
     skeleton->second->attachSound(soundObject,soundModel->name);
 
     return (true);
@@ -441,8 +440,6 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     m_attributes.update(elapsedTime, m_curLocalTime);
     if(m_attributes.getValue().life < oldLife)
     {
-        std::cout<<"OldLife:"<<oldLife<<std::endl;
-        std::cout<<"NewLife:"<<m_attributes.getValue().life<<std::endl;
         if(m_attributes.getValue().life <= 0)
             this->kill(oldLife-m_attributes.getValue().life);
         else
@@ -450,8 +447,6 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     }
     else if (m_attributes.getValue().life > oldLife)
     {
-        std::cout<<"OldLife:"<<oldLife<<std::endl;
-        std::cout<<"NewLife:"<<m_attributes.getValue().life<<std::endl;
         //if(m_attributes.getValue().life > 0)
         if(m_isDead.getValue() && m_attributes.getValue().life > 0)
         {
@@ -517,17 +512,17 @@ void Character::startAnimation(const std::string &name, bool forceStart)
     m_curAnimation.setValue(name);
 }
 
-void Character::addToNearbyCharacters(Character *character)
+void Character::addToNearbyCharacters(std::shared_ptr<Character> character)
 {
     m_nearbyCharacters.insert(character);
 }
 
-void Character::removeFromNearbyCharacters(Character *character)
+void Character::removeFromNearbyCharacters(std::shared_ptr<Character> character)
 {
     m_nearbyCharacters.erase(character);
 }
 
-std::set<Character*> &Character::getNearbyCharacters()
+std::set<std::shared_ptr<Character> > &Character::getNearbyCharacters()
 {
     return m_nearbyCharacters;
 }

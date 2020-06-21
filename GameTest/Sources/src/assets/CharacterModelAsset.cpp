@@ -71,10 +71,10 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
 
     for(auto &skeletonModel : m_skeletonModels)
     {
-        std::unique_ptr<pou::Skeleton> skeleton(new pou::Skeleton(skeletonModel.second.skeleton));
+        auto skeleton = std::make_shared<pou::Skeleton>(skeletonModel.second.skeleton);
         for(auto &limb : *(skeletonModel.second.assetsModel.getLimbs()))
         {
-            auto *sceneEntity = targetCharacter->addLimb(&limb);
+            auto sceneEntity = targetCharacter->addLimb(&limb);
             skeleton->attachLimb(limb.node, limb.state, sceneEntity);
         }
 
@@ -85,8 +85,8 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         }
 
 
-        targetCharacter->addChildNode(skeleton.get());
-        targetCharacter->addSkeleton(std::move(skeleton), skeletonModel.first);
+        targetCharacter->addChildNode(skeleton);
+        targetCharacter->addSkeleton(skeleton, skeletonModel.first);
     }
 
     if(m_aiScriptModel)

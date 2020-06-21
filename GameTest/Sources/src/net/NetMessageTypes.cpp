@@ -137,7 +137,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     auto &nodePtr = nodeSync.node;
     if(stream->isReading())
     {
-        nodePtr = new pou::SceneNode(0);
+        nodePtr = std::make_shared<pou::SceneNode>();
         nodePtr->update(pou::Time(0),localTime);
     }
 
@@ -167,7 +167,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     auto &spriteEntityPtr = spriteEntitySync.spriteEntity;
     if(stream->isReading())
     {
-        spriteEntityPtr = new pou::SpriteEntity();
+        spriteEntityPtr = std::make_shared<pou::SpriteEntity>();
         spriteEntityPtr->update(pou::Time(0),localTime);
         //spriteEntityPtr->setLocalTime(localTime);
     }
@@ -213,7 +213,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     auto &characterPtr = characterSync.character;
     if(stream->isReading())
     {
-        characterPtr = new Character();
+        characterPtr = std::make_shared<Character>();
         characterPtr->update(pou::Time(0),localTime);
     }
 
@@ -251,7 +251,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 
     if(stream->isReading())
     {
-        playerPtr = new Player();
+        playerPtr = std::make_shared<Player>();
         playerPtr->update(pou::Time(0),localTime);
     }
 
@@ -337,7 +337,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
         auto &nodePtr = nodeSync.node;
         if(stream->isReading())
         {
-            nodePtr = &nodeBuffer;
+            nodePtr = std::make_shared<pou::SceneNode>();
             nodePtr->update(pou::Time(0),localTime);
         }
         nodePtr->serializeNode(stream, lastSyncTime);
@@ -347,7 +347,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
         auto &characterPtr = characterSync.character;
         if(stream->isReading())
         {
-            characterPtr = &characterBuffer;
+            characterPtr = std::make_shared<Character>();
             characterPtr->update(pou::Time(0),localTime);
         }
         characterPtr->serializeCharacter(stream,lastSyncTime);
@@ -358,7 +358,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
 
         if(stream->isReading())
         {
-            playerPtr = &playerBuffer;
+            playerPtr = std::make_shared<Player>();
             playerPtr->update(pou::Time(0),localTime);
         }
 

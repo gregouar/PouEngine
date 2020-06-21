@@ -26,14 +26,14 @@ class Scene : public NotificationListener
 
         SceneNode *getRootNode();
 
-        CameraObject       *createCamera();
+        /**CameraObject       *createCamera();
         SpriteEntity       *createSpriteEntity(SpriteModel *model = nullptr);
         MeshEntity         *createMeshEntity(MeshAsset *model = nullptr);
         LightEntity        *createLightEntity(LightType type = pou::LightType_Omni,
                                               Color color = {1.0,1.0,1.0,1.0}, float intensity = 1.0);
 
         void destroyCreatedObject(const ObjectTypeId);
-        void destroyAllCreatedObjects();
+        void destroyAllCreatedObjects();**/
 
         virtual glm::vec2 convertScreenToWorldCoord(glm::vec2 p, CameraObject *cam = nullptr);
        // virtual const glm::mat4 &getViewMatrix() const;
@@ -49,8 +49,8 @@ class Scene : public NotificationListener
                             void* data = nullptr) override;
 
     protected:
-        ObjectTypeId generateObjectId();
-        void addCreatedObject(const ObjectTypeId, SceneObject*);
+       /// ObjectTypeId generateObjectId();
+       /// void addCreatedObject(const ObjectTypeId, SceneObject*);
 
         SceneNode m_rootNode;
 
@@ -62,8 +62,8 @@ class Scene : public NotificationListener
                     m_viewAngleInv;// 2D Screen to world transformation matrix
 
     private:
-        std::map<ObjectTypeId, SceneObject*> m_createdObjects;
-        ObjectTypeId m_curNewId;
+        ///std::map<ObjectTypeId, SceneObject*> m_createdObjects;
+        ///ObjectTypeId m_curNewId;
 
         //TextureAsset           *m_envMapAsset;
         SceneRenderingData      m_renderingData;

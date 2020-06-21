@@ -18,17 +18,17 @@ class UserInterface
         virtual void update(const Time &elapsedTime);
         virtual void render(UiRenderer *renderer);
 
-        UiPicture* createUiPicture(bool addToInterface = false);
-        UiProgressBar* createProgressBar(bool addToInterface = false);
+        std::shared_ptr<UiPicture> createUiPicture(bool addToInterface = false);
+        std::shared_ptr<UiProgressBar> createProgressBar(bool addToInterface = false);
 
     protected:
         void cleanup();
 
     private:
-        UiElement *m_rootElement;
+        UiElement m_rootElement;
 
-        NodeTypeId m_curNewId;
-        std::list<UiElement*> m_createdElements;
+       /// NodeTypeId m_curNewId;
+        ///std::list<UiElement*> m_createdElements;
 };
 
 }

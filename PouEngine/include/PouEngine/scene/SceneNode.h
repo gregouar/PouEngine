@@ -25,21 +25,21 @@ class SceneRenderer;
 class SceneNode : public SimpleNode //public NotificationSender, public NotificationListener
 {
     public:
-        SceneNode(const NodeTypeId);
-        SceneNode(const NodeTypeId, Scene* scene);
+        SceneNode(/**const NodeTypeId**/);
+        SceneNode(/**const NodeTypeId,**/ Scene* scene);
         virtual ~SceneNode();
 
-        SceneNode* createChildNode();
-        SceneNode* createChildNode(float, float );
-        SceneNode* createChildNode(float, float, float );
-        SceneNode* createChildNode(glm::vec2 );
-        SceneNode* createChildNode(glm::vec3 );
-        SceneNode* createChildNode(const NodeTypeId id);
+        std::shared_ptr<SceneNode> createChildNode();
+        std::shared_ptr<SceneNode> createChildNode(float, float );
+        std::shared_ptr<SceneNode> createChildNode(float, float, float );
+        std::shared_ptr<SceneNode> createChildNode(glm::vec2 );
+        std::shared_ptr<SceneNode> createChildNode(glm::vec3 );
+        ///SceneNode* createChildNode(const NodeTypeId id);
 
-        void attachObject(SceneObject *);
-        void detachObject(SceneObject *);
+        void attachObject(std::shared_ptr<SceneObject>);
+        void detachObject(SceneObject*);
 
-        void attachSound(SoundObject *, int);
+        void attachSound(std::shared_ptr<SoundObject>, int);
         void detachSound(SoundObject *, int);
 
         void detachAllObjects();
@@ -68,9 +68,9 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
                             size_t dataSize = 0, char* data = nullptr) override;*/
 
     protected:
-        virtual SimpleNode* nodeAllocator(NodeTypeId);
+        virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
-        virtual void setParent(SimpleNode *);
+        virtual void setParent(SimpleNode *parentNode);
         void setScene(Scene *);
         virtual void updateGlobalPosition();
 
@@ -83,12 +83,12 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         //float m_lastColorUpdateTime;
 
     private:
-        std::list<SceneObject *>    m_attachedObjects;
-        std::list<SceneEntity *>    m_attachedEntities;
-        std::list<LightEntity *>    m_attachedLights;
-        std::list<ShadowCaster *>   m_attachedShadowCasters;
+        std::vector<std::shared_ptr<SceneObject> >    m_attachedObjects;
+        std::vector<std::shared_ptr<SceneEntity> >    m_attachedEntities;
+        std::vector<std::shared_ptr<LightEntity> >    m_attachedLights;
+        std::vector<std::shared_ptr<ShadowCaster> >   m_attachedShadowCasters;
 
-        std::multimap<int, SoundObject *> m_attachedSounds;
+        std::multimap<int, std::shared_ptr<SoundObject> > m_attachedSounds;
 };
 
 }

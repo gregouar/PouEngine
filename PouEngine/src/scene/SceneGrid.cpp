@@ -3,7 +3,7 @@
 namespace pou
 {
 
-SceneGrid::SceneGrid() : SceneNode(-1)
+SceneGrid::SceneGrid()
 {
     //ctor
 }

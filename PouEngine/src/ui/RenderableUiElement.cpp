@@ -75,8 +75,8 @@ std::array<VkVertexInputAttributeDescription, 8> RenderableUiDatum::getAttribute
 }
 
 
-RenderableUiElement::RenderableUiElement(const NodeTypeId id, UserInterface *interface):
-    UiElement(id, interface),
+RenderableUiElement::RenderableUiElement(/**const NodeTypeId id,**/ UserInterface *interface):
+    UiElement(/**id,**/ interface),
     m_color(1.0f)
 {
     //ctor

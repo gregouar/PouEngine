@@ -3,8 +3,8 @@
 namespace pou
 {
 
-UiPicture::UiPicture(const NodeTypeId id, UserInterface *interface) :
-    RenderableUiElement(id, interface),
+UiPicture::UiPicture(/**const NodeTypeId id,**/ UserInterface *interface) :
+    RenderableUiElement(/**id,**/ interface),
     m_texture(nullptr),
     m_texturePosition(0.0f),
     m_textureExtent(1.0f),

@@ -17,7 +17,7 @@ SkeletonModelAsset::SkeletonModelAsset() : SkeletonModelAsset(-1)
 
 }
 
-SkeletonModelAsset::SkeletonModelAsset(const AssetTypeId id) : Asset(id), m_rootNode(-1)
+SkeletonModelAsset::SkeletonModelAsset(const AssetTypeId id) : Asset(id)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
@@ -154,8 +154,8 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     TiXmlElement* childElement = child->ToElement();
     while(childElement != nullptr)
     {
-        SimpleNode* node = rootNode->createChildNode();
-        this->loadNode(node, childElement);
+        auto node = rootNode->createChildNode();
+        this->loadNode(node.get(), childElement);
 
         childElement = childElement->NextSiblingElement("node");
     }

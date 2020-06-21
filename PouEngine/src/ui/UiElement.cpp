@@ -3,8 +3,7 @@
 namespace pou
 {
 
-UiElement::UiElement(const NodeTypeId id, UserInterface *interface) :
-    SimpleNode(id),
+UiElement::UiElement(UserInterface *interface) :
     m_interface(interface),
     m_size(0.0f)
 {
@@ -33,22 +32,22 @@ const glm::vec2 &UiElement::getSize()
 }
 
 
-SimpleNode* UiElement::nodeAllocator(NodeTypeId id)
+std::shared_ptr<SimpleNode> UiElement::nodeAllocator()
 {
-    return new UiElement(id,m_interface);
+    return std::make_shared<UiElement>(m_interface);
 }
 
 void UiElement::render(UiRenderer *renderer)
 {
     for(auto node : m_childs)
-        dynamic_cast<UiElement*>(node.second)->render(renderer);
+        std::dynamic_pointer_cast<UiElement>(node)->render(renderer);
 }
 
 
 void UiElement::handleEvents(const EventsManager *eventManager)
 {
     for(auto node : m_childs)
-        dynamic_cast<UiElement*>(node.second)->handleEvents(eventManager);
+        std::dynamic_pointer_cast<UiElement>(node)->handleEvents(eventManager);
 }
 
 

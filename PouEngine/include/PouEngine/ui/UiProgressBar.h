@@ -10,7 +10,7 @@ namespace pou
 class UiProgressBar : public UiPicture
 {
     public:
-        UiProgressBar(const NodeTypeId, UserInterface *interface);
+        UiProgressBar(/**const NodeTypeId,**/ UserInterface *interface);
         virtual ~UiProgressBar();
 
         void setValue(float v);

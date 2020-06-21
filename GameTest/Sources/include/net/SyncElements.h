@@ -10,7 +10,7 @@ class Player;
 struct NodeSync
 {
     int parentNodeId;
-    pou::SceneNode *node;
+    std::shared_ptr<pou::SceneNode> node;
 };
 
 struct SpriteEntitySync
@@ -19,7 +19,7 @@ struct SpriteEntitySync
     int spriteId; //Inside spritesheet
     int nodeId;
 
-    pou::SpriteEntity* spriteEntity;
+    std::shared_ptr<pou::SpriteEntity> spriteEntity;
 };
 
 struct CharacterSync
@@ -27,7 +27,7 @@ struct CharacterSync
     int characterModelId;
     int nodeId;
 
-    Character *character;
+    std::shared_ptr<Character> character;
 };
 
 struct PlayerSync
@@ -37,7 +37,7 @@ struct PlayerSync
     int gearModelsId[NBR_GEAR_TYPES];
     std::vector<int> inventoryItemModelsId;
 
-    Player *player;
+    std::shared_ptr<Player> player;
 };
 
 #endif // SYNCELEMENTS_H
