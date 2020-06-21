@@ -232,12 +232,8 @@ void SceneNode::update(const Time &elapsedTime, uint32_t localTime)
 {
     SimpleNode::update(elapsedTime, localTime);
 
-    //int i = 0;
     for(auto &object : m_attachedObjects)
-    {
         object->update(elapsedTime);
-        //std::cout<<i++<<std::endl;
-    }
 }
 
 

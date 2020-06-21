@@ -88,13 +88,13 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     m_scene->update(elapsed_time, m_curLocalTime /**m_syncTime**/);
 
 
-    uint32_t cleanTime = m_curLocalTime - GameClient::MAX_PLAYER_REWIND;///GameServer::MAX_REWIND_AMOUNT;
+    /**uint32_t cleanTime = m_curLocalTime - GameClient::MAX_PLAYER_REWIND;///GameServer::MAX_REWIND_AMOUNT;
     auto cleanPlayerActionsIt = m_playerActions.lower_bound(cleanTime);
     if(cleanPlayerActionsIt != m_playerActions.begin())
         (--cleanPlayerActionsIt);
 
     if(cleanPlayerActionsIt != m_playerActions.end())
-        m_playerActions.erase(m_playerActions.begin(), cleanPlayerActionsIt);
+        m_playerActions.erase(m_playerActions.begin(), cleanPlayerActionsIt);**/
 
    // while(!m_playerActions.empty()
     //&& m_playerActions.begin()->first < ))
@@ -179,32 +179,42 @@ bool GameWorld::isPlayerCreated(size_t player_id)
     return (player->getLastPlayerUpdateTime() != (uint32_t)(-1));
 }
 
-void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime)
+void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction)
+{
+    PlayerAction action = playerAction;
+
+    if(action.direction != glm::vec2(0))
+        action.direction = normalize(action.direction);
+
+    m_playerActions.push_back({player_id,action});
+}
+
+/**void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime)
 {
     if(clientTime == (uint32_t)(-1))
         clientTime = m_curLocalTime;
-
+**/
     /*auto boundaries = m_playerActions.equal_range(clientTime);
     for(auto it = boundaries.first ; it != boundaries.second ; ++it)
         if((int)it->second.first == player_id && it->second.second.actionType == playerAction.actionType)
             it = m_playerActions.erase(it);*/
-
+/**
     PlayerAction action = playerAction;
 
     if(action.direction != glm::vec2(0))
         action.direction = normalize(action.direction);
 
     m_playerActions.insert({clientTime, {player_id,action}});
-
+**/
     /**if(pou::NetEngine::getMaxRewindAmount() == 0)
         return;
 
     if(clientTime < m_curLocalTime)
     if(m_wantedRewind > clientTime - 1 || m_wantedRewind == (uint32_t)(-1))
         m_wantedRewind = clientTime - 1;**/
-}
+/**}**/
 
-void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
+/**void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
 {
     if(time == (uint32_t)(-1))
         time = m_curLocalTime;
@@ -217,7 +227,7 @@ void GameWorld::removeAllPlayerActions(int player_id, uint32_t time)
         if(actionIt != m_playerActions.end())
             ++actionIt;
     }
-}
+}**/
 
 /*void GameWorld::playerWalk(int player_id, glm::vec2 direction, float localTime)
 {
@@ -375,7 +385,7 @@ void GameWorld::desyncElement(Player *player, bool noDesyncInsert)
 
 void GameWorld::updateSunLight(const pou::Time elapsed_time)
 {
-    ///m_dayTime = m_dayTime + elapsed_time.count();
+    m_dayTime = m_dayTime + elapsed_time.count();
     if(m_dayTime >= 360)
         m_dayTime -= 360;
 
@@ -433,6 +443,22 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
 
 void GameWorld::processPlayerActions()
 {
+    for(auto it = m_playerActions.begin() ; it != m_playerActions.end() ; ++it)
+    {
+        auto player_id = it->first;
+        auto player = m_syncPlayers.findElement(player_id);
+        if(player == nullptr)
+            continue;
+
+        auto& playerAction = it->second;
+        player->processAction(playerAction);
+    }
+
+    m_playerActions.clear();
+}
+
+/**void GameWorld::processPlayerActions()
+{
     auto boundaries = m_playerActions.equal_range(m_curLocalTime);
 
     for(auto it = boundaries.first ; it != boundaries.second ; ++it)
@@ -448,5 +474,5 @@ void GameWorld::processPlayerActions()
         auto& playerAction = it->second.second;
         player->processAction(playerAction);
     }
-}
+}**/
 

@@ -89,15 +89,15 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
         m_gameClient.sendMsgTest(false,true);
 
     if(eventsManager->keyPressed(GLFW_KEY_1))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_UseItem,1));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,1));
     if(eventsManager->keyPressed(GLFW_KEY_2))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_UseItem,2));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,2));
     if(eventsManager->keyPressed(GLFW_KEY_3))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_UseItem,3));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,3));
     if(eventsManager->keyPressed(GLFW_KEY_4))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_UseItem,4));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,4));
     if(eventsManager->keyPressed(GLFW_KEY_5))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_UseItem,5));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,5));
 
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
@@ -109,17 +109,17 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_Dash));
-    m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_Walk, charDirection));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Dash));
+    m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Walk, charDirection));
 
-    m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
+    m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
 
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
-        m_gameClient.processPlayerAction(PlayerAction(PlayerActionType_CombatMode));
+        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_CombatMode));
 }
 
 

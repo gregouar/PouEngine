@@ -264,9 +264,9 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(desiredMinLocalTime < m_curLocalTime || m_curLocalTime < desiredMaxLocalTime)
         //if(abs(m_curLocalTime - m_lastSyncTime -  pou::NetEngine::getSyncDelay()) > 1)
         {
-            auto playerActionIt = m_playerActions.find(m_curLocalTime);
+            /**auto playerActionIt = m_playerActions.find(m_curLocalTime);
             if(playerActionIt != m_playerActions.end())
-                m_playerActions.insert({desiredLocalTime, playerActionIt->second});
+                m_playerActions.insert({desiredLocalTime, playerActionIt->second});**/
 
             std::cout<<"Jump time from "<<m_curLocalTime<<" tot "<<  desiredLocalTime<<std::endl;
 

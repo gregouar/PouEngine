@@ -296,6 +296,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/MeshEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/Scene.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneEntity.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneGrid.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SceneObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/ShadowCaster.h" />
@@ -412,6 +413,7 @@
 		<Unit filename="../../PouEngine/src/scene/MeshEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/Scene.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneEntity.cpp" />
+		<Unit filename="../../PouEngine/src/scene/SceneGrid.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneNode.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SceneObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/ShadowCaster.cpp" />
@@ -477,6 +479,7 @@
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
+		<Unit filename="include/world/WorldGrid.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
 		<Unit filename="src/ai/AiScriptedComponent.cpp" />
@@ -500,6 +503,7 @@
 		<Unit filename="src/world/GameWorld.cpp" />
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
+		<Unit filename="src/world/WorldGrid.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

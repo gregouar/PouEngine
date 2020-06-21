@@ -148,7 +148,7 @@ void GameClient::sendMsgTest(bool reliable, bool forceSend)
 
 
 
-void GameClient::processPlayerAction(const PlayerAction &action)
+void GameClient::addPlayerAction(const PlayerAction &action)
 {
     if(!m_client || m_curWorldId == 0)
         return;

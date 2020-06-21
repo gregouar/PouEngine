@@ -55,7 +55,7 @@ class SceneRenderingInstance
 
         std::multimap<float, SpriteDatum> m_spritesOrdered;
 
-        std::list<ShadowCaster*>    m_renderedShadowCasters[2]; //Objects that can cast shadows, 0 is omni, 1 is directional
+        std::vector<ShadowCaster*>    m_renderedShadowCasters[2]; //Objects that can cast shadows, 0 is omni, 1 is directional
         std::list<LightEntity*>     m_renderedShadowLights; //Lights than can cast shadows
 };
 

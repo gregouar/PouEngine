@@ -45,8 +45,10 @@ class GameWorld
 
         //void playerWalk(int player_id, glm::vec2 direction, float clientTime = -1);
 
-        void addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime = -1);
-        void removeAllPlayerActions(int player_id, uint32_t time = -1);
+        /**void addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime = -1);
+        void removeAllPlayerActions(int player_id, uint32_t time = -1);**/
+
+        void addPlayerAction(int player_id, const PlayerAction &playerAction);
 
         glm::vec2 convertScreenToWorldCoord(glm::vec2 p);
 
@@ -128,7 +130,8 @@ class GameWorld
         std::multimap<uint32_t, int> m_desyncCharacters;
         std::multimap<uint32_t, int> m_desyncPlayers;
 
-        std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
+        std::vector< std::pair<size_t, PlayerAction> > m_playerActions;
+        ///std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
         ///uint32_t m_wantedRewind;
 
     public:

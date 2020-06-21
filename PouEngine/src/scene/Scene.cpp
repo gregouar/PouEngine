@@ -39,6 +39,7 @@ void Scene::cleanAll()
 void Scene::update(const Time &elapsedTime, float localTime)
 {
     m_rootNode.update(elapsedTime,localTime);
+
    // m_renderingData.update();
 }
 

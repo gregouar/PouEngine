@@ -35,7 +35,7 @@ class GameClient : public pou::NotificationListener
         void playerAttack(glm::vec2 direction);
         void playerUseItem(size_t itemNbr);*/
 
-        void processPlayerAction(const PlayerAction &action);
+        void addPlayerAction(const PlayerAction &action);
 
         void sendMsgTest(bool reliable, bool forceSend);
 

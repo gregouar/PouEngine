@@ -106,7 +106,7 @@ void LightEntity::generateRenderingData(SceneRenderingInstance *renderingInstanc
     renderingInstance->addToLightsVbo(this->getLightDatum());
 }
 
-void LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<ShadowCaster*> &shadowCastersList)
+void LightEntity::generateShadowMap(SceneRenderer* renderer, std::vector<ShadowCaster*> &shadowCastersList)
 {
     if(!(m_shadowMap.attachment.extent.width  == m_lightModel.shadowMapExtent.x
       && m_shadowMap.attachment.extent.height == m_lightModel.shadowMapExtent.y))
@@ -115,7 +115,7 @@ void LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<ShadowCas
     renderer->addShadowMapToRender(m_shadowMap.renderTarget, m_datum);
     m_datum.shadowShift = {0,0};
 
-    for(auto shadowCaster : shadowCastersList)
+    for(auto &shadowCaster : shadowCastersList)
     {
         glm::vec2 shadowShift = shadowCaster->castShadow(renderer, this);
         if(glm::abs(shadowShift.x) > glm::abs(m_datum.shadowShift.x))
@@ -123,9 +123,6 @@ void LightEntity::generateShadowMap(SceneRenderer* renderer, std::list<ShadowCas
         if(glm::abs(shadowShift.y) > glm::abs(m_datum.shadowShift.y))
             m_datum.shadowShift.y = shadowShift.y;
     }
-
-    ///I don't really need to return this...
-   // return m_shadowMap.texture;
 }
 
 LightType LightEntity::getType()

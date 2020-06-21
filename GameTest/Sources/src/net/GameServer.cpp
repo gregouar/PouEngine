@@ -121,7 +121,9 @@ void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
     if(worldIt == m_worlds.end())
         return;
 
+    pou::Profiler::pushClock("Render player server world");
     worldIt->second.render(renderWindow);
+    pou::Profiler::popClock();
 }
 
 
@@ -374,7 +376,7 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
        // std::cout<<"LastActionTime:"<<clientInfos->lastActionTime<<std::endl;
        // std::cout<<"TimeShift:"<<timeShift<<std::endl;
     }
-
+*/
     /**if(GameServer::USEREWIND )
         if(uint32less(clientInfos->localTime,msg->localTime))
             world->removeAllPlayerActions(clientInfos->player_id, clientInfos->localTime+timeShift+1);**/
@@ -401,7 +403,7 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
             //std::cout<<"Server ActionTime:"<<playerActionTime+timeShift<<std::endl;
         }
     }
-
+*/
     /**if(GameServer::USEREWIND )
     {
         lastPlayerWalkTime += GameClient::TICKRATE/GameClient::SYNCRATE*2;
@@ -412,7 +414,7 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
             tempAction.direction    = glm::vec2(0);
             world->addPlayerAction(clientInfos->player_id, tempAction,  lastPlayerWalkTime+timeShift);
         }
-    } else**//* {
+    } else**/ /* {
         PlayerAction tempAction;
         tempAction.actionType   = PlayerActionType_Walk;
         tempAction.direction    = glm::vec2(0);
@@ -429,12 +431,12 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
     }
 }*/
 
-void GameServer::processPlayerAction(size_t clientNbr, const PlayerAction &action, uint32_t localTime)
+void GameServer::addPlayerAction(size_t clientNbr, const PlayerAction &action/*, uint32_t localTime*/)
 {
     auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
 
     if(world)
-        world->addPlayerAction(clientInfos->player_id, action,localTime);
+        world->addPlayerAction(clientInfos->player_id, action/*,localTime*/);
 }
 
 

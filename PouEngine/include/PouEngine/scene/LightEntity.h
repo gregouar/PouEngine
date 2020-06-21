@@ -87,7 +87,7 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
 
 
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance);
-        virtual void generateShadowMap(SceneRenderer* renderer, std::list<ShadowCaster*> &shadowCastersList);
+        virtual void generateShadowMap(SceneRenderer* renderer, std::vector<ShadowCaster*> &shadowCastersList);
 
         LightDatum getLightDatum();
 

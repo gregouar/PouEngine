@@ -23,8 +23,9 @@ namespace pou
 
 Skeleton::Skeleton(SkeletonModelAsset *model) :
     SceneNode(-1),
-    m_syncedAnimationId(-1,0),
-    m_syncedFrameNbr(-1,0)
+    m_frameNbr(-1)
+    //m_syncedAnimationId(-1,0),
+    //m_syncedFrameNbr(-1,0)
 {
     m_nextAnimation     = nullptr;
     m_curAnimation      = nullptr;
@@ -235,7 +236,8 @@ bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
     if(forceStart)
     {
         m_forceNewAnimation = true;
-        m_curFrameTime.setValue(0);
+        //m_curFrameTime.setValue(0);
+        m_curFrameTime = 0;
         this->nextAnimation();
     }
 
@@ -255,7 +257,8 @@ bool Skeleton::startAnimation(int animationId, bool forceStart)
     if(forceStart)
     {
         m_forceNewAnimation = true;
-        m_curFrameTime.setValue(0);
+        //m_curFrameTime.setValue(0);
+        m_curFrameTime = 0;
         this->nextAnimation();
     }
 
@@ -309,9 +312,9 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
-    m_syncedAnimationId.update(elapsedTime, localTime);
+    /*m_syncedAnimationId.update(elapsedTime, localTime);
     m_syncedFrameNbr.update(elapsedTime, localTime);
-    m_curFrameTime.update(elapsedTime, localTime);
+    m_curFrameTime.update(elapsedTime, localTime);*/
 
     //m_isNewFrame = false;
     if(m_wantedFrameNbr == -1)
@@ -323,12 +326,13 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
         return;
 
 
-    if(!m_forceNewAnimation && m_wantedFrameNbr == m_syncedFrameNbr.getValue())
+    if(!m_forceNewAnimation && m_wantedFrameNbr == m_frameNbr)
     {
         float speedFactor = 1.0;
         if(m_curAnimationFrame != nullptr)
             speedFactor *= m_curAnimationFrame->getSpeedFactor();
-        m_curFrameTime.setValue(m_curFrameTime.getValue() + elapsedTime.count() * speedFactor);
+        //m_curFrameTime.setValue(m_curFrameTime.getValue() + elapsedTime.count() * speedFactor);
+        m_curFrameTime +=  elapsedTime.count() * speedFactor;
 
         bool nextFrame = true;
 
@@ -340,15 +344,16 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
 
         if(nextFrame)
         {
-            m_wantedFrameNbr = m_syncedFrameNbr.getValue() + 1;
-            m_curFrameTime.setValue(0);
+            m_wantedFrameNbr = m_frameNbr + 1;
+            m_curFrameTime = 0;
+            //m_curFrameTime.setValue(0);
         }
     }
 
-    if(m_wantedFrameNbr != m_syncedFrameNbr.getValue())
+    if(m_wantedFrameNbr != m_frameNbr)
     {
         auto wantedFrameNbr = m_wantedFrameNbr;
-        if(wantedFrameNbr < m_syncedFrameNbr.getValue())
+        if(wantedFrameNbr < m_frameNbr)
         {
             //m_syncedFrameNbr.setValue(0);
             m_nextAnimation = m_curAnimation;
@@ -356,14 +361,15 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
         }
         m_wantedFrameNbr = wantedFrameNbr;
 
-        while(m_wantedFrameNbr != m_syncedFrameNbr.getValue())
+        while(m_wantedFrameNbr != m_frameNbr)
         {
-            m_syncedFrameNbr.setValue(m_syncedFrameNbr.getValue()+1);
+            //m_syncedFrameNbr.setValue(m_syncedFrameNbr.getValue()+1);
+            m_frameNbr++;
             auto [nextFrame, isLooping] = m_curAnimation->nextFrame(m_curAnimationFrame);
             m_curAnimationFrame = nextFrame;
             if(isLooping)
             {
-                m_syncedFrameNbr.setValue(0);
+                m_frameNbr = 0;
                 m_wantedFrameNbr = 0;
             }
         }
@@ -371,7 +377,7 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
         if(m_curAnimationFrame == nullptr)
             this->nextAnimation();
         else
-            this->loadAnimationCommands(m_curAnimationFrame, m_curFrameTime.getValue());
+            this->loadAnimationCommands(m_curAnimationFrame, m_curFrameTime);
     }
 
     /*if(nextFrame)
@@ -487,12 +493,12 @@ void Skeleton::nextAnimation()
     if(m_curAnimation)
     {
         m_curAnimationFrame = nullptr;
-        m_syncedAnimationId.setValue(m_curAnimation->getId());
-        m_syncedFrameNbr.setValue(-1);
+        //m_syncedAnimationId.setValue(m_curAnimation->getId());
+        m_frameNbr = -1;
         m_wantedFrameNbr = 0;
     }
-    else
-        m_syncedAnimationId.setValue(-1);
+    //else
+        //m_syncedAnimationId.setValue(-1);
 }
 
 void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame, float curFrameTime)

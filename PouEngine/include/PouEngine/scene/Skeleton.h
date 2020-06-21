@@ -111,9 +111,11 @@ class Skeleton : public SceneNode
         std::list<SkeletalAnimationCommand> m_animationCommands;
         //bool m_createdRootNode;
 
-        SyncedAttribute<float> m_curFrameTime;
+        /**SyncedAttribute<float> m_curFrameTime;
         SyncedAttribute<int> m_syncedAnimationId;
-        SyncedAttribute<int> m_syncedFrameNbr;
+        SyncedAttribute<int> m_syncedFrameNbr;**/
+        float m_curFrameTime;
+        int m_frameNbr;
         int m_wantedFrameNbr;
 };
 

@@ -14,6 +14,8 @@ SceneRenderingInstance::SceneRenderingInstance(SceneRenderingData *data, SceneRe
     m_spritesVboSize(0),
     m_lightsVboSize(0)
 {
+    m_renderedShadowCasters[0].reserve(5000);
+    m_renderedShadowCasters[1].reserve(5000); ///Change to smaller number !
 }
 
 void SceneRenderingInstance::addToSpritesVbo(const SpriteDatum &datum)
@@ -138,7 +140,7 @@ void SceneRenderingInstance::computeOrdering()
 
 void SceneRenderingInstance::prepareShadowsRendering(SceneRenderer *renderer, uint32_t imageIndex)
 {
-    for(auto light : m_renderedShadowLights)
+    for(auto &light : m_renderedShadowLights)
     {
         if(light->getType() == LightType_Omni)
             light->generateShadowMap(renderer, m_renderedShadowCasters[0]);
