@@ -41,8 +41,9 @@ void ClientTestingState::init()
 
     std::cout<<a<<"."<<b<<"."<<c<<"."<<d<<":"<<port<<std::endl;
 
-    m_gameClient.create();
-    m_gameClient.connectToServer(pou::NetAddress(a,b,c,d,port));
+    m_gameClient = std::make_unique<GameClient>();
+    m_gameClient->create();
+    m_gameClient->connectToServer(pou::NetAddress(a,b,c,d,port));
 
     m_gameUi.init();
 }
@@ -55,7 +56,11 @@ void ClientTestingState::entered()
 
 void ClientTestingState::leaving()
 {
-    m_gameClient.disconnectFromServer();
+    if(m_gameClient)
+    {
+        m_gameClient->disconnectFromServer();
+        m_gameClient.reset();
+    }
 }
 
 void ClientTestingState::revealed()
@@ -78,26 +83,30 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
+
+    if(!m_gameClient)
+        return;
+
     //glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera);
 
     if(eventsManager->keyPressed(GLFW_KEY_Z))
-        m_gameClient.disconnectFromServer();
+        m_gameClient->disconnectFromServer();
     if(eventsManager->keyPressed(GLFW_KEY_X))
-        m_gameClient.connectToServer(m_gameClient.getServerAddress()/*pou::NetAddress(192,168,0,5,46969)*/);
+        m_gameClient->connectToServer(m_gameClient->getServerAddress()/*pou::NetAddress(192,168,0,5,46969)*/);
 
     if(eventsManager->keyPressed(GLFW_KEY_I))
-        m_gameClient.sendMsgTest(false,true);
+        m_gameClient->sendMsgTest(false,true);
 
     if(eventsManager->keyPressed(GLFW_KEY_1))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,1));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_UseItem,1));
     if(eventsManager->keyPressed(GLFW_KEY_2))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,2));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_UseItem,2));
     if(eventsManager->keyPressed(GLFW_KEY_3))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,3));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_UseItem,3));
     if(eventsManager->keyPressed(GLFW_KEY_4))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,4));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_UseItem,4));
     if(eventsManager->keyPressed(GLFW_KEY_5))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_UseItem,5));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_UseItem,5));
 
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))
@@ -109,36 +118,40 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_D))
         charDirection.x = 1;
     if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Dash));
-    m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Walk, charDirection));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_Dash));
+    m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_Walk, charDirection));
 
-    m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
+    m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
 
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
-        m_gameClient.addPlayerAction(PlayerAction(PlayerActionType_CombatMode));
+        m_gameClient->addPlayerAction(PlayerAction(PlayerActionType_CombatMode));
 }
 
 
 
 void ClientTestingState::update(const pou::Time &elapsedTime)
 {
-    auto player = m_gameClient.getPlayer();
+    m_gameUi.update(elapsedTime);
+
+    if(!m_gameClient)
+        return;
+    m_gameClient->update(elapsedTime);
+
+    auto player = m_gameClient->getPlayer();
     if(player)
         m_gameUi.updateCharacterLife(player->getAttributes().life,
                                      player->getModelAttributes().maxLife);
 
-
-    m_gameUi.update(elapsedTime);
-    m_gameClient.update(elapsedTime);
 }
 
 void ClientTestingState::draw(pou::RenderWindow *renderWindow)
 {
-    m_gameClient.render(renderWindow);
+    if(m_gameClient)
+        m_gameClient->render(renderWindow);
 
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
     {

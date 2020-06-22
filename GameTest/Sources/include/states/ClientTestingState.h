@@ -36,7 +36,7 @@ class ClientTestingState : public pou::GameState, public Singleton<ClientTesting
     private:
         bool m_firstEntering;
 
-        GameClient m_gameClient;
+        std::unique_ptr<GameClient> m_gameClient;
 
         GameUi m_gameUi;
 };

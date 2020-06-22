@@ -56,7 +56,7 @@ class GameClient : public pou::NotificationListener
        // uint32_t    m_lastPlayerWalkTime;
         glm::vec2   m_lastPlayerWalkDirection;
 
-        GameWorld   m_world;
+        std::unique_ptr<GameWorld>  m_world;
         uint16_t    m_curWorldId;
         uint16_t    m_curPlayerId;
         bool        m_isWaitingForWorldSync;

@@ -312,6 +312,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Hasher.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/IdAllocator.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/utils/IdPtrAllocator.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
@@ -429,6 +430,7 @@
 		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Hasher.cpp" />
 		<Unit filename="../../PouEngine/src/utils/IdAllocator.inc" />
+		<Unit filename="../../PouEngine/src/utils/IdPtrAllocator.inc" />
 		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
 		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />
 		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />

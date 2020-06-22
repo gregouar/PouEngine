@@ -89,6 +89,12 @@ void SimpleNode::removeAllChilds()
     m_childs.clear();
 }
 
+void SimpleNode::removeFromParent()
+{
+    if(m_parent)
+        m_parent->removeChildNode(this);
+}
+
 std::shared_ptr<SimpleNode> SimpleNode::createChildNode(float x, float y, float z)
 {
     auto newNode = this->createChildNode();
@@ -451,7 +457,8 @@ void SimpleNode::setPosition(glm::vec3 pos)
     //m_lastPositionUpdateTime = m_curLocalTime;
     this->setLastUpdateTime(m_curLocalTime);
 
-    this->updateGlobalPosition();
+    ///this->updateGlobalPosition();
+    this->askForUpdateModelMatrix();
 }
 
 
@@ -480,7 +487,8 @@ void SimpleNode::setGlobalPosition(glm::vec3 pos)
     else
         this->setPosition(pos);
 
-    this->updateGlobalPosition();
+    //this->updateGlobalPosition();
+    this->askForUpdateModelMatrix();
 }
 
 void SimpleNode::scale(float scale)
@@ -711,7 +719,8 @@ void SimpleNode::setParent(SimpleNode *p)
             this->startListeningTo(m_parent);
         }
 
-        this->updateGlobalPosition();
+        ///this->updateGlobalPosition();
+        this->askForUpdateModelMatrix();
 
         if(oldParent != nullptr && p != nullptr)
             oldParent->removeChildNode(this);
@@ -775,7 +784,7 @@ void SimpleNode::updateGlobalPosition()
         m_globalPosition = m_position.getValue();
 
     //this->updateModelMatrix();
-    this->askForUpdateModelMatrix();
+    ///this->askForUpdateModelMatrix();
 }
 
 void SimpleNode::askForUpdateModelMatrix()
@@ -786,6 +795,8 @@ void SimpleNode::askForUpdateModelMatrix()
 
 void SimpleNode::updateModelMatrix()
 {
+    glm::vec3 oldGlobalPosition = m_globalPosition;
+
     this->updateGlobalPosition();
 
     if(m_rigidity != 1.0 && m_parent != nullptr)
@@ -820,7 +831,7 @@ void SimpleNode::updateModelMatrix()
         m_invModelMatrix = m_invModelMatrix * m_parent->getInvModelMatrix();
 
     m_needToUpdateModelMat = false;
-    this->sendNotification(NotificationType_NodeMoved);
+    this->sendNotification(NotificationType_NodeMoved,&oldGlobalPosition);
 }
 
 
@@ -906,11 +917,15 @@ void SimpleNode::notify(NotificationSender* sender, int notificationType,
     if(sender == m_parent)
     {
         if(notificationType == NotificationType_NodeMoved)
-            this->updateGlobalPosition();
+        {
+            ///this->updateGlobalPosition();
+            this->askForUpdateModelMatrix();
+        }
         if(notificationType == NotificationType_SenderDestroyed)
         {
             m_parent = nullptr;
-            this->updateGlobalPosition();
+            ///this->updateGlobalPosition();
+            this->askForUpdateModelMatrix();
         }
     }
 }

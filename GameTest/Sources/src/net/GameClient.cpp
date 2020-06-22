@@ -18,7 +18,7 @@ const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 const uint32_t  GameClient::MAX_PLAYER_REWIND = 200;
 
 GameClient::GameClient() :
-    m_world(true, false),
+    //m_world(true, false),
     m_curWorldId(0),
     m_isWaitingForWorldSync(false),
     m_curCursorPos(0),
@@ -54,7 +54,7 @@ void GameClient::cleanup()
     if(m_client)
     {
         m_client->destroy();
-        m_client.release();
+        m_client.reset();
     }
 }
 
@@ -62,7 +62,9 @@ void GameClient::disconnectionCleanup()
 {
     m_isWaitingForWorldSync = false;
     m_curWorldId = 0;
-    m_world.destroy();
+
+    m_world.reset();
+    //m_world.destroy();
 }
 
 bool GameClient::connectToServer(const pou::NetAddress &address)
@@ -77,11 +79,10 @@ bool GameClient::connectToServer(const pou::NetAddress &address)
 
 bool GameClient::disconnectFromServer()
 {
-    if(!m_client)
-        return (false);
-
     bool r = true;
-    r = r & m_client->disconnectFromServer();
+
+    if(m_client)
+        r = r & m_client->disconnectFromServer();
 
     this->disconnectionCleanup();
 
@@ -98,7 +99,10 @@ Player* GameClient::getPlayer()
     if(!m_client || m_curWorldId == 0)
         return (nullptr);
 
-    return m_world.getPlayer(m_curPlayerId);
+    if(!m_world)
+        return (nullptr);
+
+    return m_world->getPlayer(m_curPlayerId);
 }
 
 
@@ -133,7 +137,8 @@ void GameClient::update(const pou::Time &elapsedTime)
 
 void GameClient::render(pou::RenderWindow *renderWindow)
 {
-    m_world.render(renderWindow);
+    if(m_world)
+        m_world->render(renderWindow);
 }
 
 void GameClient::sendMsgTest(bool reliable, bool forceSend)
@@ -165,7 +170,8 @@ void GameClient::addPlayerAction(const PlayerAction &action)
     if(action.actionType == PlayerActionType_Walk)
         m_lastPlayerWalkDirection = action.direction;
 
-    m_world.addPlayerAction(m_curPlayerId, action);
+    if(m_world)
+        m_world->addPlayerAction(m_curPlayerId, action);
 }
 
 /*void GameClient::playerCursor(glm::vec2 direction)
@@ -281,14 +287,16 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             m_curPlayerId = castMsg->player_id;
             m_isWaitingForWorldSync = false;
 
-            m_world.generateFromMsg(castMsg);
+            m_world = std::make_unique<GameWorld>(true, false);
+            m_world->generateFromMsg(castMsg);
 
             pou::Logger::write("Received world #"+std::to_string(m_curWorldId));
         }break;
 
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
-            m_world.syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
+            if(m_world)
+                m_world->syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
 
             if(uint32less(m_lastServerAckTime, castMsg->clientTime))
                 m_lastServerAckTime = castMsg->clientTime;
@@ -309,7 +317,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         m_client->sendMessage(msg, true);
 
         return;
-    } else if(m_curWorldId != 0) {
+    } else if(m_curWorldId != 0 && m_world) {
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
             //auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
@@ -332,23 +340,29 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             }**/
 
             //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
-            m_world.createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
+            m_world->createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }
     }
 
-    while(m_remainingTime > GameClient::TICKDELAY)
+    if(m_world)
     {
-        m_world.update(GameClient::TICKDELAY);
-        m_remainingTime -= GameClient::TICKDELAY;
-    }
+        while(m_remainingTime > GameClient::TICKDELAY)
+        {
+            m_world->update(GameClient::TICKDELAY);
+            m_remainingTime -= GameClient::TICKDELAY;
+        }
+    } else
+        m_remainingTime = pou::Time(0);
 }
 
 void GameClient::notify(pou::NotificationSender*, int notificationType, void* data)
 {
+    if(!m_world)
+        return;
 
-    auto player = m_world.getPlayer(m_curPlayerId);
+    auto player = m_world->getPlayer(m_curPlayerId);
     if(!player)
         return;
 

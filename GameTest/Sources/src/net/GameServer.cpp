@@ -64,7 +64,7 @@ void GameServer::shutdown()
         if(m_server)
         {
             m_server->shutdown();
-            m_server.release();
+            m_server.reset();
         }
     }
 

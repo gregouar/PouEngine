@@ -95,7 +95,7 @@ void NetMessagesFactory::addMessageModel(std::unique_ptr<NetMessage> msgModel)
 
     if(m_msgModels[msgModel->type])
     {
-        msgModel.release();
+        msgModel.reset();
         return;
     }
 

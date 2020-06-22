@@ -200,7 +200,8 @@ void SceneNode::setColor(const glm::vec4 &c)
     //m_lastColorUpdateTime = m_curLocalTime;
     this->setLastUpdateTime(m_curLocalTime);
 
-    this->updateGlobalPosition();
+    ///this->updateGlobalPosition();
+    this->askForUpdateModelMatrix();
 }
 
 void SceneNode::setScene(Scene *scene)
@@ -290,23 +291,6 @@ std::shared_ptr<SimpleNode> SceneNode::nodeAllocator(/**NodeTypeId id**/)
 {
     return std::make_shared<SceneNode>(/**id**/);
 }
-
-
-
-/*void SceneNode::notify(NotificationSender* sender, NotificationType type,
-                       size_t dataSize, char* data)
-{
-    if(sender == m_parent)
-    {
-        if(type == NotificationType_NodeMoved)
-            this->updateGlobalPosition();
-        if(type == NotificationType_SenderDestroyed)
-        {
-            m_parent = nullptr;
-            this->updateGlobalPosition();
-        }
-    }
-}*/
 
 
 void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)

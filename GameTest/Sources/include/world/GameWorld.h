@@ -11,6 +11,7 @@
 #include "character/Character.h"
 #include "character/Player.h"
 #include "net/NetMessageTypes.h"
+#include "world/WorldGrid.h"
 
 
 class GameWorld
@@ -101,6 +102,7 @@ class GameWorld
 
     private:
         pou::Scene *m_scene;
+        std::shared_ptr<WorldGrid> m_worldGrid;
         bool m_isRenderable;
 
         bool m_isServer;

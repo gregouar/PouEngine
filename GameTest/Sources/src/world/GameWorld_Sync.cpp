@@ -13,6 +13,8 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
     //worldInitMsg->localTime = m_curLocalTime;
     worldInitMsg->dayTime = (int)m_dayTime;
 
+    worldInitMsg->worldGrid_nodeId = (int)m_syncNodes.findId(m_worldGrid);
+
     this->createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
 }
 
@@ -24,6 +26,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
     worldSyncMsg->lastSyncTime      = lastSyncTime;
     worldSyncMsg->localTime         = m_curLocalTime;
+
 
     /**for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
@@ -224,6 +227,12 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
     m_dayTime = worldInitMsg->dayTime;
 
+    m_worldGrid = std::make_shared<WorldGrid>();
+    m_worldGrid->setQuadSize(1024);
+    m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
+    m_scene->getRootNode()->addChildNode(m_worldGrid);
+    m_syncNodes.insert(worldInitMsg->worldGrid_nodeId, m_worldGrid);
+
     this->syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
     m_curLocalTime = m_lastSyncTime;
 
@@ -311,7 +320,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             if(playerSync.characterId != 0)
             {
                 if(playerId == (int)clientPlayerId)
+                {
                     player = std::make_shared<Player>();
+                    m_worldGrid->addUpdateProbe(player, 2048);
+                }
                 else
                     player = std::make_shared<Player>(false);
 
@@ -455,7 +467,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
         if(nodePtr == nullptr)
         {
-            nodePtr = m_scene->getRootNode()->createChildNode();
+            ///nodePtr = m_scene->getRootNode()->createChildNode();
+            nodePtr = std::make_shared<pou::SceneNode>();
             m_syncNodes.insert(nodeId, nodePtr);
         }
 
@@ -516,6 +529,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             continue;
 
         this->desyncElement(playerPtr.get());
+        playerPtr->removeFromParent();
     }
 
     for(auto desyncCharacter : worldSyncMsg->desyncCharacters)
@@ -528,6 +542,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(characterPtr);
+        characterPtr->removeFromParent();
     }
 
     for(auto desyncNode : worldSyncMsg->desyncNodes)
@@ -537,6 +552,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             continue;
 
         this->desyncElement(nodePtr.get());
+        nodePtr->removeFromParent();
     }
 
 

@@ -33,6 +33,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         virtual void removeAllChilds();
         ///virtual SimpleNode* removeChildNode(const NodeTypeId id);
 
+        void removeFromParent();
+
         std::shared_ptr<SimpleNode> createChildNode();
         std::shared_ptr<SimpleNode> createChildNode(float, float );
         std::shared_ptr<SimpleNode> createChildNode(float, float, float );

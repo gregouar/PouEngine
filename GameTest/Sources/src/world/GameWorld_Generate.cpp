@@ -21,10 +21,19 @@ void GameWorld::generate()
     auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
     this->syncElement(rockSheet);
 
-    for(auto x = -10 ; x < 10 ; x++)
-    for(auto y = -10 ; y < 10 ; y++)
+    m_worldGrid = std::make_shared<WorldGrid>();
+    m_worldGrid->setQuadSize(1024);
+    m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
+    m_scene->getRootNode()->addChildNode(m_worldGrid);
+    this->syncElement(m_worldGrid);
+
+    //for(auto x = -100 ; x < 100 ; x++)
+    //for(auto y = -100 ; y < 100 ; y++)
+    for(auto x = -20 ; x < 20 ; x++)
+    for(auto y = -20 ; y < 20 ; y++)
     {
-        auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+        ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+        auto grassNode = m_worldGrid->createChildNode(x*64,y*64);
         this->syncElement(grassNode);
 
         auto spriteEntity = std::make_shared<pou::SpriteEntity>();
@@ -56,13 +65,15 @@ void GameWorld::generate()
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
     this->syncElement(treeModel);
 
-    for(auto x = -3 ; x < 3 ; x++)
+
+    for(auto x = -10 ; x < 10 ; x++)
+    for(auto y = -10 ; y < 10 ; y++)
     {
         glm::vec3 p = glm::vec3(glm::linearRand(-640.0f,640.0f),
                                 glm::linearRand(-640.0f,640.0f),
                                 glm::linearRand(0.0f,0.1f));
-        if(x == 0)
-            p = glm::vec3(230,0,0);
+
+        p += glm::vec3(x*640, y*640,0);
 
         auto tree = std::make_shared<Character>();
 
@@ -77,7 +88,8 @@ void GameWorld::generate()
         float green = glm::linearRand(0.9,1.0);
         float blue = green;//glm::linearRand(0.9,1.0);
         tree->setColor(glm::vec4(red,green,blue,1));
-        m_scene->getRootNode()->addChildNode(tree);
+        ///m_scene->getRootNode()->addChildNode(tree);
+        m_worldGrid->addChildNode(tree);
 
         this->syncElement(tree);
     }
@@ -86,14 +98,19 @@ void GameWorld::generate()
     auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt");
     this->syncElement(lanternModel);
 
-    for(auto i = 0 ; i < 3 ; ++i)
+    for(auto x = -10 ; x < 10 ; x++)
+    for(auto y = -10 ; y < 10 ; y++)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+
+        p += glm::vec2(x*640, y*640);
+
         auto lantern = std::make_shared<Character>();
         lantern->createFromModel(lanternModel);
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
-        m_scene->getRootNode()->addChildNode(lantern);
+        ///m_scene->getRootNode()->addChildNode(lantern);
+        m_worldGrid->addChildNode(lantern);
 
         this->syncElement(lantern);
     }
@@ -103,19 +120,23 @@ void GameWorld::generate()
     auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt");
     this->syncElement(duckModel);
 
-    for(auto i = 0 ; i < 3 ; i++)
+    for(auto x = -10 ; x < 10 ; x++)
+    for(auto y = -10 ; y < 10 ; y++)
     {
-        glm::vec2 p;
+        glm::vec2 p, pp;
+
+        pp = glm::vec2(x*640, y*640);
 
         do
         {
-            p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+            p = pp + glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         }while(glm::length(p) < 500.0f);
 
         auto duck = std::make_shared<Character>();
         duck->createFromModel(duckModel);
         duck->setPosition(p);
-        m_scene->getRootNode()->addChildNode(duck);
+        ///m_scene->getRootNode()->addChildNode(duck);
+        m_worldGrid->addChildNode(duck);
 
         this->syncElement(duck);
     }
@@ -128,18 +149,21 @@ void GameWorld::destroy()
     m_curLocalTime  = 0;
     m_lastSyncTime  = -1;
 
+    m_sunLight.reset();
+    std::cout<<"DESTROY WORLD"<<std::endl;
+
     m_syncNodes.clear();
     m_syncSpriteSheets.clear();
     m_syncSpriteEntities.clear();
     m_syncCharacterModels.clear();
     m_syncItemModels.clear();
     m_syncPlayers.clear();
-
     m_camera = nullptr;
 
     /*for(auto character : m_syncCharacters)
         delete character.second;*/
     m_syncCharacters.clear();
+    m_worldGrid.reset();
 
     if(m_scene)
         delete m_scene;
@@ -175,7 +199,8 @@ bool GameWorld::initPlayer(size_t player_id)
     this->syncElement(playerModel);
 
     player->setModel(playerModel);
-    m_scene->getRootNode()->addChildNode(player);
+    //m_scene->getRootNode()->addChildNode(player);
+    m_worldGrid->addChildNode(player);
 
     player->setPosition(pos);
 
@@ -210,6 +235,8 @@ bool GameWorld::initPlayer(size_t player_id)
         it->second->addToNearbyCharacters(player);
     }
 
+    m_worldGrid->addUpdateProbe(player, 2048);
+
     return player_id;
 }
 
@@ -223,6 +250,8 @@ bool GameWorld::removePlayer(size_t player_id)
      for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(player);
 
+    m_worldGrid->removeChildNode(player.get());
+    m_worldGrid->removeUpdateProbe(player.get());
     this->desyncElement(player.get());
 
     return m_syncPlayers.freeId(player_id);

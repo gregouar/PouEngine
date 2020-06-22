@@ -111,6 +111,8 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
     int player_id;
     int dayTime;
 
+    int worldGrid_nodeId;
+
     virtual void serializeImpl(pou::Stream *stream);
 };
 

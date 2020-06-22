@@ -12,7 +12,7 @@ namespace pou
 {
 
 
-const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 5.0f;
+const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 30.0f;
 const float UdpServer::DEFAULT_PINGDELAY = .5f;
 
 UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_disconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)

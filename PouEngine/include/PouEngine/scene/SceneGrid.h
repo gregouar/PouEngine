@@ -20,17 +20,25 @@ class SceneGrid : public SceneNode
 
         virtual void addChildNode(std::shared_ptr<SimpleNode> childNode);
         virtual bool removeChildNode(SimpleNode *childNode);
+        virtual bool removeChildNode(SimpleNode *childNode, glm::ivec2 gridPos);
         virtual void removeAllChilds();
 
         //virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode); //Need to implement this
+        virtual bool containsChildNode(SimpleNode *childNode, glm::ivec2 gridPos);
+
+        virtual std::shared_ptr<SimpleNode> extractChildNode(SimpleNode *childNode);
+        virtual std::shared_ptr<SimpleNode> extractChildNode(SimpleNode *childNode, glm::ivec2 gridPos);
 
         void setQuadSize(float s);
         void resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize);
         void enlargeForPosition(glm::vec2 pos);
 
         void addUpdateProbe(std::shared_ptr<SimpleNode> node, float radius);
-        void removeUpdateProbe(std::shared_ptr<SimpleNode> node);
+        void removeUpdateProbe(SimpleNode *node);
         void setRenderProbe(std::shared_ptr<SimpleNode> node, float radius);
+
+        void probesZones(std::set< std::vector<std::shared_ptr<SimpleNode> > *> &zonesToUpdate, GridProbe &probe);
+        //void probesZones(std::set< std::shared_ptr<SimpleNode> > &nodesToUpdate, GridProbe &probe);
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
@@ -54,6 +62,8 @@ class SceneGrid : public SceneNode
         float m_quadSize;
         glm::ivec2 m_minPos;
         glm::ivec2 m_gridSize;
+
+        std::list< std::pair<glm::ivec2, SimpleNode*> > m_nodesToMove;
 };
 
 }

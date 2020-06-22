@@ -68,7 +68,7 @@ void Character::cleanup()
     m_limbs.clear();
 
     /*for(auto &it : m_states)
-        it.release();*/
+        it.reset();*/
 
     m_skeletons.clear();
 }

@@ -25,7 +25,7 @@ bool NetEngine::cleanup()
 {
     //if(m_impl)
       //  m_impl->shutdown();
-    m_impl.release();
+    m_impl.reset();
 
     return (true);
 }

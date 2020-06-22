@@ -298,6 +298,8 @@ void GameWorld::createPlayerCamera(size_t player_id)
         cameraNode->attachObject(m_camera);
         cameraNode = cameraNode->createChildNode(0,0,250);
         cameraNode->attachObject(listeningCamera);
+
+        m_worldGrid->setRenderProbe(cameraNode,2048);
     }
 }
 
