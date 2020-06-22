@@ -229,7 +229,7 @@ void SceneNode::syncFromNode(SceneNode* srcNode)
     SimpleNode::syncFromNode((SimpleNode*) srcNode);
 }
 
-void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
+void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds)
 {
     for(auto entity : m_attachedEntities)
         if(entity->isVisible())
@@ -243,8 +243,9 @@ void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
         if(shadowCaster->isVisible())
             renderingInstance->addToShadowCastersList(shadowCaster.get());
 
+    if(propagateToChilds)
     for(auto node : m_childs)
-        std::dynamic_pointer_cast<SceneNode>(node)->generateRenderingData(renderingInstance);
+        std::dynamic_pointer_cast<SceneNode>(node)->generateRenderingData(renderingInstance, propagateToChilds);
 }
 
 bool SceneNode::playSound(int id)

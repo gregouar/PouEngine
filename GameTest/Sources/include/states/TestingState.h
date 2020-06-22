@@ -47,17 +47,17 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         //Maybe this does not really make sense and it should be SpriteAsset
         //pou::SpriteModel *m_charModel;
-        pou::SceneNode     *m_testNode,
-                            *m_cursorLightNode;
-        pou::SpriteEntity *m_testChar;
+        std::shared_ptr<pou::SceneNode> m_testNode,
+                                        m_cursorLightNode;
+        std::shared_ptr<pou::SpriteEntity> m_testChar;
 
-        Player *m_character, *m_character2;
+        std::shared_ptr<Player> m_character, m_character2;
 
-        Character  *m_croco, *m_duck;
-        std::list<Character *> m_duckSwarm;
-        std::list<Character *> m_trees;
+        std::shared_ptr<Character>  m_croco, m_duck;
+        std::list<std::shared_ptr<Character> > m_duckSwarm;
+        std::list<std::shared_ptr<Character> > m_trees;
 
-        pou::LightEntity    *m_sunLight;
+        std::shared_ptr<pou::LightEntity>    m_sunLight;
         float m_sunAngle, m_sunAngleVelocity;
         pou::Color m_dayColor, m_nightColor, m_sunsetColor;
 
@@ -66,7 +66,7 @@ class TestingState : public pou::GameState, public Singleton<TestingState>
 
         pou::SoundTypeId    m_soundEventTest;
 
-        pou::CameraObject   *m_camera, *m_listeningCamera;
+        std::shared_ptr<pou::CameraObject>  m_camera, m_listeningCamera;
 
         GameUi m_gameUi;
 

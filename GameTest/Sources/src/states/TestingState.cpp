@@ -56,31 +56,31 @@ void TestingState::init()
     auto music = pou::AudioEngine::createEvent("event:/Music");
     pou::AudioEngine::playEvent(music);
 
-    m_character = new Player();
+    m_character = std::make_shared<Player>();
     m_character->createFromModel("../data/char1/mokouXML.txt");
     m_character->setPosition(0,0,1);
     m_scene->getRootNode()->addChildNode(m_character);
 
-    m_character2 = new Player();
+    m_character2 = std::make_shared<Player>();
     m_character2->createFromModel("../data/char1/sithXML.txt");
     m_character2->setPosition(-700,-700,1);
     ///m_character2->loadItem("../data/char1/laserSwordXML.txt");
     m_scene->getRootNode()->addChildNode(m_character2);
 
-    m_croco = new Character();
+    m_croco = std::make_shared<Character>();
     m_croco->createFromModel("../data/croco/crocoXML.txt");
     m_croco->setPosition(220,70,1);
     ///m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco);
 
-    m_duck = new Character();
+    m_duck = std::make_shared<Character>();
     m_duck->createFromModel("../data/duck/duckXML.txt");
     m_duck->setPosition(-200,70,1);
     m_scene->getRootNode()->addChildNode(m_duck);
 
     for(auto i = 1 ; i < 10 ; i++)
     {
-        m_duckSwarm.push_back(new Character());
+        m_duckSwarm.push_back(std::make_shared<Character>());
         m_duckSwarm.back()->createFromModel("../data/duck/duckXML.txt");
         m_duckSwarm.back()->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-1000*i,1000*i),1);
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back());
@@ -91,18 +91,18 @@ void TestingState::init()
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     {
-        pou::SceneNode *grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
+        auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
 
         int rd = x+y;//glm::linearRand(0,96);
         int modulo = 4;
-        if(abs(rd % modulo) == 0)
+        /**if(abs(rd % modulo) == 0)
             grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_2")));
         else if(abs(rd % modulo) == 1)
             grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_1")));
         else if(abs(rd % modulo) == 2)
             grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3")));
         else if(abs(rd % modulo) == 3)
-            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4")));
+            grassNode->attachObject(m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4")));**/
 
          /*int rd = glm::linearRand(0,96);
          int modulo = 7;
@@ -127,7 +127,7 @@ void TestingState::init()
     for(auto x = 0 ; x < 3 ; x++)
     {
          glm::vec2 p = glm::vec2(glm::linearRand(-500,500), glm::linearRand(-500,500));
-         pou::SceneNode *rockNode = m_scene->getRootNode()->createChildNode(p.x,p.y,.001);
+         auto rockNode = m_scene->getRootNode()->createChildNode(p.x,p.y,.001);
          /*if(x % 3 == 0)
             rockNode->attachObject(m_scene->createSpriteEntity(rocksSheet->getSpriteModel("rock1")));
         else if(x % 3 == 1)
@@ -142,7 +142,7 @@ void TestingState::init()
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         if(x == 0)
             p = glm::vec2(30,0);
-        m_trees.push_back(new Character());
+        m_trees.push_back(std::make_shared<Character>());
         m_trees.back()->createFromModel("../data/grasslands/treeXML.txt");
         m_trees.back()->setPosition(p);
         m_trees.back()->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
@@ -175,18 +175,18 @@ void TestingState::init()
     pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
     pou::MeshAsset *wallBoxModel = pou::MeshesHandler::makeBox({0,0,0},{1,1,1},wallMaterial);
     pou::MeshEntity *wallBoxEntity;
-    wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
+    /**wallBoxEntity = m_scene->createMeshEntity(wallBoxModel);
     //wallBoxEntity->setScale(glm::vec3(20,200,50));
     wallBoxEntity->setScale(glm::vec3(50,50,50));
     wallBoxEntity->setShadowCastingType(pou::ShadowCasting_All);
-    m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);
+    m_scene->getRootNode()->createChildNode({100,0,0})->attachObject(wallBoxEntity);**/
 
     pou::MeshAsset* quackMesh = pou::MeshesHandler::loadAssetFromFile("../data/quackXML.txt",loadType);
-    pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
+   /** pou::MeshEntity *quackEntity = m_scene->createMeshEntity(quackMesh);
     pou::SceneNode* quackNode = m_scene->getRootNode()->createChildNode(50,200);
     quackEntity->setShadowCastingType(pou::ShadowCasting_All);
     quackNode->attachObject(quackEntity);
-    quackNode->setScale(1.5f);
+    quackNode->setScale(1.5f);**/
 
 
     /*pou::MeshAsset* lanternMesh = pou::MeshesHandler::loadAssetFromFile("../data/poleWithLanternMeshXML.txt",pou::LoadType_Now);
@@ -195,7 +195,7 @@ void TestingState::init()
     lanternEntity->setShadowCastingType(pou::ShadowCasting_All);
     lanternNode->attachObject(lanternEntity);*/
 
-    for(auto i = 0 ; i < 3 ; ++i)
+    /**for(auto i = 0 ; i < 3 ; ++i)
     {
         //glm::vec2 p = glm::vec2(300,100);
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
@@ -204,14 +204,14 @@ void TestingState::init()
         lantern->setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_scene->getRootNode()->addChildNode(lantern);
-    }
+    }**/
 
-    m_camera = m_scene->createCamera();
-    m_listeningCamera = m_scene->createCamera();
+    m_camera = std::make_shared<pou::CameraObject>();
+    m_listeningCamera = std::make_shared<pou::CameraObject>();
     m_listeningCamera -> setListening(true);
     //m_camera->setViewport({.2,.3},{.5,.4});
     //m_cameraNode = m_scene->getRootNode()->createChildNode(0,0,5);
-    auto *cameraNode = m_character->createChildNode(0,0,-1);
+    auto cameraNode = m_character->createChildNode(0,0,-1);
     cameraNode->attachObject(m_camera);
 
     cameraNode = cameraNode->createChildNode(0,0,250);
@@ -222,7 +222,8 @@ void TestingState::init()
 
 
     //m_scene->setAmbientLight({.6,.6,.8,.2});
-    m_sunLight = m_scene->createLightEntity(pou::LightType_Directional);
+    m_sunLight = std::make_shared<pou::LightEntity>();
+    m_sunLight->setType(pou::LightType_Directional);
     m_scene->getRootNode()->attachObject(m_sunLight);
 
     ///Day
@@ -253,7 +254,7 @@ void TestingState::init()
     sunLight->setIntensity(15.0);
     sunLight->enableShadowCasting();*/
 
-    pou::LightEntity *cursorLight = m_scene->createLightEntity();
+    auto cursorLight = std::make_shared<pou::LightEntity>();
     m_cursorLightNode = m_scene->getRootNode()->createChildNode(0,0,60);
     m_cursorLightNode->attachObject(cursorLight);
     cursorLight->setDiffuseColor({1.0,.6,0.0,1.0});
@@ -346,24 +347,7 @@ void TestingState::leaving()
     delete m_scene;
     m_scene = nullptr;
 
-    delete m_character;
-    m_character = nullptr;
-
-    delete m_character2;
-    m_character2 = nullptr;
-
-    delete m_croco;
-    m_croco = nullptr;
-
-    delete m_duck;
-    m_duck = nullptr;
-
-    for(auto duck : m_duckSwarm)
-        delete duck;
     m_duckSwarm.clear();
-
-    for(auto tree : m_trees)
-        delete tree;
     m_trees.clear();
 }
 
@@ -390,7 +374,7 @@ void TestingState::handleEvents(const EventsManager *eventsManager)
     if(m_scene == nullptr)
         return;
 
-    glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera);
+    glm::vec2 worldMousePos = m_scene->convertScreenToWorldCoord(eventsManager->centeredMousePosition(), m_camera.get());
 
     m_cursorLightNode->setPosition(worldMousePos.x, worldMousePos.y);
 
@@ -641,7 +625,7 @@ void TestingState::draw(pou::RenderWindow *renderWindow)
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         pou::SceneRenderer *renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
-        m_scene->render(renderer, m_camera);
+        m_scene->render(renderer, m_camera.get());
     }
 
     if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)

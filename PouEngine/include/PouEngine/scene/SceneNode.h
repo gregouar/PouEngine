@@ -56,7 +56,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         const glm::vec4 &getColor() const;
         const glm::vec4 &getFinalColor() const;
 
-        void generateRenderingData(SceneRenderingInstance *renderingInstance);
+        virtual void generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds = true);
         bool playSound(int id);
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);

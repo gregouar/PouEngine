@@ -50,6 +50,7 @@ void SimpleNode::destroy()
 {
     if(m_parent)
         m_parent->removeChildNode(this);
+    this->removeAllChilds();
     m_parent = nullptr;
 }
 
@@ -72,6 +73,7 @@ bool SimpleNode::removeChildNode(SimpleNode *childNode)
     for(auto childIt = m_childs.begin() ; childIt != m_childs.end() ; ++childIt)
         if(childIt->get() == childNode)
         {
+            (*childIt)->setParent(nullptr);
             m_childs.erase(childIt);
             return (true);
         }
@@ -80,6 +82,10 @@ bool SimpleNode::removeChildNode(SimpleNode *childNode)
 
 void SimpleNode::removeAllChilds()
 {
+    for(auto &child : m_childs)
+     //   if(child)
+            child->setParent(nullptr);
+
     m_childs.clear();
 }
 
@@ -705,10 +711,10 @@ void SimpleNode::setParent(SimpleNode *p)
             this->startListeningTo(m_parent);
         }
 
-        if(oldParent != nullptr)
-            oldParent->removeChildNode(this);
-
         this->updateGlobalPosition();
+
+        if(oldParent != nullptr && p != nullptr)
+            oldParent->removeChildNode(this);
     }
 }
 

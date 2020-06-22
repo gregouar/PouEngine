@@ -14,21 +14,23 @@ namespace pou
 
 class SimpleNode : public NotificationSender, public NotificationListener
 {
+    friend class SceneGrid;
+
     public:
         SimpleNode(/**const NodeTypeId**/);
         virtual ~SimpleNode();
 
         void destroy();
 
-        void addChildNode(std::shared_ptr<SimpleNode> childNode);
+        virtual void addChildNode(std::shared_ptr<SimpleNode> childNode);
         ///void addChildNode(const NodeTypeId id, SimpleNode*);
 
         ///void moveChildNode(std::shared_ptr<SimpleNode> childNode, SimpleNode* target);
         ///void moveChildNode(const NodeTypeId id, SimpleNode* target);
 
         virtual bool removeChildNode(SimpleNode *childNode);
-        virtual bool removeChildNode(std::shared_ptr<SimpleNode> childNode);
-        void removeAllChilds();
+        bool removeChildNode(std::shared_ptr<SimpleNode> childNode);
+        virtual void removeAllChilds();
         ///virtual SimpleNode* removeChildNode(const NodeTypeId id);
 
         std::shared_ptr<SimpleNode> createChildNode();
@@ -43,7 +45,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         ///void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
-        bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
+        virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
         virtual void copyFrom(const SimpleNode* srcNode);
         virtual void syncFromNode(SimpleNode* srcNode);
@@ -114,7 +116,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
-        virtual void setParent(SimpleNode *parentNode);
+        virtual void setParent(SimpleNode *parentNode); //Do not remove from old parent if new parent is null to prevent from self destruction of shared_ptr
 
         /**virtual void setParent(SimpleNode *);
         void setId(const NodeTypeId );

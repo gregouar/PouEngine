@@ -30,7 +30,8 @@ Scene::~Scene()
 
 void Scene::cleanAll()
 {
-    m_rootNode.removeAllChilds();
+    ///m_rootNode.removeAllChilds();
+
     ///this->destroyAllCreatedObjects();
     m_renderingData.cleanup();
 }
