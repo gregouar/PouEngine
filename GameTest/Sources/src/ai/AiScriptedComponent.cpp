@@ -13,6 +13,7 @@ AiScriptedComponent::~AiScriptedComponent()
     //dtor
 }
 
+/// NEED TO SYNC m_target OVER NETWORK
 
 void AiScriptedComponent::createFromModel(AiScriptModelAsset *model)
 {

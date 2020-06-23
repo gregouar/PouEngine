@@ -17,7 +17,7 @@
 class GameWorld
 {
     public:
-        GameWorld(bool renderable, bool isServer);
+        GameWorld(bool renderable);
         virtual ~GameWorld();
 
         void update(const pou::Time elapsed_time/*, bool isRewinding = false*/);
@@ -105,10 +105,10 @@ class GameWorld
         std::shared_ptr<WorldGrid> m_worldGrid;
         bool m_isRenderable;
 
-        bool m_isServer;
         uint32_t m_curLocalTime;
         uint32_t m_syncTime;
         uint32_t m_lastSyncTime;
+        uint32_t m_deltaRTT;
 
         std::shared_ptr<pou::CameraObject> m_camera;
         std::shared_ptr<pou::LightEntity>  m_sunLight;
@@ -117,7 +117,7 @@ class GameWorld
         std::list<int> m_addedPlayersList;
         std::list<int> m_removedPlayersList;
 
-        ///Move all this to some worldNetComponent
+        ///Move all this to some worldNetComponent ?
         pou::IdPtrAllocator<pou::SceneNode>         m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
         pou::IdPtrAllocator<pou::SpriteEntity>      m_syncSpriteEntities;

@@ -150,7 +150,6 @@ void GameWorld::destroy()
     m_lastSyncTime  = -1;
 
     m_sunLight.reset();
-    std::cout<<"DESTROY WORLD"<<std::endl;
 
     m_syncNodes.clear();
     m_syncSpriteSheets.clear();

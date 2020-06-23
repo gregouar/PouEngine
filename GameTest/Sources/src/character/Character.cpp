@@ -80,6 +80,9 @@ bool Character::createFromModel(const std::string &path)
 
 bool Character::createFromModel(CharacterModelAsset *model)
 {
+    if(m_model == model)
+        return (false);
+
     this->cleanup();
     m_model = model;
 

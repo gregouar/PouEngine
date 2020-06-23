@@ -97,14 +97,15 @@ void GameServer::update(const pou::Time &elapsedTime)
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
 
-    for(auto &clientAndMsg : netMessages)
-        this->processMessage(clientAndMsg.first, clientAndMsg.second);
 
     if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
     this->updateWorlds(tickedElapsedTime);
     if(!m_isInThread)
         pou::Profiler::popClock();
+
+    for(auto &clientAndMsg : netMessages)
+        this->processMessage(clientAndMsg.first, clientAndMsg.second);
 
     this->syncClients(tickedElapsedTime);
 }
@@ -217,7 +218,7 @@ int GameServer::addLocalPlayer()
 
 size_t GameServer::generateWorld()
 {
-   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(m_allowLocalPlayers,true)}).first->second;
+   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(m_allowLocalPlayers)}).first->second;
    world.generate();
 
    return (m_curWorldId);

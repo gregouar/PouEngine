@@ -287,7 +287,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             m_curPlayerId = castMsg->player_id;
             m_isWaitingForWorldSync = false;
 
-            m_world = std::make_unique<GameWorld>(true, false);
+            m_world = std::make_unique<GameWorld>(true);
             m_world->generateFromMsg(castMsg);
 
             pou::Logger::write("Received world #"+std::to_string(m_curWorldId));
@@ -306,6 +306,17 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
 void GameClient::updateWorld(const pou::Time &elapsedTime)
 {
+    if(m_world)
+    {
+        while(m_remainingTime > GameClient::TICKDELAY)
+        {
+            m_world->update(GameClient::TICKDELAY);
+            m_remainingTime -= GameClient::TICKDELAY;
+        }
+    } else
+        m_remainingTime = pou::Time(0);
+
+
     if(m_curWorldId == 0 && !m_isWaitingForWorldSync)
     {
         m_isWaitingForWorldSync = true;
@@ -345,16 +356,6 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }
     }
-
-    if(m_world)
-    {
-        while(m_remainingTime > GameClient::TICKDELAY)
-        {
-            m_world->update(GameClient::TICKDELAY);
-            m_remainingTime -= GameClient::TICKDELAY;
-        }
-    } else
-        m_remainingTime = pou::Time(0);
 }
 
 void GameClient::notify(pou::NotificationSender*, int notificationType, void* data)

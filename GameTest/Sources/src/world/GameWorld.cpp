@@ -17,10 +17,9 @@ const int    GameWorld::CHARACTERMODELSID_BITS  =12;
 const int    GameWorld::CHARACTERSID_BITS       =16;
 const int    GameWorld::ITEMMODELSID_BITS  =12;
 
-GameWorld::GameWorld(bool renderable, bool isServer) :
+GameWorld::GameWorld(bool renderable) :
     m_scene(nullptr),
     m_isRenderable(renderable),
-    m_isServer(isServer),
     m_curLocalTime(0),
     m_lastSyncTime(-1),
     m_camera(nullptr)
@@ -63,8 +62,6 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
         }
     }**/
 
-    this->processPlayerActions();
-
     m_curLocalTime++;
 
     //std::cout<<"LocalTime:"<<m_curLocalTime<<std::endl;
@@ -87,6 +84,8 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     this->updateSunLight(elapsed_time);
     m_scene->update(elapsed_time, m_curLocalTime /**m_syncTime**/);
 
+
+    this->processPlayerActions();
 
     /**uint32_t cleanTime = m_curLocalTime - GameClient::MAX_PLAYER_REWIND;///GameServer::MAX_REWIND_AMOUNT;
     auto cleanPlayerActionsIt = m_playerActions.lower_bound(cleanTime);

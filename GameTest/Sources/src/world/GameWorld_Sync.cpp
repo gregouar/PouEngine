@@ -263,9 +263,6 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5),(int64_t)0);
         uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75),(int64_t)0);
 
-        /*uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.5),(int64_t)0);
-        uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.6),(int64_t)0);
-        uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.4),(int64_t)0);*/
 
         if(m_lastSyncTime == (uint32_t)(-1))
             m_curLocalTime = desiredLocalTime;
@@ -280,6 +277,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             std::cout<<"Jump time from "<<m_curLocalTime<<" tot "<<  desiredLocalTime<<std::endl;
 
             m_curLocalTime = desiredLocalTime;//- 0.5; /*- RTT*0.5f*/// - pou::NetEngine::getSyncDelay();//GameServer::SYNCDELAY;
+            m_deltaRTT = deltaRTT;
            // std::cout<<"Correcting local time !"<<std::endl;
         }
 
@@ -287,6 +285,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         //std::cout<<"WorldSync!"<<std::endl;
 
     }
+
 
     for(auto &spriteSheetIt : worldSyncMsg->spriteSheets)
     {
@@ -325,13 +324,13 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
                     m_worldGrid->addUpdateProbe(player, 2048);
                 }
                 else
+                {
                     player = std::make_shared<Player>(false);
+                    player->disableDamageDealing();
+                }
 
                 m_syncPlayers.insert(playerId, player);
                 m_syncCharacters.insert(playerSync.characterId, player);
-
-                if(playerId != (int)clientPlayerId)
-                    player->disableDamageDealing();
 
                 /**if(playerId != (int)clientPlayerId)
                 {
@@ -436,6 +435,28 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         }
     }
 
+    ///TEST
+    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+    {
+        if(playerIt->first != clientPlayerId)
+        {
+            uint32_t delay = m_deltaRTT*1.5;
+            playerIt->second->setReconciliationDelay(delay,0);
+
+            ///TEST
+            playerIt->second->disableInputSync(false);
+            ///
+        }
+        else
+        {
+            playerIt->second->disableSync();
+            playerIt->second->setReconciliationDelay(0,0);
+        }
+            ///playerIt->second->setReconciliationDelay(0,deltaRTT*1.5);
+    }
+    ///
+
+
     for(auto &playerIt : worldSyncMsg->players)
     {
         auto& [ playerId, playerSync ] = playerIt;
@@ -484,7 +505,14 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             auto nodePtr = m_syncNodes.findElement(nodeId);
             auto parentptr = m_syncNodes.findElement(nodeSync.parentNodeId);
             if(parentptr)
+            {
+                nodePtr->removeFromParent();
+                auto oldPos = nodePtr->getPosition();
+                nodePtr->setPosition(nodeSync.node->getPosition());
+                nodePtr->update(pou::Time(0));
                 parentptr->addChildNode(nodePtr);
+                nodePtr->setPosition(oldPos);
+            }
         }
     }
 
@@ -555,26 +583,6 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         nodePtr->removeFromParent();
     }
 
-
-    ///TEST
-    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
-    {
-        if(playerIt->first != clientPlayerId)
-        {
-            playerIt->second->setReconciliationDelay(deltaRTT*1.5,0);
-
-            ///TEST
-            playerIt->second->disableInputSync(false);
-            ///
-        }
-        else
-        {
-            playerIt->second->disableSync();
-            playerIt->second->setReconciliationDelay(0,0);
-        }
-            ///playerIt->second->setReconciliationDelay(0,deltaRTT*1.5);
-    }
-    ///
 }
 
 

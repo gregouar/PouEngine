@@ -70,7 +70,7 @@ class CharacterInput
         uint32_t m_lastUpdateTime;
 
         pou::SyncedAttribute<glm::vec2> m_lookingAt; //Passively looking at
-        pou::SyncedAttribute<glm::vec2> m_lookingDirection; //Actively looking toward
+        pou::LinSyncedAttribute<glm::vec2> m_lookingDirection; //Actively looking toward
 
         pou::SyncedAttribute<glm::vec2> m_walkingDirection;
 

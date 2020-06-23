@@ -44,7 +44,7 @@ SyncedAttribute<T>::~SyncedAttribute()
 template<typename T>
 void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
 {
-    if(uint32less(m_syncTime, t.m_lastUpdateTime))
+    //if(uint32less(m_syncTime, t.m_lastUpdateTime))
     {
         m_syncValues.insert_or_assign(t.m_lastUpdateTime, t.getValue());
         m_syncTime  = t.m_lastUpdateTime;
@@ -74,7 +74,7 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     auto itSyncValue = m_syncValues.lower_bound(serverLocalTime);
 
-    if(itSyncValue->first != this->m_curLocalTime)
+    if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != serverLocalTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
@@ -299,23 +299,22 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(this->m_syncTime == (uint32_t)(-1) || this->m_syncValues.empty())
         return (false);
 
-    uint32_t interpTime = this->m_curLocalTime - this->m_reconciliationDelay_server;
+    uint32_t interpTime = 0;
+    if(this->m_curLocalTime > this->m_reconciliationDelay_server)
+        interpTime = this->m_curLocalTime - this->m_reconciliationDelay_server;
+
     uint32_t syncTime = interpTime;
 
     auto itSyncValue = this->m_syncValues.lower_bound(interpTime);
 
-    if(itSyncValue->first != interpTime)
+    if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != interpTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
         else
             (--itSyncValue);
-    }
 
-    if(itSyncValue != this->m_syncValues.begin())
-    {
         this->m_syncValues.erase(this->m_syncValues.begin(), itSyncValue);
-        itSyncValue = this->m_syncValues.begin();
     }
 
     if(this->m_firstSync)
