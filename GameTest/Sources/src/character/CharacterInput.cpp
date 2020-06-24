@@ -106,13 +106,8 @@ void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
         stream->serializeFloat(looking.x,-1,1,2);
         stream->serializeFloat(looking.y,-1,1,2);
 
-
         if(stream->isReading())
-        {
             m_lookingDirection.setValue(looking, true);
-            std::cout<<"Read LookingDir"<<looking.x<<" "<<looking.y<<std::endl;
-        } else
-            std::cout<<"Write LookingDir"<<looking.x<<" "<<looking.y<<std::endl;
     }
 
     {

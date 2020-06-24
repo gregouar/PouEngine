@@ -81,8 +81,8 @@ bool UdpSocket::open(unsigned short port)
             return (false);
         }
 
-        int maxBufferSize = 1480;
-        setsockopt(handle, SOL_SOCKET, SO_RCVBUF, (char*)maxBufferSize, sizeof(maxBufferSize));
+        //int maxBufferSize = 1480;
+        //setsockopt(handle, SOL_SOCKET, SO_RCVBUF, (char*)maxBufferSize, sizeof(maxBufferSize));
     #endif
 
     m_isOpen    = true;
@@ -119,6 +119,8 @@ bool UdpSocket::send(const NetAddress &address, const void *data, size_t data_si
     int sent_bytes =
         sendto(m_handle, (const char*)data, data_size, 0, (const sockaddr*)&addr, sizeof(sockaddr_in));
 
+    //std::cout<<"Send packet of size:"<<data_size<<std::endl;
+
     if ((size_t)sent_bytes != data_size)
     {
         #if PLATFORM == PLATFORM_WINDOWS
@@ -146,6 +148,9 @@ int UdpSocket::receive(NetAddress &address, const void *packet_data, size_t data
 
     int bytes = recvfrom(m_handle, (char*)packet_data, data_size/*max_packet_size*/, 0, (sockaddr*)&from, &fromLength);
     address = NetAddress(ntohl(from.sin_addr.s_addr), ntohs(from.sin_port));
+
+    //std::cout<<"Received packet of size:"<<bytes<<std::endl;
+
 
     #if PLATFORM == PLATFORM_WINDOWS
         if(bytes < 0 && WSAGetLastError() != 10035) //Error 10035 always triggers because we use non-blocking sockets

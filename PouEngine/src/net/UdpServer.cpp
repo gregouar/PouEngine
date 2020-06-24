@@ -90,6 +90,9 @@ void UdpServer::sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg,
 
     ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
     m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
+
+    ///if(forceSend)
+      ///  m_clients[clientNbr].lastPingTime = m_curLocalTime;
 }
 
 void UdpServer::sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg)

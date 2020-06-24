@@ -21,6 +21,7 @@ class UdpPacketsExchanger;
 struct UdpBuffer
 {
     UdpBuffer();
+    UdpBuffer(size_t s);
 
     NetAddress  address;
     std::vector<uint8_t> buffer;

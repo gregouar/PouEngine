@@ -51,6 +51,9 @@ void CharacterState::rotateCharacterToward(const pou::Time &elapsedTime, glm::ve
         float rotationAmount = elapsedTime.count()*10.0f;
         float wantedRotation = pou::MathTools::computeWantedRotation( curRotation, direction );
 
+        if(glm::abs(curRotation - wantedRotation) < 0.001f)
+            return;
+
         if(glm::abs(wantedRotation - curRotation) < rotationAmount)
             m_character->setRotation({0,0,wantedRotation});
         else

@@ -254,6 +254,10 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
     //if(worldSyncMsg->localTime > m_lastSyncTime)
     uint32_t deltaRTT = (uint32_t)(RTT*GameServer::TICKRATE);
     deltaRTT += pou::NetEngine::getSyncDelay();
+
+    if(deltaRTT < 15) //To avoid too small RTT
+        deltaRTT = 15;
+
     {
 
         /**uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(deltaRTT*1),(int64_t)0);

@@ -450,7 +450,6 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     syncUpdate |= m_attributes.update(elapsedTime, m_curLocalTime);
     if(m_attributes.getValue().life < oldLife)
     {
-        std::cout<<"life:"<<m_attributes.getValue().life<<std::endl;
         if(m_attributes.getValue().life <= 0)
             this->kill(oldLife-m_attributes.getValue().life);
         else

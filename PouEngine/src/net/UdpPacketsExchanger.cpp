@@ -20,6 +20,9 @@ const int UdpPacketsExchanger::NBR_SLICESPERSEND = 50;
 UdpBuffer::UdpBuffer() : buffer(MAX_PACKETSIZE)
 {
 }
+UdpBuffer::UdpBuffer(size_t s) : buffer(s)
+{
+}
 
 FragmentedPacket::FragmentedPacket() :
     needToBeCleaned(true),
@@ -95,11 +98,11 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
 void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
                                          std::list<std::pair<ClientAddress, std::shared_ptr<NetMessage> > > &netMessages)
 {
-    UdpBuffer tempBuffer;
-    tempBuffer.buffer.resize(m_maxPacketSize);
-
+    //tempBuffer.buffer.resize(m_maxPacketSize);
+    //tempBuffer.buffer.resize(64*1024);
     while(true)
     {
+    UdpBuffer tempBuffer(65507);
         int bytes_read = m_socket.receive(tempBuffer.address,
                                           tempBuffer.buffer.data(),
                                           tempBuffer.buffer.size());

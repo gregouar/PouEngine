@@ -137,6 +137,9 @@ void UdpClient::sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend)
     }
     ClientAddress clientAddress = {m_serverAddress, m_serverSalt^m_salt};
     m_packetsExchanger.sendMessage(clientAddress, msg, forceSend);
+
+    ///if(forceSend)
+        ///m_lastServerPingTime = m_curLocalTime;
 }
 
 void UdpClient::sendReliableBigMessage(std::shared_ptr<NetMessage> msg)

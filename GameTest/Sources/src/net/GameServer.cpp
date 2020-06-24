@@ -97,7 +97,6 @@ void GameServer::update(const pou::Time &elapsedTime)
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
 
-
     if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
     this->updateWorlds(tickedElapsedTime);
@@ -272,9 +271,7 @@ void GameServer::sendMsgTest(bool reliable, bool forceSend)
             //m_server->sendReliableBigMessage(i,testMsg);
             pou::Logger::write("Server send test message with value: "+std::to_string(testMsg->test_value)+" and id: "+std::to_string(testMsg->id));
         }
-
     }
-
 }
 
 
@@ -330,6 +327,8 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_Play
 
     if(!world)
         return;
+
+    //std::cout<<"Received Sync from client #"<<clientNbr<<" of time: "<<msg->localTime<<std::endl;
 
     world->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientNbr));
 
