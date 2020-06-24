@@ -54,7 +54,6 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_states[CharacterStateType_Dead]           = std::make_unique<CharacterState_Dead>(this);
 
     m_curState = nullptr;
-    this->switchState(CharacterStateType_Standing);
 }
 
 Character::~Character()
@@ -106,6 +105,8 @@ bool Character::createFromModel(CharacterModelAsset *model)
 
     m_lastModelUpdateTime = m_curLocalTime;
     this->setLastCharacterUpdateTime(m_curLocalTime);
+
+    this->switchState(CharacterStateType_Standing);
 
     return (true);
 }
@@ -430,19 +431,26 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
+    bool syncUpdate = false;
+
     if(m_aiComponent)
         m_aiComponent->update(elapsedTime, localTime);
 
     m_input->update(elapsedTime, localTime);
-    m_curState->handleInput(m_input.get());
-    m_curState->update(elapsedTime, localTime);
+
+    if(m_curState)
+    {
+        m_curState->handleInput(m_input.get());
+        m_curState->update(elapsedTime, localTime);
+    }
 
 
-    m_modelAttributes.update(elapsedTime, m_curLocalTime);
+    syncUpdate |= m_modelAttributes.update(elapsedTime, m_curLocalTime);
     float oldLife = m_attributes.getValue().life;
-    m_attributes.update(elapsedTime, m_curLocalTime);
+    syncUpdate |= m_attributes.update(elapsedTime, m_curLocalTime);
     if(m_attributes.getValue().life < oldLife)
     {
+        std::cout<<"life:"<<m_attributes.getValue().life<<std::endl;
         if(m_attributes.getValue().life <= 0)
             this->kill(oldLife-m_attributes.getValue().life);
         else
@@ -452,15 +460,16 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     {
         //if(m_attributes.getValue().life > 0)
         if(m_isDead.getValue() && m_attributes.getValue().life > 0)
-        {
             this->resurrect();
-            //this->startAnimation("stand");
-        }
     }
 
     if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0
        && m_attributes.getValue().life <= 0)
         this->kill();
+
+
+    if(syncUpdate)
+        this->setLastCharacterUpdateTime(m_curLocalTime);
 
       /**bool wasDead = m_isDead.getValue();
     m_isDead.update(elapsedTime, m_curLocalTime);

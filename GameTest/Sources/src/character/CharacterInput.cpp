@@ -46,15 +46,20 @@ void CharacterInput::reset()
 
 void CharacterInput::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    m_lookingAt.update(elapsedTime, localTime);
-    m_lookingDirection.update(elapsedTime, localTime);
-    m_walkingDirection.update(elapsedTime, localTime);
-    m_attackingInput.update(elapsedTime, localTime);
-    m_attackingDirection.update(elapsedTime, localTime);
-    m_dashingInput.update(elapsedTime, localTime);
-    m_dashingDirection.update(elapsedTime, localTime);
-    m_pushedInput.update(elapsedTime, localTime);
-    m_pushedDirection.update(elapsedTime, localTime);
+    bool syncUpdate = false;
+
+    syncUpdate |= m_lookingAt.update(elapsedTime, localTime);
+    syncUpdate |= m_lookingDirection.update(elapsedTime, localTime);
+    syncUpdate |= m_walkingDirection.update(elapsedTime, localTime);
+    syncUpdate |= m_attackingInput.update(elapsedTime, localTime);
+    syncUpdate |= m_attackingDirection.update(elapsedTime, localTime);
+    syncUpdate |= m_dashingInput.update(elapsedTime, localTime);
+    syncUpdate |= m_dashingDirection.update(elapsedTime, localTime);
+    syncUpdate |= m_pushedInput.update(elapsedTime, localTime);
+    syncUpdate |= m_pushedDirection.update(elapsedTime, localTime);
+
+    if(syncUpdate)
+        this->setLastUpdateTime(localTime);
 
     m_pushedInput.setValue(false);
 }
@@ -71,6 +76,7 @@ void CharacterInput::syncFrom(CharacterInput *input)
     m_pushedInput.syncFrom(input->m_pushedInput);
     m_pushedDirection.syncFrom(input->m_pushedDirection);
 }
+
 
 void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
 {
@@ -100,8 +106,13 @@ void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
         stream->serializeFloat(looking.x,-1,1,2);
         stream->serializeFloat(looking.y,-1,1,2);
 
+
         if(stream->isReading())
+        {
             m_lookingDirection.setValue(looking, true);
+            std::cout<<"Read LookingDir"<<looking.x<<" "<<looking.y<<std::endl;
+        } else
+            std::cout<<"Write LookingDir"<<looking.x<<" "<<looking.y<<std::endl;
     }
 
     {

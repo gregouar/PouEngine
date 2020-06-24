@@ -17,7 +17,7 @@ class Timer
         virtual ~Timer();
 
         virtual void reset(float time, bool looping = false);
-        virtual void reset(const Time &time, bool looping = false);
+        virtual void reset(const Time &time = Time(0), bool looping = false);
         virtual int update(float elapsedTime);
         virtual int update(const Time &elapsedTime);
 

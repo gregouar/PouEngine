@@ -130,6 +130,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     {
         auto character = it->second;
         if(uint32leq(character->getLastCharacterUpdateTime(), lastSyncTime))
+        //if(uint32less(character->getLastCharacterUpdateTime(), lastSyncTime))
             continue;
 
         worldSyncMsg->characters.push_back({it->first, CharacterSync()});
@@ -367,10 +368,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         }
     }*/
 
-    //std::cout<<"SyncRTT:"<<deltaRTT<<std::endl;
 
 
-   // std::cout<<"Nbr Char (client):"<<m_syncCharacters.size()<<std::endl;
     for(auto &characterIt : worldSyncMsg->characters)
     {
         auto& [ characterId, characterSync ] = characterIt;
@@ -412,7 +411,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         ///characterPtr->setReconciliationDelay(deltaRTT);
         //if(characterId != (int)clientPlayerId)
             //characterPtr->setReconciliationDelay(deltaRTT*2,0);
-        characterPtr->setReconciliationDelay(0,deltaRTT*1);
+        characterPtr->setReconciliationDelay(0,m_deltaRTT*1);
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
         ///
 
@@ -480,6 +479,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             player->addItemToInventory(m_syncItemModels.findElement(playerSync.inventoryItemModelsId[i]),i);
     }
 
+    //std::cout<<"Sync nbr nodes:"<<worldSyncMsg->nodes.size()<<std::endl;
     for(auto &node : worldSyncMsg->nodes)
     {
         auto& [ nodeId, nodeSync ] = node;

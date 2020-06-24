@@ -743,9 +743,16 @@ void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
     if(localTime != (uint32_t)(-1))
         m_curLocalTime = localTime;
 
-    m_needToUpdateModelMat |= m_position.update(elapsedTime, m_curLocalTime);
-    m_needToUpdateModelMat |= m_eulerRotations.update(elapsedTime, m_curLocalTime);
-    m_needToUpdateModelMat |= m_scale.update(elapsedTime, m_curLocalTime);
+    bool syncUpdate = false;
+
+    syncUpdate |= m_position.update(elapsedTime, m_curLocalTime);
+    syncUpdate |= m_eulerRotations.update(elapsedTime, m_curLocalTime);
+    syncUpdate |= m_scale.update(elapsedTime, m_curLocalTime);
+
+    if(syncUpdate)
+        this->setLastUpdateTime(m_curLocalTime);
+
+    syncUpdate |= syncUpdate;
 
     //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)

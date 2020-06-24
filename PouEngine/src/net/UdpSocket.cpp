@@ -80,6 +80,9 @@ bool UdpSocket::open(unsigned short port)
             Logger::error("Failed to set udp socket to non-blocking: error "+std::to_string(WSAGetLastError()));
             return (false);
         }
+
+        int maxBufferSize = 1480;
+        setsockopt(handle, SOL_SOCKET, SO_RCVBUF, (char*)maxBufferSize, sizeof(maxBufferSize));
     #endif
 
     m_isOpen    = true;

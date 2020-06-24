@@ -47,7 +47,9 @@ void SyncedAttribute<T>::syncFrom(const SyncedAttribute<T> &t)
     //if(uint32less(m_syncTime, t.m_lastUpdateTime))
     {
         m_syncValues.insert_or_assign(t.m_lastUpdateTime, t.getValue());
-        m_syncTime  = t.m_lastUpdateTime;
+
+        if(uint32less(m_syncTime, t.m_lastUpdateTime))
+            m_syncTime  = t.m_lastUpdateTime;
     }
 }
 
@@ -72,9 +74,9 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     if(this->m_reconciliationDelay_server < m_curLocalTime)
         serverLocalTime = m_curLocalTime - this->m_reconciliationDelay_server;
 
-    auto itSyncValue = m_syncValues.lower_bound(serverLocalTime);
+    auto itSyncValue = m_syncValues.upper_bound(serverLocalTime);
 
-    if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != serverLocalTime)
+    //if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != serverLocalTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
@@ -82,12 +84,13 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             (--itSyncValue);
     }
 
+    m_syncValues.erase(m_syncValues.begin(), itSyncValue);
 
-    if(itSyncValue != m_syncValues.begin()) //Don't need the condition though
+    /*if(itSyncValue != m_syncValues.begin()) //Don't need the condition though
     {
         m_syncValues.erase(m_syncValues.begin(), itSyncValue);
         itSyncValue = m_syncValues.begin();
-    }
+    }*/
 
     if(m_firstSync)
     {
@@ -110,7 +113,7 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     else
     {
         if(this->m_rewindValues.empty())
-                return (false);
+            return (false);
 
         auto evalIt = --this->m_rewindValues.end();
         if(!this->m_rewindValues.empty())
@@ -119,7 +122,7 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
             if(this->m_reconciliationDelay_client < this->m_curLocalTime)
                 localClientTime = this->m_curLocalTime - this->m_reconciliationDelay_client;
 
-            evalIt = this->m_rewindValues.lower_bound(localClientTime);
+            evalIt = this->m_rewindValues.upper_bound(localClientTime);
             if(evalIt != this->m_rewindValues.begin())
                 --evalIt;
         }
@@ -135,18 +138,19 @@ bool SyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         if(!(evalValue == itSyncValue->second))
         {
             if(!this->m_desyncTimer.isActive())
-                this->m_desyncTimer.reset(.5f);
+                this->m_desyncTimer.reset(.2f);
             else if(this->m_desyncTimer.update(elapsed_time.count()))
             {
                 this->m_lastSyncTime = itSyncValue->first;
                 this->setValue(itSyncValue->second);
-                this->m_desyncTimer.reset(.2f);
+                this->m_desyncTimer.reset();
                 return (true);
             }
-        } else
-            this->m_desyncTimer.reset(.2f);
+        } else {
+            if(this->m_desyncTimer.isActive())
+            this->m_desyncTimer.reset();
+        }
      }
-
 
     return (false);
 }
@@ -305,9 +309,9 @@ bool LinSyncedAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
     uint32_t syncTime = interpTime;
 
-    auto itSyncValue = this->m_syncValues.lower_bound(interpTime);
+    auto itSyncValue = this->m_syncValues.upper_bound(interpTime);
 
-    if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != interpTime)
+    //if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != interpTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
             return (false);
