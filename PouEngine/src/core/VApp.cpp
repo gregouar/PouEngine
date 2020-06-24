@@ -1,8 +1,8 @@
 #include "PouEngine/core/VApp.h"
 
-#include "PouEngine/utils/Parser.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Clock.h"
+#include "PouEngine/tools/Parser.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/system/Clock.h"
 #include "PouEngine/core/Config.h"
 
 #include "PouEngine/assets/AssetHandler.h"
@@ -18,7 +18,7 @@
 #include "PouEngine/net/NetEngine.h"
 #include "PouEngine/net/UdpNetImpl.h"
 
-#include "PouEngine/utils/Profiler.h"
+#include "PouEngine/tools/Profiler.h"
 
 namespace pou
 {

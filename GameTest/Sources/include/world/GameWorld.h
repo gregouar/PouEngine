@@ -4,8 +4,8 @@
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SceneEntity.h"
-#include "PouEngine/utils/IdAllocator.h"
-#include "PouEngine/utils/IdPtrAllocator.h"
+#include "PouEngine/tools/IdAllocator.h"
+#include "PouEngine/tools/IdPtrAllocator.h"
 #include "PouEngine/renderers/RenderWindow.h"
 
 #include "character/Character.h"

@@ -1,8 +1,8 @@
 #include "PouEngine/net/UdpServer.h"
 
 
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Hasher.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Hasher.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 
 #include <vector>
@@ -33,6 +33,8 @@ bool UdpServer::start(uint16_t maxNbrClients, unsigned short port)
 
     if(!m_packetsExchanger.createSocket(port))
         return (false);
+
+    m_packetsExchanger.setCompressor(std::make_unique<LZ4_Compressor>());
 
     m_port = m_packetsExchanger.getPort();
 
@@ -106,7 +108,7 @@ void UdpServer::sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMe
         return;
 
     ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
-    m_packetsExchanger.sendChunk(clientAddress, msg);
+    m_packetsExchanger.sendChunk(clientAddress, msg, false);
 }
 
 

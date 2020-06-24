@@ -1,7 +1,7 @@
 #ifndef PBRTOOLBOX_H
 #define PBRTOOLBOX_H
 
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 #include "PouEngine/vulkanImpl/VulkanImpl.h"
 
 namespace pou

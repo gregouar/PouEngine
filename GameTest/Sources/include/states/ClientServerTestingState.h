@@ -2,7 +2,7 @@
 #define CLIENTSERVERTESTINGSTATE_H
 
 #include "PouEngine/core/GameState.h"
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 
 #include "PouEngine/renderers/SceneRenderer.h"
 

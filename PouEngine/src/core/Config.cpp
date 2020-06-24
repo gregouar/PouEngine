@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Parser.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Parser.h"
 
 namespace pou{
 

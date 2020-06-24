@@ -1,7 +1,7 @@
 #ifndef MESSAGEBUS_H
 #define MESSAGEBUS_H
 
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 #include "PouEngine/core/NotificationSender.h"
 
 namespace pou

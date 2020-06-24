@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 #include "PouEngine/net/AbstractNetImpl.h"
 #include "PouEngine/net/NetMessagesFactory.h"
 

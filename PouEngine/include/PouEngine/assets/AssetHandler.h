@@ -3,7 +3,7 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/Asset.h"
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 
 #include <map>
 #include <vector>

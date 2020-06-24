@@ -2,8 +2,8 @@
 #define CHARACTERINPUT_H
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Timer.h"
-#include "PouEngine/utils/SyncedAttribute.h"
+#include "PouEngine/system/Timer.h"
+#include "PouEngine/net/SyncedAttribute.h"
 
 enum PlayerActionType
 {

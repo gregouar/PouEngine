@@ -4,7 +4,7 @@
 #include "PouEngine/vulkanImpl/VTexture.h"
 
 #include "PouEngine/core/Config.h"
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 
 namespace pou
 {

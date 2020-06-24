@@ -9,8 +9,8 @@
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/SoundObject.h"
 #include "PouEngine/scene/Skeleton.h"
-#include "PouEngine/utils/SyncedTimer.h"
-#include "PouEngine/utils/Stream.h"
+#include "PouEngine/net/SyncedTimer.h"
+#include "PouEngine/system/Stream.h"
 
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"

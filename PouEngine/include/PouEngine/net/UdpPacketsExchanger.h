@@ -2,7 +2,9 @@
 #define UDPPACKETSEXCHANGER_H
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Timer.h"
+#include "PouEngine/system/Timer.h"
+#include "PouEngine/tools/Compressor.h"
+
 #include "PouEngine/net/NetAddress.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/net/UdpSocket.h"
@@ -60,6 +62,8 @@ struct ChunkSendingBuffer
     std::set<int> slicesToSend;
     int chunk_id;
     int nbr_slices;
+    int compressed_buffer_size;
+    int uncompressed_buffer_size;
     int chunk_msg_type;
 
     std::map<int, int> packetSeqToSliceId;
@@ -73,6 +77,8 @@ struct ChunkReceivingBuffer
     int chunk_id;
     //int chunkSize;
     int nbr_slices;
+    int compressed_buffer_size;
+    int uncompressed_buffer_size;
     int chunk_msg_type;
 
     bool isReceiving;
@@ -122,6 +128,8 @@ class UdpPacketsExchanger
         bool createSocket(unsigned short port = 0);
         void destroy();
 
+        void setCompressor(std::unique_ptr<AbstractCompressor> compressor); //Compression algorithm for big messages
+
         virtual void update(const pou::Time &elapsedTime);
 
         virtual void sendPacket(NetAddress &address, UdpPacket &packet, bool forceNonFragSend = false);
@@ -163,6 +171,8 @@ class UdpPacketsExchanger
     private:
         int m_maxPacketSize;
         UdpSocket m_socket;
+
+        std::unique_ptr<AbstractCompressor> m_compressor;
 
         uint16_t    m_curSequence;
         float       m_curLocalTime;

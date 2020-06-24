@@ -1,7 +1,7 @@
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/TextureAsset.h"
 
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 
 #include "PouEngine/vulkanImpl/VulkanImpl.h"
 

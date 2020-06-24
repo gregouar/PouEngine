@@ -2,7 +2,7 @@
 #define UIELEMENT_H
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/SimpleNode.h"
+#include "PouEngine/system/SimpleNode.h"
 #include "PouEngine/core/EventsManager.h"
 
 namespace pou

@@ -2,8 +2,8 @@
 
 #include "net/NetMessageTypes.h"
 #include "PouEngine/types.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Profiler.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Profiler.h"
 
 #include "net/GameClient.h"
 

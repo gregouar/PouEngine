@@ -2,7 +2,7 @@
 #define SkeletonModelAsset_H
 
 #include "PouEngine/assets/Asset.h"
-#include "PouEngine/utils/SimpleNode.h"
+#include "PouEngine/system/SimpleNode.h"
 
 #include "tinyxml/tinyxml.h"
 

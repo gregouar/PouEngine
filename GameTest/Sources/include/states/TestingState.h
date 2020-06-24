@@ -2,7 +2,7 @@
 #define TESTINGSTATE_H
 
 #include "PouEngine/core/GameState.h"
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/LightEntity.h"

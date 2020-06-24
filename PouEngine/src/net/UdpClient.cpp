@@ -1,8 +1,8 @@
 #include "PouEngine/net/UdpClient.h"
 
 #include "PouEngine/net/UdpPacketTypes.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Hasher.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Hasher.h"
 
 
 #include "PouEngine/core/VApp.h"
@@ -37,6 +37,8 @@ bool UdpClient::create(unsigned short port)
 {
     if(!m_packetsExchanger.createSocket(port))
         return (false);
+
+    m_packetsExchanger.setCompressor(std::make_unique<LZ4_Compressor>());
 
     m_port = m_packetsExchanger.getPort();
 

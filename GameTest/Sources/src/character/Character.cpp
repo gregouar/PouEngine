@@ -5,7 +5,7 @@
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/MeshEntity.h"
-#include "PouEngine/utils/MathTools.h"
+#include "PouEngine/tools/MathTools.h"
 
 
 #include "assets/CharacterModelAsset.h"

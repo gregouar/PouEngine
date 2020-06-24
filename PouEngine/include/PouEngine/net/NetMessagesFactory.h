@@ -1,8 +1,8 @@
 #ifndef NETMESSAGESFACTORY_H
 #define NETMESSAGESFACTORY_H
 
-#include "PouEngine/utils/ReadStream.h"
-#include "PouEngine/utils/WriteStream.h"
+#include "PouEngine/system/ReadStream.h"
+#include "PouEngine/system/WriteStream.h"
 
 #include <vector>
 #include <memory>

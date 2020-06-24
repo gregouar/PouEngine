@@ -1,9 +1,9 @@
 #ifndef UDPPACKETTYPES_H
 #define UDPPACKETTYPES_H
 
-#include "PouEngine/utils/ReadStream.h"
-#include "PouEngine/utils/WriteStream.h"
-#include "PouEngine/utils/Hasher.h"
+#include "PouEngine/system/ReadStream.h"
+#include "PouEngine/system/WriteStream.h"
+#include "PouEngine/tools/Hasher.h"
 
 #include "PouEngine/net/NetEngine.h"
 
@@ -160,6 +160,8 @@ struct UdpPacket_Slice : UdpPacket
     int chunk_id;
     int slice_id;
     int nbr_slices;
+    int uncompressed_buffer_size;
+    int compressed_buffer_size;
     int chunk_msg_type;
 
     //int slice_crc32;
@@ -174,6 +176,8 @@ struct UdpPacket_Slice : UdpPacket
             stream->serializeBits(chunk_id, UDPPACKET_CHUNKID_SIZE)
             & stream->serializeBits(slice_id, UDPPACKET_SLICEID_SIZE)
             & stream->serializeBits(nbr_slices, UDPPACKET_SLICEID_SIZE)
+            & stream->serializeBits(uncompressed_buffer_size, 32)
+            & stream->serializeBits(compressed_buffer_size, 32)
             & stream->serializeInt(chunk_msg_type, 0, NetEngine::getNbrNetMsgTypes())
             & stream->memcpy(slice_data.data(), slice_data.size())))
             return (false);

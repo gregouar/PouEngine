@@ -2,7 +2,7 @@
 
 #include "net/NetMessageTypes.h"
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Profiler.h"
+#include "PouEngine/tools/Profiler.h"
 #include "PouEngine/core/MessageBus.h"
 
 #include "net/GameServer.h"

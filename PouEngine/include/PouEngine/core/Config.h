@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "PouEngine/utils/singleton.h"
+#include "PouEngine/core/Singleton.h"
 
 namespace pou{
 

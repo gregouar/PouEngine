@@ -1,6 +1,6 @@
 #include "PouEngine/scene/Scene.h"
 
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 //#include "PouEngine/renderers/PBRToolbox.h"
 #include "PouEngine/scene/SceneObject.h"

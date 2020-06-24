@@ -1,7 +1,7 @@
 #include "states/ServerTestingState.h"
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Clock.h"
+#include "PouEngine/system/Clock.h"
 
 ServerTestingState::ServerTestingState() :
     m_firstEntering(true)

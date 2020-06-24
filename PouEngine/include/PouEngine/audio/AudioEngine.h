@@ -1,7 +1,7 @@
 #ifndef AUDIOENGINE_H
 #define AUDIOENGINE_H
 
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 #include "PouEngine/assets/SoundAsset.h"
 #include "PouEngine/audio/AbstractAudioImpl.h"
 

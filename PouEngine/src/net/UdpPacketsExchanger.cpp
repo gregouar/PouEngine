@@ -1,8 +1,8 @@
 #include "PouEngine/net/UdpPacketsExchanger.h"
 
-#include "PouEngine/utils/Stream.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Hasher.h"
+#include "PouEngine/system/Stream.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Hasher.h"
 #include "PouEngine/core/VApp.h"
 
 #include <string>
@@ -50,6 +50,11 @@ bool UdpPacketsExchanger::createSocket(unsigned short port)
 void UdpPacketsExchanger::destroy()
 {
     m_socket.close();
+}
+
+void UdpPacketsExchanger::setCompressor(std::unique_ptr<AbstractCompressor> compressor)
+{
+    m_compressor = std::move(compressor);
 }
 
 void UdpPacketsExchanger::update(const Time &elapsedTime)
@@ -102,7 +107,7 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
     //tempBuffer.buffer.resize(64*1024);
     while(true)
     {
-    UdpBuffer tempBuffer(65507);
+        UdpBuffer tempBuffer(65507);
         int bytes_read = m_socket.receive(tempBuffer.address,
                                           tempBuffer.buffer.data(),
                                           tempBuffer.buffer.size());
@@ -280,7 +285,8 @@ void UdpPacketsExchanger::sendMessage(ClientAddress &address, std::shared_ptr<Ne
     }
 }
 
-bool UdpPacketsExchanger::sendChunk(ClientAddress &address,  std::shared_ptr<NetMessage> msg, bool initialBurst)
+bool UdpPacketsExchanger::sendChunk(ClientAddress &address,  std::shared_ptr<NetMessage> msg,
+                                    bool initialBurst)
 {
     msg->isReliable = false;
 
@@ -309,12 +315,23 @@ bool UdpPacketsExchanger::sendChunk(ClientAddress &clientAddress, std::vector<ui
     if(!chunkSendingBuffer.slicesToSend.empty())
         return (false); ///Add to queue ?
 
+    chunkSendingBuffer.uncompressed_buffer_size = chunk_data.size();
+
+    std::vector<uint8_t> compressedBuffer;
+    if(m_compressor)
+        m_compressor->compress(chunk_data.data(), chunk_data.size(), compressedBuffer);
+    else
+        compressedBuffer.swap(chunk_data);
+
+    chunkSendingBuffer.compressed_buffer_size = compressedBuffer.size();
+
     chunkSendingBuffer.address = clientAddress;
     chunkSendingBuffer.chunk_id = (chunkSendingBuffer.chunk_id + 1) % UDPPACKET_CHUNKID_MAX;
     chunkSendingBuffer.chunk_msg_type = type;
-    chunkSendingBuffer.nbr_slices = (chunk_data.size()/MAX_SLICESIZE) + (int)((chunk_data.size() % MAX_SLICESIZE == 0) ? 0 : 1);
+    chunkSendingBuffer.nbr_slices = (compressedBuffer.size()/MAX_SLICESIZE) + (int)((compressedBuffer.size() % MAX_SLICESIZE == 0) ? 0 : 1);
+    chunkSendingBuffer.nbr_slices = (compressedBuffer.size()/MAX_SLICESIZE) + (int)((compressedBuffer.size() % MAX_SLICESIZE == 0) ? 0 : 1);
     chunkSendingBuffer.packetSeqToSliceId.clear();
-    chunkSendingBuffer.buffer = std::move(chunk_data);
+    chunkSendingBuffer.buffer.swap(compressedBuffer);
 
     chunkSendingBuffer.slicesToSend.clear();
     for(int i = 0 ; i  <  chunkSendingBuffer.nbr_slices ; ++i)
@@ -337,6 +354,8 @@ void UdpPacketsExchanger::sendSlice(ChunkSendingBuffer &chunkSendingBuffer, int 
     packet.chunk_id = chunkSendingBuffer.chunk_id;
     packet.slice_id = sliceId;
     packet.nbr_slices = chunkSendingBuffer.nbr_slices;
+    packet.uncompressed_buffer_size = chunkSendingBuffer.uncompressed_buffer_size;
+    packet.compressed_buffer_size = chunkSendingBuffer.compressed_buffer_size;
     packet.chunk_msg_type = chunkSendingBuffer.chunk_msg_type;
 
     auto startIt    = chunkSendingBuffer.buffer.begin()+ sliceId*MAX_SLICESIZE;
@@ -384,6 +403,8 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
     if(!chunkReceivingBuffer.isReceiving)
     {
         chunkReceivingBuffer.nbr_slices = packetSlice.nbr_slices;
+        chunkReceivingBuffer.uncompressed_buffer_size = packetSlice.uncompressed_buffer_size;
+        chunkReceivingBuffer.compressed_buffer_size = packetSlice.compressed_buffer_size;
         chunkReceivingBuffer.chunk_msg_type = packetSlice.chunk_msg_type;
         chunkReceivingBuffer.isReceiving = true;
     }
@@ -404,9 +425,16 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
                                      chunkReceivingBuffer.sliceBuffers[i].begin(),
                                      chunkReceivingBuffer.sliceBuffers[i].end());
 
+        std::vector<uint8_t> decompressedBuffer(chunkReceivingBuffer.uncompressed_buffer_size);
+        if(m_compressor)
+            m_compressor->decompress(reassembledBuffer.data(),
+                                     chunkReceivingBuffer.compressed_buffer_size,
+                                     decompressedBuffer);
+        else
+            decompressedBuffer.swap(reassembledBuffer);
 
         ReadStream stream;
-        stream.setBuffer(reassembledBuffer);
+        stream.setBuffer(decompressedBuffer);
         auto message = NetEngine::createNetMessage(chunkReceivingBuffer.chunk_msg_type);
         message->serialize(&stream);
         netMessages.push_back({clientAddress, message});

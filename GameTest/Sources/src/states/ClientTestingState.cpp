@@ -1,7 +1,7 @@
 #include "states/ClientTestingState.h"
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Clock.h"
+#include "PouEngine/system/Clock.h"
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SoundBankAsset.h"

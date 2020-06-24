@@ -2,7 +2,7 @@
 #define CHARACTERSTATE_H
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Timer.h"
+#include "PouEngine/system/Timer.h"
 
 #include "character/CharacterInput.h"
 

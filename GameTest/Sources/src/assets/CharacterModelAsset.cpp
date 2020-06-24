@@ -8,8 +8,8 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/SkeletonModelAsset.h"
 
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Parser.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Parser.h"
 
 #include "character/Character.h"
 #include "ai/AiScriptedComponent.h"

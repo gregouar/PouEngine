@@ -33,6 +33,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -61,6 +62,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -93,6 +95,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -123,6 +126,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -155,6 +159,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -187,6 +192,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -203,22 +209,8 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-DPLAYERSERVER" />
 					<Add directory="GameTest/Sources/include" />
-					<Add directory="PouEngine/include/PouEngine/assets" />
-					<Add directory="PouEngine/include/PouEngine/utils" />
-					<Add directory="PouEngine/include/PouEngine/scene" />
-					<Add directory="GameTest/Sources/include/assets" />
-					<Add directory="PouEngine/include/PouEngine/audio" />
 					<Add directory="PouEngine/src/assets" />
-					<Add directory="PouEngine/include/PouEngine/renderers" />
-					<Add directory="PouEngine/include/PouEngine/ui" />
-					<Add directory="GameTest/Sources/include/net" />
-					<Add directory="PouEngine/include/PouEngine/net" />
-					<Add directory="GameTest/Sources/include/states" />
-					<Add directory="GameTest/Sources/include/ui" />
-					<Add directory="GameTest/Sources/include/world" />
-					<Add directory="GameTest/Sources/include/character" />
-					<Add directory="GameTest/Sources/include/ai" />
-					<Add directory="PouEngine/include/PouEngine/core" />
+					<Add directory="PouEngine/include/PouEngine/tools" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -237,6 +229,7 @@
 			<Add directory="include" />
 			<Add directory="../../PouEngine/include/tinyxml" />
 			<Add directory="../../PouEngine/include/fmod" />
+			<Add directory="../../PouEngine/include/lz4" />
 		</Compiler>
 		<Linker>
 			<Add library="vulkan-1" />
@@ -267,6 +260,8 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/MessageBus.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationListener.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/NotificationSender.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/Singleton.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/core/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractClient.h" />
@@ -275,6 +270,8 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetAddress.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetEngine.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetMessagesFactory.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/SyncedAttribute.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/net/SyncedTimer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.h" />
@@ -304,30 +301,25 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/Clock.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/ReadStream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/SimpleNode.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/Stream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/Timer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/WriteStream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/Compressor.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/Hasher.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/IdAllocator.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/IdPtrAllocator.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/Logger.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/MathTools.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/Parser.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/Profiler.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiPicture.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiProgressBar.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UserInterface.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Clock.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Hasher.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/IdAllocator.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/IdPtrAllocator.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Logger.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/MathTools.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Parser.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Profiler.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/ReadStream.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/SimpleNode.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Singleton.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/SingletonsCleaner.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Stream.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/SyncedAttribute.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="../../PouEngine/include/PouEngine/utils/SyncedTimer.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/Timer.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/utils/WriteStream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicVBO.h" />
@@ -344,8 +336,16 @@
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanExtProxies.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanHelpers.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanImpl.h" />
+		<Unit filename="../../PouEngine/include/lz4/lz4.h" />
+		<Unit filename="../../PouEngine/include/lz4/lz4hc.h" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinystr.h" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinyxml.h" />
+		<Unit filename="../../PouEngine/libs/lz4/lz4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/lz4/lz4hc.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../PouEngine/libs/tinyxml/tinystr.cpp" />
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxml.cpp" />
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlerror.cpp" />
@@ -387,6 +387,7 @@
 		<Unit filename="../../PouEngine/src/core/MessageBus.cpp" />
 		<Unit filename="../../PouEngine/src/core/NotificationListener.cpp" />
 		<Unit filename="../../PouEngine/src/core/NotificationSender.cpp" />
+		<Unit filename="../../PouEngine/src/core/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractClient.cpp" />
@@ -394,6 +395,8 @@
 		<Unit filename="../../PouEngine/src/net/NetAddress.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetEngine.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetMessagesFactory.cpp" />
+		<Unit filename="../../PouEngine/src/net/SyncedAttribute.inc" />
+		<Unit filename="../../PouEngine/src/net/SyncedTimer.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpNetImpl.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpPacketsExchanger.cpp" />
@@ -422,27 +425,25 @@
 		<Unit filename="../../PouEngine/src/scene/SoundObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
+		<Unit filename="../../PouEngine/src/system/Clock.cpp" />
+		<Unit filename="../../PouEngine/src/system/ReadStream.cpp" />
+		<Unit filename="../../PouEngine/src/system/SimpleNode.cpp" />
+		<Unit filename="../../PouEngine/src/system/Stream.cpp" />
+		<Unit filename="../../PouEngine/src/system/Timer.cpp" />
+		<Unit filename="../../PouEngine/src/system/WriteStream.cpp" />
+		<Unit filename="../../PouEngine/src/tools/Compressor.cpp" />
+		<Unit filename="../../PouEngine/src/tools/Hasher.cpp" />
+		<Unit filename="../../PouEngine/src/tools/IdAllocator.inc" />
+		<Unit filename="../../PouEngine/src/tools/IdPtrAllocator.inc" />
+		<Unit filename="../../PouEngine/src/tools/Logger.cpp" />
+		<Unit filename="../../PouEngine/src/tools/MathTools.cpp" />
+		<Unit filename="../../PouEngine/src/tools/Parser.cpp" />
+		<Unit filename="../../PouEngine/src/tools/Profiler.cpp" />
 		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiPicture.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiProgressBar.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UserInterface.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Clock.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Hasher.cpp" />
-		<Unit filename="../../PouEngine/src/utils/IdAllocator.inc" />
-		<Unit filename="../../PouEngine/src/utils/IdPtrAllocator.inc" />
-		<Unit filename="../../PouEngine/src/utils/Logger.cpp" />
-		<Unit filename="../../PouEngine/src/utils/MathTools.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Parser.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Profiler.cpp" />
-		<Unit filename="../../PouEngine/src/utils/ReadStream.cpp" />
-		<Unit filename="../../PouEngine/src/utils/SimpleNode.cpp" />
-		<Unit filename="../../PouEngine/src/utils/SingletonsCleaner.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Stream.cpp" />
-		<Unit filename="../../PouEngine/src/utils/SyncedAttribute.inc" />
-		<Unit filename="../../PouEngine/src/utils/SyncedTimer.cpp" />
-		<Unit filename="../../PouEngine/src/utils/Timer.cpp" />
-		<Unit filename="../../PouEngine/src/utils/WriteStream.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicVBO.inc" />

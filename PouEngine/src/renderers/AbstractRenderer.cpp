@@ -2,8 +2,8 @@
 
 #include <array>
 
-#include "PouEngine/utils/Profiler.h"
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Profiler.h"
+#include "PouEngine/tools/Logger.h"
 
 namespace pou
 {

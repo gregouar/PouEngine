@@ -1,7 +1,7 @@
 #include "PouEngine/core/StatesManager.h"
 
 #include "PouEngine/core/GameState.h"
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 
 namespace pou
 {

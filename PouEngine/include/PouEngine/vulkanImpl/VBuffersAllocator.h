@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 
 namespace pou
 {

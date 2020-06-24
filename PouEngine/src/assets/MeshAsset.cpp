@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Parser.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Parser.h"
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/MaterialAsset.h"

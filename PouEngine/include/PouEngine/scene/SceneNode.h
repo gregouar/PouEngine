@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "PouEngine/Types.h"
-#include "PouEngine/utils/SimpleNode.h"
+#include "PouEngine/system/SimpleNode.h"
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/scene/LightEntity.h"
 #include "PouEngine/scene/ShadowCaster.h"

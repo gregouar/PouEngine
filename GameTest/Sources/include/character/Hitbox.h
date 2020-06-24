@@ -1,7 +1,7 @@
 #ifndef HITBOX_H
 #define HITBOX_H
 
-#include "PouEngine/utils/MathTools.h"
+#include "PouEngine/tools/MathTools.h"
 
 #include "tinyxml/tinyxml.h"
 

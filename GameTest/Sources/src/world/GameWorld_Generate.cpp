@@ -27,10 +27,8 @@ void GameWorld::generate()
     m_scene->getRootNode()->addChildNode(m_worldGrid);
     this->syncElement(m_worldGrid);
 
-    //for(auto x = -100 ; x < 100 ; x++)
-    //for(auto y = -100 ; y < 100 ; y++)
-    for(auto x = -20 ; x < 20 ; x++)
-    for(auto y = -20 ; y < 20 ; y++)
+    for(auto x = -100 ; x < 100 ; x++)
+    for(auto y = -100 ; y < 100 ; y++)
     {
         ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
         auto grassNode = m_worldGrid->createChildNode(x*64,y*64);

@@ -4,7 +4,7 @@
 #include "PouEngine/assets/MeshAsset.h"
 #include "PouEngine/scene/SpriteEntity.h"
 //#include "PouEngine/scene/MeshEntity.h"
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 #include "PouEngine/renderers/PBRToolbox.h"
 
 #include <sstream>

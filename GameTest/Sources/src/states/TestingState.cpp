@@ -1,7 +1,7 @@
 #include "states/TestingState.h"
 
 #include "PouEngine/core/StatesManager.h"
-#include "PouEngine/utils/Clock.h"
+#include "PouEngine/system/Clock.h"
 
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/assets/AssetHandler.h"

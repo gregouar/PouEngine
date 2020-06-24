@@ -1,7 +1,7 @@
 #include "PouEngine/scene/Skeleton.h"
 
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/MathTools.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/MathTools.h"
 
 namespace pou
 {

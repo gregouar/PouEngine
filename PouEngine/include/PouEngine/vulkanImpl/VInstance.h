@@ -10,7 +10,7 @@
 #include <mutex>
 
 #include "PouEngine/vulkanImpl/VulkanHelpers.h"
-#include "PouEngine/utils/Singleton.h"
+#include "PouEngine/core/Singleton.h"
 
 namespace pou
 {

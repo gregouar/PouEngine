@@ -1,6 +1,6 @@
 #include "PouEngine/vulkanImpl/VRenderPass.h"
 
-#include "PouEngine/utils/Logger.h"
+#include "PouEngine/tools/Logger.h"
 #include "PouEngine/vulkanImpl/VInstance.h"
 
 namespace pou

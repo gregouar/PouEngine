@@ -1,8 +1,8 @@
 #include "PouEngine/assets/SoundAsset.h"
 
 #include "PouEngine/audio/AudioEngine.h"
-#include "PouEngine/utils/Logger.h"
-#include "PouEngine/utils/Parser.h"
+#include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Parser.h"
 
 
 namespace pou
