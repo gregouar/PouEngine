@@ -7,7 +7,7 @@
 #include "PouEngine/core/NotificationListener.h"
 #include "PouEngine/core/NotificationSender.h"
 #include "PouEngine/system/Stream.h"
-#include "PouEngine/net/SyncedAttribute.h"
+#include "PouEngine/sync/SyncAttribute.h"
 
 namespace pou
 {
@@ -141,9 +141,9 @@ class SimpleNode : public NotificationSender, public NotificationListener
         //glm::vec3 m_position;
         //glm::vec3 m_eulerRotations;
         //glm::vec3 m_scale;
-        LinSyncedAttribute<glm::vec3> m_position;
-        LinSyncedAttribute<glm::vec3> m_eulerRotations;
-        LinSyncedAttribute<glm::vec3> m_scale;
+        LinSyncAttribute<glm::vec3> m_position;
+        LinSyncAttribute<glm::vec3> m_eulerRotations;
+        LinSyncAttribute<glm::vec3> m_scale;
 
         float     m_rigidity;
 

@@ -38,6 +38,7 @@ T computeWantedRotation(T startingRotation, T finalRotation, bool useRad)
 
 bool uint32less(uint32_t lhs, uint32_t rhs);
 bool uint32leq(uint32_t lhs, uint32_t rhs);
+uint32_t uint32max(uint32_t lhs, uint32_t rhs);
 
 
 #endif // MATHTOOLS_H

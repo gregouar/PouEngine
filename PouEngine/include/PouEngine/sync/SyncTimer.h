@@ -1,17 +1,17 @@
-#ifndef SYNCEDTIMER_H
-#define SYNCEDTIMER_H
+#ifndef SyncTimer_H
+#define SyncTimer_H
 
 #include "PouEngine/Types.h"
-#include "PouEngine/net/SyncedAttribute.h"
+#include "PouEngine/sync/SyncAttribute.h"
 
 namespace pou
 {
 
-class SyncedTimer
+class SyncTimer
 {
     public:
-        SyncedTimer();
-        virtual ~SyncedTimer();
+        SyncTimer();
+        virtual ~SyncTimer();
 
         virtual void reset(float time, bool looping = false);
         virtual void reset(const Time &time, bool looping = false);
@@ -25,11 +25,11 @@ class SyncedTimer
     protected:
 
     private:
-        SyncedAttribute<Time>   m_maxTime;
-        SyncedAttribute<Time>   m_elapsedTime;
+        SyncAttribute<Time>   m_maxTime;
+        SyncAttribute<Time>   m_elapsedTime;
         bool        m_isLooping;
 };
 
 }
 
-#endif // SYNCEDTIMER_H
+#endif // SyncTimer_H

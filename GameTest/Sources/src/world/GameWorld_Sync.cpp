@@ -130,7 +130,6 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
     {
         auto character = it->second;
         if(uint32leq(character->getLastCharacterUpdateTime(), lastSyncTime))
-        //if(uint32less(character->getLastCharacterUpdateTime(), lastSyncTime))
             continue;
 
         worldSyncMsg->characters.push_back({it->first, CharacterSync()});
@@ -385,7 +384,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(characterPtr == nullptr)
         {
             characterPtr = std::make_shared<Character>();
-            characterPtr->setSyncId(characterId);
+            characterPtr->setWorldAndSyncId(this, characterId);
             m_syncCharacters.insert(characterId, characterPtr);
             //characterPtr = characterSync.character;
 

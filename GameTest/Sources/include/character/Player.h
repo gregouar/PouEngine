@@ -52,14 +52,14 @@ class Player : public Character
         uint32_t m_lastPlayerUpdateTime;
         uint32_t m_lastInventoryUpdateTime;
         uint32_t m_lastGearUpdateTime;
-        ///pou::SyncedAttribute<int> m_timeShift;
+        ///pou::SyncAttribute<int> m_timeShift;
 
         bool m_userControlled;
 
     private:
-        //pou::SyncedTimer  m_dashDelayTimer, m_dashTimer;
+        //pou::SyncTimer  m_dashDelayTimer, m_dashTimer;
         //bool        m_isDashing;
-        //pou::SyncedAttribute<glm::vec2>   m_dashDirection;
+        //pou::SyncAttribute<glm::vec2>   m_dashDirection;
         //float       m_dashDelay, m_dashTime;
 
         /*static const float DEFAULT_DASH_DELAY;

@@ -34,6 +34,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -63,6 +64,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -96,6 +98,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -127,6 +130,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -160,6 +164,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -193,6 +198,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="PouEngine/include/PouEngine/core" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -211,6 +217,9 @@
 					<Add directory="GameTest/Sources/include" />
 					<Add directory="PouEngine/src/assets" />
 					<Add directory="PouEngine/include/PouEngine/tools" />
+					<Add directory="GameTest/Sources/include/net" />
+					<Add directory="GameTest/Sources/include/net/netsyncelements" />
+					<Add directory="PouEngine/include/PouEngine/net" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -270,8 +279,6 @@
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetAddress.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetEngine.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/NetMessagesFactory.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/net/SyncedAttribute.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/net/SyncedTimer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpNetImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/UdpPacketTypes.h" />
@@ -301,6 +308,17 @@
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SoundObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/SpriteModel.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/AbstractSyncAttribute.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/AbstractSyncElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/BoolSyncElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/FloatSyncElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/IntSyncElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/SyncAttribute.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/SyncComponent.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/SyncElements.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/SyncTimer.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/Vec2SyncElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/sync/Vec3SyncElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/ReadStream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/SimpleNode.h" />
@@ -395,8 +413,6 @@
 		<Unit filename="../../PouEngine/src/net/NetAddress.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetEngine.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetMessagesFactory.cpp" />
-		<Unit filename="../../PouEngine/src/net/SyncedAttribute.inc" />
-		<Unit filename="../../PouEngine/src/net/SyncedTimer.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpNetImpl.cpp" />
 		<Unit filename="../../PouEngine/src/net/UdpPacketsExchanger.cpp" />
@@ -425,6 +441,16 @@
 		<Unit filename="../../PouEngine/src/scene/SoundObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/SpriteModel.cpp" />
+		<Unit filename="../../PouEngine/src/sync/AbstractSyncAttribute.cpp" />
+		<Unit filename="../../PouEngine/src/sync/AbstractSyncElement.cpp" />
+		<Unit filename="../../PouEngine/src/sync/BoolSyncElement.cpp" />
+		<Unit filename="../../PouEngine/src/sync/FloatSyncElement.cpp" />
+		<Unit filename="../../PouEngine/src/sync/IntSyncElement.cpp" />
+		<Unit filename="../../PouEngine/src/sync/SyncAttribute.inc" />
+		<Unit filename="../../PouEngine/src/sync/SyncComponent.cpp" />
+		<Unit filename="../../PouEngine/src/sync/SyncTimer.cpp" />
+		<Unit filename="../../PouEngine/src/sync/Vec2SyncElement.cpp" />
+		<Unit filename="../../PouEngine/src/sync/Vec3SyncElement.cpp" />
 		<Unit filename="../../PouEngine/src/system/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/system/ReadStream.cpp" />
 		<Unit filename="../../PouEngine/src/system/SimpleNode.cpp" />

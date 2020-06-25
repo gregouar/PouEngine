@@ -57,7 +57,8 @@ class GameWorld
         uint32_t getLocalTime();
         uint32_t getLastSyncTime();
 
-        Player *getPlayer(int player_id);
+        Character *getSyncCharacter(int character_id);
+        Player *getSyncPlayer(int player_id);
 
     protected:
         //size_t addSyncNode(pou::SceneNode *node);

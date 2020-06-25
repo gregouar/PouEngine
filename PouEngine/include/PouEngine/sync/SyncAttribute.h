@@ -1,8 +1,7 @@
-#ifndef SYNCEDATTRIBUTE_H_INCLUDED
-#define SYNCEDATTRIBUTE_H_INCLUDED
+#ifndef SyncAttribute_H_INCLUDED
+#define SyncAttribute_H_INCLUDED
 
-#include "PouEngine/Types.h"
-#include "PouEngine/system/Timer.h"
+#include "PouEngine/sync/AbstractSyncAttribute.h"
 
 #include <list>
 #include <map>
@@ -11,14 +10,15 @@ namespace pou
 {
 
 template<typename T>
-class SyncedAttribute
+class SyncAttribute : public AbstractSyncAttribute
 {
     public:
-        SyncedAttribute();
-        SyncedAttribute(const T &t, uint32_t curTime);
-        virtual ~SyncedAttribute();
+        SyncAttribute();
+        SyncAttribute(const T &t, uint32_t curTime);
+        virtual ~SyncAttribute();
 
-        virtual void syncFrom(const SyncedAttribute<T> &t);
+        ///virtual void syncFrom(const SyncAttribute<T> &t);
+        virtual void syncFrom(const AbstractSyncAttribute *t);
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
         bool setValue(const T &t, bool forceUpdate = false);
@@ -27,31 +27,31 @@ class SyncedAttribute
         const T& getValue() const;
 
         //uint32_t getLastUpdateTime(bool useRewind = true) const;
-        uint32_t getLastUpdateTime() const;
-        uint32_t getSyncTime() const;
+        ///uint32_t getLastUpdateTime() const;
+        ///uint32_t getSyncTime() const;
 
         ///bool rewind(uint32_t time);
 
         void setReconciliationPrecision(T precision);
-        void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1); //-1 means it takes the server value
-        void setMaxRewindAmount(size_t maxRewind);
+        ///void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1); //-1 means it takes the server value
+        ///void setMaxRewindAmount(size_t maxRewind);
 
     protected:
         T m_value;
         std::map<uint32_t, T> m_syncValues;
 
-        bool m_firstSync;
+        /**bool m_firstSync;
         uint32_t m_curLocalTime;
         uint32_t m_lastUpdateTime;
 
         uint32_t m_syncTime;
         uint32_t m_lastSyncTime;
 
-        size_t m_maxRewindAmount;
+        size_t m_maxRewindAmount;**/
         std::map<uint32_t, T> m_rewindValues;
 
-        uint32_t    m_reconciliationDelay_client,
-                    m_reconciliationDelay_server;
+        /**uint32_t    m_reconciliationDelay_client,
+                    m_reconciliationDelay_server;**/
         T       m_reconciliationPrecision;
         Timer   m_desyncTimer;
 
@@ -62,11 +62,11 @@ class SyncedAttribute
 
 
 template<typename T>
-class LinSyncedAttribute : public SyncedAttribute<T>
+class LinSyncAttribute : public SyncAttribute<T>
 {
     public:
-        LinSyncedAttribute();
-        LinSyncedAttribute(const T &t, uint32_t curTime);
+        LinSyncAttribute();
+        LinSyncAttribute(const T &t, uint32_t curTime);
 
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
 
@@ -83,6 +83,6 @@ class LinSyncedAttribute : public SyncedAttribute<T>
 
 }
 
-#include "../src/net/SyncedAttribute.inc"
+#include "../src/sync/SyncAttribute.inc"
 
-#endif // SYNCEDATTRIBUTE_H_INCLUDED
+#endif // SyncAttribute_H_INCLUDED

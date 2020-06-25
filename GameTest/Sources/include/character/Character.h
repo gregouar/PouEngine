@@ -9,13 +9,15 @@
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/SoundObject.h"
 #include "PouEngine/scene/Skeleton.h"
-#include "PouEngine/net/SyncedTimer.h"
 #include "PouEngine/system/Stream.h"
 
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"
 
+#include "PouEngine/sync/SyncComponent.h"
+
 class AiComponent;
+class GameWorld;
 
 struct CharacterAttributes
 {
@@ -57,7 +59,7 @@ class Character : public pou::SceneNode
         virtual bool addSoundToSkeleton(SoundModel *soundModel, const std::string &skeleton);
         virtual bool removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeleton);
 
-        void setSyncId(int id);
+        void setWorldAndSyncId(GameWorld *world, int id);
         void setTeam(int team);
 
         virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0), bool onlyCosmetic = false);
@@ -86,6 +88,8 @@ class Character : public pou::SceneNode
         const CharacterAttributes       &getAttributes() const;
         const CharacterModelAttributes  &getModelAttributes() const;
         int getTeam() const;
+
+        GameWorld* getWorld() const;
         uint32_t getSyncId() const;
 
         void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
@@ -116,15 +120,15 @@ class Character : public pou::SceneNode
     protected:
         std::shared_ptr<CharacterInput> m_input;
 
-        pou::SyncedAttribute<bool> m_isDead;
+        pou::SyncAttribute<bool> m_isDead;
 
-        pou::SyncedAttribute<CharacterModelAttributes>  m_modelAttributes;
-        pou::SyncedAttribute<CharacterAttributes>       m_attributes;
+        pou::SyncAttribute<CharacterModelAttributes>  m_modelAttributes;
+        pou::SyncAttribute<CharacterAttributes>       m_attributes;
 
         std::set<std::shared_ptr<Character> >    m_nearbyCharacters;
         std::map<std::string, std::shared_ptr<pou::Skeleton> > m_skeletons;
 
-        uint32_t m_lastCharacterSyncTime;
+        ///uint32_t m_lastCharacterSyncTime;
         uint32_t m_lastCharacterUpdateTime;
         uint32_t m_lastModelUpdateTime;
 
@@ -135,7 +139,9 @@ class Character : public pou::SceneNode
         int m_team;
 
     private:
+        GameWorld *m_world;
         uint32_t m_syncId;
+
         CharacterModelAsset*    m_model;
         std::unique_ptr<CharacterState> m_states[NBR_CharacterStateTypes];
         CharacterState*         m_curState;
@@ -148,7 +154,7 @@ class Character : public pou::SceneNode
         bool m_isDestinationSet;
         glm::vec2 m_destination;
 
-        pou::SyncedAttribute<std::string> m_curAnimation; ///I should find a better way to manage animations (like id, but then I need to list all possible animations in the XML beh)
+        pou::SyncAttribute<std::string> m_curAnimation; ///I should find a better way to manage animations (like id, but then I need to list all possible animations in the XML beh)
 
     public:
 };

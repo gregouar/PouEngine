@@ -258,7 +258,12 @@ uint32_t GameWorld::getLastSyncTime()
     return m_lastSyncTime;
 }
 
-Player *GameWorld::getPlayer(int player_id)
+Character *GameWorld::getSyncCharacter(int character_id)
+{
+    return m_syncCharacters.findElement(character_id).get();
+}
+
+Player *GameWorld::getSyncPlayer(int player_id)
 {
     return m_syncPlayers.findElement(player_id).get();
 }
@@ -330,7 +335,7 @@ size_t GameWorld::syncElement(std::shared_ptr<Character> character)
 {
     this->syncElement((std::shared_ptr<pou::SceneNode>)character);
     int id = m_syncCharacters.allocateId(character);
-    character->setSyncId(id);
+    character->setWorldAndSyncId(this, id);
     return id;
 }
 

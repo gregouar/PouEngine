@@ -222,7 +222,7 @@ void SceneNode::setParent(SimpleNode *p)
 
 void SceneNode::syncFromNode(SceneNode* srcNode)
 {
-    m_color.syncFrom(srcNode->m_color);
+    m_color.syncFrom(&srcNode->m_color);
    // if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
         //&& srcNode->m_lastColorUpdateTime != -1)
        // this->setColor(srcNode->getColor());

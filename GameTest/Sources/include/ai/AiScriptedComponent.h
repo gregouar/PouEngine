@@ -22,7 +22,6 @@ class AiScriptedComponent : public AiComponent
         AiScriptModelAsset *m_model;
 
     private:
-        Character *m_target;
 };
 
 #endif // AISCRIPTEDCOMPONENT_H

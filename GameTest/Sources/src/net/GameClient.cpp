@@ -102,7 +102,7 @@ Player* GameClient::getPlayer()
     if(!m_world)
         return (nullptr);
 
-    return m_world->getPlayer(m_curPlayerId);
+    return m_world->getSyncPlayer(m_curPlayerId);
 }
 
 
@@ -363,7 +363,7 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
     if(!m_world)
         return;
 
-    auto player = m_world->getPlayer(m_curPlayerId);
+    auto player = m_world->getSyncPlayer(m_curPlayerId);
     if(!player)
         return;
 

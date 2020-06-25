@@ -11,13 +11,18 @@ struct SkeletalNodeState
 {
     SkeletalNodeState();
 
-    void update(const Time &elapsedTime, uint32_t localTime = -1);
+    //void update(const Time &elapsedTime, uint32_t localTime = -1);
     ///void rewind(uint32_t time);
 
-    SyncedAttribute<glm::vec4>   posisiton;
-    SyncedAttribute<glm::vec4>   rotation;
-    SyncedAttribute<glm::vec4>   scale;
-    SyncedAttribute<glm::vec4>   color;
+    /**SyncAttribute<glm::vec4>   posisiton;
+    SyncAttribute<glm::vec4>   rotation;
+    SyncAttribute<glm::vec4>   scale;
+    SyncAttribute<glm::vec4>   color;**/
+
+    glm::vec4 posisiton;
+    glm::vec4 rotation;
+    glm::vec4 scale;
+    glm::vec4 color;
 };
 
 class SkeletalAnimationCommand
@@ -37,8 +42,11 @@ class SkeletalAnimationCommand
         SceneNode *m_node;
         SkeletalNodeState *m_nodeState;
 
-        SyncedAttribute<glm::vec4>  m_value;
-        SyncedAttribute<float>      m_curFrameTime;
+        /**SyncAttribute<glm::vec4>  m_value;
+        SyncAttribute<float>      m_curFrameTime;**/
+
+        glm::vec4  m_value;
+        float      m_curFrameTime;
 
         float     m_startingFrameTime;
         glm::vec4 m_amount;
@@ -111,9 +119,9 @@ class Skeleton : public SceneNode
         std::list<SkeletalAnimationCommand> m_animationCommands;
         //bool m_createdRootNode;
 
-        /**SyncedAttribute<float> m_curFrameTime;
-        SyncedAttribute<int> m_syncedAnimationId;
-        SyncedAttribute<int> m_syncedFrameNbr;**/
+        /**SyncAttribute<float> m_curFrameTime;
+        SyncAttribute<int> m_syncedAnimationId;
+        SyncAttribute<int> m_syncedFrameNbr;**/
         float m_curFrameTime;
         int m_frameNbr;
         int m_wantedFrameNbr;

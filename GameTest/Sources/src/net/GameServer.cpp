@@ -253,7 +253,7 @@ Player* GameServer::getPlayer(size_t clientNbr)
     if(!world)
         return (nullptr);
 
-    return world->getPlayer(clientInfos->player_id);
+    return world->getSyncPlayer(clientInfos->player_id);
 }
 
 

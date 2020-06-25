@@ -8,7 +8,7 @@ namespace pou
 {
 
 template<typename T>
-class SyncedAttribute;
+class SyncAttribute;
 
 class Timer
 {

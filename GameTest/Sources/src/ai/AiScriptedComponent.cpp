@@ -2,8 +2,7 @@
 
 AiScriptedComponent::AiScriptedComponent(Character *character):
     AiComponent(character),
-    m_model(nullptr),
-    m_target(nullptr)
+    m_model(nullptr)
 {
     //ctor
 }
@@ -46,6 +45,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         {
             m_target = nullptr;
             this->stopListeningTo(m_target,pou::NotificationType_SenderDestroyed);
+            m_targetId.setValue(0);
         }
         else if(distance > 70.0f*70.0f)
         {
@@ -81,6 +81,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
     {
         m_target = closestEnemy;
         this->startListeningTo(m_target,pou::NotificationType_SenderDestroyed);
+        m_targetId.setValue(m_target->getSyncId());
     }
 
 }

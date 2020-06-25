@@ -126,4 +126,10 @@ bool uint32leq(uint32_t lhs, uint32_t rhs)
     return lhs <= rhs;
 }
 
+uint32_t uint32max(uint32_t lhs, uint32_t rhs)
+{
+    if(uint32less(lhs,rhs))
+        return rhs;
+    return lhs;
+}
 

@@ -3,7 +3,7 @@
 
 #include "PouEngine/Types.h"
 #include "PouEngine/system/Timer.h"
-#include "PouEngine/net/SyncedAttribute.h"
+#include "PouEngine/sync/SyncElements.h"
 
 enum PlayerActionType
 {
@@ -38,12 +38,12 @@ class CharacterInput
         virtual void reset();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
-        virtual void syncFrom(CharacterInput *input);
-        virtual void serialize(pou::Stream *stream, uint32_t clientTime);
+        //virtual void syncFrom(CharacterInput *input);
+        //virtual void serialize(pou::Stream *stream, uint32_t clientTime);
 
         void setPush(bool pushing, glm::vec2 direction = glm::vec2(0));
 
-        virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        //virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
 
         glm::vec2 getLookingAt(); //Passively looking at
         glm::vec2 getLookingDirectionInput(); //Actively looking toward
@@ -52,7 +52,8 @@ class CharacterInput
         std::pair<bool, glm::vec2>   getDashingInputs();
         std::pair<bool, glm::vec2>   getPushedInputs();
 
-        uint32_t getLastUpdateTime();
+        //uint32_t getLastUpdateTime();
+        pou::SyncComponent *getSyncComponent();
 
     //protected:
         void setLookingAt(glm::vec2 direction);
@@ -62,26 +63,42 @@ class CharacterInput
         void setDashing(bool dashingInput, glm::vec2 direction = glm::vec2(0));
 
     protected:
-        void setLastUpdateTime(uint32_t time);
+        //void setLastUpdateTime(uint32_t time);
 
     protected:
 
     private:
-        uint32_t m_lastUpdateTime;
+        //uint32_t m_lastUpdateTime;
 
-        pou::SyncedAttribute<glm::vec2> m_lookingAt; //Passively looking at
-        pou::SyncedAttribute<glm::vec2> m_lookingDirection; //Actively looking toward
+        pou::SyncComponent   m_syncComponent;
 
-        pou::SyncedAttribute<glm::vec2> m_walkingDirection;
+        pou::Vec2SyncElement m_lookingAt; //Passively looking at
+        pou::Vec2SyncElement m_lookingDirection; //Actively looking toward
 
-        pou::SyncedAttribute<bool>      m_attackingInput;
-        pou::SyncedAttribute<glm::vec2> m_attackingDirection;
+        pou::Vec2SyncElement m_walkingDirection;
 
-        pou::SyncedAttribute<bool>      m_dashingInput;
-        pou::SyncedAttribute<glm::vec2> m_dashingDirection;
+        pou::BoolSyncElement m_attackingInput;
+        pou::Vec2SyncElement m_attackingDirection;
 
-        pou::SyncedAttribute<bool>      m_pushedInput;
-        pou::SyncedAttribute<glm::vec2> m_pushedDirection;
+        pou::BoolSyncElement m_dashingInput;
+        pou::Vec2SyncElement m_dashingDirection;
+
+        pou::BoolSyncElement m_pushedInput;
+        pou::Vec2SyncElement m_pushedDirection;
+
+        /*pou::SyncAttribute<glm::vec2> m_lookingAt; //Passively looking at
+        pou::SyncAttribute<glm::vec2> m_lookingDirection; //Actively looking toward
+
+        pou::SyncAttribute<glm::vec2> m_walkingDirection;
+
+        pou::SyncAttribute<bool>      m_attackingInput;
+        pou::SyncAttribute<glm::vec2> m_attackingDirection;
+
+        pou::SyncAttribute<bool>      m_dashingInput;
+        pou::SyncAttribute<glm::vec2> m_dashingDirection;
+
+        pou::SyncAttribute<bool>      m_pushedInput;
+        pou::SyncAttribute<glm::vec2> m_pushedDirection;*/
 };
 
 class PlayerInput : public CharacterInput

@@ -367,10 +367,10 @@ void SimpleNode::syncFromNode(SimpleNode* srcNode)
     if(m_disableSync)
         return;
 
-    m_position.syncFrom(srcNode->m_position);
+    m_position.syncFrom(&srcNode->m_position);
     if(!m_disableRotationSync)
-        m_eulerRotations.syncFrom(srcNode->m_eulerRotations);
-    m_scale.syncFrom(srcNode->m_scale);
+        m_eulerRotations.syncFrom(&srcNode->m_eulerRotations);
+    m_scale.syncFrom(&srcNode->m_scale);
 
     m_lastSyncTime = srcNode->m_curLocalTime;
 

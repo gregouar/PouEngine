@@ -1,40 +1,40 @@
-#include "PouEngine/net/SyncedTimer.h"
+#include "PouEngine/sync/SyncTimer.h"
 
 namespace pou
 {
 
-SyncedTimer::SyncedTimer() :
+SyncTimer::SyncTimer() :
     m_maxTime(Time(0), 0),
     m_elapsedTime(Time(0), 0),
     m_isLooping(false)
 {
 }
 
-SyncedTimer::~SyncedTimer()
+SyncTimer::~SyncTimer()
 {
     //dtor
 }
 
 
-void SyncedTimer::reset(float time, bool looping)
+void SyncTimer::reset(float time, bool looping)
 {
     this->reset(Time(time),looping);
 }
 
 
-void SyncedTimer::reset(const Time &time, bool looping)
+void SyncTimer::reset(const Time &time, bool looping)
 {
     m_elapsedTime.setValue(Time(0), 0, false);
     m_maxTime.setValue(time);
     m_isLooping = looping;
 }
 
-int SyncedTimer::update(float elapsedTime, uint32_t localTime)
+int SyncTimer::update(float elapsedTime, uint32_t localTime)
 {
     return this->update(Time(elapsedTime), localTime);
 }
 
-int SyncedTimer::update(const Time &elapsedTime, uint32_t localTime)
+int SyncTimer::update(const Time &elapsedTime, uint32_t localTime)
 {
     m_maxTime.update(elapsedTime, localTime);
     m_elapsedTime.update(elapsedTime, localTime);
@@ -59,13 +59,13 @@ int SyncedTimer::update(const Time &elapsedTime, uint32_t localTime)
     return (0);
 }
 
-bool SyncedTimer::isActive()
+bool SyncTimer::isActive()
 {
     return (m_maxTime.getValue() > Time(0));
 }
 
 
-/**void SyncedTimer::rewind(uint32_t time)
+/**void SyncTimer::rewind(uint32_t time)
 {
     m_maxTime.rewind(time);
     m_elapsedTime.rewind(time);

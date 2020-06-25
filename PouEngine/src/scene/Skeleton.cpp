@@ -541,8 +541,8 @@ SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationComman
     m_model(model),
     m_node(node),
     m_nodeState(nodeState),
-    m_value(glm::vec4(0),0),
-    m_curFrameTime(startingFrameTime,0),
+    m_value(glm::vec4(0)),
+    m_curFrameTime(startingFrameTime),
     m_startingFrameTime(startingFrameTime),
     m_amount(0)
 {
@@ -556,16 +556,16 @@ void SkeletalAnimationCommand::computeAmount()
     m_enabledDirection = m_model->getAmount().second;
 
     if(m_model->getType() == Move_To)
-        m_amount = m_amount - m_nodeState->posisiton.getValue();
+        m_amount = m_amount - m_nodeState->posisiton;
     else if(m_model->getType() == Rotate_To)
     {
-        m_amount = MathTools::computeWantedRotation(m_nodeState->rotation.getValue(), m_amount, false);
-        m_amount = m_amount - m_nodeState->rotation.getValue();
+        m_amount = MathTools::computeWantedRotation(m_nodeState->rotation, m_amount, false);
+        m_amount = m_amount - m_nodeState->rotation;
     }
     else if(m_model->getType() == Scale_To)
-        m_amount = m_amount - m_nodeState->scale.getValue();
+        m_amount = m_amount - m_nodeState->scale;
     else if(m_model->getType() == Color_To)
-        m_amount = m_amount - m_nodeState->color.getValue();
+        m_amount = m_amount - m_nodeState->color;
 
     if(m_amount.x == 0) m_enabledDirection.x = false;
     if(m_amount.y == 0) m_enabledDirection.y = false;
@@ -575,11 +575,9 @@ void SkeletalAnimationCommand::computeAmount()
 
 bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 {
-    m_value.update(elapsedTime, curTime);
-    m_curFrameTime.update(elapsedTime, curTime);
-    m_nodeState->update(elapsedTime, curTime);
+   // m_nodeState->update(elapsedTime, curTime);
 
-    m_curFrameTime.setValue(m_curFrameTime.getValue() + elapsedTime.count());
+    m_curFrameTime += elapsedTime.count();
 
     glm::vec4 a = glm::vec4(elapsedTime.count()); // * m_model->getRate();
     glm::vec4 absAmount = glm::abs(m_amount);
@@ -588,8 +586,8 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
         a = a * m_model->getRate();
     else
     {
-        if(m_curFrameTime.getValue() > m_model->getFrameTime())
-            a = absAmount - m_value.getValue();
+        if(m_curFrameTime > m_model->getFrameTime())
+            a = absAmount - m_value;
         else
             a = a * absAmount/(m_model->getFrameTime()-m_startingFrameTime);
     }
@@ -608,9 +606,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 
     if(m_enabledDirection.x)
     {
-        if(m_value.getValue().x + a.x >= absAmount.x)
+        if(m_value.x + a.x >= absAmount.x)
         {
-            finalAmount.x = sign.x * (absAmount.x - m_value.getValue().x);
+            finalAmount.x = sign.x * (absAmount.x - m_value.x);
             m_enabledDirection.x = 0;
         }
         else
@@ -622,9 +620,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 
     if(m_enabledDirection.y)
     {
-        if(m_value.getValue().y + a.y >= absAmount.y)
+        if(m_value.y + a.y >= absAmount.y)
         {
-            finalAmount.y = sign.y * (absAmount.y - m_value.getValue().y);
+            finalAmount.y = sign.y * (absAmount.y - m_value.y);
             m_enabledDirection.y = 0;
         }
         else
@@ -637,9 +635,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 
     if(m_enabledDirection.z)
     {
-        if(m_value.getValue().z + a.z >= absAmount.z)
+        if(m_value.z + a.z >= absAmount.z)
         {
-            finalAmount.z = sign.z * (absAmount.z - m_value.getValue().z);
+            finalAmount.z = sign.z * (absAmount.z - m_value.z);
             m_enabledDirection.z = 0;
         }
         else
@@ -651,9 +649,9 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 
     if(m_enabledDirection.w)
     {
-        if(m_value.getValue().w + a.w >= absAmount.w)
+        if(m_value.w + a.w >= absAmount.w)
         {
-            finalAmount.w = sign.w * (absAmount.w - m_value.getValue().w);
+            finalAmount.w = sign.w * (absAmount.w - m_value.w);
             m_enabledDirection.w = 0;
         }
         else
@@ -663,27 +661,27 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
         }
     }
 
-    m_value.setValue(m_value.getValue() + a);
+    m_value += a;
 
     if(m_model->getType() == Move_To)
     {
         m_node->move(finalAmount.x,finalAmount.y,finalAmount.z);
-        m_nodeState->posisiton.setValue(m_nodeState->posisiton.getValue() + finalAmount);
+        m_nodeState->posisiton += finalAmount;
     }
     else if(m_model->getType() == Rotate_To)
     {
         m_node->rotate(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z), false);
-        m_nodeState->rotation.setValue(glm::mod(m_nodeState->rotation.getValue() + finalAmount,360.0f));
+        m_nodeState->rotation = glm::mod(m_nodeState->rotation + finalAmount,360.0f);
     }
     else if(m_model->getType() == Scale_To)
     {
         m_node->linearScale(finalAmount.x,finalAmount.y,finalAmount.z);
-        m_nodeState->scale.setValue(m_nodeState->scale.getValue() + finalAmount);
+        m_nodeState->scale += finalAmount;
     }
     else if(m_model->getType() == Color_To)
     {
         m_node->colorize(finalAmount);
-        m_nodeState->color.setValue(m_nodeState->color.getValue() + finalAmount);
+        m_nodeState->color += finalAmount;
     }
     else
         return (true);
@@ -701,21 +699,21 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 /// ************************  ///
 
 SkeletalNodeState::SkeletalNodeState() :
-    posisiton(glm::vec4(0),0),
-    rotation(glm::vec4(0),0),
-    scale(glm::vec4(0),0),
-    color(glm::vec4(0),0)
+    posisiton(glm::vec4(0)),
+    rotation(glm::vec4(0)),
+    scale(glm::vec4(0)),
+    color(glm::vec4(0))
 {
 
 }
 
-void SkeletalNodeState::update(const Time &elapsedTime, uint32_t localTime)
+/*void SkeletalNodeState::update(const Time &elapsedTime, uint32_t localTime)
 {
     posisiton.update(elapsedTime,localTime);
     rotation.update(elapsedTime,localTime);
     scale.update(elapsedTime,localTime);
     color.update(elapsedTime,localTime);
-}
+}*/
 
 /**void SkeletalNodeState::rewind(uint32_t time)
 {

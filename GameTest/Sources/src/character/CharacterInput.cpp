@@ -22,14 +22,20 @@ PlayerAction::PlayerAction(PlayerActionType type, int v) : PlayerAction(type)
 ///
 
 CharacterInput::CharacterInput() :
-    m_lookingDirection(glm::vec2(0,-1),0),
-    m_walkingDirection(glm::vec2(0),0),
-    m_attackingInput(false,0),
-    m_dashingInput(false,0),
-    m_pushedInput(false,0)
+    m_lookingDirection(glm::vec2(0,-1)),
+    m_walkingDirection(glm::vec2(0)),
+    m_attackingInput(false),
+    m_dashingInput(false),
+    m_pushedInput(false)
 {
-    //m_lookingDirection.setReconciliationPrecision(glm::vec2(.2f));
-    //ctor
+    m_walkingDirection.setMinMaxAndPrecision(glm::vec2(-1),glm::vec2(1),glm::uvec2(2));
+    m_syncComponent.addSyncElement(&m_walkingDirection);
+
+    m_lookingDirection.setMinMaxAndPrecision(glm::vec2(-1),glm::vec2(1),glm::uvec2(2));
+    m_syncComponent.addSyncElement(&m_lookingDirection);
+
+    m_syncComponent.addSyncElement(&m_attackingInput);
+    m_syncComponent.addSyncElement(&m_dashingInput);
 }
 
 CharacterInput::~CharacterInput()
@@ -46,7 +52,7 @@ void CharacterInput::reset()
 
 void CharacterInput::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    bool syncUpdate = false;
+    /*bool syncUpdate = false;
 
     syncUpdate |= m_lookingAt.update(elapsedTime, localTime);
     syncUpdate |= m_lookingDirection.update(elapsedTime, localTime);
@@ -59,22 +65,24 @@ void CharacterInput::update(const pou::Time &elapsedTime, uint32_t localTime)
     syncUpdate |= m_pushedDirection.update(elapsedTime, localTime);
 
     if(syncUpdate)
-        this->setLastUpdateTime(localTime);
+        this->setLastUpdateTime(localTime);*/
+
+    m_syncComponent.update(elapsedTime, localTime);
 
     m_pushedInput.setValue(false);
 }
 
-void CharacterInput::syncFrom(CharacterInput *input)
+/*void CharacterInput::syncFrom(CharacterInput *input)
 {
-    m_lookingAt.syncFrom(input->m_lookingAt);
-    m_lookingDirection.syncFrom(input->m_lookingDirection);
-    m_walkingDirection.syncFrom(input->m_walkingDirection);
-    m_attackingInput.syncFrom(input->m_attackingInput);
-    m_attackingDirection.syncFrom(input->m_attackingDirection);
-    m_dashingInput.syncFrom(input->m_dashingInput);
-    m_dashingDirection.syncFrom(input->m_dashingDirection);
-    m_pushedInput.syncFrom(input->m_pushedInput);
-    m_pushedDirection.syncFrom(input->m_pushedDirection);
+    m_lookingAt.syncFrom(&input->m_lookingAt);
+    m_lookingDirection.syncFrom(&input->m_lookingDirection);
+    m_walkingDirection.syncFrom(&input->m_walkingDirection);
+    m_attackingInput.syncFrom(&input->m_attackingInput);
+    m_attackingDirection.syncFrom(&input->m_attackingDirection);
+    m_dashingInput.syncFrom(&input->m_dashingInput);
+    m_dashingDirection.syncFrom(&input->m_dashingDirection);
+    m_pushedInput.syncFrom(&input->m_pushedInput);
+    m_pushedDirection.syncFrom(&input->m_pushedDirection);
 }
 
 
@@ -131,7 +139,7 @@ void CharacterInput::setReconciliationDelay(uint32_t serverDelay, uint32_t clien
     m_walkingDirection.setReconciliationDelay(serverDelay, clientDelay);
     m_attackingInput.setReconciliationDelay(serverDelay, clientDelay);
     m_dashingInput.setReconciliationDelay(serverDelay, clientDelay);
-}
+}*/
 
 glm::vec2 CharacterInput::getLookingAt()
 {
@@ -163,11 +171,15 @@ std::pair<bool, glm::vec2>   CharacterInput::getPushedInputs()
     return {m_pushedInput.getValue(), m_pushedDirection.getValue()};
 }
 
+pou::SyncComponent *CharacterInput::getSyncComponent()
+{
+    return &m_syncComponent;
+}
 
-uint32_t CharacterInput::getLastUpdateTime()
+/*uint32_t CharacterInput::getLastUpdateTime()
 {
     return m_lastUpdateTime;
-}
+}*/
 
 
 
@@ -176,8 +188,9 @@ void CharacterInput::setLookingAt(glm::vec2 direction)
     if(direction != glm::vec2(0))
         direction = glm::normalize(direction);
 
-    if(m_lookingAt.setValue(direction))
-        this->setLastUpdateTime(m_lookingAt.getLastUpdateTime());
+    m_lookingAt.setValue(direction);
+    //if(m_lookingAt.setValue(direction))
+      //  this->setLastUpdateTime(m_lookingAt.getLastUpdateTime());
 }
 
 void CharacterInput::setLookingDirection(glm::vec2 direction)
@@ -185,8 +198,9 @@ void CharacterInput::setLookingDirection(glm::vec2 direction)
     if(direction != glm::vec2(0))
         direction = glm::normalize(direction);
 
-    if(m_lookingDirection.setValue(direction))
-        this->setLastUpdateTime(m_lookingDirection.getLastUpdateTime());
+    m_lookingDirection.setValue(direction);
+    //if(m_lookingDirection.setValue(direction))
+      //  this->setLastUpdateTime(m_lookingDirection.getLastUpdateTime());
 }
 
 void CharacterInput::setWalkingDirection(glm::vec2 direction)
@@ -194,8 +208,10 @@ void CharacterInput::setWalkingDirection(glm::vec2 direction)
     if(direction != glm::vec2(0))
         direction = glm::normalize(direction);
 
-    if(m_walkingDirection.setValue(direction))
-        this->setLastUpdateTime(m_walkingDirection.getLastUpdateTime());
+    m_walkingDirection.setValue(direction);
+
+    //if(m_walkingDirection.setValue(direction))
+      //  this->setLastUpdateTime(m_walkingDirection.getLastUpdateTime());
 }
 
 void CharacterInput::setAttacking(bool attackingInput, glm::vec2 direction)
@@ -203,10 +219,13 @@ void CharacterInput::setAttacking(bool attackingInput, glm::vec2 direction)
     if(direction != glm::vec2(0))
         direction = glm::normalize(direction);
 
-    if(m_attackingInput.setValue(attackingInput))
-        this->setLastUpdateTime(m_attackingInput.getLastUpdateTime());
-    if(m_attackingDirection.setValue(direction))
-        this->setLastUpdateTime(m_attackingDirection.getLastUpdateTime());
+    m_attackingInput.setValue(attackingInput);
+    m_attackingDirection.setValue(direction);
+
+    //if(m_attackingInput.setValue(attackingInput))
+      //  this->setLastUpdateTime(m_attackingInput.getLastUpdateTime());
+    //if(m_attackingDirection.setValue(direction))
+      //  this->setLastUpdateTime(m_attackingDirection.getLastUpdateTime());
 }
 
 void CharacterInput::setDashing(bool dashingInput, glm::vec2 direction)
@@ -214,25 +233,31 @@ void CharacterInput::setDashing(bool dashingInput, glm::vec2 direction)
     if(direction != glm::vec2(0))
         direction = glm::normalize(direction);
 
-    if(m_dashingInput.setValue(dashingInput))
-        this->setLastUpdateTime(m_dashingInput.getLastUpdateTime());
-    if(m_dashingDirection.setValue(direction))
-        this->setLastUpdateTime(m_dashingDirection.getLastUpdateTime());
+    m_dashingInput.setValue(dashingInput);
+    m_dashingDirection.setValue(direction);
+
+    //if(m_dashingInput.setValue(dashingInput))
+      //  this->setLastUpdateTime(m_dashingInput.getLastUpdateTime());
+    //if(m_dashingDirection.setValue(direction))
+      //  this->setLastUpdateTime(m_dashingDirection.getLastUpdateTime());
 }
 
 void CharacterInput::setPush(bool pushedInput, glm::vec2 direction)
 {
-    if(m_pushedInput.setValue(pushedInput))
-        this->setLastUpdateTime(m_pushedInput.getLastUpdateTime());
-    if(m_pushedDirection.setValue(direction))
-        this->setLastUpdateTime(m_pushedDirection.getLastUpdateTime());
+    m_pushedInput.setValue(pushedInput);
+    m_pushedDirection.setValue(direction);
+
+    //if(m_pushedInput.setValue(pushedInput))
+      //  this->setLastUpdateTime(m_pushedInput.getLastUpdateTime());
+    //if(m_pushedDirection.setValue(direction))
+      //  this->setLastUpdateTime(m_pushedDirection.getLastUpdateTime());
 }
 
-void CharacterInput::setLastUpdateTime(uint32_t time)
+/*void CharacterInput::setLastUpdateTime(uint32_t time)
 {
     if(uint32less(m_lastUpdateTime, time))
         m_lastUpdateTime = time;
-}
+}*/
 
 
 ///
@@ -244,7 +269,7 @@ const float PlayerInput::DEFAULT_WANTTOATTACK_DELAY = .1f;
 const float PlayerInput::DEFAULT_WANTTODASH_DELAY = .5f;
 
 
-PlayerInput::PlayerInput() :
+PlayerInput::PlayerInput() : CharacterInput(),
     m_wantToLookAt(false),
     m_wantToLook(false),
     m_wantToWalk(false)

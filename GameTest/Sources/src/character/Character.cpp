@@ -11,6 +11,7 @@
 #include "assets/CharacterModelAsset.h"
 #include "ai/AiComponent.h"
 #include "logic/GameMessageTypes.h"
+#include "world/GameWorld.h"
 
 //typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
@@ -23,6 +24,7 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(/**-1,**/nullptr),
     m_input(characterInput),
     m_isDead(false,0),
+    m_world(nullptr),
     m_syncId(0),
     m_curAnimation(std::string(), 0)
 {
@@ -33,7 +35,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_isDestinationSet  = false;
     m_destination       = {0,0};
 
-    m_lastCharacterSyncTime     = -1;
+    ///m_lastCharacterSyncTime     = -1;
     m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
@@ -54,6 +56,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_states[CharacterStateType_Dead]           = std::make_unique<CharacterState_Dead>(this);
 
     m_curState = nullptr;
+
+    m_aiComponent = std::make_unique<AiComponent>(this);
 }
 
 Character::~Character()
@@ -243,9 +247,10 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     return (true);
 }
 
-void Character::setSyncId(int id)
+void Character::setWorldAndSyncId(GameWorld *world, int id)
 {
-    m_syncId = id;
+    m_world     = world;
+    m_syncId    = id;
 }
 
 void Character::setTeam(int team)
@@ -590,6 +595,11 @@ int Character::getTeam() const
     return m_team;
 }
 
+GameWorld* Character::getWorld() const
+{
+    return m_world;
+}
+
 uint32_t Character::getSyncId() const
 {
     return m_syncId;
@@ -598,7 +608,9 @@ uint32_t Character::getSyncId() const
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
     SceneNode::setReconciliationDelay(serverDelay, clientDelay);
-    m_input->setReconciliationDelay(serverDelay, clientDelay);
+    m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
+    if(m_aiComponent)
+        m_aiComponent->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
     m_curAnimation.setReconciliationDelay(serverDelay, clientDelay);
     m_attributes.setReconciliationDelay(serverDelay, clientDelay);
 }
@@ -613,7 +625,9 @@ uint32_t Character::getLastCharacterUpdateTime()
 {
     auto lastUpdate = m_lastCharacterUpdateTime;
 
-    lastUpdate = std::max(m_input->getLastUpdateTime(), lastUpdate);
+    lastUpdate = uint32max(m_input->getSyncComponent()->getLastUpdateTime(), lastUpdate);
+    if(m_aiComponent)
+        lastUpdate = uint32max(m_aiComponent->getSyncComponent()->getLastUpdateTime(), lastUpdate);
 
     return lastUpdate;
 }
@@ -687,7 +701,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }
 
-    m_input->serialize(stream, clientTime);
+    m_input->getSyncComponent()->serialize(stream, clientTime);
 
    /**bool updateAnimation = false;
     if(!stream->isReading() && uint32less(clientTime,m_curAnimation.getLastUpdateTime()))
@@ -707,6 +721,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }**/
 
+    m_aiComponent->getSyncComponent()->serialize(stream, clientTime);
 }
 
 void Character::syncFromCharacter(Character *srcCharacter)
@@ -717,14 +732,17 @@ void Character::syncFromCharacter(Character *srcCharacter)
     if(m_disableSync)
         return;
 
-    m_modelAttributes.syncFrom(srcCharacter->m_modelAttributes);
-    m_attributes.syncFrom(srcCharacter->m_attributes);
+    m_modelAttributes.syncFrom(&srcCharacter->m_modelAttributes);
+    m_attributes.syncFrom(&srcCharacter->m_attributes);
+
     if(!m_disableInputSync)
-        m_input->syncFrom(srcCharacter->m_input.get());
+        m_input->getSyncComponent()->syncFrom(srcCharacter->m_input->getSyncComponent());
+
+    m_aiComponent->getSyncComponent()->syncFrom(srcCharacter->m_aiComponent->getSyncComponent());
 
     ///m_curAnimation.syncFrom(srcCharacter->m_curAnimation);
 
-    m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
+   /// m_lastCharacterSyncTime = srcCharacter->m_curLocalTime;
 
     //return (true);
 }
