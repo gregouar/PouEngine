@@ -19,6 +19,7 @@ static const int SALT_SIZE = 8;
 
 const int UDPPACKET_SEQ_SIZE = 16;
 const int UDPPACKET_SEQ_MAX = (int)pow(2,UDPPACKET_SEQ_SIZE);
+const int UDPPACKET_ACK_BITS = 32;
 
 static const int MAX_SLICESIZE = 1000;
 const int UDPPACKET_SLICEID_SIZE = 16;
@@ -72,7 +73,7 @@ struct UdpPacket
         stream->serializeBits(salt, SALT_SIZE);
         stream->serializeBits(sequence, UDPPACKET_SEQ_SIZE);
         stream->serializeBits(last_ack, UDPPACKET_SEQ_SIZE);
-        stream->serializeBits(ack_bits, 32);
+        stream->serializeBits(ack_bits, UDPPACKET_ACK_BITS);
         stream->serializeInt(type, 0, NBR_PacketTypes-1);
 
         if(flush)

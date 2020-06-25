@@ -144,7 +144,7 @@ void UdpClient::sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend)
         ///m_lastServerPingTime = m_curLocalTime;
 }
 
-void UdpClient::sendReliableBigMessage(std::shared_ptr<NetMessage> msg)
+void UdpClient::sendBigReliableMessage(std::shared_ptr<NetMessage> msg)
 {
     if(m_connectionStatus != ConnectionStatus_Connected)
     {

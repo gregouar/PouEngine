@@ -36,7 +36,7 @@ class AbstractServer
         virtual void update(const Time &elapsedTime);
 
         virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend = false) = 0;
-        virtual void sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg) = 0;
+        virtual void sendBigReliableMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg) = 0;
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages) = 0;
 
         size_t connectLocalClient();

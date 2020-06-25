@@ -68,6 +68,8 @@ struct ChunkSendingBuffer
 
     std::map<int, int> packetSeqToSliceId;
     Timer sendingTimer;
+
+    std::set<int>::iterator lastSentSlice;
 };
 
 struct ChunkReceivingBuffer
@@ -93,7 +95,7 @@ struct SendedPacketContent
 
 struct NetMessagesList
 {
-    NetMessagesList() : curId(0), firstAck(true), last_ack(-1), ack_bits(0), avrgRTT(0){}
+    NetMessagesList() : curId(0), firstAck(true), last_ack(-1), ack_bits(0), avrgRTT(0),nbrPacketReceived(0){}
 
     std::map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
     std::list<std::shared_ptr<NetMessage> > nonReliableMsgList;
@@ -104,6 +106,8 @@ struct NetMessagesList
     int ack_bits;
 
     float avrgRTT;
+
+    int nbrPacketReceived;
 
     //std::multimap<int, int> msgPerPacket;
     std::map<int, SendedPacketContent> sendedPacketContents;

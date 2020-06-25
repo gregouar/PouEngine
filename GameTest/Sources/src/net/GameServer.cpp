@@ -142,7 +142,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             auto &world = m_worlds.find(m_curWorldId)->second;
             size_t player_id = world.askToAddPlayer();
 
-            clientInfos.lastSyncTime     = (uint32_t)(-1);
+            clientInfos.lastSyncTime  = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;
             clientInfos.player_id     = player_id;
         }
@@ -166,7 +166,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
             clientInfos.playerCreated = true;
             world.createWorldInitializationMsg(worldInitMsg);
-            m_server->sendReliableBigMessage(clientNbr, worldInitMsg);
+            m_server->sendBigReliableMessage(clientNbr, worldInitMsg);
 
             pou::Logger::write("Sending WorldInit #"+std::to_string(m_curWorldId)+" to client #"+std::to_string(clientNbr));
             continue;

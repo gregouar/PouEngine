@@ -97,7 +97,7 @@ void UdpServer::sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg,
       ///  m_clients[clientNbr].lastPingTime = m_curLocalTime;
 }
 
-void UdpServer::sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg)
+void UdpServer::sendBigReliableMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg)
 {
     if(clientNbr >= m_clients.size())
         return;
@@ -108,7 +108,7 @@ void UdpServer::sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMe
         return;
 
     ClientAddress clientAddress = {client.address, client.serverSalt^client.clientSalt};
-    m_packetsExchanger.sendChunk(clientAddress, msg, false);
+    m_packetsExchanger.sendChunk(clientAddress, msg);
 }
 
 

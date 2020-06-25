@@ -92,6 +92,11 @@ ItemModelAsset* Player::useGear(ItemModelAsset *itemModel)
         return (nullptr);
 
     GearType type = itemModel->getAttributes().type;
+    if(type == NBR_GEAR_TYPES)
+        return (nullptr);
+
+    if(m_gearsModel[type] == itemModel)
+        return itemModel;
 
     auto *oldGear= this->removeGear(type);
 

@@ -14,7 +14,7 @@ namespace pou
 const int UdpPacketsExchanger::MAX_FRAGBUFFER_ENTRIES = 256;
 const float UdpPacketsExchanger::MAX_FRAGPACKET_LIFESPAN = 60.0f*5;
 const float UdpPacketsExchanger::MAX_KEEPFRAGPACKETSPERCLIENT_TIME = 60.0f*10;
-const float UdpPacketsExchanger::SLICE_SENDING_DELAY = .5f;
+const float UdpPacketsExchanger::SLICE_SENDING_DELAY = .2f;
 const int UdpPacketsExchanger::NBR_SLICESPERSEND = 50;
 
 UdpBuffer::UdpBuffer() : buffer(MAX_PACKETSIZE)
@@ -76,12 +76,42 @@ void UdpPacketsExchanger::update(const Time &elapsedTime)
         ||!chunkSendingBuffer.sendingTimer.isActive())
         {
             size_t i = 0;
+            //auto oldLastSliceSent = chunkSendingBuffer.lastSentSlice;
+
+            auto finalSlice =  chunkSendingBuffer.lastSentSlice;
+            if(chunkSendingBuffer.slicesToSend.size() == 1)
+                finalSlice = chunkSendingBuffer.slicesToSend.end();
+            /*if(finalSlice != chunkSendingBuffer.slicesToSend.begin())
+                --finalSlice;
+            else
+                finalSlice = chunkSendingBuffer.slicesToSend.end();*/
+
+            auto startSlice = chunkSendingBuffer.lastSentSlice;
+            if(startSlice != chunkSendingBuffer.slicesToSend.end()
+            && chunkSendingBuffer.slicesToSend.size() > 1)
+                ++startSlice;
+            else
+                startSlice = chunkSendingBuffer.slicesToSend.begin();
+
+            for(auto it = startSlice; it != finalSlice
+            && i < NBR_SLICESPERSEND ; ++i, ++it)
+            {
+                if(it == chunkSendingBuffer.slicesToSend.end())
+                    it = chunkSendingBuffer.slicesToSend.begin();
+
+                chunkSendingBuffer.sendingTimer.reset(SLICE_SENDING_DELAY);
+                this->sendSlice(chunkSendingBuffer, *it);
+
+                chunkSendingBuffer.lastSentSlice = it;
+            }
+
+            /*size_t i = 0;
             for(auto it = chunkSendingBuffer.slicesToSend.begin() ; it != chunkSendingBuffer.slicesToSend.end()
             && i < NBR_SLICESPERSEND ; ++i, ++it)
             {
                 chunkSendingBuffer.sendingTimer.reset(SLICE_SENDING_DELAY);
                 this->sendSlice(chunkSendingBuffer, *it);
-            }
+            }*/
         }
     }
 
@@ -136,6 +166,7 @@ void UdpPacketsExchanger::receivePackets(std::list<UdpBuffer> &packetBuffers,
         }
         else if(packetType != PacketCorrupted)
             packetBuffers.push_back(std::move(tempBuffer));
+
     }
 
     for(auto &it : m_reliableMsgBuffers)
@@ -176,6 +207,8 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
     auto &netMsgList = m_netMsgLists[{address, packet.salt}];
     packet.last_ack = netMsgList.last_ack;
     packet.ack_bits = netMsgList.ack_bits;
+
+    ///std::cout<<"Las ack sent:"<<packet.last_ack<<std::endl;
 
     if(!forceNonFragSend)
     {
@@ -340,6 +373,7 @@ bool UdpPacketsExchanger::sendChunk(ClientAddress &clientAddress, std::vector<ui
         if(initialBurst)
             this->sendSlice(chunkSendingBuffer, i);
     }
+    chunkSendingBuffer.lastSentSlice = chunkSendingBuffer.slicesToSend.end();
 
     std::cout<<"Sending chunk with #slices: "<<chunkSendingBuffer.nbr_slices<<std::endl;
 
@@ -369,6 +403,8 @@ void UdpPacketsExchanger::sendSlice(ChunkSendingBuffer &chunkSendingBuffer, int 
 
     this->sendPacket(chunkSendingBuffer.address.address, packet, true);
     chunkSendingBuffer.packetSeqToSliceId.insert_or_assign(packet.sequence %  UDPPACKET_SEQ_MAX, sliceId);
+
+        //std::cout<<"Sending slice#:"<<sliceId<<" in packet:"<<packet.sequence %  UDPPACKET_SEQ_MAX<<std::endl;
     m_curSequence++;
 }
 
@@ -380,7 +416,8 @@ bool UdpPacketsExchanger::reassembleChunk(UdpBuffer &chunkBuffer,
     if(!this->readPacket(packetSlice, chunkBuffer))
         return (false);
 
-    std::cout<<"Packet slice received : ChunkId="<<packetSlice.chunk_id<<" ("<<packetSlice.slice_id+1<<"/"<<packetSlice.nbr_slices<<")"<<std::endl;
+    std::cout<<"Packet slice received : ChunkId="<<packetSlice.chunk_id<<" ("<<packetSlice.slice_id<<"/"<<packetSlice.nbr_slices-1<<")"; //<<std::endl;
+    std::cout<<" in packet:"<<packetSlice.sequence<<std::endl;
 
     ClientAddress clientAddress = {chunkBuffer.address,packetSlice.salt};
     auto chunkReceivingBufferIt = m_chunkReceivingBuffers.find(clientAddress);
@@ -658,13 +695,22 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
     ClientAddress clientAddress = {packetBuffer.address, packet.salt};
     auto &netMsgList = m_netMsgLists[clientAddress];
 
+    netMsgList.nbrPacketReceived++;
+    if(netMsgList.nbrPacketReceived > UDPPACKET_ACK_BITS/2)
+    {
+        netMsgList.nbrPacketReceived = 0;
+        this->ping(clientAddress);
+    }
+
     //We remove from the msgList the messages that have been ack
-    for(auto i = 0 ; i < 32 ; ++i)
+    for(auto i = 0 ; i < UDPPACKET_ACK_BITS ; ++i)
     if((packet.ack_bits & ((int)1 << i)))
     {
         int packet_seq = (packet.last_ack - (int)i) % UDPPACKET_SEQ_MAX;
         if(packet_seq < 0)
             packet_seq += UDPPACKET_SEQ_MAX;
+
+        ///std::cout<<"Ack packet:"<<packet_seq<<std::endl;
 
         auto &sendedPacketContent = netMsgList.sendedPacketContents[packet_seq];
         for(auto id : sendedPacketContent.messageIds)
@@ -680,6 +726,15 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
                 auto sliceIt = chunkSendingBuffer.packetSeqToSliceId.find(packet_seq);
                 if(sliceIt != chunkSendingBuffer.packetSeqToSliceId.end())
                 {
+                    if(chunkSendingBuffer.lastSentSlice != chunkSendingBuffer.slicesToSend.end()
+                    && *chunkSendingBuffer.lastSentSlice == sliceIt->second)
+                    {
+                        if(chunkSendingBuffer.slicesToSend.size() > 1)
+                            ++chunkSendingBuffer.lastSentSlice;
+                        else
+                            chunkSendingBuffer.lastSentSlice = chunkSendingBuffer.slicesToSend.end();
+                    }
+
                     chunkSendingBuffer.slicesToSend.erase(sliceIt->second);
                     chunkSendingBuffer.packetSeqToSliceId.erase(sliceIt);
                 }
@@ -723,6 +778,10 @@ PacketType UdpPacketsExchanger::retrieveMessagesAndAck(UdpBuffer &packetBuffer,
         delta = 0;
     }
     netMsgList.ack_bits |= (((int)1) << (-delta));
+
+
+    ///std::cout<<"Acking packet:"<<seq<<std::endl;
+
 
     //We retrieve the messages
     auto &reliableMsgBuffer = m_reliableMsgBuffers[clientAddress];

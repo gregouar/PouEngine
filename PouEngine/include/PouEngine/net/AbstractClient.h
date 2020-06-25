@@ -25,7 +25,7 @@ class AbstractClient
         virtual void update(const Time &elapsedTime);
 
         virtual void sendMessage(std::shared_ptr<NetMessage> msg, bool forceSend = false) = 0;
-        virtual void sendReliableBigMessage(std::shared_ptr<NetMessage> msg) = 0;
+        virtual void sendBigReliableMessage(std::shared_ptr<NetMessage> msg) = 0;
         virtual void receivePackets(std::list<std::shared_ptr<NetMessage> > &netMessages) = 0;
 
         bool isConnected() const;

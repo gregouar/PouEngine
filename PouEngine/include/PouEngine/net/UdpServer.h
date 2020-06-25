@@ -21,7 +21,7 @@ class UdpServer : public AbstractServer
         virtual void update(const Time &elapsedTime);
 
         virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend);
-        virtual void sendReliableBigMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg);
+        virtual void sendBigReliableMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg);
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
         virtual float getRTT(uint16_t clientNbr) const;
