@@ -17,7 +17,7 @@ class IntSyncElement : public AbstractSyncElement
         void useMinMax(int min, int max);
 
         void    setValue(int v);
-        int     getValue();
+        int     getValue() const;
 
     protected:
         virtual void serializeImpl(Stream *stream, uint32_t clientTime);

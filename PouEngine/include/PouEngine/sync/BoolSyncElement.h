@@ -14,7 +14,7 @@ class BoolSyncElement : public AbstractSyncElement
         virtual ~BoolSyncElement();
 
         void    setValue(bool v);
-        bool    getValue();
+        bool    getValue() const;
 
     protected:
         virtual void serializeImpl(Stream *stream, uint32_t clientTime);

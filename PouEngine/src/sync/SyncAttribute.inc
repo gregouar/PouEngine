@@ -61,6 +61,9 @@ void SyncAttribute<T>::syncFrom(const AbstractSyncAttribute *t)
 {
     auto casted = dynamic_cast<const SyncAttribute<T>*>(t);
 
+    if(casted->getLastUpdateTime() == (uint32_t)(-1))
+        return;
+
     //if(uint32less(m_syncTime, casted->getLastUpdateTime()))
     {
         m_syncValues.insert_or_assign(casted->getLastUpdateTime(), casted->getValue());

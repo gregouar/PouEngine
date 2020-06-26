@@ -15,6 +15,101 @@
 
 //typedef pou::AssetHandler<CharacterModelAsset>     CharacterModelsHandler;
 
+///
+///SyncCharacterAttributes
+///
+
+
+SyncCharacterAttributes::SyncCharacterAttributes() : SyncCharacterAttributes(CharacterAttributes())
+{
+    //ctor
+}
+
+SyncCharacterAttributes::SyncCharacterAttributes(const CharacterAttributes &v) : AbstractSyncElement(&m_attribute),
+    m_attribute(v,-1)
+{
+    this->useUpdateBit();
+}
+
+SyncCharacterAttributes::~SyncCharacterAttributes()
+{
+    //dtor
+}
+
+void SyncCharacterAttributes::setValue(const CharacterAttributes &v)
+{
+    if(m_attribute.setValue(v))
+        this->updateLastUpdateTime();
+}
+
+const CharacterAttributes &SyncCharacterAttributes::getValue() const
+{
+    return m_attribute.getValue();
+}
+
+void SyncCharacterAttributes::serializeImpl(pou::Stream *stream, uint32_t clientTime)
+{
+    auto v = m_attribute.getValue();
+
+    stream->serializeFloat(v.walkingSpeed);
+    stream->serializeFloat(v.life);
+
+    if(stream->isReading())
+        m_attribute.setValue(v, true);
+}
+
+
+///
+///SyncCharacterModelAttributes
+///
+
+
+SyncCharacterModelAttributes::SyncCharacterModelAttributes() : SyncCharacterModelAttributes(CharacterModelAttributes())
+{
+    //ctor
+}
+
+SyncCharacterModelAttributes::SyncCharacterModelAttributes(const CharacterModelAttributes &v) : AbstractSyncElement(&m_attribute),
+    m_attribute(v,-1)
+{
+    this->useUpdateBit();
+}
+
+SyncCharacterModelAttributes::~SyncCharacterModelAttributes()
+{
+    //dtor
+}
+
+void SyncCharacterModelAttributes::setValue(const CharacterModelAttributes &v)
+{
+    if(m_attribute.setValue(v))
+        this->updateLastUpdateTime();
+}
+
+const CharacterModelAttributes &SyncCharacterModelAttributes::getValue() const
+{
+    return m_attribute.getValue();
+}
+
+void SyncCharacterModelAttributes::serializeImpl(pou::Stream *stream, uint32_t clientTime)
+{
+    auto v = m_attribute.getValue();
+
+    stream->serializeFloat(v.walkingSpeed);
+    stream->serializeFloat(v.attackDelay);
+    stream->serializeFloat(v.maxLife);
+    stream->serializeFloat(v.attackDamages);
+    stream->serializeBool(v.immovable);
+
+    if(stream->isReading())
+        m_attribute.setValue(v, true);
+}
+
+
+
+///
+///Character
+///
 
 Character::Character() : Character(std::make_shared<CharacterInput> ())
 {
@@ -23,10 +118,10 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(/**-1,**/nullptr),
     m_input(characterInput),
-    m_isDead(false,0),
+    m_isDead(false),
     m_world(nullptr),
-    m_syncId(0),
-    m_curAnimation(std::string(), 0)
+    m_syncId(0)
+    ///m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
 
@@ -36,14 +131,14 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     m_destination       = {0,0};
 
     ///m_lastCharacterSyncTime     = -1;
-    m_lastCharacterUpdateTime   = -1;
+    ///m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
     m_position.setReconciliationPrecision(glm::vec3(32));
     m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
-    m_disableInputSync  = false;
+   /// m_disableInputSync  = false;
     m_disableDeath      = false;
     m_disableDamageDealing = false;
 
@@ -57,7 +152,11 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
 
     m_curState = nullptr;
 
-    m_aiComponent = std::make_unique<AiComponent>(this);
+    this->setAiComponent(std::make_unique<AiComponent>(this));
+    ///m_syncComponent.addSyncSubComponent(m_input->getSyncComponent());
+
+    m_syncComponent.addSyncElement(&m_modelAttributes);
+    m_syncComponent.addSyncElement(&m_attributes);
 }
 
 Character::~Character()
@@ -108,7 +207,8 @@ bool Character::createFromModel(CharacterModelAsset *model)
         this->disableRotationSync();
 
     m_lastModelUpdateTime = m_curLocalTime;
-    this->setLastCharacterUpdateTime(m_curLocalTime);
+    m_syncComponent.setLastUpdateTime(m_curLocalTime);
+    ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     this->switchState(CharacterStateType_Standing);
 
@@ -117,7 +217,10 @@ bool Character::createFromModel(CharacterModelAsset *model)
 
 void Character::setAiComponent(std::shared_ptr<AiComponent> aiComponent)
 {
+    ///if(m_aiComponent)
+       /// m_syncComponent.removeSyncSubComponent(m_aiComponent->getSyncComponent());
     m_aiComponent = aiComponent;
+   /// m_syncComponent.addSyncSubComponent(m_aiComponent->getSyncComponent());
 }
 
 bool Character::addSkeleton(std::shared_ptr<pou::Skeleton> skeleton, const std::string &name)
@@ -293,7 +396,7 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
     }
 
     //this->m_lastAttributesUpdateTime = m_curLocalTime;
-    this->setLastCharacterUpdateTime(m_curLocalTime);
+    ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return isFatal;
 }
@@ -330,7 +433,7 @@ bool Character::resurrect()
     this->switchState(CharacterStateType_Standing);
 
     //this->m_lastAttributesUpdateTime = m_curLocalTime;
-    this->setLastCharacterUpdateTime(m_curLocalTime);
+    ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
 }
@@ -436,7 +539,40 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
-    bool syncUpdate = false;
+    float oldLife = m_attributes.getValue().life;
+
+    m_syncComponent.update(elapsedTime, localTime);
+    m_aiComponent->update(elapsedTime, localTime);
+    m_input->update(elapsedTime, localTime);
+
+    if(m_curState)
+    {
+        m_curState->handleInput(m_input.get());
+        m_curState->update(elapsedTime, localTime);
+    }
+
+    if(m_attributes.getValue().life < oldLife)
+    {
+        if(m_attributes.getValue().life <= 0)
+        {
+            this->kill(oldLife-m_attributes.getValue().life);
+            std::cout<<"Killed from Sync !"<<std::endl;
+        }
+        else
+            this->interrupt(oldLife-m_attributes.getValue().life);
+    }
+    else if (m_attributes.getValue().life > oldLife)
+    {
+        //if(m_attributes.getValue().life > 0)
+        if(m_isDead.getValue() && m_attributes.getValue().life > 0)
+            this->resurrect();
+    }
+
+    if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0
+       && m_attributes.getValue().life <= 0)
+        this->kill();
+
+    /**bool syncUpdate = false;
 
     if(m_aiComponent)
         m_aiComponent->update(elapsedTime, localTime);
@@ -473,7 +609,12 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 
 
     if(syncUpdate)
-        this->setLastCharacterUpdateTime(m_curLocalTime);
+        this->setLastCharacterUpdateTime(m_curLocalTime);**/
+
+
+
+
+
 
       /**bool wasDead = m_isDead.getValue();
     m_isDead.update(elapsedTime, m_curLocalTime);
@@ -524,8 +665,8 @@ void Character::startAnimation(const std::string &name, bool forceStart)
     for(auto &skeleton : m_skeletons)
         skeleton.second->startAnimation(name, forceStart);
 
-    this->setLastCharacterUpdateTime(m_curLocalTime);
-    m_curAnimation.setValue(name);
+    ///this->setLastCharacterUpdateTime(m_curLocalTime);
+    ///m_curAnimation.setValue(name);
 }
 
 void Character::addToNearbyCharacters(std::shared_ptr<Character> character)
@@ -608,22 +749,32 @@ uint32_t Character::getSyncId() const
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
     SceneNode::setReconciliationDelay(serverDelay, clientDelay);
+    m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
+
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
     if(m_aiComponent)
         m_aiComponent->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
-    m_curAnimation.setReconciliationDelay(serverDelay, clientDelay);
-    m_attributes.setReconciliationDelay(serverDelay, clientDelay);
+    ///m_curAnimation.setReconciliationDelay(serverDelay, clientDelay);
+   /// m_attributes.setReconciliationDelay(serverDelay, clientDelay);
 }
 
-void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
+/**void Character::setLastCharacterUpdateTime(uint32_t time, bool force)
 {
     if(force || m_lastCharacterUpdateTime < time || m_lastCharacterUpdateTime == (uint32_t)(-1))
         m_lastCharacterUpdateTime = time;
-}
+}**/
 
 uint32_t Character::getLastCharacterUpdateTime()
 {
-    auto lastUpdate = m_lastCharacterUpdateTime;
+    /**auto lastUpdate = m_lastCharacterUpdateTime;
+
+    lastUpdate = uint32max(m_input->getSyncComponent()->getLastUpdateTime(), lastUpdate);
+    if(m_aiComponent)
+        lastUpdate = uint32max(m_aiComponent->getSyncComponent()->getLastUpdateTime(), lastUpdate);
+
+    return lastUpdate;**/
+
+    auto lastUpdate = m_syncComponent.getLastUpdateTime();
 
     lastUpdate = uint32max(m_input->getSyncComponent()->getLastUpdateTime(), lastUpdate);
     if(m_aiComponent)
@@ -637,6 +788,10 @@ uint32_t Character::getLastModelUpdateTime()
     return m_lastModelUpdateTime;
 }
 
+/**pou::SyncComponent *Character::getCharacterSyncComponent()
+{
+    return &m_syncComponent;
+}**/
 
 void Character::disableDeath(bool disable)
 {
@@ -646,7 +801,8 @@ void Character::disableDeath(bool disable)
 
 void Character::disableInputSync(bool disable)
 {
-    m_disableInputSync = disable;
+    ///m_disableInputSync = disable;
+    m_input->getSyncComponent()->disableSync(disable);
 }
 
 
@@ -662,7 +818,7 @@ bool Character::areDamagesOnlyCosmetic()
 
 void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
 {
-    bool updateModelAttributes = false;
+    /**bool updateModelAttributes = false;
     if(!stream->isReading() && uint32less(clientTime,m_modelAttributes.getLastUpdateTime()))
         updateModelAttributes = true;
     stream->serializeBool(updateModelAttributes);
@@ -692,16 +848,15 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         auto att = m_attributes.getValue();
 
         stream->serializeFloat(att.walkingSpeed);
-        stream->serializeFloat(att.life/*, 0, (int)m_modelAttributes.getValue().maxLife+1, 2*/);
+        stream->serializeFloat(att.life);
 
         if(stream->isReading())
         {
             m_attributes.setValue(att, true);
             this->setLastCharacterUpdateTime(m_attributes.getLastUpdateTime());
         }
-    }
+    }**/
 
-    m_input->getSyncComponent()->serialize(stream, clientTime);
 
    /**bool updateAnimation = false;
     if(!stream->isReading() && uint32less(clientTime,m_curAnimation.getLastUpdateTime()))
@@ -721,6 +876,8 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }**/
 
+    m_syncComponent.serialize(stream, clientTime);
+    m_input->getSyncComponent()->serialize(stream, clientTime);
     m_aiComponent->getSyncComponent()->serialize(stream, clientTime);
 }
 
@@ -732,13 +889,18 @@ void Character::syncFromCharacter(Character *srcCharacter)
     if(m_disableSync)
         return;
 
-    m_modelAttributes.syncFrom(&srcCharacter->m_modelAttributes);
+    m_syncComponent.syncFrom(&srcCharacter->m_syncComponent);
+
+    m_input->getSyncComponent()->syncFrom(srcCharacter->m_input->getSyncComponent());
+    m_aiComponent->getSyncComponent()->syncFrom(srcCharacter->m_aiComponent->getSyncComponent());
+
+    /**m_modelAttributes.syncFrom(&srcCharacter->m_modelAttributes);
     m_attributes.syncFrom(&srcCharacter->m_attributes);
 
     if(!m_disableInputSync)
         m_input->getSyncComponent()->syncFrom(srcCharacter->m_input->getSyncComponent());
 
-    m_aiComponent->getSyncComponent()->syncFrom(srcCharacter->m_aiComponent->getSyncComponent());
+    m_aiComponent->getSyncComponent()->syncFrom(srcCharacter->m_aiComponent->getSyncComponent());**/
 
     ///m_curAnimation.syncFrom(srcCharacter->m_curAnimation);
 

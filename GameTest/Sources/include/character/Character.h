@@ -14,7 +14,7 @@
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"
 
-#include "PouEngine/sync/SyncComponent.h"
+#include "PouEngine/sync/SyncElements.h"
 
 class AiComponent;
 class GameWorld;
@@ -34,6 +34,42 @@ struct CharacterAttributes
     float life;
     float walkingSpeed;
 };
+
+class SyncCharacterAttributes  : public pou::AbstractSyncElement
+{
+    public:
+        SyncCharacterAttributes();
+        SyncCharacterAttributes(const CharacterAttributes &v);
+        virtual ~SyncCharacterAttributes();
+
+        void setValue(const CharacterAttributes &v);
+        const CharacterAttributes &getValue() const;
+
+    protected:
+        virtual void serializeImpl(pou::Stream *stream, uint32_t clientTime) override;
+
+    private:
+        pou::SyncAttribute<CharacterAttributes> m_attribute;
+};
+
+
+class SyncCharacterModelAttributes  : public pou::AbstractSyncElement
+{
+    public:
+        SyncCharacterModelAttributes();
+        SyncCharacterModelAttributes(const CharacterModelAttributes &v);
+        virtual ~SyncCharacterModelAttributes();
+
+        void setValue(const CharacterModelAttributes &v);
+        const CharacterModelAttributes &getValue() const;
+
+    protected:
+        virtual void serializeImpl(pou::Stream *stream, uint32_t clientTime) override;
+
+    private:
+        pou::SyncAttribute<CharacterModelAttributes> m_attribute;
+};
+
 
 
 class Character : public pou::SceneNode
@@ -99,6 +135,8 @@ class Character : public pou::SceneNode
         uint32_t        getLastModelUpdateTime();
         uint32_t        getLastCharacterUpdateTime();
 
+        ///pou::SyncComponent *getCharacterSyncComponent();
+
         void disableDeath(bool disable = true); //Could be used to prevent to kill character before server approval
         void disableInputSync(bool disable = true);
         void disableDamageDealing(bool disable = true); //Used to only show cosmetic effect of damages
@@ -120,20 +158,25 @@ class Character : public pou::SceneNode
     protected:
         std::shared_ptr<CharacterInput> m_input;
 
-        pou::SyncAttribute<bool> m_isDead;
+        /**pou::SyncAttribute<bool> m_isDead;
 
         pou::SyncAttribute<CharacterModelAttributes>  m_modelAttributes;
-        pou::SyncAttribute<CharacterAttributes>       m_attributes;
+        pou::SyncAttribute<CharacterAttributes>       m_attributes;**/
+
+        pou::BoolSyncElement m_isDead;
+
+        SyncCharacterModelAttributes    m_modelAttributes;
+        SyncCharacterAttributes         m_attributes;
 
         std::set<std::shared_ptr<Character> >    m_nearbyCharacters;
         std::map<std::string, std::shared_ptr<pou::Skeleton> > m_skeletons;
 
         ///uint32_t m_lastCharacterSyncTime;
-        uint32_t m_lastCharacterUpdateTime;
+        ///uint32_t m_lastCharacterUpdateTime;
         uint32_t m_lastModelUpdateTime;
 
         bool m_disableDeath;
-        bool m_disableInputSync;
+        //bool m_disableInputSync;
         bool m_disableDamageDealing;
 
         int m_team;
@@ -152,9 +195,11 @@ class Character : public pou::SceneNode
         std::map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
 
         bool m_isDestinationSet;
-        glm::vec2 m_destination;
+        glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent
 
-        pou::SyncAttribute<std::string> m_curAnimation; ///I should find a better way to manage animations (like id, but then I need to list all possible animations in the XML beh)
+        pou::SyncComponent m_syncComponent;
+        ///pou::SyncAttribute<std::string> m_curAnimation;
+
 
     public:
 };

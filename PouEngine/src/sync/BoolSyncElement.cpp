@@ -9,7 +9,7 @@ BoolSyncElement::BoolSyncElement() : BoolSyncElement(false)
 }
 
 BoolSyncElement::BoolSyncElement(bool v) : AbstractSyncElement(&m_attribute),
-    m_attribute(v,0)
+    m_attribute(v,-1)
 {
     //ctor
 }
@@ -25,7 +25,7 @@ void BoolSyncElement::setValue(bool v)
         this->updateLastUpdateTime();
 }
 
-bool BoolSyncElement::getValue()
+bool BoolSyncElement::getValue() const
 {
     return m_attribute.getValue();
 }

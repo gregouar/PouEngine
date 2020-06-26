@@ -17,7 +17,7 @@ class FloatSyncElement : public AbstractSyncElement
         void setMinMaxAndPrecision(float min, float max, size_t precision);
 
         void    setValue(float v);
-        float     getValue();
+        float   getValue() const;
 
     protected:
         virtual void serializeImpl(Stream *stream, uint32_t clientTime);

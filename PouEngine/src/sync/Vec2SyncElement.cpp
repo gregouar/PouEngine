@@ -8,8 +8,8 @@ Vec2SyncElement::Vec2SyncElement() : Vec2SyncElement(glm::vec2(0))
     //ctor
 }
 
-Vec2SyncElement::Vec2SyncElement(glm::vec2 v) : AbstractSyncElement(&m_attribute),
-    m_attribute(v,0),
+Vec2SyncElement::Vec2SyncElement(const glm::vec2 &v) : AbstractSyncElement(&m_attribute),
+    m_attribute(v,-1),
     m_useMinMax(false)
 {
     this->useUpdateBit();
@@ -42,7 +42,7 @@ void Vec2SyncElement::setValue(const glm::vec2 &v)
         this->updateLastUpdateTime();
 }
 
-const glm::vec2 &Vec2SyncElement::getValue()
+const glm::vec2 &Vec2SyncElement::getValue() const
 {
     return m_attribute.getValue();
 }

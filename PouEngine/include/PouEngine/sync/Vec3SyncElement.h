@@ -17,7 +17,7 @@ class Vec3SyncElement : public AbstractSyncElement
         void setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision);
 
         void setValue(const glm::vec3 &v);
-        const glm::vec3 &getValue();
+        const glm::vec3 &getValue() const;
 
     protected:
         virtual void serializeImpl(Stream *stream, uint32_t clientTime);

@@ -14,24 +14,35 @@ class SyncComponent
 
         virtual bool update(const Time &elapsedTime, uint32_t localTime = -1);
 
-        virtual void syncFrom(SyncComponent *syncComponent); //syncComponent MUST have the same syncedElement types
+        virtual void syncFrom(SyncComponent *syncComponent); //syncComponent MUST have the same syncedElement and subcomponent types
         virtual void serialize(Stream *stream, uint32_t clientTime);
 
-        virtual void addSyncElement(AbstractSyncElement *netSyncElement);
-        bool containsSyncElement(AbstractSyncElement *netSyncElement);
+        /**virtual void addSyncSubComponent(SyncComponent *syncComponent);
+        virtual void removeSyncSubComponent(SyncComponent *syncComponent);
+        bool containsSyncSubComponent(SyncComponent *syncComponent);**/
+
+        virtual void addSyncElement(AbstractSyncElement *syncElement);
+        bool containsSyncElement(AbstractSyncElement *syncElement);
 
         virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        virtual void disableSync(bool disable = true);
 
         void setLastUpdateTime(uint32_t time);
 
         uint32_t getLastUpdateTime();
 
     protected:
+        void setParentSyncComponent(SyncComponent *syncComponent);
 
     private:
+
         std::vector<AbstractSyncElement*> m_syncElements;
 
+        ///SyncComponent *m_parentSyncComponent;
+        ///std::vector<SyncComponent*> m_syncSubComponents;
+
         uint32_t m_lastUpdateTime;
+        bool m_disableSync;
 };
 
 }

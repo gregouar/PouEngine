@@ -232,6 +232,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     stream->serializeBits(characterSync.nodeId, GameWorld::NODEID_BITS);
 
     characterPtr->serializeCharacter(stream,lastSyncTime);
+    ///characterPtr->getCharacterSyncComponent()->serialize(stream,lastSyncTime);
 
 }
 
@@ -352,6 +353,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
             characterPtr->update(pou::Time(0),localTime);
         }
         characterPtr->serializeCharacter(stream,lastSyncTime);
+        ///characterPtr->getCharacterSyncComponent()->serialize(stream,lastSyncTime);
     }
 
     {

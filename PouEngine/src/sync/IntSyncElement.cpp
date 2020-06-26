@@ -9,7 +9,7 @@ IntSyncElement::IntSyncElement() : IntSyncElement(0)
 }
 
 IntSyncElement::IntSyncElement(int v) : AbstractSyncElement(&m_attribute),
-    m_attribute(v,0),
+    m_attribute(v,-1),
     m_useBits(true),
     m_bits(32)
 {
@@ -43,7 +43,7 @@ void IntSyncElement::setValue(int v)
         this->updateLastUpdateTime();
 }
 
-int IntSyncElement::getValue()
+int IntSyncElement::getValue() const
 {
     return m_attribute.getValue();
 }

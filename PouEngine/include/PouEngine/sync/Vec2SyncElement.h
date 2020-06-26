@@ -10,14 +10,14 @@ class Vec2SyncElement : public AbstractSyncElement
 {
     public:
         Vec2SyncElement();
-        Vec2SyncElement(glm::vec2 v);
+        Vec2SyncElement(const glm::vec2 &v);
         virtual ~Vec2SyncElement();
 
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec2 min, glm::vec2 max, glm::uvec2 precision);
 
         void setValue(const glm::vec2 &v);
-        const glm::vec2 &getValue();
+        const glm::vec2 &getValue() const;
 
     protected:
         virtual void serializeImpl(Stream *stream, uint32_t clientTime) override;

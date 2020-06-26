@@ -9,7 +9,7 @@ FloatSyncElement::FloatSyncElement() : FloatSyncElement(0)
 }
 
 FloatSyncElement::FloatSyncElement(float v) : AbstractSyncElement(&m_attribute),
-    m_attribute(v,0),
+    m_attribute(v,-1),
     m_useMinMax(false)
 {
     //ctor
@@ -42,7 +42,7 @@ void FloatSyncElement::setValue(float v)
         this->updateLastUpdateTime();
 }
 
-float FloatSyncElement::getValue()
+float FloatSyncElement::getValue() const
 {
     return m_attribute.getValue();
 }

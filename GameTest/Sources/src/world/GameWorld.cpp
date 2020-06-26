@@ -295,6 +295,8 @@ void GameWorld::createPlayerCamera(size_t player_id)
     {
         auto player = m_syncPlayers.findElement(player_id);
 
+        assert(player);
+
         m_camera = std::make_shared<pou::CameraObject>();
         auto listeningCamera = std::make_shared<pou::CameraObject>();
         listeningCamera -> setListening(true);

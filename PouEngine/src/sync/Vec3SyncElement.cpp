@@ -9,7 +9,7 @@ Vec3SyncElement::Vec3SyncElement() : Vec3SyncElement(glm::vec3(0))
 }
 
 Vec3SyncElement::Vec3SyncElement(glm::vec3 v) : AbstractSyncElement(&m_attribute),
-    m_attribute(v,0),
+    m_attribute(v,-1),
     m_useMinMax(false)
 {
     this->useUpdateBit();
@@ -42,7 +42,7 @@ void Vec3SyncElement::setValue(const glm::vec3 &v)
         this->updateLastUpdateTime();
 }
 
-const glm::vec3 &Vec3SyncElement::getValue()
+const glm::vec3 &Vec3SyncElement::getValue() const
 {
     return m_attribute.getValue();
 }
