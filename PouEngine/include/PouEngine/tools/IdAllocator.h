@@ -45,7 +45,7 @@ template<class T> class IdAllocator
 
 }
 
-#include "../src/tools/IdAllocator.inc"
+#include "../src/tools/IdAllocator.tpp"
 
 
 #endif // IDALLOCATOR_H

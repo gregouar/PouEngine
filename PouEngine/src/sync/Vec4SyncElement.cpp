@@ -1,33 +1,34 @@
-#include "PouEngine/sync/Vec3SyncElement.h"
+#include "PouEngine/sync/Vec4SyncElement.h"
 
 namespace pou
 {
 
-Vec3SyncElement::Vec3SyncElement() : Vec3SyncElement(glm::vec3(0))
+
+Vec4SyncElement::Vec4SyncElement() : Vec4SyncElement(glm::vec4(0))
 {
     //ctor
 }
 
-Vec3SyncElement::Vec3SyncElement(glm::vec3 v) : AbstractSyncElement(&m_attribute),
+Vec4SyncElement::Vec4SyncElement(glm::vec4 v) : AbstractSyncElement(&m_attribute),
     m_attribute(v,-1),
     m_useMinMax(false)
 {
     this->useUpdateBit();
 }
 
-Vec3SyncElement::~Vec3SyncElement()
+Vec4SyncElement::~Vec4SyncElement()
 {
     //dtor
 }
 
-void Vec3SyncElement::useMinMax(bool use)
+void Vec4SyncElement::useMinMax(bool use)
 {
     m_useMinMax = use;
 }
 
-void Vec3SyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision)
+void Vec4SyncElement::setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm::uvec4 precision)
 {
-    if(max.x < min.x || max.y < min.y || max.z < min.z)
+    if(max.x < min.x || max.y < min.y || max.z < min.z || max.w < min.w)
         return;
 
     this->useMinMax(true);
@@ -36,18 +37,18 @@ void Vec3SyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::u
     m_precision = precision;
 }
 
-void Vec3SyncElement::setValue(const glm::vec3 &v)
+void Vec4SyncElement::setValue(const glm::vec4 &v)
 {
     if(m_attribute.setValue(v))
         this->updateLastUpdateTime();
 }
 
-const glm::vec3 &Vec3SyncElement::getValue() const
+const glm::vec4 &Vec4SyncElement::getValue() const
 {
     return m_attribute.getValue();
 }
 
-void Vec3SyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
+void Vec4SyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
 {
     auto v = m_attribute.getValue();
 
@@ -56,12 +57,14 @@ void Vec3SyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
         stream->serializeFloat(v.x, m_min.x, m_max.x, m_precision.x);
         stream->serializeFloat(v.y, m_min.y, m_max.y, m_precision.y);
         stream->serializeFloat(v.z, m_min.z, m_max.z, m_precision.z);
+        stream->serializeFloat(v.w, m_min.w, m_max.w, m_precision.w);
     }
     else
     {
         stream->serializeFloat(v.x);
         stream->serializeFloat(v.y);
         stream->serializeFloat(v.z);
+        stream->serializeFloat(v.w);
     }
 
     if(stream->isReading())
@@ -69,35 +72,35 @@ void Vec3SyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
 }
 
 ///
-///Vec3LinSyncElement
+///Vec4LinSyncElement
 ///
 
 
-Vec3LinSyncElement::Vec3LinSyncElement() : Vec3LinSyncElement(glm::vec3(0))
+Vec4LinSyncElement::Vec4LinSyncElement() : Vec4LinSyncElement(glm::vec4(0))
 {
     //ctor
 }
 
-Vec3LinSyncElement::Vec3LinSyncElement(glm::vec3 v) : AbstractSyncElement(&m_attribute),
+Vec4LinSyncElement::Vec4LinSyncElement(glm::vec4 v) : AbstractSyncElement(&m_attribute),
     m_attribute(v,-1),
     m_useMinMax(false)
 {
     this->useUpdateBit();
 }
 
-Vec3LinSyncElement::~Vec3LinSyncElement()
+Vec4LinSyncElement::~Vec4LinSyncElement()
 {
     //dtor
 }
 
-void Vec3LinSyncElement::useMinMax(bool use)
+void Vec4LinSyncElement::useMinMax(bool use)
 {
     m_useMinMax = use;
 }
 
-void Vec3LinSyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision)
+void Vec4LinSyncElement::setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm::uvec4 precision)
 {
-    if(max.x < min.x || max.y < min.y || max.z < min.z)
+    if(max.x < min.x || max.y < min.y || max.z < min.z || max.w < min.w)
         return;
 
     this->useMinMax(true);
@@ -106,23 +109,18 @@ void Vec3LinSyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm
     m_precision = precision;
 }
 
-void Vec3LinSyncElement::setReconciliationPrecision(glm::vec3 precision)
-{
-    m_attribute.setReconciliationPrecision(precision);
-}
-
-void Vec3LinSyncElement::setValue(const glm::vec3 &v)
+void Vec4LinSyncElement::setValue(const glm::vec4 &v)
 {
     if(m_attribute.setValue(v))
         this->updateLastUpdateTime();
 }
 
-const glm::vec3 &Vec3LinSyncElement::getValue() const
+const glm::vec4 &Vec4LinSyncElement::getValue() const
 {
     return m_attribute.getValue();
 }
 
-void Vec3LinSyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
+void Vec4LinSyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
 {
     auto v = m_attribute.getValue();
 
@@ -131,12 +129,14 @@ void Vec3LinSyncElement::serializeImpl(Stream *stream, uint32_t clientTime)
         stream->serializeFloat(v.x, m_min.x, m_max.x, m_precision.x);
         stream->serializeFloat(v.y, m_min.y, m_max.y, m_precision.y);
         stream->serializeFloat(v.z, m_min.z, m_max.z, m_precision.z);
+        stream->serializeFloat(v.w, m_min.w, m_max.w, m_precision.w);
     }
     else
     {
         stream->serializeFloat(v.x);
         stream->serializeFloat(v.y);
         stream->serializeFloat(v.z);
+        stream->serializeFloat(v.w);
     }
 
     if(stream->isReading())

@@ -15,7 +15,7 @@ namespace pou
 ///
 
 template<typename T>
-SyncAttribute<T>::SyncAttribute() :
+SyncAttribute<T>::SyncAttribute() : AbstractSyncAttribute(),
     m_value(T()),
     /**m_firstSync(true),
     m_curLocalTime(0),

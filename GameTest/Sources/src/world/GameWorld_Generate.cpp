@@ -178,8 +178,8 @@ bool GameWorld::initPlayer(size_t player_id)
 
     player->update(pou::Time(0), 0);
 
-    glm::vec2 pos(glm::linearRand(-100,100), glm::linearRand(-100,100));
-    player->setPosition(pos);
+    glm::vec2 pos(glm::linearRand(-200,200), glm::linearRand(-200,200));
+    player/*->node()*/->setPosition(pos);
 
     player->update(pou::Time(0), m_curLocalTime);
 
@@ -197,9 +197,9 @@ bool GameWorld::initPlayer(size_t player_id)
 
     player->setModel(playerModel);
     //m_scene->getRootNode()->addChildNode(player);
-    m_worldGrid->addChildNode(player);
+    m_worldGrid->addChildNode(player/*->node()*/);
 
-    player->setPosition(pos);
+    player/*->node()*/->setPosition(pos);
 
 
     ItemModelAsset *playerWeapon;
@@ -232,7 +232,7 @@ bool GameWorld::initPlayer(size_t player_id)
         it->second->addToNearbyCharacters(player);
     }
 
-    m_worldGrid->addUpdateProbe(player, 2048);
+    m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
 
     return player_id;
 }
@@ -247,8 +247,9 @@ bool GameWorld::removePlayer(size_t player_id)
      for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(player);
 
-    m_worldGrid->removeChildNode(player.get());
-    m_worldGrid->removeUpdateProbe(player.get());
+    //m_worldGrid->removeChildNode(player/*->node()*/);
+    player->removeFromParent();
+    m_worldGrid->removeUpdateProbe(player/*->node()*/.get());
     this->desyncElement(player.get());
 
     return m_syncPlayers.freeId(player_id);

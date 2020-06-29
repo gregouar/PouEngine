@@ -41,15 +41,15 @@ class Player : public Character
     protected:
         virtual void updateGearsAttributes();
 
-        void setLastPlayerUpdateTime(uint32_t time, bool force = false);
+        ///void setLastPlayerUpdateTime(uint32_t time, bool force = false);
 
     protected:
         std::list<Hitbox>             m_hitboxes;
         std::vector<ItemModelAsset *> m_gearsModel;
         std::vector<ItemModelAsset *> m_inventory;
 
-        uint32_t m_lastPlayerSyncTime;
-        uint32_t m_lastPlayerUpdateTime;
+        ///uint32_t m_lastPlayerSyncTime;
+        ///uint32_t m_lastPlayerUpdateTime;
         uint32_t m_lastInventoryUpdateTime;
         uint32_t m_lastGearUpdateTime;
         ///pou::SyncAttribute<int> m_timeShift;
@@ -57,6 +57,8 @@ class Player : public Character
         bool m_userControlled;
 
     private:
+        pou::SyncComponent m_syncComponent;
+
         //pou::SyncTimer  m_dashDelayTimer, m_dashTimer;
         //bool        m_isDashing;
         //pou::SyncAttribute<glm::vec2>   m_dashDirection;

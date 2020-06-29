@@ -72,7 +72,8 @@ class SyncCharacterModelAttributes  : public pou::AbstractSyncElement
 
 
 
-class Character : public pou::SceneNode
+class Character : //public pou::SceneObject, public pou::NotificationSender
+    public pou::SceneNode
 {
     friend class CharacterModelAsset;
     friend class CharacterState;
@@ -81,6 +82,8 @@ class Character : public pou::SceneNode
         Character();
         Character(std::shared_ptr<CharacterInput> characterInput);
         virtual ~Character();
+
+        ///std::shared_ptr<pou::SceneNode> node();
 
         virtual bool createFromModel(const std::string &path);
         virtual bool createFromModel(CharacterModelAsset *model);
@@ -138,6 +141,7 @@ class Character : public pou::SceneNode
         ///pou::SyncComponent *getCharacterSyncComponent();
 
         void disableDeath(bool disable = true); //Could be used to prevent to kill character before server approval
+        void disableSync(bool disable = true);
         void disableInputSync(bool disable = true);
         void disableDamageDealing(bool disable = true); //Used to only show cosmetic effect of damages
 
@@ -156,6 +160,8 @@ class Character : public pou::SceneNode
         void  setLastCharacterUpdateTime(uint32_t time, bool force = false);
 
     protected:
+        ///std::shared_ptr<pou::SceneNode> m_node;
+
         std::shared_ptr<CharacterInput> m_input;
 
         /**pou::SyncAttribute<bool> m_isDead;

@@ -20,11 +20,13 @@ class AbstractSyncElement
 
         void updateLastUpdateTime();
 
-        virtual void syncFrom(AbstractSyncElement *syncElement);
+        virtual void syncFrom(const AbstractSyncElement *syncElement);
         virtual void serialize(Stream *stream, uint32_t clientTime);
 
         virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        void setMaxRewindAmount(size_t maxRewind);
         void useUpdateBit(bool use = true);
+        void disableSync(bool disable = true);
 
         uint32_t getLastUpdateTime();
 
@@ -39,6 +41,7 @@ class AbstractSyncElement
         SyncComponent *m_syncComponent;
 
         bool m_useUpdateBit;
+        bool m_disableSync;
 };
 
 }

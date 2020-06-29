@@ -87,7 +87,7 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
 }
 
 
-#include "../src/assets/AssetHandler.inc"
+#include "../src/assets/AssetHandler.tpp"
 
 
 #endif // ASSETHANDLER_H

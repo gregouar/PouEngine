@@ -14,25 +14,37 @@ const uint8_t   SimpleNode::NODE_SCALE_DECIMALS  = 2;
 
 SimpleNode::SimpleNode(/**const NodeTypeId id**/) :
     m_globalPosition(glm::vec3(0)),
-    m_position(glm::vec3(0), 0),
-    m_eulerRotations(glm::vec3(0),0),
-    m_scale(glm::vec3(1.0),0),
+    m_position(glm::vec3(0)),
+    m_eulerRotations(glm::vec3(0)),
+    m_scale(glm::vec3(1.0)),
     m_rigidity(1.0),
     m_curFlexibleLength(0.0),
     m_curFlexibleRotation(0.0),
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0),
     m_curLocalTime(0),
-    m_lastSyncTime(-1),
-    m_lastUpdateTime(-1),
-    m_lastParentUpdateTime(-1),
-    m_disableRotationSync(false),
-    m_disableSync(false)
+    ///m_lastSyncTime(-1),
+    ///m_lastUpdateTime(-1),
+    m_lastParentUpdateTime(-1)
+    ///m_disableRotationSync(false),
+    ///m_disableSync(false)
 {
     m_parent = nullptr;
     ///m_id = id;
     ///m_curNewId = 0;
     m_needToUpdateModelMat = true;
+
+    m_position.setMinMaxAndPrecision(-SimpleNode::NODE_MAX_POS, SimpleNode::NODE_MAX_POS, glm::uvec3(0,0,2));
+    m_syncComponent.addSyncElement(&m_position);
+
+    m_eulerRotations.setMinMaxAndPrecision(glm::vec3(-3.15), glm::vec3(3.15), glm::uvec3(2));
+    m_syncComponent.addSyncElement(&m_eulerRotations);
+
+    m_scale.setMinMaxAndPrecision(glm::vec3(-SimpleNode::NODE_MAX_SCALE),
+                                  glm::vec3(SimpleNode::NODE_MAX_SCALE),
+                                  glm::uvec3(SimpleNode::NODE_SCALE_DECIMALS));
+    m_syncComponent.addSyncElement(&m_scale);
+
 
     ///m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
 
@@ -359,20 +371,22 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     }
 }
 
-void SimpleNode::syncFromNode(SimpleNode* srcNode)
+void SimpleNode::syncFrom(SimpleNode* srcNode)
 {
     //if(m_lastSyncTime > srcNode->getLastUpdateTime() && m_lastSyncTime != (uint32_t)(-1))
       //  return (false);
 
-    if(m_disableSync)
-        return;
+    //if(m_disableSync)
+      //  return;
 
-    m_position.syncFrom(&srcNode->m_position);
+    m_syncComponent.syncFrom(srcNode->m_syncComponent);
+
+    /**m_position.syncFrom(&srcNode->m_position);
     if(!m_disableRotationSync)
         m_eulerRotations.syncFrom(&srcNode->m_eulerRotations);
     m_scale.syncFrom(&srcNode->m_scale);
 
-    m_lastSyncTime = srcNode->m_curLocalTime;
+    m_lastSyncTime = srcNode->m_curLocalTime;**/
 
     //return (true);
 }
@@ -387,27 +401,37 @@ void SimpleNode::syncFromNode(SimpleNode* srcNode)
 
 void SimpleNode::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    m_position.setReconciliationDelay(serverDelay, clientDelay);
+    m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
+    /**m_position.setReconciliationDelay(serverDelay, clientDelay);
     m_eulerRotations.setReconciliationDelay(serverDelay, clientDelay);
-    m_scale.setReconciliationDelay(serverDelay, clientDelay);
+    m_scale.setReconciliationDelay(serverDelay, clientDelay);**/
 }
 
 
 void SimpleNode::setMaxRewind(int maxRewind)
 {
-    m_position.setMaxRewindAmount(maxRewind);
+    /*m_position.setMaxRewindAmount(maxRewind);
     m_eulerRotations.setMaxRewindAmount(maxRewind);
-    m_scale.setMaxRewindAmount(maxRewind);
+    m_scale.setMaxRewindAmount(maxRewind);*/
+
+    m_syncComponent.setMaxRewindAmount(maxRewind);
+}
+
+void SimpleNode::setSyncReconciliationPrecision(glm::vec3 positionPrecision)
+{
+    m_position.setReconciliationPrecision(positionPrecision);
 }
 
 void SimpleNode::disableRotationSync(bool disable)
 {
-    m_disableRotationSync = disable;
+    m_eulerRotations.disableSync(disable);
+    ///m_disableRotationSync = disable;
 }
 
 void SimpleNode::disableSync(bool disable)
 {
-    m_disableSync = disable;
+    m_syncComponent.disableSync(disable);
+    ///m_disableSync = disable;
 }
 
 void SimpleNode::move(float x, float y)
@@ -455,7 +479,7 @@ void SimpleNode::setPosition(glm::vec3 pos)
 {
     m_position.setValue(pos);
     //m_lastPositionUpdateTime = m_curLocalTime;
-    this->setLastUpdateTime(m_curLocalTime);
+    ///this->setLastUpdateTime(m_curLocalTime);
 
     ///this->updateGlobalPosition();
     this->askForUpdateModelMatrix();
@@ -520,7 +544,7 @@ void SimpleNode::setScale(glm::vec3 scale)
 {
     m_scale.setValue(scale);
     //m_lastScaleUpdateTime = m_curLocalTime;
-    this->setLastUpdateTime(m_curLocalTime);
+    ///this->setLastUpdateTime(m_curLocalTime);
     this->askForUpdateModelMatrix();
 }
 
@@ -553,7 +577,7 @@ void SimpleNode::setRotation(glm::vec3 rotation, bool inRadians)
     auto eulerRotations = glm::mod(rotation+glm::pi<float>()*glm::vec3(1.0),glm::pi<float>()*2)-glm::pi<float>()*glm::vec3(1.0);
     m_eulerRotations.setValue(eulerRotations);
     //m_lastRotationUpdateTime = m_curLocalTime;
-    this->setLastUpdateTime(m_curLocalTime);
+    ///this->setLastUpdateTime(m_curLocalTime);
 
     //this->updateModelMatrix();
     this->askForUpdateModelMatrix();
@@ -670,15 +694,15 @@ void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResM
 }
 
 
-void SimpleNode::setLastUpdateTime(uint32_t time, bool force)
+/**void SimpleNode::setLastUpdateTime(uint32_t time, bool force)
 {
     if(force || m_lastUpdateTime == (uint32_t)(-1) || m_lastUpdateTime < time)
         m_lastUpdateTime = time;
-}
+}**/
 
 uint32_t SimpleNode::getLastUpdateTime()
 {
-    return m_lastUpdateTime;
+    return m_syncComponent.getLastUpdateTime();
 }
 
 uint32_t SimpleNode::getLastParentUpdateTime()
@@ -686,10 +710,10 @@ uint32_t SimpleNode::getLastParentUpdateTime()
     return m_lastParentUpdateTime;
 }
 
-uint32_t SimpleNode::getLocalTime()
+/**uint32_t SimpleNode::getLocalTime()
 {
     return m_curLocalTime;
-}
+}**/
 
 /*std::list<SimpleNode*> SimpleNode::getAllChilds()
 {
@@ -712,7 +736,7 @@ void SimpleNode::setParent(SimpleNode *p)
 
         m_parent = p;
         m_lastParentUpdateTime = m_curLocalTime;
-        this->setLastUpdateTime(m_curLocalTime);
+        m_syncComponent.setLastUpdateTime(m_curLocalTime);
         if(m_parent != nullptr)
         {
             ///this->setScene(m_parent->getScene());
@@ -743,7 +767,7 @@ void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
     if(localTime != (uint32_t)(-1))
         m_curLocalTime = localTime;
 
-    bool syncUpdate = false;
+    /**bool syncUpdate = false;
 
     syncUpdate |= m_position.update(elapsedTime, m_curLocalTime);
     syncUpdate |= m_eulerRotations.update(elapsedTime, m_curLocalTime);
@@ -752,12 +776,14 @@ void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
     if(syncUpdate)
         this->setLastUpdateTime(m_curLocalTime);
 
-    syncUpdate |= syncUpdate;
+    m_needToUpdateModelMat |= syncUpdate;**/
+
+    if(m_syncComponent.update(elapsedTime, localTime))
+        m_needToUpdateModelMat = true;
 
     //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
-
 
     for(auto node : m_childs)
         node->update(elapsedTime,localTime);
@@ -778,9 +804,7 @@ void SimpleNode::updateGlobalPosition()
     if(m_parent != nullptr)
     {
         if(m_rigidity != 1.0)
-        {
             m_globalPosition = m_parent->getGlobalPosition() + m_position.getValue();
-        }
         else
         {
             glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(m_position.getValue(),1.0);
@@ -937,9 +961,11 @@ void SimpleNode::notify(NotificationSender* sender, int notificationType,
     }
 }
 
-void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
+void SimpleNode::serialize(Stream *stream, uint32_t clientTime)
 {
-    bool hasPos = false;
+    m_syncComponent.serialize(stream, clientTime);
+
+   /** bool hasPos = false;
     if(!stream->isReading() && uint32less(clientTime,m_position.getLastUpdateTime()))
         hasPos = true;
     stream->serializeBool(hasPos);
@@ -984,7 +1010,7 @@ void SimpleNode::serializeNode(Stream *stream, uint32_t clientTime)
 
         if(stream->isReading())
             this->setScale(scale);
-    }
+    }**/
 }
 
 }

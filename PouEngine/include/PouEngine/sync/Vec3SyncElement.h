@@ -30,6 +30,32 @@ class Vec3SyncElement : public AbstractSyncElement
         glm::uvec3  m_precision;
 };
 
+
+class Vec3LinSyncElement : public AbstractSyncElement
+{
+    public:
+        Vec3LinSyncElement();
+        Vec3LinSyncElement(glm::vec3 v);
+        virtual ~Vec3LinSyncElement();
+
+        void useMinMax(bool use = true);
+        void setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision);
+        void setReconciliationPrecision(glm::vec3 precision);
+
+        void setValue(const glm::vec3 &v);
+        const glm::vec3 &getValue() const;
+
+    protected:
+        virtual void serializeImpl(Stream *stream, uint32_t clientTime);
+
+    private:
+        LinSyncAttribute<glm::vec3> m_attribute;
+
+        bool m_useMinMax;
+        glm::vec3   m_min, m_max;
+        glm::uvec3  m_precision;
+};
+
 }
 
 #endif // VEC3SYNCELEMENT_H

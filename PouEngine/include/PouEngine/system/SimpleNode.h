@@ -7,7 +7,7 @@
 #include "PouEngine/core/NotificationListener.h"
 #include "PouEngine/core/NotificationSender.h"
 #include "PouEngine/system/Stream.h"
-#include "PouEngine/sync/SyncAttribute.h"
+#include "PouEngine/sync/SyncElements.h"
 
 namespace pou
 {
@@ -50,7 +50,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
         virtual void copyFrom(const SimpleNode* srcNode);
-        virtual void syncFromNode(SimpleNode* srcNode);
+        virtual void syncFrom(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -70,6 +70,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         //void setLocalTime(uint32_t localTime);
         virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
         virtual void setMaxRewind(int maxRewind);
+        void setSyncReconciliationPrecision(glm::vec3 positionPrecision);
         void disableRotationSync(bool disable = true);
         void disableSync(bool disable = true);
 
@@ -103,7 +104,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         uint32_t getLastUpdateTime();
         uint32_t getLastParentUpdateTime();
-        uint32_t getLocalTime();
+        ///uint32_t getLocalTime();
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -112,7 +113,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
                             void* data = nullptr) override;
 
 
-        virtual void serializeNode(Stream *stream, uint32_t localTime = -1);
+        virtual void serialize(Stream *stream, uint32_t localTime = -1);
 
 
     protected:
@@ -133,17 +134,22 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void computeFlexibleMove(glm::vec3 );
         //void computeFlexibleRotate(float );
 
-        void setLastUpdateTime(uint32_t time, bool force = false);
+        ///void setLastUpdateTime(uint32_t time, bool force = false);
 
     protected:
         glm::vec3 m_globalPosition;
 
+        SyncComponent m_syncComponent;
+
         //glm::vec3 m_position;
         //glm::vec3 m_eulerRotations;
         //glm::vec3 m_scale;
-        LinSyncAttribute<glm::vec3> m_position;
+        /**LinSyncAttribute<glm::vec3> m_position;
         LinSyncAttribute<glm::vec3> m_eulerRotations;
-        LinSyncAttribute<glm::vec3> m_scale;
+        LinSyncAttribute<glm::vec3> m_scale;**/
+        Vec3LinSyncElement m_position;
+        Vec3LinSyncElement m_eulerRotations;
+        Vec3LinSyncElement m_scale;
 
         float     m_rigidity;
 
@@ -158,15 +164,15 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::vector< std::shared_ptr<SimpleNode> > m_childs;
 
         uint32_t m_curLocalTime;
-        uint32_t m_lastSyncTime;
-        uint32_t m_lastUpdateTime;
+        ///uint32_t m_lastSyncTime;
+        ///uint32_t m_lastUpdateTime;
         uint32_t m_lastParentUpdateTime;
         //float m_lastPositionUpdateTime;
         //float m_lastRotationUpdateTime;
         //float m_lastScaleUpdateTime;
 
-        bool m_disableRotationSync;
-        bool m_disableSync;
+        ///bool m_disableRotationSync;
+        ///bool m_disableSync;
 
     private:
         ///NodeTypeId m_id;

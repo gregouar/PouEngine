@@ -85,7 +85,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         }
 
 
-        targetCharacter->addChildNode(skeleton);
+        targetCharacter/*->node()*/->addChildNode(skeleton);
         targetCharacter->addSkeleton(skeleton, skeletonModel.first);
     }
 

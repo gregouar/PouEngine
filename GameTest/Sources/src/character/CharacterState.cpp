@@ -47,7 +47,7 @@ void CharacterState::rotateCharacterToward(const pou::Time &elapsedTime, glm::ve
     ///Introduce animationRotationSpeed
     if(!modelAtt.immovable)
     {
-        float curRotation = m_character->getEulerRotation().z;
+        float curRotation = m_character/*->node()*/->getEulerRotation().z;
         float rotationAmount = elapsedTime.count()*10.0f;
         float wantedRotation = pou::MathTools::computeWantedRotation( curRotation, direction );
 
@@ -55,9 +55,9 @@ void CharacterState::rotateCharacterToward(const pou::Time &elapsedTime, glm::ve
             return;
 
         if(glm::abs(wantedRotation - curRotation) < rotationAmount)
-            m_character->setRotation({0,0,wantedRotation});
+            m_character/*->node()*/->setRotation({0,0,wantedRotation});
         else
-            m_character->rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
+            m_character/*->node()*/->rotate(rotationAmount, {0,0, (wantedRotation > curRotation) ? 1 : -1 });
     }
 }
 
@@ -162,7 +162,7 @@ void CharacterState_Walking::update(const pou::Time &elapsedTime, uint32_t local
 {
     float walkingAmount = m_character->getAttributes().walkingSpeed*elapsedTime.count();
     glm::vec2 charMove = walkingAmount*m_walkingDirection;
-    m_character->move(charMove);
+    m_character/*->node()*/->move(charMove);
 
     this->rotateCharacterToward(elapsedTime, m_lookingDirection);
 
@@ -172,8 +172,8 @@ void CharacterState_Walking::update(const pou::Time &elapsedTime, uint32_t local
     bool wantToLateralWalk = false;
 
     float deltaRotation = abs(
-                    pou::MathTools::computeWantedRotation(m_character->getEulerRotation().z,m_walkingDirection)
-                     - m_character->getEulerRotation().z);
+                    pou::MathTools::computeWantedRotation(m_character/*->node()*/->getEulerRotation().z,m_walkingDirection)
+                     - m_character/*->node()*/->getEulerRotation().z);
 
     if(deltaRotation > glm::pi<float>()*.25 && deltaRotation <  glm::pi<float>()*.75)
         wantToLateralWalk = true;
@@ -279,7 +279,7 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                             totalDamages += m_character->getModelAttributes().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
 
                         enemy->damage(totalDamages,
-                                      enemy->getGlobalXYPosition()-m_character->getGlobalXYPosition(),
+                                      enemy/*->node()*/->getGlobalXYPosition()-m_character/*->node()*/->getGlobalXYPosition(),
                                       m_character->areDamagesOnlyCosmetic());
                     }
                 }
@@ -328,7 +328,7 @@ void CharacterState_Dashing::update(const pou::Time &elapsedTime, uint32_t local
     auto elapsedDashTime = std::min(elapsedTime,m_dashTimer.remainingTime());
     float walkingAmount = DEFAULT_DASH_SPEED*elapsedDashTime.count();
     glm::vec2 charMove = walkingAmount*m_dashingDirection;
-    m_character->move(charMove);
+    m_character/*->node()*/->move(charMove);
 
     this->rotateCharacterToward(elapsedTime*2, m_dashingDirection);
 
@@ -380,7 +380,7 @@ void CharacterState_Interrupted::update(const pou::Time &elapsedTime, uint32_t l
     {
         auto elapsedPushTime = std::min(elapsedTime,m_pushTimer.remainingTime());
         glm::vec2 charMove = m_pushDirection*(float)elapsedPushTime.count();
-        m_character->move(charMove);
+        m_character/*->node()*/->move(charMove);
 
         m_pushTimer.update(elapsedTime);
     }

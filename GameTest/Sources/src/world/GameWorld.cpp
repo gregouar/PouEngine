@@ -300,7 +300,7 @@ void GameWorld::createPlayerCamera(size_t player_id)
         m_camera = std::make_shared<pou::CameraObject>();
         auto listeningCamera = std::make_shared<pou::CameraObject>();
         listeningCamera -> setListening(true);
-        auto cameraNode = player->createChildNode();
+        auto cameraNode = player/*->node()*/->createChildNode();
         cameraNode->attachObject(m_camera);
         cameraNode = cameraNode->createChildNode(0,0,250);
         cameraNode->attachObject(listeningCamera);
@@ -335,6 +335,7 @@ size_t GameWorld::syncElement(CharacterModelAsset *characterModel)
 
 size_t GameWorld::syncElement(std::shared_ptr<Character> character)
 {
+    ///this->syncElement(character/*->node()*/);
     this->syncElement((std::shared_ptr<pou::SceneNode>)character);
     int id = m_syncCharacters.allocateId(character);
     character->setWorldAndSyncId(this, id);

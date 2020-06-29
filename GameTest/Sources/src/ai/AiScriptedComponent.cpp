@@ -37,7 +37,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
 
     if(m_target && m_target->isAlive())
     {
-        glm::vec2 direction = m_target->getGlobalXYPosition() - m_character->getGlobalXYPosition();
+        glm::vec2 direction = m_target/*->node()*/->getGlobalXYPosition() - m_character/*->node()*/->getGlobalXYPosition();
 
         float distance = glm::dot(direction,direction);
 
@@ -68,8 +68,8 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         if(enemy->getTeam() == m_character->getTeam())
             continue;
 
-        float distance = glm::dot(enemy->getGlobalPosition() - m_character->getGlobalPosition(),
-                                  enemy->getGlobalPosition() - m_character->getGlobalPosition());
+        float distance = glm::dot(enemy/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition(),
+                                  enemy/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition());
         if(closestDistance == -1 || closestDistance > distance)
         {
             closestEnemy = enemy.get();

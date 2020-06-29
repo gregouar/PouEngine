@@ -5,7 +5,9 @@ namespace pou
 
 SyncComponent::SyncComponent() :
     //m_parentSyncComponent(nullptr),
-    m_lastUpdateTime(-1)
+    m_lastUpdateTime(-1),
+    m_curLocalTime(0),
+    m_disableSync(false)
 {
     //ctor
 }
@@ -17,6 +19,8 @@ SyncComponent::~SyncComponent()
 
 bool SyncComponent::update(const Time &elapsedTime, uint32_t localTime)
 {
+    m_curLocalTime = localTime;
+
     bool r = false;
     for(auto *syncElement : m_syncElements)
         r |= syncElement->update(elapsedTime, localTime);
@@ -30,13 +34,13 @@ bool SyncComponent::update(const Time &elapsedTime, uint32_t localTime)
     return (r);
 }
 
-void SyncComponent::syncFrom(SyncComponent *syncComponent)
+void SyncComponent::syncFrom(const SyncComponent &syncComponent)
 {
     if(m_disableSync)
         return;
 
     auto it1 = m_syncElements.begin();
-    auto it2 = syncComponent->m_syncElements.begin();
+    auto it2 = syncComponent.m_syncElements.begin();
     for(;it1 != m_syncElements.end(); ++it1, ++it2)
         (*it1)->syncFrom(*it2);
 
@@ -114,6 +118,17 @@ void SyncComponent::setReconciliationDelay(uint32_t serverDelay, uint32_t client
         syncComponent->setReconciliationDelay(serverDelay, clientDelay);**/
 }
 
+void SyncComponent::setMaxRewindAmount(int maxRewind)
+{
+    for(auto *syncElement : m_syncElements)
+        syncElement->setMaxRewindAmount(maxRewind);
+}
+
+void SyncComponent::updateLastUpdateTime()
+{
+    this->setLastUpdateTime(m_curLocalTime);
+}
+
 void SyncComponent::setLastUpdateTime(uint32_t time)
 {
     if(uint32less(m_lastUpdateTime, time))
@@ -130,6 +145,11 @@ void SyncComponent::disableSync(bool disable)
 uint32_t SyncComponent::getLastUpdateTime()
 {
     return m_lastUpdateTime;
+}
+
+uint32_t SyncComponent::getLocalTime()
+{
+    return m_curLocalTime;
 }
 
 ///

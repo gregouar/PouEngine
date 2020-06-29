@@ -325,7 +325,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
                 if(playerId == (int)clientPlayerId)
                 {
                     player = std::make_shared<Player>();
-                    m_worldGrid->addUpdateProbe(player, 2048);
+                    m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
                 }
                 else
                 {
@@ -404,8 +404,6 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
         }
 
-
-
         //else
         characterPtr->syncFromCharacter(characterSync.character.get());
         ///characterPtr->disableDeath();
@@ -431,8 +429,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             auto nodePtr = m_syncNodes.findElement(characterSync.nodeId);
             if(nodePtr == nullptr)
             {
-                m_scene->getRootNode()->addChildNode(characterPtr);
-                m_syncNodes.insert(characterSync.nodeId, characterPtr);
+                ///m_scene->getRootNode()->addChildNode(characterPtr/*->node()*/);
+                m_syncNodes.insert(characterSync.nodeId, characterPtr/*->node()*/);
             }
         }
     }
@@ -444,17 +442,13 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         {
             uint32_t delay = m_deltaRTT*1.5;
             playerIt->second->setReconciliationDelay(delay,0);
-
-            ///TEST
             playerIt->second->disableInputSync(false);
-            ///
         }
         else
         {
             playerIt->second->disableSync();
             playerIt->second->setReconciliationDelay(0,0);
         }
-            ///playerIt->second->setReconciliationDelay(0,deltaRTT*1.5);
     }
     ///
 
@@ -496,7 +490,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             m_syncNodes.insert(nodeId, nodePtr);
         }
 
-        nodePtr->syncFromNode(nodeSync.node.get());
+        nodePtr->syncFrom(nodeSync.node.get());
     }
 
     for(auto &node : worldSyncMsg->nodes)
@@ -560,7 +554,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
             continue;
 
         this->desyncElement(playerPtr.get());
-        playerPtr->removeFromParent();
+        playerPtr/*->node()*/->removeFromParent();
     }
 
     for(auto desyncCharacter : worldSyncMsg->desyncCharacters)
@@ -573,7 +567,7 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
 
         for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
             it->second->removeFromNearbyCharacters(characterPtr);
-        characterPtr->removeFromParent();
+        characterPtr/*->node()*/->removeFromParent();
     }
 
     for(auto desyncNode : worldSyncMsg->desyncNodes)
@@ -627,7 +621,7 @@ void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playe
     CharacterSync characterSync;
     {
         size_t nodeId = 0;
-        nodeId = m_syncNodes.findId(player);
+        nodeId = m_syncNodes.findId(player/*->node()*/);
 
         characterSync.character = player;
         characterSync.characterModelId = 0;
@@ -636,7 +630,7 @@ void GameWorld::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playe
 
     NodeSync nodeSync;
     {
-        nodeSync.node = player;
+        nodeSync.node = player/*->node()*/;
     }
 
 
@@ -650,7 +644,7 @@ void GameWorld::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> worldSy
 {
     auto player = m_syncPlayers.findElement(clientPlayerId);
 
-    player->syncFromNode(worldSyncMsg->nodeSync.node.get());
+    player/*->node()*/->syncFrom(worldSyncMsg->nodeSync.node.get());
     player->syncFromCharacter(worldSyncMsg->characterSync.character.get());
     player->syncFromPlayer(worldSyncMsg->playerSync.player.get());
 

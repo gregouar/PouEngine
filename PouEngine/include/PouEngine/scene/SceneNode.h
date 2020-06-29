@@ -44,7 +44,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         void detachAllObjects();
 
-        virtual void syncFromNode(SceneNode* srcNode);
+        ///virtual void syncFrom(SceneNode* srcNode);
 
         void colorize(const glm::vec4 &c);
         void setColor(const glm::vec4 &c);
@@ -62,7 +62,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
 
-        virtual void serializeNode(pou::Stream *stream, uint32_t localTime = -1);
+        ///virtual void serializeNode(pou::Stream *stream, uint32_t localTime = -1);
 
         /*virtual void notify(NotificationSender* , NotificationType,
                             size_t dataSize = 0, char* data = nullptr) override;*/
@@ -77,7 +77,8 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
     protected:
         Scene* m_scene;
         //glm::vec4 m_color;
-        LinSyncAttribute<glm::vec4> m_color;
+        ///LinSyncAttribute<glm::vec4> m_color;
+        Vec4LinSyncElement m_color;
         glm::vec4 m_finalColor;
 
         //float m_lastColorUpdateTime;

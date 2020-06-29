@@ -83,6 +83,6 @@ class LinSyncAttribute : public SyncAttribute<T>
 
 }
 
-#include "../src/sync/SyncAttribute.inc"
+#include "../src/sync/SyncAttribute.tpp"
 
 #endif // SyncAttribute_H_INCLUDED

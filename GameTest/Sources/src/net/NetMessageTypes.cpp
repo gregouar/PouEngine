@@ -151,7 +151,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
     else
         nodeSync.parentNodeId = 0;
 
-    nodePtr->serializeNode(stream, lastSyncTime);
+    nodePtr->serialize(stream, lastSyncTime);
 }
 
 void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
@@ -342,7 +342,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
             nodePtr = std::make_shared<pou::SceneNode>();
             nodePtr->update(pou::Time(0),localTime);
         }
-        nodePtr->serializeNode(stream, lastSyncTime);
+        nodePtr->serialize(stream, lastSyncTime);
     }
 
     {

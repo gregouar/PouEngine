@@ -35,10 +35,9 @@ class SceneObject : public NotificationListener
 
     protected:
         void setLastUpdateTime(uint32_t time, bool force = false);
+        SceneNode *setParentNode(SceneNode*);
 
     protected:
-
-        SceneNode *setParentNode(SceneNode*);
         SceneNode *m_parentNode;
 
         bool m_isALight;

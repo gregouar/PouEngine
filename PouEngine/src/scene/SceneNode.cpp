@@ -10,11 +10,15 @@ namespace pou
 
 SceneNode::SceneNode(/**const NodeTypeId id**/) :
     ///SimpleNode(id),
-    m_color(glm::vec4(1.0f),0),
+    m_color(glm::vec4(1.0f)),
     m_finalColor(1.0f)//,
     //m_lastColorUpdateTime(-1)
 {
     m_scene = nullptr;
+
+    m_color.setMinMaxAndPrecision(glm::vec4(0), glm::vec4(10,10,10,1), glm::uvec4(2));
+    m_syncComponent.addSyncElement(&m_color);
+
 }
 
 SceneNode::SceneNode(/**const NodeTypeId id,**/ Scene* scene) :
@@ -198,7 +202,7 @@ void SceneNode::setColor(const glm::vec4 &c)
 {
     m_color.setValue(c);
     //m_lastColorUpdateTime = m_curLocalTime;
-    this->setLastUpdateTime(m_curLocalTime);
+    ///this->setLastUpdateTime(m_curLocalTime);
 
     ///this->updateGlobalPosition();
     this->askForUpdateModelMatrix();
@@ -220,7 +224,7 @@ void SceneNode::setParent(SimpleNode *p)
         this->setScene(dynamic_cast<SceneNode*>(m_parent)->getScene());
 }
 
-void SceneNode::syncFromNode(SceneNode* srcNode)
+/**void SceneNode::syncFromNode(SceneNode* srcNode)
 {
     m_color.syncFrom(&srcNode->m_color);
    // if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
@@ -228,7 +232,7 @@ void SceneNode::syncFromNode(SceneNode* srcNode)
        // this->setColor(srcNode->getColor());
 
     SimpleNode::syncFromNode((SimpleNode*) srcNode);
-}
+}**/
 
 void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds)
 {
@@ -293,7 +297,7 @@ std::shared_ptr<SimpleNode> SceneNode::nodeAllocator(/**NodeTypeId id**/)
 }
 
 
-void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)
+/**void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)
 {
     SimpleNode::serializeNode(stream, clientTime);
 
@@ -312,6 +316,6 @@ void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)
         if(stream->isReading())
             this->setColor(color);
     }
-}
+}**/
 
 }

@@ -37,6 +37,6 @@ template<class T> class DynamicVBO
 };
 
 }
-#include "../src/vulkanImpl/DynamicVBO.inc"
+#include "../src/vulkanImpl/DynamicVBO.tpp"
 
 #endif // DYNAMICVBO_H

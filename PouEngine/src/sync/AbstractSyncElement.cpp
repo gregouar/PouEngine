@@ -8,7 +8,8 @@ namespace pou
 AbstractSyncElement::AbstractSyncElement(pou::AbstractSyncAttribute *syncAttributePtr) :
     m_syncAttributePtr(syncAttributePtr),
     m_syncComponent(nullptr),
-    m_useUpdateBit(false)
+    m_useUpdateBit(false),
+    m_disableSync(false)
 {
     assert(m_syncAttributePtr);
 }
@@ -30,8 +31,11 @@ void AbstractSyncElement::updateLastUpdateTime()
         m_syncComponent->setLastUpdateTime(m_syncAttributePtr->getLastUpdateTime());
 }
 
-void AbstractSyncElement::syncFrom(AbstractSyncElement *syncElement)
+void AbstractSyncElement::syncFrom(const AbstractSyncElement *syncElement)
 {
+    if(m_disableSync)
+        return;
+
     m_syncAttributePtr->syncFrom(syncElement->m_syncAttributePtr);
 }
 
@@ -55,9 +59,19 @@ void AbstractSyncElement::setReconciliationDelay(uint32_t serverDelay, uint32_t 
     m_syncAttributePtr->setReconciliationDelay(serverDelay, clientDelay);
 }
 
+void AbstractSyncElement::setMaxRewindAmount(size_t maxRewind)
+{
+    m_syncAttributePtr->setMaxRewindAmount(maxRewind);
+}
+
 void AbstractSyncElement::useUpdateBit(bool use)
 {
     m_useUpdateBit = use;
+}
+
+void AbstractSyncElement::disableSync(bool disable)
+{
+    m_disableSync = disable;
 }
 
 uint32_t AbstractSyncElement::getLastUpdateTime()

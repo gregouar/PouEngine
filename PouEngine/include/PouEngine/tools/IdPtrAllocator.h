@@ -48,6 +48,6 @@ template<class T> class IdPtrAllocator
 
 }
 
-#include "../src/tools/IdPtrAllocator.inc"
+#include "../src/tools/IdPtrAllocator.tpp"
 
 #endif // IDPTRALLOCATOR_H

@@ -116,7 +116,8 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 }
 
-Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode(/**-1,**/nullptr),
+Character::Character(std::shared_ptr<CharacterInput> characterInput) : pou::SceneNode(nullptr),
+    ///m_node(std::make_shared<pou::SceneNode>(nullptr)),
     m_input(characterInput),
     m_isDead(false),
     m_world(nullptr),
@@ -134,6 +135,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     ///m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
+    ///m_node->attachObject(this);
+    ///m_node->setSyncReconciliationPrecision(glm::vec3(32));
     m_position.setReconciliationPrecision(glm::vec3(32));
     m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
@@ -155,8 +158,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : SceneNode
     this->setAiComponent(std::make_unique<AiComponent>(this));
     ///m_syncComponent.addSyncSubComponent(m_input->getSyncComponent());
 
-    m_syncComponent.addSyncElement(&m_modelAttributes);
-    m_syncComponent.addSyncElement(&m_attributes);
+    Character::m_syncComponent.addSyncElement(&m_modelAttributes);
+    Character::m_syncComponent.addSyncElement(&m_attributes);
 }
 
 Character::~Character()
@@ -174,6 +177,11 @@ void Character::cleanup()
 
     m_skeletons.clear();
 }
+
+/**std::shared_ptr<pou::SceneNode> Character::node()
+{
+    return m_node;
+}**/
 
 bool Character::createFromModel(const std::string &path)
 {
@@ -204,10 +212,11 @@ bool Character::createFromModel(CharacterModelAsset *model)
     m_attributes.setValue(att);
 
     if(!m_modelAttributes.getValue().immovable)
-        this->disableRotationSync();
+        SceneNode::disableRotationSync();
+        ///m_node->disableRotationSync();
 
-    m_lastModelUpdateTime = m_curLocalTime;
-    m_syncComponent.setLastUpdateTime(m_curLocalTime);
+    Character::m_syncComponent.updateLastUpdateTime();
+    m_lastModelUpdateTime = Character::m_syncComponent.getLocalTime();
     ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     this->switchState(CharacterStateType_Standing);
@@ -537,11 +546,11 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
-    SceneNode::update(elapsedTime, localTime);
+    SceneNode::update(elapsedTime,localTime);
 
     float oldLife = m_attributes.getValue().life;
 
-    m_syncComponent.update(elapsedTime, localTime);
+    Character::m_syncComponent.update(elapsedTime, localTime);
     m_aiComponent->update(elapsedTime, localTime);
     m_input->update(elapsedTime, localTime);
 
@@ -748,8 +757,9 @@ uint32_t Character::getSyncId() const
 
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
+    //m_node->setReconciliationDelay(serverDelay, clientDelay);
     SceneNode::setReconciliationDelay(serverDelay, clientDelay);
-    m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
+    Character::m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
 
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
     if(m_aiComponent)
@@ -774,7 +784,7 @@ uint32_t Character::getLastCharacterUpdateTime()
 
     return lastUpdate;**/
 
-    auto lastUpdate = m_syncComponent.getLastUpdateTime();
+    auto lastUpdate = Character::m_syncComponent.getLastUpdateTime();
 
     lastUpdate = uint32max(m_input->getSyncComponent()->getLastUpdateTime(), lastUpdate);
     if(m_aiComponent)
@@ -798,6 +808,15 @@ void Character::disableDeath(bool disable)
     m_disableDeath =  disable;
 }
 
+void Character::disableSync(bool disable)
+{
+    Character::m_syncComponent.disableSync(disable);
+    m_input->getSyncComponent()->disableSync(disable);
+    m_aiComponent->getSyncComponent()->disableSync(disable);
+
+    ///m_node->disableSync(disable);
+    SceneNode::disableSync(disable);
+}
 
 void Character::disableInputSync(bool disable)
 {
@@ -876,7 +895,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }**/
 
-    m_syncComponent.serialize(stream, clientTime);
+    Character::m_syncComponent.serialize(stream, clientTime);
     m_input->getSyncComponent()->serialize(stream, clientTime);
     m_aiComponent->getSyncComponent()->serialize(stream, clientTime);
 }
@@ -886,13 +905,13 @@ void Character::syncFromCharacter(Character *srcCharacter)
     ///if(m_lastCharacterSyncTime > srcCharacter->getLastCharacterUpdateTime() && m_lastCharacterSyncTime != (uint32_t)(-1))
        /// return (false);
 
-    if(m_disableSync)
-        return;
+    ///if(m_disableSync)
+       /// return;
 
-    m_syncComponent.syncFrom(&srcCharacter->m_syncComponent);
+    Character::m_syncComponent.syncFrom(srcCharacter->Character::m_syncComponent);
 
-    m_input->getSyncComponent()->syncFrom(srcCharacter->m_input->getSyncComponent());
-    m_aiComponent->getSyncComponent()->syncFrom(srcCharacter->m_aiComponent->getSyncComponent());
+    m_input->getSyncComponent()->syncFrom(*srcCharacter->m_input->getSyncComponent());
+    m_aiComponent->getSyncComponent()->syncFrom(*srcCharacter->m_aiComponent->getSyncComponent());
 
     /**m_modelAttributes.syncFrom(&srcCharacter->m_modelAttributes);
     m_attributes.syncFrom(&srcCharacter->m_attributes);
