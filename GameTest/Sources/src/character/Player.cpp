@@ -13,9 +13,9 @@ Player::Player(bool userControlled) :
     m_lastGearUpdateTime    = -1;
     m_lastInventoryUpdateTime = -1;
 
-    m_position.setReconciliationPrecision(glm::vec3(16));
-    m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
+    m_syncPosition.setReconciliationPrecision(glm::vec3(16));
+    m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
+    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
     ///m_node->setSyncReconciliationPrecision(glm::vec3(16));
 }
@@ -168,7 +168,7 @@ void Player::processAction(const PlayerAction &playerAction)
 
 void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    //std::cout<<"PosX:"<<m_position.getValue().x<<std::endl;
+    //std::cout<<"PosX:"<<m_syncPosition.getValue().x<<std::endl;
 
     /**if(m_timeShift.update(elapsedTime, localTime))
     {

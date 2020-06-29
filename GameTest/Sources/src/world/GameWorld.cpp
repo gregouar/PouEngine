@@ -309,7 +309,7 @@ void GameWorld::createPlayerCamera(size_t player_id)
     }
 }
 
-size_t GameWorld::syncElement(std::shared_ptr<pou::SceneNode> node)
+size_t GameWorld::syncElement(std::shared_ptr<WorldNode> node)
 {
     return m_syncNodes.allocateId(node);
 }
@@ -336,7 +336,7 @@ size_t GameWorld::syncElement(CharacterModelAsset *characterModel)
 size_t GameWorld::syncElement(std::shared_ptr<Character> character)
 {
     ///this->syncElement(character/*->node()*/);
-    this->syncElement((std::shared_ptr<pou::SceneNode>)character);
+    this->syncElement((std::shared_ptr<WorldNode>)character);
     int id = m_syncCharacters.allocateId(character);
     character->setWorldAndSyncId(this, id);
     return id;
@@ -356,7 +356,7 @@ size_t GameWorld::syncElement(std::shared_ptr<Player> player)
 }
 
 
-void GameWorld::desyncElement(pou::SceneNode *node, bool noDesyncInsert)
+void GameWorld::desyncElement(WorldNode *node, bool noDesyncInsert)
 {
     if(!noDesyncInsert)
     {
@@ -368,7 +368,7 @@ void GameWorld::desyncElement(pou::SceneNode *node, bool noDesyncInsert)
 
 void GameWorld::desyncElement(Character *character, bool noDesyncInsert)
 {
-    this->desyncElement((pou::SceneNode*)character, true);
+    this->desyncElement((WorldNode*)character, true);
 
     if(!noDesyncInsert)
     {

@@ -46,6 +46,7 @@ LZ4_Compressor::~LZ4_Compressor()
 
 bool LZ4_Compressor::compressImpl(uint8_t *srcBuffer, size_t srcBufferSize, std::vector<uint8_t> &dstBuffer)
 {
+    std::cout<<"Compress!"<<std::endl;
     int maxSize = LZ4_compressBound(srcBufferSize);
     dstBuffer.resize(maxSize);
 
@@ -58,6 +59,7 @@ bool LZ4_Compressor::compressImpl(uint8_t *srcBuffer, size_t srcBufferSize, std:
 
 bool LZ4_Compressor::decompressImpl(uint8_t *srcBuffer, size_t srcBufferSize, std::vector<uint8_t> &dstBuffer)
 {
+    std::cout<<"Decompress!"<<std::endl;
     int dstSize = LZ4_decompress_safe((char*)srcBuffer, (char*)dstBuffer.data(), srcBufferSize, dstBuffer.size());
 
     if(dstSize != (int)dstBuffer.size())

@@ -105,7 +105,7 @@ void GameWorld::generate()
 
         auto lantern = std::make_shared<Character>();
         lantern->createFromModel(lanternModel);
-        lantern->setPosition(p);
+        lantern->pou::SceneNode::setPosition(p);
         lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         ///m_scene->getRootNode()->addChildNode(lantern);
         m_worldGrid->addChildNode(lantern);
@@ -132,7 +132,7 @@ void GameWorld::generate()
 
         auto duck = std::make_shared<Character>();
         duck->createFromModel(duckModel);
-        duck->setPosition(p);
+        duck->pou::SceneNode::setPosition(p);
         ///m_scene->getRootNode()->addChildNode(duck);
         m_worldGrid->addChildNode(duck);
 
@@ -179,7 +179,7 @@ bool GameWorld::initPlayer(size_t player_id)
     player->update(pou::Time(0), 0);
 
     glm::vec2 pos(glm::linearRand(-200,200), glm::linearRand(-200,200));
-    player/*->node()*/->setPosition(pos);
+    player/*->node()*/->pou::SceneNode::setPosition(pos);
 
     player->update(pou::Time(0), m_curLocalTime);
 
@@ -199,7 +199,7 @@ bool GameWorld::initPlayer(size_t player_id)
     //m_scene->getRootNode()->addChildNode(player);
     m_worldGrid->addChildNode(player/*->node()*/);
 
-    player/*->node()*/->setPosition(pos);
+    player/*->node()*/->pou::SceneNode::setPosition(pos);
 
 
     ItemModelAsset *playerWeapon;

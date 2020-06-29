@@ -21,27 +21,28 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
 
 void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, uint32_t lastSyncTime)
 {
-    //if(clientTime == (uint32_t)(-1))
-      //  clientTime = 0;
-
     worldSyncMsg->lastSyncTime      = lastSyncTime;
     worldSyncMsg->localTime         = m_curLocalTime;
 
 
-    /**for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+
+
+    /*auto clientPlayer = m_syncPlayers.findElement(player_id);
+    GridProbe syncProbe;
+    syncProbe.node = clientPlayer;
+    syncProbe.radius = 2048;
+
+    std::set< std::vector<std::shared_ptr<SimpleNode> > *> zonesToSync;
+    m_worldGrid->probesZones(zonesToSync, syncProbe);
+
+    for(auto* zone : zonesToUpdate)
+    for(auto node : *zone)
     {
-        if(playerIt->second == nullptr)
-            continue;
+
+    }*/
 
 
-        if(GameServer::USEREWIND)
-        {
-            if((int)playerIt->first == player_id)
-                playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
-            else
-                playerIt->second->setSyncDelay(GameServer::TICKRATE*1.5);
-        }
-    }**/
+
 
     worldSyncMsg->nodes.clear();
     for(auto it = m_syncNodes.begin() ; it != m_syncNodes.end() ; ++it)
@@ -53,10 +54,11 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
         worldSyncMsg->nodes.push_back({it->first, NodeSync()});
         auto &nodeSync = worldSyncMsg->nodes.back().second;
 
-        if(nodePtr->getParent() != m_scene->getRootNode())
-            nodeSync.parentNodeId = m_syncNodes.findId((pou::SceneNode*)nodePtr->getParent());
-        else
-            nodeSync.parentNodeId = 0;
+        nodeSync.parentNodeId = 0;
+
+        if(nodePtr->getParent() != m_scene->getRootNode()
+        && uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime()))
+            nodeSync.parentNodeId = m_syncNodes.findId((WorldNode*)nodePtr->getParent());
 
         nodeSync.node = nodePtr;
     }
@@ -98,7 +100,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
 
         size_t nodeId = 0;
 
-        auto parentNode = spriteEntity->getParentNode();
+        auto parentNode = (WorldNode*)spriteEntity->getParentNode();
         if(parentNode != nullptr)
             nodeId = m_syncNodes.findId(parentNode);
 
@@ -141,7 +143,7 @@ void GameWorld::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSy
             characterModelId = m_syncCharacterModels.findId(characterModel);
 
         size_t nodeId = 0;
-        nodeId = m_syncNodes.findId((pou::SceneNode*)character.get());
+        nodeId = m_syncNodes.findId((WorldNode*)character.get());
 
         characterSync.character = character;
         characterSync.characterModelId = characterModelId;
@@ -486,7 +488,8 @@ void GameWorld::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSync
         if(nodePtr == nullptr)
         {
             ///nodePtr = m_scene->getRootNode()->createChildNode();
-            nodePtr = std::make_shared<pou::SceneNode>();
+            nodePtr = std::make_shared<WorldNode>();
+            m_scene->getRootNode()->addChildNode(nodePtr);
             m_syncNodes.insert(nodeId, nodePtr);
         }
 

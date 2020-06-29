@@ -47,13 +47,13 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         ///virtual void syncFrom(SceneNode* srcNode);
 
         void colorize(const glm::vec4 &c);
-        void setColor(const glm::vec4 &c);
+        virtual void setColor(const glm::vec4 &c);
 
         /**sf::FloatRect getGlobalBounds();
         sf::FloatRect getBounds();**/
 
         Scene*  getScene();
-        const glm::vec4 &getColor() const;
+        virtual const glm::vec4 &getColor() const;
         const glm::vec4 &getFinalColor() const;
 
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds = true);
@@ -70,15 +70,15 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
-        virtual void setParent(SimpleNode *parentNode);
+        virtual bool setParent(SimpleNode *parentNode);
         void setScene(Scene *);
         virtual void updateGlobalPosition();
 
     protected:
         Scene* m_scene;
-        //glm::vec4 m_color;
+        glm::vec4 m_color;
         ///LinSyncAttribute<glm::vec4> m_color;
-        Vec4LinSyncElement m_color;
+        ///Vec4LinSyncElement m_color;
         glm::vec4 m_finalColor;
 
         //float m_lastColorUpdateTime;

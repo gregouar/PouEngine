@@ -81,7 +81,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
     {
         m_target = closestEnemy;
         this->startListeningTo(m_target,pou::NotificationType_SenderDestroyed);
-        m_targetId.setValue(m_target->getSyncId());
+        m_targetId.setValue(m_target->getCharacterSyncId());
     }
 
 }

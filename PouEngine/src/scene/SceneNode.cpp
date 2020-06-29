@@ -9,6 +9,7 @@ namespace pou
 {
 
 SceneNode::SceneNode(/**const NodeTypeId id**/) :
+    SimpleNode(),
     ///SimpleNode(id),
     m_color(glm::vec4(1.0f)),
     m_finalColor(1.0f)//,
@@ -16,8 +17,8 @@ SceneNode::SceneNode(/**const NodeTypeId id**/) :
 {
     m_scene = nullptr;
 
-    m_color.setMinMaxAndPrecision(glm::vec4(0), glm::vec4(10,10,10,1), glm::uvec4(2));
-    m_syncComponent.addSyncElement(&m_color);
+    /**m_color.setMinMaxAndPrecision(glm::vec4(0), glm::vec4(10,10,10,1), glm::uvec4(2));
+    m_syncComponent.addSyncElement(&m_color);**/
 
 }
 
@@ -185,7 +186,7 @@ Scene* SceneNode::getScene()
 
 const glm::vec4 &SceneNode::getColor() const
 {
-    return m_color.getValue();
+    return m_color;
 }
 
 const glm::vec4 &SceneNode::getFinalColor() const
@@ -195,16 +196,12 @@ const glm::vec4 &SceneNode::getFinalColor() const
 
 void SceneNode::colorize(const glm::vec4 &c)
 {
-    this->setColor(m_color.getValue() + c);
+    this->setColor(this->getColor() + c);
 }
 
 void SceneNode::setColor(const glm::vec4 &c)
 {
-    m_color.setValue(c);
-    //m_lastColorUpdateTime = m_curLocalTime;
-    ///this->setLastUpdateTime(m_curLocalTime);
-
-    ///this->updateGlobalPosition();
+    m_color = c;
     this->askForUpdateModelMatrix();
 }
 
@@ -216,12 +213,14 @@ void SceneNode::setScene(Scene *scene)
         std::dynamic_pointer_cast<SceneNode>(node)->setScene(scene);
 }
 
-void SceneNode::setParent(SimpleNode *p)
+bool SceneNode::setParent(SimpleNode *p)
 {
-    SimpleNode::setParent(p);
+    bool r = SimpleNode::setParent(p);
 
     if(this->getParent() != nullptr)
         this->setScene(dynamic_cast<SceneNode*>(m_parent)->getScene());
+
+    return r;
 }
 
 /**void SceneNode::syncFromNode(SceneNode* srcNode)
@@ -286,7 +285,7 @@ void SceneNode::updateGlobalPosition()
     glm::vec4 parentColor(1.0f);
     if(m_parent != nullptr)
         parentColor = dynamic_cast<SceneNode*>(m_parent)->getFinalColor();
-    m_finalColor = m_color.getValue() * parentColor;
+    m_finalColor = this->getColor() * parentColor;
 
     SimpleNode::updateGlobalPosition();
 }

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "PouEngine/Types.h"
-#include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/SoundObject.h"
@@ -13,6 +12,7 @@
 
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"
+#include "world/WorldNode.h"
 
 #include "PouEngine/sync/SyncElements.h"
 
@@ -73,7 +73,7 @@ class SyncCharacterModelAttributes  : public pou::AbstractSyncElement
 
 
 class Character : //public pou::SceneObject, public pou::NotificationSender
-    public pou::SceneNode
+    public WorldNode
 {
     friend class CharacterModelAsset;
     friend class CharacterState;
@@ -129,7 +129,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         int getTeam() const;
 
         GameWorld* getWorld() const;
-        uint32_t getSyncId() const;
+        uint32_t getCharacterSyncId() const;
 
         void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
         virtual void syncFromCharacter(Character *srcCharacter);

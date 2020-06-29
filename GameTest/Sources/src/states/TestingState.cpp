@@ -58,31 +58,31 @@ void TestingState::init()
 
     m_character = std::make_shared<Player>();
     m_character->createFromModel("../data/char1/mokouXML.txt");
-    m_character/*->node()*/->setPosition(0,0,1);
+    m_character/*->node()*/->setPosition(glm::vec3(0.0f,0.0f,1.0f));
     m_scene->getRootNode()->addChildNode(m_character/*->node()*/);
 
     m_character2 = std::make_shared<Player>();
     m_character2->createFromModel("../data/char1/sithXML.txt");
-    m_character2/*->node()*/->setPosition(-700,-700,1);
+    m_character2/*->node()*/->setPosition(glm::vec3(-700,-700,1));
     ///m_character2->loadItem("../data/char1/laserSwordXML.txt");
     m_scene->getRootNode()->addChildNode(m_character2/*->node()*/);
 
     m_croco = std::make_shared<Character>();
     m_croco->createFromModel("../data/croco/crocoXML.txt");
-    m_croco/*->node()*/->setPosition(220,70,1);
+    m_croco/*->node()*/->setPosition(glm::vec3(220,70,1));
     ///m_croco->setRotationRadius(110.0f);
     m_scene->getRootNode()->addChildNode(m_croco/*->node()*/);
 
     m_duck = std::make_shared<Character>();
     m_duck->createFromModel("../data/duck/duckXML.txt");
-    m_duck/*->node()*/->setPosition(-200,70,1);
+    m_duck/*->node()*/->setPosition(glm::vec3(-200,70,1));
     m_scene->getRootNode()->addChildNode(m_duck/*->node()*/);
 
     for(auto i = 1 ; i < 10 ; i++)
     {
         m_duckSwarm.push_back(std::make_shared<Character>());
         m_duckSwarm.back()->createFromModel("../data/duck/duckXML.txt");
-        m_duckSwarm.back()/*->node()*/->setPosition(glm::linearRand(-2000*i,2000*i),glm::linearRand(-1000*i,1000*i),1);
+        m_duckSwarm.back()/*->node()*/->setPosition(glm::vec3(glm::linearRand(-2000*i,2000*i),glm::linearRand(-1000*i,1000*i),1));
         m_scene->getRootNode()->addChildNode(m_duckSwarm.back()/*->node()*/);
     }
 
@@ -144,7 +144,7 @@ void TestingState::init()
             p = glm::vec2(30,0);
         m_trees.push_back(std::make_shared<Character>());
         m_trees.back()->createFromModel("../data/grasslands/treeXML.txt");
-        m_trees.back()/*->node()*/->setPosition(p);
+        m_trees.back()/*->node()*/->pou::SceneNode::setPosition(p);
         m_trees.back()/*->node()*/->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
         m_trees.back()/*->node()*/->scale(glm::vec3(
                                 glm::linearRand(0,10) > 5 ? 1 : -1,

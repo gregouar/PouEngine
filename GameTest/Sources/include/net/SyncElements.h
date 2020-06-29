@@ -6,11 +6,12 @@
 
 class Character;
 class Player;
+class WorldNode;
 
 struct NodeSync
 {
     int parentNodeId;
-    std::shared_ptr<pou::SceneNode> node;
+    std::shared_ptr<WorldNode> node;
 };
 
 struct SpriteEntitySync

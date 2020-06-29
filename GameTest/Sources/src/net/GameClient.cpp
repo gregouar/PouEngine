@@ -378,7 +378,7 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
 
         playerEventMsg->isReliable  = true;
         playerEventMsg->eventType   = PlayerEventType_CharacterDamaged;
-        playerEventMsg->syncId      = gameMsg->character->getSyncId();
+        playerEventMsg->syncId      = gameMsg->character->getCharacterSyncId();
         playerEventMsg->direction   = gameMsg->direction;
         playerEventMsg->amount      = gameMsg->damages;
 

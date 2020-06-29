@@ -116,7 +116,7 @@ Character::Character() : Character(std::make_shared<CharacterInput> ())
 
 }
 
-Character::Character(std::shared_ptr<CharacterInput> characterInput) : pou::SceneNode(nullptr),
+Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     ///m_node(std::make_shared<pou::SceneNode>(nullptr)),
     m_input(characterInput),
     m_isDead(false),
@@ -137,9 +137,9 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) : pou::Scen
 
     ///m_node->attachObject(this);
     ///m_node->setSyncReconciliationPrecision(glm::vec3(32));
-    m_position.setReconciliationPrecision(glm::vec3(32));
-    m_eulerRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_scale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
+    m_syncPosition.setReconciliationPrecision(glm::vec3(32));
+    m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
+    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
    /// m_disableInputSync  = false;
     m_disableDeath      = false;
@@ -212,7 +212,7 @@ bool Character::createFromModel(CharacterModelAsset *model)
     m_attributes.setValue(att);
 
     if(!m_modelAttributes.getValue().immovable)
-        SceneNode::disableRotationSync();
+        WorldNode::disableRotationSync();
         ///m_node->disableRotationSync();
 
     Character::m_syncComponent.updateLastUpdateTime();
@@ -361,8 +361,8 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
 
 void Character::setWorldAndSyncId(GameWorld *world, int id)
 {
-    m_world     = world;
-    m_syncId    = id;
+    m_world = world;
+    Character::m_syncId = id;
 }
 
 void Character::setTeam(int team)
@@ -546,7 +546,7 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
-    SceneNode::update(elapsedTime,localTime);
+    WorldNode::update(elapsedTime,localTime);
 
     float oldLife = m_attributes.getValue().life;
 
@@ -750,15 +750,15 @@ GameWorld* Character::getWorld() const
     return m_world;
 }
 
-uint32_t Character::getSyncId() const
+uint32_t Character::getCharacterSyncId() const
 {
-    return m_syncId;
+    return Character::m_syncId;
 }
 
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
     //m_node->setReconciliationDelay(serverDelay, clientDelay);
-    SceneNode::setReconciliationDelay(serverDelay, clientDelay);
+    WorldNode::setReconciliationDelay(serverDelay, clientDelay);
     Character::m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
 
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
@@ -815,7 +815,7 @@ void Character::disableSync(bool disable)
     m_aiComponent->getSyncComponent()->disableSync(disable);
 
     ///m_node->disableSync(disable);
-    SceneNode::disableSync(disable);
+    WorldNode::disableSync(disable);
 }
 
 void Character::disableInputSync(bool disable)

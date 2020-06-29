@@ -70,7 +70,7 @@ class GameWorld
         bool    initPlayer(size_t player_id);
         bool    removePlayer(size_t player_id);
 
-        size_t syncElement(std::shared_ptr<pou::SceneNode> node);
+        size_t syncElement(std::shared_ptr<WorldNode> node);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet);
         size_t syncElement(std::shared_ptr<pou::SpriteEntity> spriteEntity);
         size_t syncElement(CharacterModelAsset *characterModel);
@@ -78,7 +78,7 @@ class GameWorld
         size_t syncElement(ItemModelAsset *characterModel);
         size_t syncElement(std::shared_ptr<Player> player);
 
-        void desyncElement(pou::SceneNode* node, bool noDesyncInsert = false);
+        void desyncElement(WorldNode* node, bool noDesyncInsert = false);
         void desyncElement(Character *character, bool noDesyncInsert = false);
         void desyncElement(Player *player, bool noDesyncInsert = false);
 
@@ -119,7 +119,7 @@ class GameWorld
         std::list<int> m_removedPlayersList;
 
         ///Move all this to some worldNetComponent ?
-        pou::IdPtrAllocator<pou::SceneNode>         m_syncNodes;
+        pou::IdPtrAllocator<WorldNode>              m_syncNodes;
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
         pou::IdPtrAllocator<pou::SpriteEntity>      m_syncSpriteEntities;
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;

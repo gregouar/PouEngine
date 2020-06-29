@@ -7,7 +7,7 @@
 #include "PouEngine/core/NotificationListener.h"
 #include "PouEngine/core/NotificationSender.h"
 #include "PouEngine/system/Stream.h"
-#include "PouEngine/sync/SyncElements.h"
+//#include "PouEngine/sync/SyncElements.h"
 
 namespace pou
 {
@@ -50,7 +50,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
         virtual void copyFrom(const SimpleNode* srcNode);
-        virtual void syncFrom(SimpleNode* srcNode);
+        ///virtual void syncFrom(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -59,7 +59,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setPosition(float, float);
         void setPosition(float, float, float);
         void setPosition(glm::vec2 );
-        void setPosition(glm::vec3 );
+        virtual void setPosition(glm::vec3 );
         void setGlobalPosition(float, float);
         void setGlobalPosition(float, float, float);
         void setGlobalPosition(glm::vec2 );
@@ -67,29 +67,29 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void setName(const std::string &name);
         void setRigidity(float rigidity);
 
-        //void setLocalTime(uint32_t localTime);
-        virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
-        virtual void setMaxRewind(int maxRewind);
-        void setSyncReconciliationPrecision(glm::vec3 positionPrecision);
-        void disableRotationSync(bool disable = true);
-        void disableSync(bool disable = true);
-
         void scale(float scale);
         void scale(glm::vec3 scale);
         void linearScale(float, float, float);
         void linearScale(glm::vec3 scale);
         void setScale(float scale);
-        void setScale(glm::vec3 scale);
+        virtual void setScale(glm::vec3 scale);
         void rotate(float value, glm::vec3 axis, bool inRadians = true);
         void rotate(glm::vec3 values, bool inRadians = true);
-        void setRotation(glm::vec3 rotation, bool inRadians = true);
+        virtual void setRotation(glm::vec3 rotation, bool inRadians = true);
 
-        glm::vec3 getPosition() const;
+        //void setLocalTime(uint32_t localTime);
+        /**virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        virtual void setMaxRewind(int maxRewind);
+        void setSyncReconciliationPrecision(glm::vec3 positionPrecision);
+        void disableRotationSync(bool disable = true);
+        void disableSync(bool disable = true);**/
+
+        virtual const glm::vec3 &getPosition() const;
         glm::vec2 getXYPosition() const;
-        glm::vec3 getGlobalPosition() const;
+        const glm::vec3 &getGlobalPosition() const;
         glm::vec2 getGlobalXYPosition() const;
-        glm::vec3 getScale() const;
-        glm::vec3 getEulerRotation()const;
+        virtual const glm::vec3 &getScale() const;
+        virtual const glm::vec3 &getEulerRotation()const;
         const glm::mat4 &getModelMatrix() const;
         const glm::mat4 &getInvModelMatrix() const;
 
@@ -102,8 +102,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
         //std::list<SimpleNode*> getAllChilds();
 
-        uint32_t getLastUpdateTime();
-        uint32_t getLastParentUpdateTime();
+        /**uint32_t getLastUpdateTime();
+        uint32_t getLastParentUpdateTime();**/
         ///uint32_t getLocalTime();
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
@@ -113,13 +113,14 @@ class SimpleNode : public NotificationSender, public NotificationListener
                             void* data = nullptr) override;
 
 
-        virtual void serialize(Stream *stream, uint32_t localTime = -1);
+        ///virtual void serialize(Stream *stream, uint32_t localTime = -1);
 
 
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
-        virtual void setParent(SimpleNode *parentNode); //Do not remove from old parent if new parent is null to prevent from self destruction of shared_ptr
+        virtual bool setParent(SimpleNode *parentNode); //Do not remove from old parent if new parent is null to prevent from self destruction of shared_ptr
+        virtual bool setAsParentTo(SimpleNode *parentNode, SimpleNode *childNode);
 
         /**virtual void setParent(SimpleNode *);
         void setId(const NodeTypeId );
@@ -139,17 +140,17 @@ class SimpleNode : public NotificationSender, public NotificationListener
     protected:
         glm::vec3 m_globalPosition;
 
-        SyncComponent m_syncComponent;
+        ///SyncComponent m_syncComponent;
 
-        //glm::vec3 m_position;
-        //glm::vec3 m_eulerRotations;
-        //glm::vec3 m_scale;
+        glm::vec3 m_position;
+        glm::vec3 m_eulerRotations;
+        glm::vec3 m_scale;
         /**LinSyncAttribute<glm::vec3> m_position;
         LinSyncAttribute<glm::vec3> m_eulerRotations;
         LinSyncAttribute<glm::vec3> m_scale;**/
-        Vec3LinSyncElement m_position;
+        /**Vec3LinSyncElement m_position;
         Vec3LinSyncElement m_eulerRotations;
-        Vec3LinSyncElement m_scale;
+        Vec3LinSyncElement m_scale;**/
 
         float     m_rigidity;
 
@@ -163,10 +164,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         ///std::map<NodeTypeId, SimpleNode*> m_childs;
         std::vector< std::shared_ptr<SimpleNode> > m_childs;
 
-        uint32_t m_curLocalTime;
+       /// uint32_t m_curLocalTime;
         ///uint32_t m_lastSyncTime;
         ///uint32_t m_lastUpdateTime;
-        uint32_t m_lastParentUpdateTime;
+       /// uint32_t m_lastParentUpdateTime;
         //float m_lastPositionUpdateTime;
         //float m_lastRotationUpdateTime;
         //float m_lastScaleUpdateTime;
@@ -182,11 +183,6 @@ class SimpleNode : public NotificationSender, public NotificationListener
         ///int m_curNewId;
 
         bool m_needToUpdateModelMat;
-
-    public:
-        static const glm::vec3  NODE_MAX_POS;
-        static const float      NODE_MAX_SCALE;
-        static const uint8_t    NODE_SCALE_DECIMALS;
 };
 
 }
