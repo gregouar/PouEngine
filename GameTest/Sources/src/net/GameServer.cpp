@@ -351,7 +351,8 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
     if(!world)
         return;
 
-    world->getSyncComponent()->processPlayerEvent(msg, clientInfos->player_id);
+    msg->playerId = clientInfos->player_id;
+    world->getSyncComponent()->addPlayerEvent(msg/*, clientInfos->player_id*/);
 }
 
 /*void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg)

@@ -414,6 +414,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
 void NetMessage_PlayerEvent::serializeImpl(pou::Stream *stream)
 {
     stream->serializeInt(eventType, 0, NBR_PLAYEREVENTTYPES);
+    stream->serializeUint32(localTime); //This is the client local time
 
     if(eventType == PlayerEventType_CharacterDamaged)
     {

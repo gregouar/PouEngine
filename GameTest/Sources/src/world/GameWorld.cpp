@@ -227,10 +227,10 @@ glm::vec2 GameWorld::convertScreenToWorldCoord(glm::vec2 p)
 }
 
 
-/**uint32_t GameWorld::getLocalTime()
+uint32_t GameWorld::getLocalTime()
 {
-    return m_curLocalTime;
-}**/
+    return m_syncComponent.getLocalTime();
+}
 
 /**uint32_t GameWorld::getLastSyncTime()
 {

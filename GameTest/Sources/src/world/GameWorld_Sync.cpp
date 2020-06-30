@@ -70,6 +70,8 @@ void GameWorld_Sync::update(const pou::Time &elapsedTime)
     m_updatedNodes.clear();
     m_updatedSprites.clear();
     m_updatedCharacters[m_updatedCharactersBuffer].clear();
+
+    this->processPlayerEvents();
 }
 
 
@@ -221,7 +223,7 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
         auto &playerSync  = worldSyncMsg->players.back().second;
 
         size_t characterId = 0;
-        characterId = m_syncCharacters.findId(player.get());
+        characterId = player->getCharacterSyncId();///m_syncCharacters.findId(player.get());
 
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
@@ -274,8 +276,12 @@ void GameWorld_Sync::createWorldSyncMsg_Node(WorldNode *nodePtr, std::shared_ptr
     nodeSync.parentNodeId = 0;
 
     if(/*nodePtr->getParent() != m_scene->getRootNode()
-    &&*/ uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime()))
-        nodeSync.parentNodeId = m_syncNodes.findId((WorldNode*)nodePtr->getParent());
+    &&*/ uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime())
+    && nodePtr->getParent())
+    {
+        auto parentNode = (WorldNode*)nodePtr->getParent();
+        nodeSync.parentNodeId = parentNode->getNodeSyncId();///m_syncNodes.findId((WorldNode*)nodePtr->getParent());
+    }
 
     nodeSync.node = nodePtr;
 }
@@ -303,7 +309,7 @@ void GameWorld_Sync::createWorldSyncMsg_Sprite(WorldSprite *spriteEntity, std::s
 
     auto parentNode = (WorldNode*)spriteEntity->getParentNode();
     if(parentNode != nullptr)
-        nodeId = m_syncNodes.findId(parentNode);
+        nodeId = parentNode->getNodeSyncId();///m_syncNodes.findId(parentNode);
 
     spriteEntitySync.spriteEntity = spriteEntity;
     spriteEntitySync.spriteSheetId = spriteSheetId;
@@ -326,7 +332,7 @@ void GameWorld_Sync::createWorldSyncMsg_Character(Character *character, std::sha
         characterModelId = m_syncCharacterModels.findId(characterModel);
 
     size_t nodeId = 0;
-    nodeId = m_syncNodes.findId((WorldNode*)character);
+    nodeId = character->getNodeSyncId();///m_syncNodes.findId((WorldNode*)character);
 
     characterSync.character = character;
     characterSync.characterModelId = characterModelId;
@@ -697,7 +703,7 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
 
     PlayerSync playerSync;
     {
-        size_t characterId = m_syncCharacters.findId(player);
+        size_t characterId = player->getCharacterSyncId(); ///m_syncCharacters.findId(player);
 
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
@@ -725,7 +731,7 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
     CharacterSync characterSync;
     {
         size_t nodeId = 0;
-        nodeId = m_syncNodes.findId(player/*->node()*/);
+        nodeId = player->getNodeSyncId();///m_syncNodes.findId(player/*->node()*/);
 
         characterSync.character = player.get();
         characterSync.characterModelId = 0;
@@ -766,24 +772,9 @@ void GameWorld_Sync::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> wo
         player->addItemToInventory(m_syncItemModels.findElement(worldSyncMsg->playerSync.inventoryItemModelsId[i]),i);
 }
 
-void GameWorld_Sync::processPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg, size_t clientPlayerId)
+void GameWorld_Sync::addPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg/*, size_t clientPlayerId*/)
 {
-    switch((PlayerEventType)playerEventMsg->eventType)
-    {
-        case PlayerEventType_CharacterDamaged:{
-
-            auto character = m_syncCharacters.findElement(playerEventMsg->syncId);
-            if(!character)
-                break;
-
-            character->damage(playerEventMsg->amount, playerEventMsg->direction);
-
-        }break;
-
-
-        case NBR_PLAYEREVENTTYPES:{
-        }break;
-    }
+    m_playerEvents.insert({playerEventMsg->localTime, playerEventMsg});
 }
 
 /*void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> askForWorldSyncMsg,
@@ -971,4 +962,34 @@ void GameWorld_Sync::removeFromUpdatedCharacters(Character *character)
         for(auto it = m_updatedCharacters[i].begin() ; it != m_updatedCharacters[i].end() ; ++it)
             if(*it == character)
                 it = m_updatedCharacters[i].erase(it);
+}
+
+void GameWorld_Sync::processPlayerEvents()
+{
+    auto upperBound = m_playerEvents.upper_bound(m_curLocalTime);
+
+    for(auto playerEventIt = m_playerEvents.begin() ;
+        playerEventIt != upperBound ;
+        ++playerEventIt)
+    {
+        auto playerEventMsg = playerEventIt->second;
+        switch((PlayerEventType)playerEventMsg->eventType)
+        {
+            case PlayerEventType_CharacterDamaged:{
+
+                auto character = m_syncCharacters.findElement(playerEventMsg->syncId);
+                if(!character)
+                    break;
+
+                character->damage(playerEventMsg->amount, playerEventMsg->direction);
+
+            }break;
+
+
+            case NBR_PLAYEREVENTTYPES:{
+            }break;
+        }
+    }
+
+    m_playerEvents.erase(m_playerEvents.begin(), upperBound);
 }

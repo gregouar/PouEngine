@@ -37,7 +37,7 @@ void IdAllocator<T>::enableIdReuse(bool b)
 template <class T>
 size_t IdAllocator<T>::allocateId(T t)
 {
-    if(m_max != -1 && m_curId >= (size_t)m_max)
+    if(m_max != -1 && m_curId > (size_t)m_max)
     {
         Logger::warning("Tried to allocate ID bigger than max allowed");
         return 0;
@@ -60,7 +60,7 @@ size_t IdAllocator<T>::allocateId(T t)
 template <class T>
 bool IdAllocator<T>::insert(size_t id, T t)
 {
-    if(m_max != -1 && id >= (size_t)m_max)
+    if(m_max != -1 && id > (size_t)m_max)
     {
         Logger::warning("Tried to allocate ID bigger than max allowed");
         return 0;

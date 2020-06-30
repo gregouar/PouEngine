@@ -32,7 +32,7 @@ class GameWorld_Sync : public pou::NotificationListener
         void createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg,
                                  int player_id, uint32_t lastSyncTime);
         void syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg, size_t clientPlayerId, float RTT);
-        void processPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg, size_t clientPlayerId);
+        void addPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg/*, size_t clientPlayerId*/);
 
         size_t syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId = 0);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet, uint32_t forceId = 0);
@@ -66,6 +66,8 @@ class GameWorld_Sync : public pou::NotificationListener
 
         void removeFromUpdatedCharacters(Character *character);
 
+        void processPlayerEvents();
+
     private:
         uint32_t m_curLocalTime;
         uint32_t m_syncTime;
@@ -92,6 +94,8 @@ class GameWorld_Sync : public pou::NotificationListener
         std::multimap<uint32_t, int> m_desyncNodes;
         std::multimap<uint32_t, int> m_desyncCharacters;
         std::multimap<uint32_t, int> m_desyncPlayers;
+
+        std::multimap<uint32_t, std::shared_ptr<NetMessage_PlayerEvent> > m_playerEvents;
 
     public:
         static const int        NODEID_BITS;

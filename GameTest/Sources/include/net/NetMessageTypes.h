@@ -176,7 +176,8 @@ struct NetMessage_PlayerEvent : public pou::NetMessage
         return std::make_shared<NetMessage_PlayerEvent>();
     }
 
-    //uint32_t localTime;
+    uint32_t localTime;
+    uint32_t playerId;
 
     int         eventType;
     int         syncId;

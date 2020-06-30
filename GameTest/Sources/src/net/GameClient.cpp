@@ -369,6 +369,9 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
 
     auto playerEventMsg = std::dynamic_pointer_cast<NetMessage_PlayerEvent>(pou::NetEngine::createNetMessage(NetMessageType_PlayerEvent));
 
+    playerEventMsg->isReliable  = true;
+    playerEventMsg->localTime   = m_world->getLocalTime();
+
     if(notificationType == GameMessageType_CharacterDamaged)
     {
         GameMessage_CharacterDamaged *gameMsg = static_cast<GameMessage_CharacterDamaged*>(data);
@@ -376,7 +379,6 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
         if(gameMsg->character == player)
             return;
 
-        playerEventMsg->isReliable  = true;
         playerEventMsg->eventType   = PlayerEventType_CharacterDamaged;
         playerEventMsg->syncId      = gameMsg->character->getCharacterSyncId();
         playerEventMsg->direction   = gameMsg->direction;

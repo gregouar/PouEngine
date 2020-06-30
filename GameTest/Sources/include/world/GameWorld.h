@@ -54,7 +54,7 @@ class GameWorld
 
         glm::vec2 convertScreenToWorldCoord(glm::vec2 p);
 
-       /// uint32_t getLocalTime();
+        uint32_t getLocalTime();
         ///uint32_t getLastSyncTime();
 
         Character *getSyncCharacter(int character_id);

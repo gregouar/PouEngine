@@ -38,7 +38,7 @@ void IdPtrAllocator<T>::enableIdReuse(bool b)
 template <class T>
 size_t IdPtrAllocator<T>::allocateId(std::shared_ptr<T> t)
 {
-    if(m_max != -1 && m_curId >= (size_t)m_max)
+    if(m_max != -1 && m_curId > (size_t)m_max)
     {
         Logger::warning("Tried to allocate ID bigger than max allowed");
         return 0;
@@ -61,9 +61,9 @@ size_t IdPtrAllocator<T>::allocateId(std::shared_ptr<T> t)
 template <class T>
 bool IdPtrAllocator<T>::insert(size_t id, std::shared_ptr<T> t)
 {
-    if(m_max != -1 && id >= (size_t)m_max)
+    if(m_max != -1 && id > (size_t)m_max)
     {
-        Logger::warning("Tried to allocate ID bigger than max allowed");
+        Logger::warning("Tried to allocate ID "+std::to_string(id)+" bigger than max allowed: "+std::to_string(m_max));
         return 0;
     }
 
