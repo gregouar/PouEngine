@@ -7,7 +7,7 @@ AiComponent::AiComponent(Character *character) :
     m_target(nullptr),
     m_targetId(0)
 {
-    m_targetId.useBits(GameWorld::CHARACTERSID_BITS);
+    m_targetId.useBits(GameWorld_Sync::CHARACTERSID_BITS);
     m_syncComponent.addSyncElement(&m_targetId);
 }
 
@@ -27,9 +27,9 @@ void AiComponent::update(const pou::Time &elapsedTime, uint32_t localTime)
 
     if(oldTargetId != m_targetId.getValue())
     {
-        auto *world = m_character->getWorld();
+        auto *world = m_character->getWorldSync();
         if(world)
-            m_target = world->getSyncCharacter(m_targetId.getValue());
+            m_target = world->getCharacter(m_targetId.getValue()).get();
     }
 }
 

@@ -18,6 +18,9 @@ class NotificationListener
         NotificationListener();
         virtual ~NotificationListener();
 
+        NotificationListener (const NotificationListener &) = delete;
+        NotificationListener & operator = (const NotificationListener &) = delete;
+
         void stopListeningTo(NotificationSender*);
         void stopListeningTo(NotificationSender*, int notificationType);
         void startListeningTo(NotificationSender*);

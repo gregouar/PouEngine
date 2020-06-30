@@ -191,7 +191,6 @@ std::array<VkVertexInputAttributeDescription, 12> SpriteDatum::getAttributeDescr
 
 SpriteEntity::SpriteEntity() :
     m_spriteModel(nullptr),
-    m_lastModelUpdateTime(-1),
     m_rotation(0.0f),
     m_color(1.0,1.0,1.0,1.0),
     m_rme(1.0,1.0,1.0),
@@ -258,14 +257,14 @@ void SpriteEntity::setRme(glm::vec3 rme)
     }
 }
 
-void SpriteEntity::setSpriteModel(SpriteModel* model)
+bool SpriteEntity::setSpriteModel(SpriteModel* model)
 {
     if(m_spriteModel != model)
     {
         this->stopListeningTo(m_spriteModel);
         m_spriteModel = model;
-        m_lastModelUpdateTime = m_curLocalTime;
-        this->setLastUpdateTime(m_curLocalTime);
+        /**m_lastModelUpdateTime = m_curLocalTime;
+        this->setLastUpdateTime(m_curLocalTime);**/
         if(m_spriteModel != nullptr)
         {
             this->startListeningTo(m_spriteModel);
@@ -273,7 +272,9 @@ void SpriteEntity::setSpriteModel(SpriteModel* model)
             this->setShadowCastingType(m_spriteModel->getShadowCastingType());
         }
         this->updateDatum();
+        return (true);
     }
+    return (false);
 }
 
 
@@ -308,10 +309,10 @@ SpriteModel* SpriteEntity::getSpriteModel()
     return m_spriteModel;
 }
 
-uint32_t SpriteEntity::getLastModelUptateTime()
+/**uint32_t SpriteEntity::getLastModelUptateTime()
 {
     return m_lastModelUpdateTime;
-}
+}**/
 
 
 void SpriteEntity::generateRenderingData(SceneRenderingInstance *renderingInstance)
@@ -446,7 +447,7 @@ void SpriteEntity::notify(NotificationSender *sender, int notificationType,
     }
 }
 
-bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
+/**bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
 {
     //if(m_lastSyncTime > srcEntity->getLastUpdateTime() && m_lastSyncTime != (uint32_t)(-1))
       //  return (false);
@@ -454,7 +455,7 @@ bool SpriteEntity::syncFrom(SpriteEntity* srcEntity)
     m_lastSyncTime = srcEntity->m_curLocalTime;
 
     return (true);
-}
+}**/
 
 
 ///Protected

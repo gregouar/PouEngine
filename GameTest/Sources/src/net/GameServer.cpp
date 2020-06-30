@@ -122,7 +122,7 @@ void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
         return;
 
     pou::Profiler::pushClock("Render player server world");
-    worldIt->second.render(renderWindow);
+    worldIt->second->render(renderWindow);
     pou::Profiler::popClock();
 }
 
@@ -140,7 +140,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
         if(clientInfos.world_id == 0)
         {
             auto &world = m_worlds.find(m_curWorldId)->second;
-            size_t player_id = world.askToAddPlayer();
+            size_t player_id = world->askToAddPlayer();
 
             clientInfos.lastSyncTime  = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;
@@ -154,7 +154,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
                 continue;
             auto &world = worldIt->second;
 
-            if(!world.isPlayerCreated(clientInfos.player_id))
+            if(!world->isPlayerCreated(clientInfos.player_id))
                 continue;
 
             auto worldInitMsg = std::dynamic_pointer_cast<NetMessage_WorldInit>
@@ -165,7 +165,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
             worldInitMsg->clientTime = (uint32_t)(-1);
 
             clientInfos.playerCreated = true;
-            world.createWorldInitializationMsg(worldInitMsg);
+            world->createWorldInitializationMsg(worldInitMsg);
             m_server->sendBigReliableMessage(clientNbr, worldInitMsg);
 
             pou::Logger::write("Sending WorldInit #"+std::to_string(m_curWorldId)+" to client #"+std::to_string(clientNbr));
@@ -188,7 +188,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldSync));
 
             worldSyncMsg->clientTime = clientInfos.localTime;
-            world.createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
+            world->getSyncComponent()->createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
             m_server->sendMessage(clientNbr, worldSyncMsg, true);
         }
     }
@@ -208,7 +208,7 @@ int GameServer::addLocalPlayer()
         return (-1);
 
     this->addClient(clientNbr, true);
-    auto player_id = worldIt->second.askToAddPlayer(true);
+    auto player_id = worldIt->second->askToAddPlayer(true);
     m_clientInfos[clientNbr].world_id  = m_curWorldId;
     m_clientInfos[clientNbr].player_id = player_id;
 
@@ -217,10 +217,13 @@ int GameServer::addLocalPlayer()
 
 size_t GameServer::generateWorld()
 {
-   auto &world = m_worlds.insert({++m_curWorldId, GameWorld(m_allowLocalPlayers)}).first->second;
-   world.generate();
+    auto world = std::make_unique<GameWorld>(m_allowLocalPlayers);
+    world->generate();
 
-   return (m_curWorldId);
+    m_worlds.insert({++m_curWorldId, std::move(world)});
+   //auto &world = m_worlds.emplace(std::make_pair(++m_curWorldId, GameWorld(m_allowLocalPlayers))).first->second;
+
+    return (m_curWorldId);
 }
 
 /**void GameServer::rewindWorld(size_t world_id, uint32_t time)
@@ -330,7 +333,7 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_Play
 
     //std::cout<<"Received Sync from client #"<<clientNbr<<" of time: "<<msg->localTime<<std::endl;
 
-    world->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientNbr));
+    world->getSyncComponent()->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientNbr));
 
     if(uint32less(clientInfos->lastSyncTime,msg->lastSyncTime))
         clientInfos->lastSyncTime = msg->lastSyncTime;
@@ -348,7 +351,7 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
     if(!world)
         return;
 
-    world->processPlayerEvent(msg, clientInfos->player_id);
+    world->getSyncComponent()->processPlayerEvent(msg, clientInfos->player_id);
 }
 
 /*void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg)
@@ -464,7 +467,7 @@ void GameServer::disconnectClient(int clientNbr)
 
     auto worldIt = m_worlds.find(clientInfos.world_id);
     if(worldIt != m_worlds.end())
-        worldIt->second.askToRemovePlayer(clientInfos.player_id);
+        worldIt->second->askToRemovePlayer(clientInfos.player_id);
 
     m_clientInfos.erase(it);
 }
@@ -480,7 +483,7 @@ void GameServer::updateWorlds(const pou::Time &elapsedTime)
     while(totalTime >= tickTime)
     {
         for(auto &world : m_worlds)
-            world.second.update(tickTime);
+            world.second->update(tickTime);
         totalTime -= tickTime;
     }
 
@@ -522,7 +525,6 @@ std::pair<GameClientInfos*, GameWorld*> GameServer::getClientInfosAndWorld(size_
     if(worldIt == m_worlds.end())
         return {clientInfos,nullptr};
 
-    auto *world = &worldIt->second;
-    return {clientInfos, world};
+    return {clientInfos, worldIt->second.get()};
 }
 

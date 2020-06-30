@@ -17,7 +17,7 @@
 #include "PouEngine/sync/SyncElements.h"
 
 class AiComponent;
-class GameWorld;
+class GameWorld_Sync;
 
 struct CharacterAttributes
 {
@@ -98,7 +98,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual bool addSoundToSkeleton(SoundModel *soundModel, const std::string &skeleton);
         virtual bool removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeleton);
 
-        void setWorldAndSyncId(GameWorld *world, int id);
+        void setSyncData(GameWorld_Sync *worldSync, int id);
         void setTeam(int team);
 
         virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0), bool onlyCosmetic = false);
@@ -108,9 +108,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         void startAnimation(const std::string &name, bool forceStart = true);
 
-        void addToNearbyCharacters(std::shared_ptr<Character> character);
+        /**void addToNearbyCharacters(std::shared_ptr<Character> character);
         void removeFromNearbyCharacters(std::shared_ptr<Character> character);
-        std::set< std::shared_ptr<Character> > &getNearbyCharacters();
+        std::set< std::shared_ptr<Character> > &getNearbyCharacters();**/
+        std::vector<Character*> *getNearbyCharacters();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -128,7 +129,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         const CharacterModelAttributes  &getModelAttributes() const;
         int getTeam() const;
 
-        GameWorld* getWorld() const;
+        GameWorld_Sync* getWorldSync() const;
         uint32_t getCharacterSyncId() const;
 
         void serializeCharacter(pou::Stream *stream, uint32_t clientTime = -1);
@@ -174,7 +175,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         SyncCharacterModelAttributes    m_modelAttributes;
         SyncCharacterAttributes         m_attributes;
 
-        std::set<std::shared_ptr<Character> >    m_nearbyCharacters;
+        std::set<std::shared_ptr<Character> > m_nearbyCharacters;
         std::map<std::string, std::shared_ptr<pou::Skeleton> > m_skeletons;
 
         ///uint32_t m_lastCharacterSyncTime;
@@ -188,8 +189,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         int m_team;
 
     private:
-        GameWorld *m_world;
-        uint32_t m_syncId;
+        GameWorld_Sync *m_worldSync;
+        uint32_t m_characterSyncId;
 
         CharacterModelAsset*    m_model;
         std::unique_ptr<CharacterState> m_states[NBR_CharacterStateTypes];

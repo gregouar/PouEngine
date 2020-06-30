@@ -519,8 +519,10 @@
 		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
+		<Unit filename="include/world/GameWorld_Sync.h" />
 		<Unit filename="include/world/WorldGrid.h" />
 		<Unit filename="include/world/WorldNode.h" />
+		<Unit filename="include/world/WorldSprite.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
 		<Unit filename="src/ai/AiScriptedComponent.cpp" />
@@ -546,6 +548,7 @@
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Unit filename="src/world/WorldGrid.cpp" />
 		<Unit filename="src/world/WorldNode.cpp" />
+		<Unit filename="src/world/WorldSprite.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

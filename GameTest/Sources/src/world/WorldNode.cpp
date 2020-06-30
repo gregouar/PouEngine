@@ -1,5 +1,7 @@
 #include "world/WorldNode.h"
 
+#include "logic/GameMessageTypes.h"
+
 const glm::vec3 WorldNode::NODE_MAX_POS         = glm::vec3(50000.0, 50000.0, 1000.0);
 const float     WorldNode::NODE_MAX_SCALE       = 100.0f;
 const uint8_t   WorldNode::NODE_SCALE_DECIMALS  = 2;
@@ -10,6 +12,7 @@ WorldNode::WorldNode() :
     m_syncRotations(m_eulerRotations),
     m_syncScale(m_scale),
     m_syncColor(m_color),
+    m_nodeSyncId(0),
     m_lastParentUpdateTime(-1)
 {
     m_syncPosition.setMinMaxAndPrecision(-WorldNode::NODE_MAX_POS, WorldNode::NODE_MAX_POS, glm::uvec3(0,0,2));
@@ -141,12 +144,21 @@ uint32_t WorldNode::getLastParentUpdateTime()
     return m_lastParentUpdateTime;
 }
 
+uint32_t WorldNode::getNodeSyncId()
+{
+    return m_nodeSyncId;
+}
+
 void WorldNode::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     if(m_syncComponent.update(elapsedTime, localTime))
         this->askForUpdateModelMatrix();
 
     SceneNode::update(elapsedTime, localTime);
+
+    GameMessage_NodeUpdated msg;
+    msg.node   = this;
+    pou::MessageBus::postMessage(GameMessageType_NodeUpdated, &msg);
 }
 
 void WorldNode::serialize(pou::Stream *stream, uint32_t clientTime)
@@ -165,6 +177,11 @@ bool WorldNode::setParent(SimpleNode *p)
         return (true);
     }
     return (false);
+}
+
+void WorldNode::setNodeSyncId(uint32_t id)
+{
+    m_nodeSyncId = id;
 }
 
 std::shared_ptr<pou::SimpleNode> WorldNode::nodeAllocator(/**NodeTypeId id**/)

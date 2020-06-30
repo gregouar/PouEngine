@@ -1,6 +1,8 @@
 #include "PouEngine/core/NotificationSender.h"
 #include "PouEngine/core/NotificationListener.h"
 
+#include <iostream>
+
 namespace pou
 {
 

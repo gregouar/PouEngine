@@ -120,8 +120,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     ///m_node(std::make_shared<pou::SceneNode>(nullptr)),
     m_input(characterInput),
     m_isDead(false),
-    m_world(nullptr),
-    m_syncId(0)
+    m_worldSync(nullptr),
+    m_characterSyncId(0)
     ///m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
@@ -359,10 +359,10 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     return (true);
 }
 
-void Character::setWorldAndSyncId(GameWorld *world, int id)
+void Character::setSyncData(GameWorld_Sync *worldSync, int id)
 {
-    m_world = world;
-    Character::m_syncId = id;
+    m_worldSync = worldSync;
+    Character::m_characterSyncId = id;
 }
 
 void Character::setTeam(int team)
@@ -581,69 +581,10 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
        && m_attributes.getValue().life <= 0)
         this->kill();
 
-    /**bool syncUpdate = false;
 
-    if(m_aiComponent)
-        m_aiComponent->update(elapsedTime, localTime);
-
-    m_input->update(elapsedTime, localTime);
-
-    if(m_curState)
-    {
-        m_curState->handleInput(m_input.get());
-        m_curState->update(elapsedTime, localTime);
-    }
-
-
-    syncUpdate |= m_modelAttributes.update(elapsedTime, m_curLocalTime);
-    float oldLife = m_attributes.getValue().life;
-    syncUpdate |= m_attributes.update(elapsedTime, m_curLocalTime);
-    if(m_attributes.getValue().life < oldLife)
-    {
-        if(m_attributes.getValue().life <= 0)
-            this->kill(oldLife-m_attributes.getValue().life);
-        else
-            this->interrupt(oldLife-m_attributes.getValue().life);
-    }
-    else if (m_attributes.getValue().life > oldLife)
-    {
-        //if(m_attributes.getValue().life > 0)
-        if(m_isDead.getValue() && m_attributes.getValue().life > 0)
-            this->resurrect();
-    }
-
-    if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0
-       && m_attributes.getValue().life <= 0)
-        this->kill();
-
-
-    if(syncUpdate)
-        this->setLastCharacterUpdateTime(m_curLocalTime);**/
-
-
-
-
-
-
-      /**bool wasDead = m_isDead.getValue();
-    m_isDead.update(elapsedTime, m_curLocalTime);
-    if(!wasDead && m_isDead.getValue())
-    {
-        m_isDead.setValue(false);
-        this->kill();
-    } else if(wasDead && !m_isDead.getValue())
-    {
-        //std::cout<<"RESUR"<<std::endl;
-        //m_isDead.setValue(true);
-        //this->resurrect();
-        this->startAnimation("stand");
-    }**/
-
-    /**if(m_curAnimation.update(elapsedTime, m_curLocalTime))
-    {
-        std::cout<<"Start sync animation:"<<m_curAnimation.getValue()<<std::endl;
-        this->startAnimation(m_curAnimation.getValue(), true);
-    }**/
+    GameMessage_CharacterUpdated msg;
+    msg.character = this;
+    pou::MessageBus::postMessage(GameMessageType_CharacterUpdated, &msg);
 }
 
 /**void Character::rewind(uint32_t time)
@@ -678,7 +619,7 @@ void Character::startAnimation(const std::string &name, bool forceStart)
     ///m_curAnimation.setValue(name);
 }
 
-void Character::addToNearbyCharacters(std::shared_ptr<Character> character)
+/**void Character::addToNearbyCharacters(std::shared_ptr<Character> character)
 {
     m_nearbyCharacters.insert(character);
 }
@@ -691,6 +632,14 @@ void Character::removeFromNearbyCharacters(std::shared_ptr<Character> character)
 std::set<std::shared_ptr<Character> > &Character::getNearbyCharacters()
 {
     return m_nearbyCharacters;
+}**/
+
+std::vector<Character*> *Character::getNearbyCharacters()
+{
+    if(!m_worldSync)
+        return (nullptr);
+
+    return m_worldSync->getUpdatedCharacters();
 }
 
 bool Character::isAlive() const
@@ -745,14 +694,14 @@ int Character::getTeam() const
     return m_team;
 }
 
-GameWorld* Character::getWorld() const
+GameWorld_Sync* Character::getWorldSync() const
 {
-    return m_world;
+    return m_worldSync;
 }
 
 uint32_t Character::getCharacterSyncId() const
 {
-    return Character::m_syncId;
+    return Character::m_characterSyncId;
 }
 
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)

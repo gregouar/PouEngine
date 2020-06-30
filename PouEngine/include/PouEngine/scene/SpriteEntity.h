@@ -71,7 +71,7 @@ class SpriteEntity : public ShadowCaster
         void setRotation(float rotation);
         void setColor(Color color);
         void setRme(glm::vec3 rme);
-        void setSpriteModel(SpriteModel* model);
+        virtual bool setSpriteModel(SpriteModel* model);
         void setOrdering(SpriteOrdering ordering);
         void setInheritRotation(bool inheritRotation);
 
@@ -82,7 +82,7 @@ class SpriteEntity : public ShadowCaster
 
         SpriteModel* getSpriteModel();
 
-        uint32_t getLastModelUptateTime();
+        ///uint32_t getLastModelUptateTime();
 
         SpriteDatum getSpriteDatum();
         //virtual void draw(SceneRenderer *renderer);
@@ -94,7 +94,7 @@ class SpriteEntity : public ShadowCaster
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
 
-        virtual bool syncFrom(SpriteEntity* srcEntity);
+        ///virtual bool syncFrom(SpriteEntity* srcEntity);
 
     protected:
         void cleanup();
@@ -106,7 +106,7 @@ class SpriteEntity : public ShadowCaster
         //SpriteShadowDatum    m_shadowDatum;
 
         SpriteModel *m_spriteModel;
-        uint32_t m_lastModelUpdateTime;
+        ///uint32_t m_lastModelUpdateTime;
 
     private:
         float       m_rotation;

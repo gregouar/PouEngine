@@ -9,32 +9,44 @@
 #include "net/GameClient.h"
 
 
-void GameWorld::generate()
+void GameWorld::init()
 {
+    this->destroy();
     this->createScene();
 
-    m_dayTime = glm::linearRand(0,360);
-
-    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt");
-    this->syncElement(grassSheet);
-
-    auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
-    this->syncElement(rockSheet);
+    m_worldRootNode = std::make_shared<WorldNode>();
+    m_scene->getRootNode()->addChildNode(m_worldRootNode);
+    m_syncComponent.syncElement(m_worldRootNode);
 
     m_worldGrid = std::make_shared<WorldGrid>();
     m_worldGrid->setQuadSize(1024);
     m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
     m_scene->getRootNode()->addChildNode(m_worldGrid);
-    this->syncElement(m_worldGrid);
+    m_syncComponent.syncElement(m_worldGrid);
+
+}
+
+void GameWorld::generate()
+{
+    ///this->createScene();
+    this->init();
+
+    m_dayTime = glm::linearRand(0,360);
+
+    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt");
+    m_syncComponent.syncElement(grassSheet);
+
+    auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
+    m_syncComponent.syncElement(rockSheet);
 
     for(auto x = -100 ; x < 100 ; x++)
     for(auto y = -100 ; y < 100 ; y++)
     {
         ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
         auto grassNode = m_worldGrid->createChildNode(x*64,y*64);
-        this->syncElement(grassNode);
+        m_syncComponent.syncElement(grassNode);
 
-        auto spriteEntity = std::make_shared<pou::SpriteEntity>();
+        auto spriteEntity = std::make_shared<WorldSprite>();
 
         int rd = x+y;//glm::linearRand(0,96);
         int modulo = 4;
@@ -52,7 +64,7 @@ void GameWorld::generate()
             ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4"));
 
         grassNode->attachObject(spriteEntity);
-        this->syncElement(spriteEntity);
+        m_syncComponent.syncElement(spriteEntity);
 
         grassNode->setScale(glm::vec3(
                                 glm::linearRand(0,10) > 5 ? 1 : -1,
@@ -61,7 +73,7 @@ void GameWorld::generate()
     }
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
-    this->syncElement(treeModel);
+    m_syncComponent.syncElement(treeModel);
 
 
     for(auto x = -10 ; x < 10 ; x++)
@@ -89,12 +101,12 @@ void GameWorld::generate()
         ///m_scene->getRootNode()->addChildNode(tree);
         m_worldGrid->addChildNode(tree);
 
-        this->syncElement(tree);
+        m_syncComponent.syncElement(tree);
     }
 
 
     auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt");
-    this->syncElement(lanternModel);
+    m_syncComponent.syncElement(lanternModel);
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
@@ -110,13 +122,13 @@ void GameWorld::generate()
         ///m_scene->getRootNode()->addChildNode(lantern);
         m_worldGrid->addChildNode(lantern);
 
-        this->syncElement(lantern);
+        m_syncComponent.syncElement(lantern);
     }
 
 
 
     auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt");
-    this->syncElement(duckModel);
+    m_syncComponent.syncElement(duckModel);
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
@@ -136,30 +148,51 @@ void GameWorld::generate()
         ///m_scene->getRootNode()->addChildNode(duck);
         m_worldGrid->addChildNode(duck);
 
-        this->syncElement(duck);
+        m_syncComponent.syncElement(duck);
     }
 
     m_scene->update(pou::Time(0));
 }
 
+void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
+{
+    //worldInitMsg->localTime = m_curLocalTime;
+    worldInitMsg->dayTime = (int)m_dayTime;
+    //worldInitMsg->worldGrid_nodeId = (int)m_syncNodes.findId(m_worldGrid);
+    m_syncComponent.createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
+}
+
+void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
+{
+    this->init();
+
+    m_dayTime = worldInitMsg->dayTime;
+
+   /** m_worldGrid = std::make_shared<WorldGrid>();
+    m_worldGrid->setQuadSize(1024);
+    m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
+    m_scene->getRootNode()->addChildNode(m_worldGrid);
+    m_syncNodes.insert(worldInitMsg->worldGrid_nodeId, m_worldGrid);**/
+
+    m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
+    ///m_curLocalTime = m_syncComponent.getLastSyncTime();
+
+    auto player = m_syncComponent.getPlayer(worldInitMsg->player_id);
+    this->createPlayerCamera(player.get());
+     m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
+
+    m_scene->update(pou::Time(0),m_syncComponent.getLocalTime());
+}
+
+
 void GameWorld::destroy()
 {
-    m_curLocalTime  = 0;
-    m_lastSyncTime  = -1;
+    m_camera = nullptr;
 
     m_sunLight.reset();
 
-    m_syncNodes.clear();
-    m_syncSpriteSheets.clear();
-    m_syncSpriteEntities.clear();
-    m_syncCharacterModels.clear();
-    m_syncItemModels.clear();
-    m_syncPlayers.clear();
-    m_camera = nullptr;
+    m_syncComponent.clear();
 
-    /*for(auto character : m_syncCharacters)
-        delete character.second;*/
-    m_syncCharacters.clear();
     m_worldGrid.reset();
 
     if(m_scene)
@@ -169,7 +202,7 @@ void GameWorld::destroy()
 
 bool GameWorld::initPlayer(size_t player_id)
 {
-    auto player = m_syncPlayers.findElement(player_id);
+    auto player = m_syncComponent.getPlayer(player_id);
     if(!player)
         return (false);
 
@@ -181,7 +214,7 @@ bool GameWorld::initPlayer(size_t player_id)
     glm::vec2 pos(glm::linearRand(-200,200), glm::linearRand(-200,200));
     player/*->node()*/->pou::SceneNode::setPosition(pos);
 
-    player->update(pou::Time(0), m_curLocalTime);
+    player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
     ///player->setLocalTime(m_curLocalTime);
 
@@ -193,7 +226,7 @@ bool GameWorld::initPlayer(size_t player_id)
     else
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/mokouXML.txt");
 
-    this->syncElement(playerModel);
+    m_syncComponent.syncElement(playerModel);
 
     player->setModel(playerModel);
     //m_scene->getRootNode()->addChildNode(player);
@@ -205,54 +238,55 @@ bool GameWorld::initPlayer(size_t player_id)
     ItemModelAsset *playerWeapon;
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/swordXML.txt");
-    this->syncElement(playerWeapon);
+    m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,1);
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/axeXML.txt");
-    this->syncElement(playerWeapon);
+    m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,2);
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/mokouSwordXML.txt");
-    this->syncElement(playerWeapon);
+    m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,3);
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/laserSwordXML.txt");
-    this->syncElement(playerWeapon);
+    m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,4);
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/energySwordXML.txt");
-    this->syncElement(playerWeapon);
+    m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,5);
 
     player->setTeam(1);
 
-    for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+    /**for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
     {
         player->addToNearbyCharacters(it->second);
         it->second->addToNearbyCharacters(player);
-    }
+    }**/
 
     m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
 
-    return player_id;
+    return (true);
 }
 
 bool GameWorld::removePlayer(size_t player_id)
 {
-    auto player = m_syncPlayers.findElement(player_id);
+    auto player = m_syncComponent.getPlayer(player_id);
 
     if(!player)
         return (false);
 
-     for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
-            it->second->removeFromNearbyCharacters(player);
+     /**for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
+            it->second->removeFromNearbyCharacters(player);**/
 
     //m_worldGrid->removeChildNode(player/*->node()*/);
     player->removeFromParent();
     m_worldGrid->removeUpdateProbe(player/*->node()*/.get());
-    this->desyncElement(player.get());
+    m_syncComponent.desyncElement(player.get());
 
-    return m_syncPlayers.freeId(player_id);
+    ///return m_syncPlayers.freeId(player_id);
+    return (true);
 }
 
 

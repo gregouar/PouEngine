@@ -6,6 +6,8 @@
 
 class WorldNode : public pou::SceneNode
 {
+    friend class GameWorld_Sync;
+
     public:
         WorldNode();
         virtual ~WorldNode();
@@ -36,6 +38,7 @@ class WorldNode : public pou::SceneNode
 
         uint32_t getLastUpdateTime();
         uint32_t getLastParentUpdateTime();
+        uint32_t getNodeSyncId();
 
         virtual void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);
 
@@ -46,6 +49,8 @@ class WorldNode : public pou::SceneNode
 
         virtual bool setParent(SimpleNode *parentNode);
 
+        void setNodeSyncId(uint32_t id);
+
     protected:
         pou::Vec3LinSyncElement m_syncPosition;
         pou::Vec3LinSyncElement m_syncRotations;
@@ -53,6 +58,7 @@ class WorldNode : public pou::SceneNode
         pou::Vec4LinSyncElement m_syncColor;
 
     private:
+        uint32_t m_nodeSyncId;
         pou::SyncComponent m_syncComponent;
         uint32_t m_lastParentUpdateTime;
 

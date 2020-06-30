@@ -73,6 +73,10 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     //int player_id;
 
+    std::list<std::shared_ptr<WorldNode> >      nodesBuffer;
+    std::list<std::shared_ptr<WorldSprite> >    spritesBuffer;
+    std::list<std::shared_ptr<Character> >      charactersBuffer;
+
     //int nbr_nodes;
     std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
     std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
@@ -111,7 +115,7 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
     int player_id;
     int dayTime;
 
-    int worldGrid_nodeId;
+    ///int worldGrid_nodeId;
 
     virtual void serializeImpl(pou::Stream *stream);
 };
@@ -149,6 +153,9 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     //int world_id;
     uint32_t lastSyncTime;
     uint32_t localTime;
+
+    std::shared_ptr<WorldNode> nodeBuffer;
+    std::shared_ptr<Character> characterBuffer;
 
     NodeSync        nodeSync;
     CharacterSync   characterSync;

@@ -1,17 +1,18 @@
 #ifndef SYNCELEMENTS_H
 #define SYNCELEMENTS_H
 
-#include "PouEngine/scene/SpriteEntity.h"
 #include "Types.h"
 
 class Character;
 class Player;
 class WorldNode;
+class WorldSprite;
 
 struct NodeSync
 {
     int parentNodeId;
-    std::shared_ptr<WorldNode> node;
+    ///std::shared_ptr<WorldNode> node;
+    WorldNode *node;
 };
 
 struct SpriteEntitySync
@@ -20,7 +21,8 @@ struct SpriteEntitySync
     int spriteId; //Inside spritesheet
     int nodeId;
 
-    std::shared_ptr<pou::SpriteEntity> spriteEntity;
+    ///std::shared_ptr<WorldSprite> spriteEntity;
+    WorldSprite *spriteEntity;
 };
 
 struct CharacterSync
@@ -28,7 +30,8 @@ struct CharacterSync
     int characterModelId;
     int nodeId;
 
-    std::shared_ptr<Character> character;
+    ///std::shared_ptr<Character> character;
+    Character *character;
 };
 
 struct PlayerSync

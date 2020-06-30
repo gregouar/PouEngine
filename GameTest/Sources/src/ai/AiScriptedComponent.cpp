@@ -61,7 +61,11 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
     Character *closestEnemy = nullptr;
     float closestDistance = -1;
 
-    for(auto enemy : m_character->getNearbyCharacters())
+    auto nearbyCharacters = m_character->getNearbyCharacters();
+    if(!nearbyCharacters)
+        return;
+
+    for(auto enemy : *nearbyCharacters)
     {
         if(!enemy->isAlive())
             continue;
@@ -72,7 +76,7 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
                                   enemy/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition());
         if(closestDistance == -1 || closestDistance > distance)
         {
-            closestEnemy = enemy.get();
+            closestEnemy = enemy;
             closestDistance = distance;
         }
     }

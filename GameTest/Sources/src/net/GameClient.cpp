@@ -296,7 +296,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
             if(m_world)
-                m_world->syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
+                m_world->getSyncComponent()->syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
 
             if(uint32less(m_lastServerAckTime, castMsg->clientTime))
                 m_lastServerAckTime = castMsg->clientTime;
@@ -351,7 +351,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             }**/
 
             //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
-            m_world->createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
+            m_world->getSyncComponent()->createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
         }

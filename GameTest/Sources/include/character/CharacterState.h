@@ -102,7 +102,8 @@ class CharacterState_Attacking : public CharacterState
         pou::Timer  m_attackTimer;
         glm::vec2   m_attackingDirection;
 
-        std::set<std::shared_ptr<Character> > m_alreadyHitCharacters;
+        ///std::set<std::shared_ptr<Character> > m_alreadyHitCharacters;
+        std::set<Character*> m_alreadyHitCharacters;
 };
 
 class CharacterState_Dashing : public CharacterState

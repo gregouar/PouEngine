@@ -229,29 +229,36 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
 
     this->rotateCharacterToward(elapsedTime, m_attackingDirection);
 
-    for(auto enemy : m_character->getNearbyCharacters())
+    auto hitboxes   = m_character->getHitboxes();
+    if(!hitboxes)
+        return;
+
+    for(const auto hitBox : *hitboxes)
     {
-        if(!enemy->isAlive())
-            continue;
-        if(enemy->getTeam() == m_character->getTeam())
+        auto hitSkeleton = m_character->getSkeleton(hitBox.getSkeleton());
+
+        if(!hitSkeleton)
             continue;
 
-        auto hurtboxes  = enemy->getHurtboxes();
-        auto hitboxes   = m_character->getHitboxes();
-        if(!hurtboxes || !hitboxes)
+        if(!hitSkeleton->hasTag("attack")) ///I should find a better way to encode this tag...
             continue;
 
-        if(m_alreadyHitCharacters.find(enemy) != m_alreadyHitCharacters.end())
+        auto hitNode = hitSkeleton->findNode(hitBox.getNode());
+        if(!hitNode)
             continue;
 
-        for(const auto hitBox : *hitboxes)
+        for(auto enemy : *m_character->getNearbyCharacters())
         {
-            auto hitSkeleton = m_character->getSkeleton(hitBox.getSkeleton());
-
-            if(!hitSkeleton)
+            if(!enemy->isAlive())
+                continue;
+            if(enemy->getTeam() == m_character->getTeam())
                 continue;
 
-            if(!hitSkeleton->hasTag("attack")) ///I should find a better way to encode this tag...
+            auto hurtboxes  = enemy->getHurtboxes();
+            if(!hurtboxes)
+                continue;
+
+            if(m_alreadyHitCharacters.find(enemy) != m_alreadyHitCharacters.end())
                 continue;
 
             for(const auto hurtBox : *hurtboxes)
@@ -261,12 +268,10 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                 if(!hurtSkeleton)
                     continue;
 
-                auto hitNode    = hitSkeleton->findNode(hitBox.getNode());
                 auto hurtNode   = hurtSkeleton->findNode(hurtBox.getNode());
 
-                if(hitNode != nullptr && hurtNode != nullptr)
+                if(hurtNode != nullptr)
                 {
-
                     bool collision = pou::MathTools::detectBoxCollision(hitBox.getBox(),hurtBox.getBox(),
                                                                         hitNode,hurtNode);
 

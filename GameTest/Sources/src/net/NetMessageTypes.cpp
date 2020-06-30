@@ -33,7 +33,7 @@ void NetMessage_WorldInit::serializeImpl(pou::Stream *stream)
     stream->serializeBits(world_id, 8);
     stream->serializeInt(player_id, 0, GameWorld::MAX_NBR_PLAYERS);
     stream->serializeInt(dayTime, 0, 360);
-    stream->serializeBits(worldGrid_nodeId, GameWorld::NODEID_BITS);
+    ///stream->serializeBits(worldGrid_nodeId, GameWorld::NODEID_BITS);
 
     NetMessage_WorldSync::serializeImpl(stream);
 }
@@ -62,42 +62,42 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     stream->serializeUint32(clientTime); //This is the last known client  time
 
     int nbr_nodes = nodes.size();
-    stream->serializeBits(nbr_nodes, GameWorld::NODEID_BITS);
+    stream->serializeBits(nbr_nodes, GameWorld_Sync::NODEID_BITS);
     nodes.resize(nbr_nodes);
     for(int i = 0 ; i < nbr_nodes ; ++i)
         this->serializeNode(stream, nodes[i]);
     //std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
 
     int nbr_spriteSheets = spriteSheets.size();
-    stream->serializeBits(nbr_spriteSheets, GameWorld::SPRITESHEETID_BITS);
+    stream->serializeBits(nbr_spriteSheets, GameWorld_Sync::SPRITESHEETID_BITS);
     spriteSheets.resize(nbr_spriteSheets);
     for(int i = 0 ; i < nbr_spriteSheets ; ++i)
         this->serializeSpriteSheet(stream, spriteSheets[i]);
     //std::cout<<"Nbr SS:"<<nbr_spriteSheets<<std::endl;
 
     int nbr_spriteEntities = spriteEntities.size();
-    stream->serializeBits(nbr_spriteEntities, GameWorld::SPRITEENTITYID_BITS);
+    stream->serializeBits(nbr_spriteEntities, GameWorld_Sync::SPRITEENTITYID_BITS);
     spriteEntities.resize(nbr_spriteEntities);
     for(int i = 0 ; i < nbr_spriteEntities ; ++i)
         this->serializeSpriteEntity(stream, spriteEntities[i]);
     //std::cout<<"Nbr SE:"<<nbr_spriteEntities<<std::endl;
 
     int nbr_characterModels = characterModels.size();
-    stream->serializeBits(nbr_characterModels, GameWorld::CHARACTERMODELSID_BITS);
+    stream->serializeBits(nbr_characterModels, GameWorld_Sync::CHARACTERMODELSID_BITS);
     characterModels.resize(nbr_characterModels);
     for(int i = 0 ; i < nbr_characterModels ; ++i)
         this->serializeCharacterModel(stream, characterModels[i]);
     //std::cout<<"Nbr CM:"<<nbr_characterModels<<std::endl;
 
     int nbr_characters = characters.size();
-    stream->serializeBits(nbr_characters, GameWorld::CHARACTERSID_BITS);
+    stream->serializeBits(nbr_characters, GameWorld_Sync::CHARACTERSID_BITS);
     characters.resize(nbr_characters);
     for(int i = 0 ; i < nbr_characters ; ++i)
         this->serializeCharacter(stream, characters[i]);
     //std::cout<<"Nbr C:"<<nbr_characters<<std::endl;
 
     int nbr_itemModels = itemModels.size();
-    stream->serializeBits(nbr_itemModels, GameWorld::ITEMMODELSID_BITS);
+    stream->serializeBits(nbr_itemModels, GameWorld_Sync::ITEMMODELSID_BITS);
     itemModels.resize(nbr_itemModels);
     for(int i = 0 ; i < nbr_itemModels ; ++i)
         this->serializeItemModel(stream, itemModels[i]);
@@ -111,16 +111,16 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     //std::cout<<"Nbr P:"<<nbr_players<<std::endl;
 
     int nbr_desyncNodes = desyncNodes.size();
-    stream->serializeBits(nbr_desyncNodes, GameWorld::NODEID_BITS);
+    stream->serializeBits(nbr_desyncNodes, GameWorld_Sync::NODEID_BITS);
     desyncNodes.resize(nbr_desyncNodes);
     for(int i = 0 ; i < nbr_desyncNodes ; ++i)
-        stream->serializeBits(desyncNodes[i], GameWorld::NODEID_BITS);
+        stream->serializeBits(desyncNodes[i], GameWorld_Sync::NODEID_BITS);
 
     int nbr_desyncCharacters = desyncCharacters.size();
-    stream->serializeBits(nbr_desyncCharacters, GameWorld::CHARACTERSID_BITS);
+    stream->serializeBits(nbr_desyncCharacters, GameWorld_Sync::CHARACTERSID_BITS);
     desyncCharacters.resize(nbr_desyncCharacters);
     for(int i = 0 ; i < nbr_desyncCharacters ; ++i)
-        stream->serializeBits(desyncCharacters[i], GameWorld::CHARACTERSID_BITS);
+        stream->serializeBits(desyncCharacters[i], GameWorld_Sync::CHARACTERSID_BITS);
 
     int nbr_desyncPlayers = desyncPlayers.size();
     stream->serializeInt(nbr_desyncPlayers, 0, GameWorld::MAX_NBR_PLAYERS);
@@ -133,12 +133,14 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
 void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
 {
     auto& [ nodeId, nodeSync ] = node;
-    stream->serializeBits(nodeId, GameWorld::NODEID_BITS);
+    stream->serializeBits(nodeId, GameWorld_Sync::NODEID_BITS);
 
     auto &nodePtr = nodeSync.node;
     if(stream->isReading())
     {
-        nodePtr = std::make_shared<WorldNode>();
+        auto node =  std::make_shared<WorldNode>();
+        nodesBuffer.push_back(node);
+        nodePtr = node.get();
         nodePtr->update(pou::Time(0),localTime);
     }
 
@@ -147,7 +149,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
         newParent = true;
     stream->serializeBool(newParent);
     if(newParent)
-        stream->serializeBits(nodeSync.parentNodeId, GameWorld::NODEID_BITS);
+        stream->serializeBits(nodeSync.parentNodeId, GameWorld_Sync::NODEID_BITS);
     else
         nodeSync.parentNodeId = 0;
 
@@ -157,7 +159,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, Nod
 void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
 {
     auto& [ spriteSheetId, spriteSheetPath ] = spriteSheet;
-    stream->serializeBits(spriteSheetId, GameWorld::SPRITESHEETID_BITS);
+    stream->serializeBits(spriteSheetId, GameWorld_Sync::SPRITESHEETID_BITS);
     stream->serializeString(spriteSheetPath);
 }
 
@@ -168,12 +170,14 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     auto &spriteEntityPtr = spriteEntitySync.spriteEntity;
     if(stream->isReading())
     {
-        spriteEntityPtr = std::make_shared<pou::SpriteEntity>();
+        auto sprite =  std::make_shared<WorldSprite>();
+        spritesBuffer.push_back(sprite);
+        spriteEntityPtr = sprite.get();
         spriteEntityPtr->update(pou::Time(0),localTime);
         //spriteEntityPtr->setLocalTime(localTime);
     }
 
-    stream->serializeBits(spriteEntityId, GameWorld::SPRITEENTITYID_BITS);
+    stream->serializeBits(spriteEntityId, GameWorld_Sync::SPRITEENTITYID_BITS);
 
     bool newSpriteModel = false;
     if(!stream->isReading() && uint32less(lastSyncTime,spriteEntityPtr->getLastModelUptateTime()))
@@ -181,7 +185,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     stream->serializeBool(newSpriteModel);
     if(newSpriteModel)
     {
-        stream->serializeBits(spriteEntitySync.spriteSheetId, GameWorld::SPRITESHEETID_BITS);
+        stream->serializeBits(spriteEntitySync.spriteSheetId, GameWorld_Sync::SPRITESHEETID_BITS);
         stream->serializeBits(spriteEntitySync.spriteId, 8);
     }
     else
@@ -195,7 +199,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
         newNode = true;
     stream->serializeBool(newNode);
     if(newNode)
-        stream->serializeBits(spriteEntitySync.nodeId, GameWorld::NODEID_BITS);
+        stream->serializeBits(spriteEntitySync.nodeId, GameWorld_Sync::NODEID_BITS);
     else
         spriteEntitySync.nodeId = 0;
 }
@@ -203,7 +207,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
 void NetMessage_WorldSync::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)
 {
     auto& [ characterModelId, characterModelPath ] = characterModel;
-    stream->serializeBits(characterModelId, GameWorld::CHARACTERMODELSID_BITS);
+    stream->serializeBits(characterModelId, GameWorld_Sync::CHARACTERMODELSID_BITS);
     stream->serializeString(characterModelPath);
 }
 
@@ -214,22 +218,24 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
     auto &characterPtr = characterSync.character;
     if(stream->isReading())
     {
-        characterPtr = std::make_shared<Character>();
+        auto character =  std::make_shared<Character>();
+        charactersBuffer.push_back(character);
+        characterPtr = character.get();
         characterPtr->update(pou::Time(0),localTime);
     }
 
-    stream->serializeBits(characterId, GameWorld::CHARACTERSID_BITS);
+    stream->serializeBits(characterId, GameWorld_Sync::CHARACTERSID_BITS);
 
     bool newModel = false;
     if(!stream->isReading() && uint32less(lastSyncTime,characterPtr->getLastModelUpdateTime()))
         newModel = true;
     stream->serializeBool(newModel);
     if(newModel)
-        stream->serializeBits(characterSync.characterModelId, GameWorld::CHARACTERMODELSID_BITS);
+        stream->serializeBits(characterSync.characterModelId, GameWorld_Sync::CHARACTERMODELSID_BITS);
     else
         characterSync.characterModelId = 0;
 
-    stream->serializeBits(characterSync.nodeId, GameWorld::NODEID_BITS);
+    stream->serializeBits(characterSync.nodeId, GameWorld_Sync::NODEID_BITS);
 
     characterPtr->serializeCharacter(stream,lastSyncTime);
     ///characterPtr->getCharacterSyncComponent()->serialize(stream,lastSyncTime);
@@ -239,7 +245,7 @@ void NetMessage_WorldSync::serializeCharacter(pou::Stream *stream, std::pair<int
 void NetMessage_WorldSync::serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel)
 {
     auto& [ itemModelId, itemModelPath ] = itemModel;
-    stream->serializeBits(itemModelId, GameWorld::ITEMMODELSID_BITS);
+    stream->serializeBits(itemModelId, GameWorld_Sync::ITEMMODELSID_BITS);
     stream->serializeString(itemModelPath);
 }
 
@@ -247,7 +253,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 {
     auto& [ playerId, playerSync ] = player;
     stream->serializeInt(playerId, 1,  GameWorld::MAX_NBR_PLAYERS);
-    stream->serializeBits(playerSync.characterId, GameWorld::CHARACTERSID_BITS);
+    stream->serializeBits(playerSync.characterId, GameWorld_Sync::CHARACTERSID_BITS);
 
     auto &playerPtr = playerSync.player;
 
@@ -265,7 +271,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
     if(newGear)
     {
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
-            stream->serializeBits(playerSync.gearModelsId[i], GameWorld::ITEMMODELSID_BITS);
+            stream->serializeBits(playerSync.gearModelsId[i], GameWorld_Sync::ITEMMODELSID_BITS);
     }
     else
     {
@@ -283,7 +289,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
         stream->serializeBits(nbrItems, 8);
         playerSync.inventoryItemModelsId.resize(nbrItems);
         for(auto i = 0 ; i  < nbrItems ; ++i)
-            stream->serializeBits(playerSync.inventoryItemModelsId[i], GameWorld::ITEMMODELSID_BITS);
+            stream->serializeBits(playerSync.inventoryItemModelsId[i], GameWorld_Sync::ITEMMODELSID_BITS);
     }
 
     playerPtr->serializePlayer(stream,lastSyncTime);
@@ -339,7 +345,8 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
         auto &nodePtr = nodeSync.node;
         if(stream->isReading())
         {
-            nodePtr = std::make_shared<WorldNode>();
+            nodeBuffer = std::make_shared<WorldNode>();
+            nodePtr = nodeBuffer.get();
             nodePtr->update(pou::Time(0),localTime);
         }
         nodePtr->serialize(stream, lastSyncTime);
@@ -349,7 +356,8 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
         auto &characterPtr = characterSync.character;
         if(stream->isReading())
         {
-            characterPtr = std::make_shared<Character>();
+            characterBuffer = std::make_shared<Character>();
+            characterPtr = characterBuffer.get();
             characterPtr->update(pou::Time(0),localTime);
         }
         characterPtr->serializeCharacter(stream,lastSyncTime);
@@ -372,7 +380,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
         if(newGear)
         {
             for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
-                stream->serializeBits(playerSync.gearModelsId[i], GameWorld::ITEMMODELSID_BITS);
+                stream->serializeBits(playerSync.gearModelsId[i], GameWorld_Sync::ITEMMODELSID_BITS);
         }
         else
         {
@@ -390,7 +398,7 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
             stream->serializeBits(nbrItems, 8);
             playerSync.inventoryItemModelsId.resize(nbrItems);
             for(auto i = 0 ; i  < nbrItems ; ++i)
-                stream->serializeBits(playerSync.inventoryItemModelsId[i], GameWorld::ITEMMODELSID_BITS);
+                stream->serializeBits(playerSync.inventoryItemModelsId[i], GameWorld_Sync::ITEMMODELSID_BITS);
         }
 
         playerPtr->serializePlayer(stream,lastSyncTime);
@@ -412,7 +420,7 @@ void NetMessage_PlayerEvent::serializeImpl(pou::Stream *stream)
         if(direction != glm::vec2(0))
             direction = glm::normalize(direction);
 
-        stream->serializeBits(syncId,GameWorld::CHARACTERSID_BITS);
+        stream->serializeBits(syncId,GameWorld_Sync::CHARACTERSID_BITS);
         stream->serializeFloat(direction.x, -1, 1, 2);
         stream->serializeFloat(direction.y, -1, 1, 2);
         stream->serializeFloat(amount);

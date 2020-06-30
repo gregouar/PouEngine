@@ -579,7 +579,7 @@ void TestingState::update(const pou::Time &elapsedTime)
     m_gameUi.updateCharacterLife(m_character->getAttributes().life,
                                  m_character->getModelAttributes().maxLife);
 
-    m_character->addToNearbyCharacters(m_duck);
+    /**m_character->addToNearbyCharacters(m_duck);
     m_character2->addToNearbyCharacters(m_duck);
     m_duck->addToNearbyCharacters(m_character);
 
@@ -591,7 +591,7 @@ void TestingState::update(const pou::Time &elapsedTime)
     }
 
     for(auto tree : m_trees)
-        m_character->addToNearbyCharacters(tree);
+        m_character->addToNearbyCharacters(tree);**/
 
 
 

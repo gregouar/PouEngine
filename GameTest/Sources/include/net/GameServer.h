@@ -78,7 +78,7 @@ class GameServer
 
 
         std::map<size_t, GameClientInfos> m_clientInfos;
-        std::map<size_t, GameWorld> m_worlds;
+        std::map<size_t, std::unique_ptr<GameWorld> > m_worlds;
         size_t m_curWorldId;
 
         pou::Time m_remainingTime;

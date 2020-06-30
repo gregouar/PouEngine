@@ -184,7 +184,6 @@ void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
     Player::m_syncComponent.update(elapsedTime, localTime);
 
     Character::update(elapsedTime, localTime);
-
 }
 
 const std::list<Hitbox> *Player::getHitboxes() const
