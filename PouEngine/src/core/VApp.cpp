@@ -15,6 +15,9 @@
 #include "PouEngine/audio/AudioEngine.h"
 #include "PouEngine/audio/FMODAudioImpl.h"
 
+#include "PouEngine/text/TextEngine.h"
+#include "PouEngine/text/FreeTypeTextImpl.h"
+
 #include "PouEngine/net/NetEngine.h"
 #include "PouEngine/net/UdpNetImpl.h"
 
@@ -118,6 +121,10 @@ bool VApp::init()
     if(!this->createRenderers())
         throw std::runtime_error("Cannot create renderers");
     Profiler::popClock();
+
+    Profiler::pushClock("Init text engine");
+    if(!TextEngine::instance()->init(std::make_unique<FreeTypeTextImpl> ()))
+        throw std::runtime_error("Cannot initialize text engine");
 
 
     Profiler::pushClock("Init audio engine");

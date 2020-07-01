@@ -16,14 +16,14 @@ VTexture::~VTexture()
     //dtor
 }
 
-bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, unsigned char* pixels,
+bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, const uint8_t* pixels,
                                CommandPoolName commandPoolName)
 {
     return this->generateTexture(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, pixels, commandPoolName);
 }
 
 bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat format,
-                            unsigned char* pixels,CommandPoolName commandPoolName)
+                               const uint8_t* pixels,CommandPoolName commandPoolName)
 {
     VBuffer stagingBuffer;
     VkDeviceSize imageSize = texWidth * texHeight;
@@ -46,11 +46,27 @@ bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat f
 
     VBuffersAllocator::freeBuffer(stagingBuffer);
 
-
-
     m_extent.width  = texWidth;
     m_extent.height = texHeight;
     m_format = format;
+
+    return (true);
+}
+
+bool VTexture::writeTexture(const uint8_t* pixels, CommandPoolName commandPoolName)
+{
+    VBuffer stagingBuffer;
+    VkDeviceSize imageSize = m_extent.width * m_extent.height;
+
+    VBuffersAllocator::allocBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                stagingBuffer);
+
+    VBuffersAllocator::writeBuffer(stagingBuffer, pixels, static_cast<size_t>(imageSize));
+
+    if(!VTexturesManager::writeTexture(stagingBuffer,commandPoolName,this))
+        return (false);
+
+    VBuffersAllocator::freeBuffer(stagingBuffer);
 
     return (true);
 }

@@ -132,4 +132,19 @@ sf::Texture *TextureAsset::GetTexture()
         return nullptr;
 }**/
 
+void TextureAsset::writeTexture(const std::vector<uint8_t> &buffer)
+{
+    m_vtexture.writeTexture(buffer.data(), COMMANDPOOL_SHORTLIVED);
+}
+
+
+TextureAsset *TextureAsset::generateTexture(size_t width, size_t height, const std::vector<uint8_t> &buffer)
+{
+    auto *textureAsset = TexturesHandler::addAsset();
+    textureAsset->m_vtexture.generateTexture(width, height, VK_FORMAT_R8G8B8A8_UNORM,
+                                             buffer.data(),COMMANDPOOL_SHORTLIVED);
+
+    return (textureAsset);
+}
+
 }

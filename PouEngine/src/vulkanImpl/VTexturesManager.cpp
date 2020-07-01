@@ -165,9 +165,12 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
 
     texture->m_textureId = chosenArray;
     texture->m_textureLayer = chosenLayer;
+    texture->m_extent.width = format.width;
+    texture->m_extent.height = format.height;
 
     if(!format.renderable)
-    if(source.buffer != VK_NULL_HANDLE)
+        this->writeTextureImpl(source, cmdPoolName, texture/*, format.renderable, format.renderingSet*/);
+    /*if(source.buffer != VK_NULL_HANDLE)
     {
         texture2DArray->mutex.lock();
 
@@ -183,7 +186,7 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
         VInstance::unlockGraphicsQueueAccess();
 
         texture2DArray->mutex.unlock();
-    }
+    }*/
 
     return (true);
 }
@@ -264,6 +267,38 @@ size_t VTexturesManager::createTextureArray(VTexture2DArrayFormat format, Comman
 
 }
 
+
+bool VTexturesManager::writeTexture(VBuffer source, CommandPoolName cmdPoolName,  VTexture *texture)
+{
+    return VTexturesManager::instance()->writeTextureImpl(source, cmdPoolName, texture/*, false, 0*/);
+}
+
+bool VTexturesManager::writeTextureImpl(VBuffer source, CommandPoolName cmdPoolName,  VTexture *texture/*, bool renderable, int renderingSet*/)
+{
+    auto texture2DArray = m_allocatedTextureArrays[texture->getTextureId()];
+
+    if(source.buffer != VK_NULL_HANDLE)
+    {
+        texture2DArray->mutex.lock();
+
+        VInstance::lockGraphicsQueueAccess();
+
+        VulkanHelpers::transitionImageLayout(texture2DArray->image,texture->getTextureLayer(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,cmdPoolName);
+            VBuffersAllocator::copyBufferToImage(source, texture2DArray->image.vkImage,
+                                             texture->getExtent().width, texture->getExtent().height,texture->getTextureLayer(),cmdPoolName);
+        VulkanHelpers::transitionImageLayout(texture2DArray->image,texture->getTextureLayer(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,cmdPoolName);
+
+        VInstance::unlockGraphicsQueueAccess();
+
+        texture2DArray->mutex.unlock();
+
+        return (true);
+    }
+
+    return (false);
+}
 
 void VTexturesManager::freeTexture(VTexture &texture)
 {

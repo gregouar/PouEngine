@@ -5,8 +5,8 @@ namespace pou
 
 SyncComponent::SyncComponent() :
     //m_parentSyncComponent(nullptr),
-    m_lastUpdateTime(-1),
     m_curLocalTime(0),
+    m_lastUpdateTime(-1),
     m_disableSync(false)
 {
     //ctor

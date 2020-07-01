@@ -89,12 +89,12 @@ bool VBuffersAllocator::allocBufferImpl(VkDeviceSize size, VkBufferUsageFlags us
     return (true);
 }
 
-void VBuffersAllocator::writeBuffer(VBuffer dstBuffer, void* data, VkDeviceSize size, bool flush)
+void VBuffersAllocator::writeBuffer(VBuffer dstBuffer, const void* data, VkDeviceSize size, bool flush)
 {
     VBuffersAllocator::instance()->writeBufferImpl(dstBuffer, data, size,flush);
 }
 
-void VBuffersAllocator::writeBufferImpl(VBuffer dstBuffer, void* data, VkDeviceSize size, bool flush)
+void VBuffersAllocator::writeBufferImpl(VBuffer dstBuffer, const void* data, VkDeviceSize size, bool flush)
 {
     auto device = VInstance::device();
 

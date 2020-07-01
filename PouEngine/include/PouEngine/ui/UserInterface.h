@@ -18,6 +18,8 @@ class UserInterface
         virtual void update(const Time &elapsedTime);
         virtual void render(UiRenderer *renderer);
 
+        virtual void addRootElement(std::shared_ptr<UiElement> element);
+
         std::shared_ptr<UiPicture> createUiPicture(bool addToInterface = false);
         std::shared_ptr<UiProgressBar> createProgressBar(bool addToInterface = false);
 

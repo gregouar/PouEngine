@@ -3,6 +3,7 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/TextureAsset.h"
+#include "PouEngine/assets/FontAsset.h"
 
 GameUi::GameUi()
 {
@@ -31,12 +32,19 @@ bool GameUi::init()
     m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
     m_lifeBar->addChildNode(m_uiPictureTest);
 
+    m_testText = std::make_shared<pou::UiText>(this);
+    m_testText->setPosition(200,200,0);
+    m_testText->setFont(pou::FontsHandler::loadAssetFromFile("../data/arial.ttf"));
+    m_testText->setText("Poupou is da Pou");
+    m_testText->setFontSize(24);
+    this->addRootElement(m_testText);
+
     return (true);
 }
 
 /*void GameUi::cleanup()
 {
-    //m_mainInterface.release();
+    //m_mainInterface.reset();
 
 }*/
 
@@ -49,5 +57,10 @@ void GameUi::updateCharacterLife(float cur, float max)
 {
     m_lifeBar->setMinMaxValue(0,max);
     m_lifeBar->setValue(cur);
+
+
+    std::string text = "Poupou is da Pou: "+std::to_string((int)cur)+" / "+std::to_string((int)max);
+    //std::cout<<text<<std::endl;
+    m_testText->setText(text);
 }
 

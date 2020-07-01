@@ -98,7 +98,7 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
 
     ///m_assetAccessMutex.unlock();
 
-    AssetType* newAsset = this->addAsset(id);
+    AssetType* newAsset = this->addAssetImpl(id);
     newAsset->prepareLoadFromFile(filePath, loadType);
     if(loadType == LoadType_Now) {
         newAsset->loadNow();
@@ -131,7 +131,7 @@ template<typename AssetType>
 AssetType* AssetHandler<AssetType>::loadAssetFromMemoryImpl(const AssetTypeId id,
                                         void *data, std::size_t dataSize, AssetLoadType loadType)
 {
-    Asset* newAsset = this->addAsset(id);
+    Asset* newAsset = this->addAssetImpl(id);
     newAsset->prepareLoadFromMemory(data, dataSize, loadType);
     if(loadType == LoadType_Now)
         newAsset->loadNow();
@@ -164,8 +164,15 @@ AssetType* AssetHandler<AssetType>::loadAssetFromStream(const AssetTypeId id,
 }**/
 
 
+
 template<typename AssetType>
-AssetType* AssetHandler<AssetType>::addAsset(const AssetTypeId assetId, bool plannedObsolescence, int lifeSpan)
+AssetType*  AssetHandler<AssetType>::addAsset(bool plannedObsolescence, int lifeSpan)
+{
+    return AssetHandler<AssetType>::instance()->addAssetImpl(AssetHandler<AssetType>::instance()->generateId(), plannedObsolescence, lifeSpan);
+}
+
+template<typename AssetType>
+AssetType* AssetHandler<AssetType>::addAssetImpl(const AssetTypeId assetId, bool plannedObsolescence, int lifeSpan)
 {
     ///sf::Lock lockLoadMutex(m_loadMutex);
     std::lock_guard<std::mutex> lock(m_loadMutex);

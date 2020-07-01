@@ -21,7 +21,7 @@ BoolSyncElement::~BoolSyncElement()
 
 void BoolSyncElement::setValue(bool v)
 {
-    if(m_attribute.setValue(v));
+    if(m_attribute.setValue(v))
         this->updateLastUpdateTime();
 }
 

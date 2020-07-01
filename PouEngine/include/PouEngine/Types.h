@@ -41,6 +41,7 @@ class TextureAsset;
 class SpriteSheetAsset;
 class MaterialAsset;
 class MeshAsset;
+class FontAsset;
 class SoundAsset;
 class SoundBankAsset;
 class SkeletonModelAsset;
@@ -158,6 +159,7 @@ typedef unsigned int AssetTypeId;
 ///typedef unsigned int NodeTypeId;
 typedef unsigned int ObjectTypeId;
 typedef unsigned int SoundTypeId;
+typedef unsigned int FontTypeId;
 
 typedef glm::vec4 Color;
 
@@ -165,6 +167,7 @@ typedef AssetHandler<TextureAsset>      TexturesHandler;
 typedef AssetHandler<SpriteSheetAsset>  SpriteSheetsHandler;
 typedef AssetHandler<MaterialAsset>     MaterialsHandler;
 typedef AssetHandler<SkeletonModelAsset>SkeletonModelsHandler;
+typedef AssetHandler<FontAsset>         FontsHandler;
 typedef AssetHandler<SoundAsset>        SoundsHandler;
 typedef AssetHandler<SoundBankAsset>    SoundBanksHandler;
 //typedef AssetHandler<CharacterModelAsset>     CharacterModelsHandler;

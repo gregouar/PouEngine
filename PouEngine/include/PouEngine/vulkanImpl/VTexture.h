@@ -57,9 +57,11 @@ class VTexture
         virtual ~VTexture();
 
         bool generateTexture(uint32_t texWidth, uint32_t texHeight,
-                             unsigned char* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
+                             const uint8_t* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
         bool generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat format,
-                             unsigned char* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
+                             const uint8_t* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
+
+        bool writeTexture(const uint8_t* pixels, CommandPoolName commandPoolName = COMMANDPOOL_SHORTLIVED);
 
         uint32_t    getTextureId();
         uint32_t    getTextureLayer();

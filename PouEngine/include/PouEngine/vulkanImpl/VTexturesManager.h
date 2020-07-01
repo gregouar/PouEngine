@@ -89,6 +89,8 @@ class VTexturesManager : public Singleton<VTexturesManager>
         static bool allocTexture(uint32_t width, uint32_t height,
                                  VBuffer source, CommandPoolName cmdPoolName, VTexture *texture);
 
+        static bool writeTexture(VBuffer source, CommandPoolName cmdPoolName,  VTexture *texture);
+
         static bool allocRenderableTexture(size_t renderingSet, const VTextureFormat &format,
                                            VRenderPass *renderPass, VRenderableTexture *texture);
         static bool allocRenderableTextureWithDepth(size_t renderingSet, uint32_t width, uint32_t height, VkFormat format, VkFormat depthFormat,
@@ -119,6 +121,8 @@ class VTexturesManager : public Singleton<VTexturesManager>
         bool    allocTextureImpl(VTexture2DArrayFormat format, VBuffer source, CommandPoolName cmdPoolName, VTexture *texture);
         bool    allocRenderableTextureImpl(VTexture2DArrayFormat format, CommandPoolName cmdPoolName, VTexture *texture);
         size_t  createTextureArray(VTexture2DArrayFormat format,  CommandPoolName cmdPoolName);
+
+        bool    writeTextureImpl(VBuffer source, CommandPoolName cmdPoolName,  VTexture *texture/*, bool renderable, int renderingSet*/);
 
         void    freeTextureImpl(VTexture &texture, bool isRenderable = false, size_t renderingSet = 0);
         void    freeTextureImpl(VRenderableTexture &texture);

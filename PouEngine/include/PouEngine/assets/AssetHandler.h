@@ -30,7 +30,7 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
         static AssetType* loadAssetFromMemory(const AssetTypeId id, void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);
        /// static AssetType* loadAssetFromStream(const AssetTypeId& id,sf::InputStream *stream, AssetLoadType = LoadType_Now);
 
-        AssetType* addAsset(const AssetTypeId assetId, bool plannedObsolescence=false, int lifeSpan=1);
+        static AssetType* addAsset(bool plannedObsolescence=false, int lifeSpan=1);
 
         void addToLoadingThread(AssetType*);
         void removeFromLoadingThread(AssetType*);
@@ -54,6 +54,8 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
         virtual ~AssetHandler();
 
         AssetType* getAssetImpl(const AssetTypeId assetId);
+
+        AssetType* addAssetImpl(const AssetTypeId assetId, bool plannedObsolescence=false, int lifeSpan=1);
 
         AssetType* loadAssetFromFileImpl(const AssetTypeId id,const std::string &, AssetLoadType = LoadType_Now);
         AssetType* loadAssetFromMemoryImpl(const AssetTypeId id, void *data, std::size_t dataSize, AssetLoadType = LoadType_Now);

@@ -41,6 +41,11 @@ void UserInterface::render(UiRenderer *renderer)
     m_rootElement.render(renderer);
 }
 
+void UserInterface::addRootElement(std::shared_ptr<UiElement> element)
+{
+    m_rootElement.addChildNode(element);
+}
+
 std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
 {
     auto element = std::make_shared<UiPicture>(/**++m_curNewId,**/ this);

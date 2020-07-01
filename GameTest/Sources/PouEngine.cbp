@@ -36,6 +36,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -67,6 +68,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -103,6 +105,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -136,6 +139,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -171,6 +175,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -206,6 +211,7 @@
 					<Add directory="PouEngine/include/PouEngine/tools" />
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
+					<Add directory="PouEngine/include/PouEngine/text" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -229,6 +235,9 @@
 					<Add directory="PouEngine/include/PouEngine/net" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="GameTest/Sources/include/world" />
+					<Add directory="PouEngine/include/PouEngine/assets" />
+					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/include/PouEngine/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -242,12 +251,15 @@
 			<Add option="-fexceptions" />
 			<Add option="-Wno-unknown-pragmas" />
 			<Add option="-D_WIN32" />
+			<Add option="-DFT2_BUILD_LIBRARY" />
+			<Add option="-DFREETYPE2_STATIC" />
 			<Add directory="../../PouEngine/include" />
 			<Add directory="GameTest/Sources/include/states" />
 			<Add directory="include" />
 			<Add directory="../../PouEngine/include/tinyxml" />
 			<Add directory="../../PouEngine/include/fmod" />
 			<Add directory="../../PouEngine/include/lz4" />
+			<Add directory="../../PouEngine/include/freetype" />
 		</Compiler>
 		<Linker>
 			<Add library="vulkan-1" />
@@ -261,6 +273,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/Types.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/Asset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/AssetHandler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/assets/FontAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MaterialAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshAsset.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/assets/MeshesHandler.h" />
@@ -335,6 +348,10 @@
 		<Unit filename="../../PouEngine/include/PouEngine/system/Stream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/WriteStream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/text/AbstractTextImpl.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/text/FreeTypeTextImpl.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/text/Glyph.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/text/TextEngine.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Compressor.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Hasher.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/IdAllocator.h" />
@@ -347,6 +364,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiPicture.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiProgressBar.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UiText.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UserInterface.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
@@ -364,10 +382,152 @@
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanExtProxies.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanHelpers.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/VulkanImpl.h" />
+		<Unit filename="../../PouEngine/include/freetype/config/ftconfig.h" />
+		<Unit filename="../../PouEngine/include/freetype/config/ftheader.h" />
+		<Unit filename="../../PouEngine/include/freetype/config/ftmodule.h" />
+		<Unit filename="../../PouEngine/include/freetype/config/ftoption.h" />
+		<Unit filename="../../PouEngine/include/freetype/config/ftstdlib.h" />
+		<Unit filename="../../PouEngine/include/freetype/freetype.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftadvanc.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftbbox.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftbdf.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftbitmap.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftbzip2.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftcache.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftchapters.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftcid.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftcolor.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftdriver.h" />
+		<Unit filename="../../PouEngine/include/freetype/fterrdef.h" />
+		<Unit filename="../../PouEngine/include/freetype/fterrors.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftfntfmt.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftgasp.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftglyph.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftgxval.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftgzip.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftimage.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftincrem.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftlcdfil.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftlist.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftlzw.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftmac.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftmm.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftmodapi.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftmoderr.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftotval.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftoutln.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftparams.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftpfr.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftrender.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftsizes.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftsnames.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftstroke.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftsynth.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftsystem.h" />
+		<Unit filename="../../PouEngine/include/freetype/fttrigon.h" />
+		<Unit filename="../../PouEngine/include/freetype/fttypes.h" />
+		<Unit filename="../../PouEngine/include/freetype/ftwinfnt.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/autohint.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/cffotypes.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/cfftypes.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftcalc.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftdebug.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftdrv.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftgloadr.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/fthash.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftmemory.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftobjs.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftpsprop.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftrfork.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftserv.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftstream.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/fttrace.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/ftvalid.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/internal.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/psaux.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/pshints.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svbdf.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svcfftl.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svcid.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svfntfmt.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svgldict.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svgxval.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svkern.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svmetric.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svmm.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svotval.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svpfr.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svpostnm.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svprop.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svpscmap.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svpsinfo.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svsfnt.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svttcmap.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svtteng.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svttglyf.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/services/svwinfnt.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/sfnt.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/t1types.h" />
+		<Unit filename="../../PouEngine/include/freetype/internal/tttypes.h" />
+		<Unit filename="../../PouEngine/include/freetype/t1tables.h" />
+		<Unit filename="../../PouEngine/include/freetype/ttnameid.h" />
+		<Unit filename="../../PouEngine/include/freetype/tttables.h" />
+		<Unit filename="../../PouEngine/include/freetype/tttags.h" />
+		<Unit filename="../../PouEngine/include/ft2build.h" />
 		<Unit filename="../../PouEngine/include/lz4/lz4.h" />
 		<Unit filename="../../PouEngine/include/lz4/lz4hc.h" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinystr.h" />
 		<Unit filename="../../PouEngine/include/tinyxml/tinyxml.h" />
+		<Unit filename="../../PouEngine/libs/freetype/autofit/autofit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftbase.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftbbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftbitmap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftdebug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftglyph.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftinit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/base/ftsystem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/gzip/ftgzip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/psnames/psnames.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/raster/raster.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/sfnt/sfnt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/smooth/smooth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/truetype/truetype.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttdriver.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/tterrors.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttgload.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttgxvar.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttinterp.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttobjs.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttpload.h" />
+		<Unit filename="../../PouEngine/libs/freetype/truetype/ttsubpix.h" />
 		<Unit filename="../../PouEngine/libs/lz4/lz4.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -399,6 +559,7 @@
 		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/AssetHandler.tpp" />
+		<Unit filename="../../PouEngine/src/assets/FontAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MaterialAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshAsset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/MeshesHandler.cpp" />
@@ -468,6 +629,10 @@
 		<Unit filename="../../PouEngine/src/system/Stream.cpp" />
 		<Unit filename="../../PouEngine/src/system/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/system/WriteStream.cpp" />
+		<Unit filename="../../PouEngine/src/text/AbstractTextImpl.cpp" />
+		<Unit filename="../../PouEngine/src/text/FreeTypeTextImpl.cpp" />
+		<Unit filename="../../PouEngine/src/text/Glyph.cpp" />
+		<Unit filename="../../PouEngine/src/text/TextEngine.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Compressor.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Hasher.cpp" />
 		<Unit filename="../../PouEngine/src/tools/IdAllocator.tpp" />
@@ -480,6 +645,7 @@
 		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiPicture.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiProgressBar.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UiText.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UserInterface.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />

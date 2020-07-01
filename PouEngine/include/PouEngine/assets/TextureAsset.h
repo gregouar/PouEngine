@@ -32,6 +32,10 @@ class TextureAsset : public Asset
         VTexture getVTexture();
         glm::vec2 getExtent();
 
+        void writeTexture(const std::vector<uint8_t> &buffer);
+
+        static TextureAsset *generateTexture(size_t width, size_t height, const std::vector<uint8_t> &buffer);
+
     protected:
         VTexture m_vtexture;
 };
