@@ -360,6 +360,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/tools/MathTools.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Parser.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Profiler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/TexturesPacker.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiPicture.h" />
@@ -641,6 +642,7 @@
 		<Unit filename="../../PouEngine/src/tools/MathTools.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Parser.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Profiler.cpp" />
+		<Unit filename="../../PouEngine/src/tools/TexturesPacker.cpp" />
 		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiPicture.cpp" />

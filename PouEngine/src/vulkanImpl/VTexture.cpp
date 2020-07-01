@@ -56,7 +56,7 @@ bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat f
 bool VTexture::writeTexture(const uint8_t* pixels, CommandPoolName commandPoolName)
 {
     VBuffer stagingBuffer;
-    VkDeviceSize imageSize = m_extent.width * m_extent.height;
+    VkDeviceSize imageSize = m_extent.width * m_extent.height * 4;
 
     VBuffersAllocator::allocBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 stagingBuffer);

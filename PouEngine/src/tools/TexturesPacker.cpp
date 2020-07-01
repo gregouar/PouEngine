@@ -24,6 +24,7 @@ std::pair<TextureAsset*, MathTools::Box> TexturesPacker::packTexture(size_t widt
     for(auto atlasIt : m_atlases)
     {
          box = this->findAndSplitEmptySpace(atlasIt, width, height);
+         ///box = this->findAndSplitEmptySpace(&atlasIt->rootNode, width, height);
          if(box.size == glm::vec2(width, height))
          {
             atlas = atlasIt;
@@ -34,6 +35,7 @@ std::pair<TextureAsset*, MathTools::Box> TexturesPacker::packTexture(size_t widt
     if(!atlas)
     {
         atlas = this->createAtlas();
+        ///box = this->findAndSplitEmptySpace(&atlas->rootNode, width, height);
         box = this->findAndSplitEmptySpace(atlas, width, height);
     }
 
@@ -51,14 +53,35 @@ std::shared_ptr<TexturesPacker_Atlas> TexturesPacker::createAtlas()
     auto atlas = std::make_shared<TexturesPacker_Atlas>();
 
     auto bufferSize = m_texturesSize.x * m_texturesSize.y * 4;
-    atlas->textureBuffer = std::vector<uint8_t>(bufferSize,0);
+    atlas->textureBuffer = std::vector<uint8_t>(bufferSize, 128);
+
+    for(int y = 0 ; y < m_texturesSize.y ; y++)
+    for(int x = 0 ; x < m_texturesSize.x ; x++)
+    {
+         atlas->textureBuffer[(y*m_texturesSize.x + x)*4 + 0] = 255;//x % 256;
+         atlas->textureBuffer[(y*m_texturesSize.x + x)*4 + 1] = 0;//y % 256;
+         atlas->textureBuffer[(y*m_texturesSize.x + x)*4 + 2] = 0;
+         atlas->textureBuffer[(y*m_texturesSize.x + x)*4 + 3] = 255;
+    }
+
     atlas->texture = TextureAsset::generateTexture(m_texturesSize.x, m_texturesSize.y, atlas->textureBuffer);
+
     atlas->freeSpaces.push_back({m_texturesSize, glm::vec2(0)});
+    /**atlas->rootNode.isEmpty = true;
+    atlas->rootNode.box.position = glm::vec2(0);
+    atlas->rootNode.box.position = m_texturesSize;**/
 
     m_atlases.push_back(atlas);
     return atlas;
 }
 
+/**MathTools::Box TexturesPacker::findAndSplitEmptySpace(TexturePacker_TreeNode *treeNode, size_t width, size_t height)
+{
+    MathTools::Box resultBox;
+    resultBox.size = glm::vec2(0);
+
+    return resultBox;
+}**/
 
 
 MathTools::Box TexturesPacker::findAndSplitEmptySpace(std::shared_ptr<TexturesPacker_Atlas> atlas, size_t width, size_t height)
@@ -77,15 +100,29 @@ MathTools::Box TexturesPacker::findAndSplitEmptySpace(std::shared_ptr<TexturesPa
     resultBox.center = freeSpaceIt->center;
 
     MathTools::Box smallSplit, bigSplit;
-    smallSplit.center = resultBox.center + glm::vec2(width,0);
-    smallSplit.size = glm::vec2(freeSpaceIt->size.x - width, height);
-    bigSplit.center = resultBox.center + glm::vec2(0,height);
-    bigSplit.size = glm::vec2(freeSpaceIt->size.x, freeSpaceIt->size.y - height);
 
-    atlas->freeSpaces.erase(freeSpaceIt.base() - 1);
-    if(bigSplit.size.y != 0)
+    glm::vec2 freeSpace = freeSpaceIt->size - glm::vec2(width, height);
+
+    if(freeSpace.y > freeSpace.x)
+    {
+        smallSplit.center = resultBox.center + glm::vec2(width,0);
+        smallSplit.size = glm::vec2(freeSpace.x, height);
+        bigSplit.center = resultBox.center + glm::vec2(0,height);
+        bigSplit.size = glm::vec2(freeSpaceIt->size.x, freeSpace.y);
+    } else {
+        smallSplit.center = resultBox.center + glm::vec2(0,height);
+        smallSplit.size = glm::vec2(width, freeSpace.y);
+        bigSplit.center = resultBox.center + glm::vec2(width,0);
+        bigSplit.size = glm::vec2(freeSpace.x, freeSpaceIt->size.y);
+    }
+
+    //atlas->freeSpaces.erase(freeSpaceIt.base() - 1);
+    (*freeSpaceIt) = atlas->freeSpaces.back();
+    atlas->freeSpaces.pop_back();
+
+    if(bigSplit.size.x != 0 && bigSplit.size.y != 0)
         atlas->freeSpaces.push_back(bigSplit);
-    if(smallSplit.size.x != 0)
+    if(smallSplit.size.x != 0 && smallSplit.size.y != 0)
         atlas->freeSpaces.push_back(smallSplit);
 
     resultBox.size = glm::vec2(width, height);
@@ -104,6 +141,7 @@ void TexturesPacker::writeTexture(std::shared_ptr<TexturesPacker_Atlas> atlas, M
         for(auto i = 0 ; i < 4 ; ++i)
             atlas->textureBuffer[(relY*m_texturesSize.x + relX)*4 + i] = buffer[(y*box.size.x + x)*4 + i];
     }
+
 
     atlas->texture->writeTexture(atlas->textureBuffer);
 }

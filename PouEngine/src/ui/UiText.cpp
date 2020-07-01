@@ -68,10 +68,34 @@ void UiText::generatedGlyphes()
         g->removeFromParent();
     m_glyphes.clear();
 
+    bool autoJumpLine = (this->getSize().x != 0);
+
     glm::vec2 pos(0);
 
+    int charPos = 0;
     for(auto c : m_text)
     {
+        if(autoJumpLine && c == ' ')
+        {
+            auto nextWordSize = this->computeWordSize(charPos+1);
+            if(pos.x + nextWordSize > this->getSize().x)
+            {
+                pos.x = 0;
+                pos.y += m_fontSize;
+                charPos++;
+                continue;
+            }
+        }
+
+        charPos++;
+
+        if(c == '\n')
+        {
+            pos.x = 0;
+            pos.y += m_fontSize;
+            continue;
+        }
+
         auto glyph = m_font->getGlyph(c, m_fontSize);//TextEngine::getGlyph(m_font, static_cast<uint16_t>(c));
 
         if(glyph)
@@ -86,37 +110,46 @@ void UiText::generatedGlyphes()
                 relPos.x += glyph->getLeft();
                 relPos.y -= glyph->getTop();
 
+                glm::vec2 glyphSize = glyph->getTextureExtent();
+
+                if(this->getSize().x > 0 && relPos.x + glyphSize.x > this->getSize().x)
+                    glyphSize.x = std::max(this->getSize().x - relPos.x ,0.0f);
+                if(this->getSize().y > 0 && relPos.y + glyphSize.y > this->getSize().y)
+                    glyphSize.y = std::max(this->getSize().y - relPos.y ,0.0f);
+
                 glyphElement->setPosition(relPos);
-                glyphElement->setSize(glyph->getTextureExtent());
+                glyphElement->setSize(glyphSize);
 
                 glyphElement->setTexture(texture);
                 glyphElement->setTextureRect(glyph->getTexturePosition(),
-                                             glyph->getTextureExtent(), false);
+                                             glyphSize, false);
 
                 this->addChildNode(glyphElement);
                 m_glyphes.push_back(glyphElement);
             }
 
             pos.x += glyph->getAdvance();
-
-            continue;
         }
-
-        if(c != ' ')
-        {
-            auto glyphElement = std::make_shared<UiPicture>(m_interface);
-
-            glyphElement->setPosition(pos);
-            glyphElement->setSize(glm::vec2(14,16));
-
-            this->addChildNode(glyphElement);
-            m_glyphes.push_back(glyphElement);
-        }
-
-        pos.x += 16;
     }
 
     m_needToUpdateGlyphes = false;
+}
+
+int UiText::computeWordSize(size_t charPos)
+{
+    if(charPos >= m_text.size())
+        return (0);
+
+    int predictedSize = 0;
+    while(charPos < m_text.length() && m_text[charPos] != ' ' && m_text[charPos] != '\n')
+    {
+        auto glyph = m_font->getGlyph(m_text[charPos], m_fontSize);
+        if(glyph)
+            predictedSize +=  glyph->getAdvance();
+        charPos++;
+    }
+
+    return predictedSize;
 }
 
 }

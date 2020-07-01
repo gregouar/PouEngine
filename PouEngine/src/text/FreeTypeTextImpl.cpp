@@ -118,6 +118,8 @@ std::shared_ptr<Glyph> FreeTypeTextImpl::generateGlyph(FontTypeId fontId, uint16
     }
     //std::cout<<std::endl;
 
+    //std::cout<<"GenGlyph: "<<(char)characterCode<<std::endl;
+
     auto glyph = std::make_shared<Glyph>(glyphSlot->bitmap_left,
                                          glyphSlot->bitmap_top,
                                          width,

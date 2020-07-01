@@ -23,6 +23,7 @@ class UiText : public UiElement
 
     protected:
         void generatedGlyphes();
+        int computeWordSize(size_t charPos);
 
     private:
         FontAsset *m_font;

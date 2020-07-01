@@ -9,12 +9,24 @@ namespace pou
 
 ///Need to add delay for uploading buffer to GPU
 
+/**struct TexturePacker_TreeNode
+{
+    MathTools::Box box;
+    bool isEmpty;
+
+    std::unique_ptr<TexturePacker_TreeNode> leftNode;
+    std::unique_ptr<TexturePacker_TreeNode> rightNode;
+};**/
+
 struct TexturesPacker_Atlas
 {
     TextureAsset *texture;
     std::vector<uint8_t> textureBuffer;
+
     std::vector<MathTools::Box> freeSpaces;
+    ///TexturePacker_TreeNode rootNode;
 };
+
 
 class TexturesPacker
 {
@@ -28,6 +40,7 @@ class TexturesPacker
         std::shared_ptr<TexturesPacker_Atlas> createAtlas();
 
         MathTools::Box findAndSplitEmptySpace(std::shared_ptr<TexturesPacker_Atlas> atlas, size_t width, size_t height);
+        ///MathTools::Box findAndSplitEmptySpace(TexturePacker_TreeNode *treeNode, size_t width, size_t height);
         void writeTexture(std::shared_ptr<TexturesPacker_Atlas> atlas, MathTools::Box box, const std::vector<uint8_t> &buffer);
 
         void updateMaxAvailableSize(std::shared_ptr<TexturesPacker_Atlas> atlas);
