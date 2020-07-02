@@ -2,6 +2,7 @@
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/TextureAsset.h"
+#include "PouEngine/ui/UserInterface.h"
 
 namespace pou
 {
@@ -13,6 +14,7 @@ UiButton::UiButton(UserInterface *interface) : UiElement(interface),
     m_toggable(false),
     m_isToggled(false)
 {
+    m_canHaveFocus = true;
 }
 
 UiButton::~UiButton()
@@ -35,6 +37,9 @@ void UiButton::handleEvents(const EventsManager *eventsManager)
     {
         if(eventsManager->mouseButtonReleased(GLFW_MOUSE_BUTTON_1))
         {
+            if(!m_interface->isFocusedOn(this))
+                return;
+
             if(m_isToggled)
                 this->switchState(UiButtonState_Rest);
             else
@@ -97,7 +102,7 @@ void UiButton::setColor(UiButtonState state, const glm::vec4 &color)
         return;
 
     if(!m_stateTextureElements[state])
-        this->setTexture(state, TexturesHandler::dummyAsset());
+        this->setTexture(state, nullptr /*TexturesHandler::dummyAsset()*/);
 
     m_stateTextureElements[state]->setColor(color);
 }

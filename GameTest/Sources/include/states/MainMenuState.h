@@ -40,6 +40,7 @@ class MainMenuState : public pou::GameState, public Singleton<MainMenuState>
 
         std::shared_ptr<pou::UiTextInput> m_serverAddressInput;
         std::shared_ptr<pou::UiTextInput> m_serverPortInput;
+        std::shared_ptr<pou::UiTextInput> m_characterNameInput;
 };
 
 #endif // MAINMENUSTATE_H

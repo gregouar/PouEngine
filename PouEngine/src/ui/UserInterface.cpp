@@ -1,14 +1,14 @@
 #include "PouEngine/ui/UserInterface.h"
 
+#include "PouEngine/ui/UiElement.h"
 
 namespace pou
 {
 
 UserInterface::UserInterface() :
-    m_rootElement(this)
+    m_rootElement(this),
+    m_focus(nullptr)
 {
-   /// m_rootElement   = new UiElement(/**0,**/this);
-    ///m_curNewId      = 0;
 }
 
 UserInterface::~UserInterface()
@@ -18,17 +18,18 @@ UserInterface::~UserInterface()
 
 void UserInterface::cleanup()
 {
-    ///delete m_rootElement;
-    /**for(auto *element : m_createdElements)
-        delete element;
-    m_createdElements.clear();**/
-
     m_rootElement.removeAllChilds();
 }
 
-void UserInterface::handleEvents(const EventsManager *eventManager)
+void UserInterface::handleEvents(const EventsManager *eventsManager)
 {
-    m_rootElement.handleEvents(eventManager);
+    if(eventsManager->mouseButtonPressed(GLFW_MOUSE_BUTTON_1))
+    {
+        m_focusWeight = UiFocusWeight();
+        m_focus = nullptr;
+    }
+
+    m_rootElement.handleEvents(eventsManager);
 }
 
 void UserInterface::update(const Time &elapsedTime)
@@ -48,7 +49,7 @@ void UserInterface::addRootElement(std::shared_ptr<UiElement> element)
 
 std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
 {
-    auto element = std::make_shared<UiPicture>(/**++m_curNewId,**/ this);
+    auto element = std::make_shared<UiPicture>(this);
     if(addToInterface)
         m_rootElement.addChildNode(element);
     return element;
@@ -56,12 +57,34 @@ std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
 
 std::shared_ptr<UiProgressBar> UserInterface::createProgressBar(bool addToInterface)
 {
-    auto element = std::make_shared<UiProgressBar>(/**++m_curNewId,**/ this);
+    auto element = std::make_shared<UiProgressBar>(this);
     if(addToInterface)
         m_rootElement.addChildNode(element);
     return element;
 }
 
+void UserInterface::setFocus(UiElement *element)
+{
+    auto focusWeight = this->computeFocusWeight(element);
+    if(!(focusWeight < m_focusWeight))
+    {
+        m_focusWeight = focusWeight;
+        m_focus = element;
+    }
+}
 
+bool UserInterface::isFocusedOn(UiElement *element)
+{
+    return (m_focus == element);
+}
+
+///
+///Protected
+///
+
+UiFocusWeight UserInterface::computeFocusWeight(UiElement *element)
+{
+    return {element->getGlobalPosition().z, element->getTreeDepth()};
+}
 
 }

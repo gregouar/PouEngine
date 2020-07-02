@@ -7,7 +7,7 @@
 namespace pou
 {
 
-SimpleNode::SimpleNode(/**const NodeTypeId id**/) :
+SimpleNode::SimpleNode() :
     m_globalPosition(glm::vec3(0)),
     m_position(glm::vec3(0)),
     m_eulerRotations(glm::vec3(0)),
@@ -17,40 +17,16 @@ SimpleNode::SimpleNode(/**const NodeTypeId id**/) :
     m_curFlexibleRotation(0.0),
     m_modelMatrix(1.0),
     m_invModelMatrix(1.0)
-///    m_curLocalTime(0)
-    ///m_lastSyncTime(-1),
-    ///m_lastUpdateTime(-1),
-    ///m_lastParentUpdateTime(-1)
-    ///m_disableRotationSync(false),
-    ///m_disableSync(false)
 {
     m_parent = nullptr;
-    ///m_id = id;
-    ///m_curNewId = 0;
     m_needToUpdateModelMat = true;
 
-    /**m_position.setMinMaxAndPrecision(-SimpleNode::NODE_MAX_POS, SimpleNode::NODE_MAX_POS, glm::uvec3(0,0,2));
-    m_syncComponent.addSyncElement(&m_position);
-
-    m_eulerRotations.setMinMaxAndPrecision(glm::vec3(-3.15), glm::vec3(3.15), glm::uvec3(2));
-    m_syncComponent.addSyncElement(&m_eulerRotations);
-
-    m_scale.setMinMaxAndPrecision(glm::vec3(-SimpleNode::NODE_MAX_SCALE),
-                                  glm::vec3(SimpleNode::NODE_MAX_SCALE),
-                                  glm::uvec3(SimpleNode::NODE_SCALE_DECIMALS));
-    m_syncComponent.addSyncElement(&m_scale);**/
-
-
-    ///m_eulerRotations.setModuloRange(-glm::vec3(glm::pi<float>()), glm::vec3(glm::pi<float>()));
-
+    m_treeDepth = 0;
 }
 
 SimpleNode::~SimpleNode()
 {
     this->destroy();
-    /**if(m_parent != nullptr)
-        m_parent->removeChildNode(this);
-    this->removeAndDestroyAllChilds();**/
 }
 
 void SimpleNode::destroy()
@@ -58,7 +34,8 @@ void SimpleNode::destroy()
     if(m_parent)
         m_parent->removeChildNode(this);
     this->removeAllChilds();
-    m_parent = nullptr;
+    m_parent    = nullptr;
+    m_treeDepth = 0;
 }
 
 void SimpleNode::addChildNode(std::shared_ptr<SimpleNode> childNode)
@@ -142,211 +119,6 @@ bool SimpleNode::containsChildNode(std::shared_ptr<SimpleNode> childNode)
     return (false);
 }
 
-/**void SimpleNode::addChildNode(SimpleNode* st)
-{
-    NodeTypeId id = this->generateId();
-    this->addChildNode(id, node);
-    if(node != nullptr)
-        node->setId(id);
-}
-
-void SimpleNode::addChildNode(const NodeTypeId id, SimpleNode* node)
-{
-    auto childsIt = m_childs.find(id);
-    if(childsIt != m_childs.end())
-   // if(this->getChild(id) == nullptr)
-    {
-        std::ostringstream warn_report;
-        warn_report << "Adding child node of same id as another one (Id="<<id<<")";
-        Logger::warning(warn_report);
-    }
-
-    if(m_curNewId <= (int)id)
-        m_curNewId = id+1;
-
-    m_childs.insert_or_assign(childsIt,id,node);
-    node->setParent(this);
-}
-
-void SimpleNode::addCreatedChildNode(SimpleNode* node)
-{
-    NodeTypeId id = this->generateId();
-    this->addChildNode(id, node);
-    if(node != nullptr)
-    {
-        node->setId(id);
-        m_createdChildsList.insert(id);
-    }
-}
-
-void SimpleNode::moveChildNode(SimpleNode* node, SimpleNode* target)
-{
-    if(node != nullptr && node->getParent() == this)
-        this->moveChildNode(node->getId(), target);
-}
-
-void SimpleNode::moveChildNode(const NodeTypeId id, SimpleNode* target)
-{
-    auto node = this->getChild(id);
-    auto createdChildsIt = m_createdChildsList.find(id);
-
-    if(createdChildsIt != m_createdChildsList.end())
-    {
-        m_createdChildsList.erase(createdChildsIt);
-        target->addCreatedChildNode(node);
-    } else
-        target->addChildNode(node);
-}
-
-SimpleNode* SimpleNode::removeChildNode(const NodeTypeId id)
-{
-    SimpleNode* node = nullptr;
-
-    auto childsIt = m_childs.find(id);
-
-    if(childsIt == m_childs.end())
-    {
-        std::ostringstream error_report;
-        error_report << "Cannot remove child node (Id="<<id<<")";
-        Logger::error(error_report);
-
-        return (nullptr);
-    }
-
-
-    auto createdChildsIt = m_createdChildsList.find(id);
-    if(createdChildsIt != m_createdChildsList.end())
-        m_createdChildsList.erase(createdChildsIt);
-
-    node = childsIt->second;
-    node->setParent(nullptr);
-
-    m_childs.erase(childsIt);
-
-    return node;
-}
-
-SimpleNode* SimpleNode::removeChildNode(SimpleNode* node)
-{
-    if(node != nullptr && node->getParent() == this)
-        return this->removeChildNode(node->getId());
-    return (nullptr);
-}
-
-SimpleNode* SimpleNode::createChildNode()
-{
-    return this->createChildNode(this->generateId());
-}
-
-SimpleNode* SimpleNode::createChildNode(float x, float y, float z)
-{
-    SimpleNode* newNode = this->createChildNode();
-    if(newNode != nullptr)
-        newNode->setPosition(x,y,z);
-    return newNode;
-}
-
-
-SimpleNode* SimpleNode::createChildNode(float x, float y)
-{
-    return this->createChildNode(x,y,0);
-}
-
-SimpleNode* SimpleNode::createChildNode(glm::vec2 p)
-{
-    return this->createChildNode(p.x, p.y);
-}
-
-SimpleNode* SimpleNode::createChildNode(glm::vec3 p)
-{
-    return this->createChildNode(p.x, p.y, p.z);
-}
-
-SimpleNode* SimpleNode::createChildNode(const NodeTypeId id)
-{
-    if(static_cast<unsigned int>(m_curNewId) <= id)
-        m_curNewId = id+1;
-
-    if(this->getChild(id) != nullptr)
-    {
-        std::ostringstream error_report;
-        error_report << "Cannot create new child node with the same Id as an existing child node (Id="<<id<<")";
-        Logger::error(error_report);
-
-        return (nullptr); //childsIt->second;
-    }
-
-    SimpleNode* newNode = this->nodeAllocator(id);
-    m_createdChildsList.insert(id);
-
-    this->addChildNode(id, newNode);
-
-    return newNode;
-}
-
-bool SimpleNode::destroyChildNode(SimpleNode* node)
-{
-    if(node != nullptr && node->getParent() == this)
-        return this->destroyChildNode(node->getId());
-    return (false);
-}
-
-bool SimpleNode::destroyChildNode(const NodeTypeId id)
-{
-    auto createdChildsIt = m_createdChildsList.find(id);
-
-    if(createdChildsIt == m_createdChildsList.end())
-        Logger::warning("Destroying non-created child");
-    else
-        m_createdChildsList.erase(createdChildsIt);
-
-
-    //SimpleNode* child = this->getChild(id);
-    auto childsIt = m_childs.find(id);
-
-    if(childsIt == m_childs.end())
-    //if(child == nullptr)
-    {
-        std::ostringstream error_report;
-        error_report << "Cannot destroy child (Id="<<id<<")";
-        Logger::error(error_report);
-
-        return (false);
-    }
-
-    if(childsIt->second != nullptr)
-    {
-        childsIt->second->setParent(nullptr);
-        delete childsIt->second;
-    }
-
-    m_childs.erase(childsIt);
-
-    return (true);
-}
-
-void SimpleNode::removeAndDestroyAllChilds(bool destroyNonCreatedChilds)
-{
-    if(!destroyNonCreatedChilds)
-        while(!m_createdChildsList.empty())
-            this->destroyChildNode(*m_createdChildsList.begin());
-
-    if(destroyNonCreatedChilds)
-    {
-        for(auto childsIt : m_childs)
-        {
-            if(childsIt.second != nullptr)
-            {
-                childsIt.second->removeAndDestroyAllChilds(destroyNonCreatedChilds);
-                delete childsIt.second;
-            }
-        }
-    }
-
-    m_childs.clear();
-    m_createdChildsList.clear();
-}**/
-
 void SimpleNode::copyFrom(const SimpleNode* srcNode)
 {
     if(srcNode == nullptr)
@@ -365,45 +137,6 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
             newNode->copyFrom(child.get());
     }
 }
-
-/*void SimpleNode::syncFrom(SimpleNode* srcNode)
-{
-    m_syncComponent.syncFrom(srcNode->m_syncComponent);
-}*/
-
-/*void SimpleNode::setLocalTime(uint32_t localTime)
-{
-    //if(localTime < 0)
-        //localTime = -1;
-    m_curLocalTime = localTime;
-    this->update();
-}*/
-
-/*void SimpleNode::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
-{
-    m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
-}
-
-
-void SimpleNode::setMaxRewind(int maxRewind)
-{
-    m_syncComponent.setMaxRewindAmount(maxRewind);
-}
-
-void SimpleNode::setSyncReconciliationPrecision(glm::vec3 positionPrecision)
-{
-    m_position.setReconciliationPrecision(positionPrecision);
-}
-
-void SimpleNode::disableRotationSync(bool disable)
-{
-    m_eulerRotations.disableSync(disable);
-}
-
-void SimpleNode::disableSync(bool disable)
-{
-    m_syncComponent.disableSync(disable);
-}*/
 
 void SimpleNode::move(float x, float y)
 {
@@ -597,11 +330,6 @@ const glm::mat4 &SimpleNode::getInvModelMatrix() const
     return m_invModelMatrix;
 }
 
-/**NodeTypeId SimpleNode::getId() const
-{
-    return m_id;
-}**/
-
 const std::string &SimpleNode::getName() const
 {
     return m_name;
@@ -616,14 +344,6 @@ SimpleNode* SimpleNode::getParent()
 {
     return m_parent;
 }
-
-/**SimpleNode* SimpleNode::getChild(const NodeTypeId id)
-{
-    auto childsIt = m_childs.find(id);
-    if(childsIt == m_childs.end())
-        return (nullptr);
-    return childsIt->second;
-}**/
 
 SimpleNode* SimpleNode::getChildByName(const std::string &name, bool recursiveSearch)
 {
@@ -656,38 +376,10 @@ void SimpleNode::getNodesByName(std::map<std::string, SimpleNode*> &namesAndResM
         child->getNodesByName(namesAndResMap);
 }
 
-
-/**void SimpleNode::setLastUpdateTime(uint32_t time, bool force)
+size_t SimpleNode::getTreeDepth()
 {
-    if(force || m_lastUpdateTime == (uint32_t)(-1) || m_lastUpdateTime < time)
-        m_lastUpdateTime = time;
-}**/
-
-/**uint32_t SimpleNode::getLastUpdateTime()
-{
-    return m_syncComponent.getLastUpdateTime();
+    return m_treeDepth;
 }
-
-uint32_t SimpleNode::getLastParentUpdateTime()
-{
-    return m_lastParentUpdateTime;
-}**/
-
-/**uint32_t SimpleNode::getLocalTime()
-{
-    return m_curLocalTime;
-}**/
-
-/*std::list<SimpleNode*> SimpleNode::getAllChilds()
-{
-    return m_childs.
-}*/
-
-
-/**void SimpleNode::setId(const NodeTypeId id)
-{
-    m_id = id;
-}**/
 
 bool SimpleNode::setParent(SimpleNode *p)
 {
@@ -698,15 +390,9 @@ bool SimpleNode::setParent(SimpleNode *p)
         auto oldParent = m_parent;
 
         m_parent = p;
-        ///m_lastParentUpdateTime = m_curLocalTime;
-        ///m_syncComponent.setLastUpdateTime(m_curLocalTime);
         if(m_parent != nullptr)
-        {
-            ///this->setScene(m_parent->getScene());
             this->startListeningTo(m_parent);
-        }
 
-        ///this->updateGlobalPosition();
         this->askForUpdateModelMatrix();
 
         if(oldParent != nullptr && p != nullptr)
@@ -722,53 +408,20 @@ bool SimpleNode::setAsParentTo(SimpleNode *parentNode, SimpleNode *childNode)
     return childNode->setParent(parentNode);
 }
 
-std::shared_ptr<SimpleNode> SimpleNode::nodeAllocator(/**NodeTypeId id**/)
+std::shared_ptr<SimpleNode> SimpleNode::nodeAllocator()
 {
-    return std::make_shared<SimpleNode>(/**id**/);
+    return std::make_shared<SimpleNode>();
 }
-
-/**NodeTypeId SimpleNode::generateId()
-{
-    return m_curNewId++;
-}**/
 
 
 void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
 {
-    ///if(localTime != (uint32_t)(-1))
-       /// m_curLocalTime = localTime;
-
-    /**bool syncUpdate = false;
-
-    syncUpdate |= m_position.update(elapsedTime, m_curLocalTime);
-    syncUpdate |= m_eulerRotations.update(elapsedTime, m_curLocalTime);
-    syncUpdate |= m_scale.update(elapsedTime, m_curLocalTime);
-
-    if(syncUpdate)
-        this->setLastUpdateTime(m_curLocalTime);
-
-    m_needToUpdateModelMat |= syncUpdate;**/
-
-    ///if(m_syncComponent.update(elapsedTime, localTime))
-       /// m_needToUpdateModelMat = true;
-
-    //std::cout<<"Update SimpleNode: "<<this<<std::endl;
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
 
     for(auto node : m_childs)
         node->update(elapsedTime,localTime);
 }
-
-/**void SimpleNode::rewind(uint32_t time)
-{
-    m_position.rewind(time);
-    m_eulerRotations.rewind(time);
-    m_scale.rewind(time);
-
-    for(auto node : m_childs)
-        node.second->rewind(time);
-}**/
 
 void SimpleNode::updateGlobalPosition()
 {
@@ -781,12 +434,13 @@ void SimpleNode::updateGlobalPosition()
             glm::vec4 pos    = m_parent->getModelMatrix() * glm::vec4(this->getPosition(),1.0);
             m_globalPosition = {pos.x,pos.y,pos.z};
         }
+        m_treeDepth = m_parent->getTreeDepth() + 1;
     }
     else
+    {
         m_globalPosition = this->getPosition();
-
-    //this->updateModelMatrix();
-    ///this->askForUpdateModelMatrix();
+        m_treeDepth = 0;
+    }
 }
 
 void SimpleNode::askForUpdateModelMatrix()
@@ -941,10 +595,5 @@ void SimpleNode::notify(NotificationSender* sender, int notificationType,
         }
     }
 }
-
-/**void SimpleNode::serialize(Stream *stream, uint32_t clientTime)
-{
-    m_syncComponent.serialize(stream, clientTime);
-}**/
 
 }

@@ -23,15 +23,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void destroy();
 
         virtual void addChildNode(std::shared_ptr<SimpleNode> childNode);
-        ///void addChildNode(const NodeTypeId id, SimpleNode*);
-
-        ///void moveChildNode(std::shared_ptr<SimpleNode> childNode, SimpleNode* target);
-        ///void moveChildNode(const NodeTypeId id, SimpleNode* target);
 
         virtual bool removeChildNode(SimpleNode *childNode);
         bool removeChildNode(std::shared_ptr<SimpleNode> childNode);
         virtual void removeAllChilds();
-        ///virtual SimpleNode* removeChildNode(const NodeTypeId id);
 
         void removeFromParent();
 
@@ -40,17 +35,10 @@ class SimpleNode : public NotificationSender, public NotificationListener
         std::shared_ptr<SimpleNode> createChildNode(float, float, float );
         std::shared_ptr<SimpleNode> createChildNode(glm::vec2 );
         std::shared_ptr<SimpleNode> createChildNode(glm::vec3 );
-        ///SimpleNode* createChildNode(const NodeTypeId id);
-
-        ///bool destroyChildNode(std::shared_ptr<SimpleNode> childNode);
-        ///bool destroyChildNode(const NodeTypeId id);
-
-        ///void removeAndDestroyAllChilds(bool destroyNonCreatedChilds = false);
 
         virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
         virtual void copyFrom(const SimpleNode* srcNode);
-        ///virtual void syncFrom(SimpleNode* srcNode);
 
         void move(float, float);
         void move(float, float, float);
@@ -77,13 +65,6 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void rotate(glm::vec3 values, bool inRadians = true);
         virtual void setRotation(glm::vec3 rotation, bool inRadians = true);
 
-        //void setLocalTime(uint32_t localTime);
-        /**virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
-        virtual void setMaxRewind(int maxRewind);
-        void setSyncReconciliationPrecision(glm::vec3 positionPrecision);
-        void disableRotationSync(bool disable = true);
-        void disableSync(bool disable = true);**/
-
         virtual const glm::vec3 &getPosition() const;
         glm::vec2 getXYPosition() const;
         const glm::vec3 &getGlobalPosition() const;
@@ -93,18 +74,12 @@ class SimpleNode : public NotificationSender, public NotificationListener
         const glm::mat4 &getModelMatrix() const;
         const glm::mat4 &getInvModelMatrix() const;
 
-        ///NodeTypeId getId()  const;
         const std::string &getName()  const;
         float getRigidity() const;
         SimpleNode* getParent();
-        ///SimpleNode* getChild(const NodeTypeId id);
         SimpleNode* getChildByName(const std::string &name, bool recursiveSearch = true);
         void getNodesByName(std::map<std::string, SimpleNode*> &namesAndResMap);
-        //std::list<SimpleNode*> getAllChilds();
-
-        /**uint32_t getLastUpdateTime();
-        uint32_t getLastParentUpdateTime();**/
-        ///uint32_t getLocalTime();
+        size_t getTreeDepth();
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -113,44 +88,24 @@ class SimpleNode : public NotificationSender, public NotificationListener
                             void* data = nullptr) override;
 
 
-        ///virtual void serialize(Stream *stream, uint32_t localTime = -1);
-
-
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
         virtual bool setParent(SimpleNode *parentNode); //Do not remove from old parent if new parent is null to prevent from self destruction of shared_ptr
         virtual bool setAsParentTo(SimpleNode *parentNode, SimpleNode *childNode);
 
-        /**virtual void setParent(SimpleNode *);
-        void setId(const NodeTypeId );
-        NodeTypeId generateId();
-
-        void addCreatedChildNode(SimpleNode*);**/
-
         void askForUpdateModelMatrix();
         virtual void updateGlobalPosition();
         void updateModelMatrix();
 
         void computeFlexibleMove(glm::vec3 );
-        //void computeFlexibleRotate(float );
-
-        ///void setLastUpdateTime(uint32_t time, bool force = false);
 
     protected:
         glm::vec3 m_globalPosition;
 
-        ///SyncComponent m_syncComponent;
-
         glm::vec3 m_position;
         glm::vec3 m_eulerRotations;
         glm::vec3 m_scale;
-        /**LinSyncAttribute<glm::vec3> m_position;
-        LinSyncAttribute<glm::vec3> m_eulerRotations;
-        LinSyncAttribute<glm::vec3> m_scale;**/
-        /**Vec3LinSyncElement m_position;
-        Vec3LinSyncElement m_eulerRotations;
-        Vec3LinSyncElement m_scale;**/
 
         float     m_rigidity;
 
@@ -161,28 +116,14 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::mat4 m_invModelMatrix;
 
         SimpleNode* m_parent;
-        ///std::map<NodeTypeId, SimpleNode*> m_childs;
         std::vector< std::shared_ptr<SimpleNode> > m_childs;
 
-       /// uint32_t m_curLocalTime;
-        ///uint32_t m_lastSyncTime;
-        ///uint32_t m_lastUpdateTime;
-       /// uint32_t m_lastParentUpdateTime;
-        //float m_lastPositionUpdateTime;
-        //float m_lastRotationUpdateTime;
-        //float m_lastScaleUpdateTime;
-
-        ///bool m_disableRotationSync;
-        ///bool m_disableSync;
 
     private:
-        ///NodeTypeId m_id;
         std::string m_name;
-        ///std::set<NodeTypeId> m_createdChildsList;
-
-        ///int m_curNewId;
 
         bool m_needToUpdateModelMat;
+        size_t m_treeDepth;
 };
 
 }

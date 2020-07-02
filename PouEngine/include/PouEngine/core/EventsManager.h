@@ -5,6 +5,7 @@
 
 #include <stack>
 #include <glm/vec2.hpp>
+#include <string>
 
 class EventsManager
 {
@@ -16,6 +17,9 @@ class EventsManager
 
         void update();
         void waitForEvents();
+
+        std::string getTextEnteredAsUtf8() const;
+        const std::u32string &getTextEntered() const;
 
         bool keyPressed(int key)    const;
         bool keyIsPressed(int key)  const;
@@ -42,6 +46,7 @@ class EventsManager
         void updateMousePosition(double xpos, double ypos, int width, int height);
         //void updateWindowSize(int width, int height);
 
+        static void char_callback(GLFWwindow* window, unsigned int codepoint);
         static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
         static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -50,6 +55,8 @@ class EventsManager
 
     private:
         GLFWwindow *m_window;
+
+        std::u32string m_textEntered;
 
         bool m_keyPressed[GLFW_KEY_LAST+1];
         bool m_keyIsPressed[GLFW_KEY_LAST+1];

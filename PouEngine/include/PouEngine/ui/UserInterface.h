@@ -8,6 +8,21 @@
 namespace pou
 {
 
+struct UiFocusWeight
+{
+    UiFocusWeight(float p_z, float p_depth) : z(p_z), depth(p_depth){};
+    UiFocusWeight() : UiFocusWeight(0,0){};
+
+    bool operator<(const UiFocusWeight &weight) const
+    {
+        return (z < weight.z) ||
+            (z == weight.z && depth < weight.depth);
+    }
+
+    float z;
+    float depth;
+};
+
 class UserInterface
 {
     public:
@@ -23,16 +38,19 @@ class UserInterface
         std::shared_ptr<UiPicture> createUiPicture(bool addToInterface = false);
         std::shared_ptr<UiProgressBar> createProgressBar(bool addToInterface = false);
 
+        void setFocus(UiElement *element);
+        bool isFocusedOn(UiElement *element);
+
     protected:
         void cleanup();
+
+        UiFocusWeight computeFocusWeight(UiElement *element);
 
     private:
         UiElement m_rootElement;
 
-        ///Add focus handling (using z pos + child depth)
-
-       /// NodeTypeId m_curNewId;
-        ///std::list<UiElement*> m_createdElements;
+        UiElement      *m_focus;
+        UiFocusWeight   m_focusWeight;
 };
 
 }

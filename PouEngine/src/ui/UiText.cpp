@@ -97,9 +97,15 @@ void UiText::setVerticalAlign(bool verticalAlign)
     }
 }
 
-const std::string &UiText::getText()
+const std::string &UiText::getText() const
 {
     return m_text;
+}
+
+
+float UiText::getFontSize() const
+{
+    return m_fontSize;
 }
 
 ///
@@ -233,6 +239,23 @@ int UiText::computeWordSize(size_t charPos)
     }
 
     return predictedSize;
+}
+
+int UiText::computeTextSize(size_t startPos, size_t endPos)
+{
+    int x = 0;
+
+    for(auto i = startPos ; i < endPos ; ++i)
+    {
+        auto c = m_text[i];
+
+        auto glyph = m_font->getGlyph(c, m_fontSize);
+
+        if(glyph)
+            x += glyph->getAdvance();
+    }
+
+    return x;
 }
 
 /*void UiText::jumpLine()

@@ -1,5 +1,9 @@
 #include "PouEngine/core/EventsManager.h"
 
+#include <string>
+#include <locale>
+#include <codecvt>
+
 EventsManager::EventsManager()
 {
     for(auto i = 0 ; i <= GLFW_KEY_LAST ; ++i)
@@ -36,6 +40,7 @@ void EventsManager::init(GLFWwindow *window)
 
     glfwSetWindowUserPointer(m_window, this);
 
+    glfwSetCharCallback         (m_window, EventsManager::char_callback);
     glfwSetKeyCallback          (m_window, EventsManager::key_callback);
     glfwSetMouseButtonCallback  (m_window, EventsManager::mouse_button_callback);
     glfwSetScrollCallback       (m_window, EventsManager::scroll_callback);
@@ -45,6 +50,8 @@ void EventsManager::init(GLFWwindow *window)
 
 void EventsManager::update()
 {
+    m_textEntered.clear();
+
     while(!m_justPressedKeys.empty())
     {
         m_keyPressed[m_justPressedKeys.top()] = false;
@@ -80,6 +87,19 @@ void EventsManager::update()
 void EventsManager::waitForEvents()
 {
     glfwWaitEvents();
+}
+
+const std::u32string &EventsManager::getTextEntered() const
+{
+    return m_textEntered;
+}
+
+std::string EventsManager::getTextEnteredAsUtf8() const
+{
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+    std::string textEntered = converter.to_bytes(m_textEntered);
+
+    return std::move(textEntered);
 }
 
 bool EventsManager::keyPressed(int key) const
@@ -217,7 +237,13 @@ void EventsManager::updateMousePosition(double xpos, double ypos, int width, int
     m_resizedWindow = true;
 }*/
 
+void EventsManager::char_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    EventsManager *eventsManager =
+      static_cast<EventsManager*>(glfwGetWindowUserPointer(window));
 
+    eventsManager->m_textEntered.push_back(codepoint);
+}
 
 void EventsManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {

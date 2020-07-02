@@ -22,17 +22,19 @@ class UiText : public UiElement
 
         void setFont(FontAsset *font);
         void setText(const std::string &text);
-        void setFontSize(int pt);
-        void setColor(const glm::vec4 &color);
+        virtual void setFontSize(int pt);
+        virtual void setColor(const glm::vec4 &color);
         void setTextAlign(TextAlignType textAlign);
         void setVerticalAlign(bool verticalAlign);
 
-        const std::string &getText();
+        const std::string &getText() const;
+        float getFontSize() const;
 
     protected:
         void generatedGlyphes();
         int computeWordSize(size_t charPos);
         //void jumpLine();
+        int computeTextSize(size_t startPos, size_t endPos);
 
     private:
         FontAsset *m_font;

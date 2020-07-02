@@ -14,7 +14,7 @@ class UserInterface;
 class UiElement : public SimpleNode
 {
     public:
-        UiElement( UserInterface *interface);
+        UiElement(UserInterface *interface);
         virtual ~UiElement();
 
         virtual void setSize(glm::vec2 s); //use this one for children
@@ -27,6 +27,7 @@ class UiElement : public SimpleNode
 
         virtual void show();
         virtual void hide();
+        virtual void setVisible(bool visible);
 
         bool isVisible();
         bool isMouseHover();
@@ -36,6 +37,7 @@ class UiElement : public SimpleNode
 
     protected:
         UserInterface *m_interface;
+        bool m_canHaveFocus;
 
     private:
         glm::vec2 m_size;

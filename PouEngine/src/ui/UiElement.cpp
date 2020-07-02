@@ -1,14 +1,18 @@
 #include "PouEngine/ui/UiElement.h"
 
+#include "PouEngine/ui/UserInterface.h"
+
 namespace pou
 {
 
 UiElement::UiElement(UserInterface *interface) :
     m_interface(interface),
+    m_canHaveFocus(false),
     m_size(0.0f),
     m_isVisible(true),
     m_isMouseHover(false)
 {
+    assert(interface);
 }
 
 
@@ -63,18 +67,27 @@ void UiElement::handleEvents(const EventsManager *eventsManager)
     && mousePos.y >= globalPos.y && mousePos.y <= globalPos.y + size.y)
         m_isMouseHover = true;
 
+    if(m_canHaveFocus && m_isMouseHover
+    && eventsManager->mouseButtonPressed(GLFW_MOUSE_BUTTON_1))
+        m_interface->setFocus(this);
+
     for(auto node : m_childs)
         std::dynamic_pointer_cast<UiElement>(node)->handleEvents(eventsManager);
 }
 
 void UiElement::show()
 {
-    m_isVisible = true;
+    this->setVisible(true);
 }
 
 void UiElement::hide()
 {
-    m_isVisible = false;
+    this->setVisible(false);
+}
+
+void UiElement::setVisible(bool visible)
+{
+    m_isVisible = visible;
 }
 
 bool UiElement::isVisible()
