@@ -7,7 +7,8 @@ namespace pou
 {
 
 StatesManager::StatesManager() :
-    m_attachedApp(nullptr)
+    m_attachedApp(nullptr),
+    m_switchState(false)
 {
 }
 
@@ -23,17 +24,8 @@ void StatesManager::stop()
 
 void StatesManager::switchState(GameState* state)
 {
-    for(std::size_t i = 0; i < m_states.size() ; ++i)
-        m_states[i]->leaving();
-
-    m_states.clear();
-
-    if(state != nullptr)
-    {
-        m_states.push_back(state);
-        m_states.back()->setManager(this);
-        m_states.back()->entered();
-    }
+    m_switchState = true;
+    m_nextState   = state;
 }
 
 void StatesManager::pushState(GameState* state)
@@ -87,6 +79,30 @@ void StatesManager::draw(RenderWindow *renderWindow)
 {
     for(auto state : m_states)
         state->draw(renderWindow);
+}
+
+void StatesManager::handleSwitchs()
+{
+    if(m_switchState)
+    {
+        this->switchStateImpl(m_nextState);
+        m_switchState = false;
+    }
+}
+
+void StatesManager::switchStateImpl(GameState* state)
+{
+    for(std::size_t i = 0; i < m_states.size() ; ++i)
+        m_states[i]->leaving();
+
+    m_states.clear();
+
+    if(state != nullptr)
+    {
+        m_states.push_back(state);
+        m_states.back()->setManager(this);
+        m_states.back()->entered();
+    }
 }
 
 void StatesManager::attachApp(VApp* app)

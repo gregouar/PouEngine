@@ -8,6 +8,10 @@
 
 #include "PouEngine/renderers/UiRenderer.h"
 
+#include "states/MainMenuState.h"
+
+#include "logic/GameData.h"
+
 ClientTestingState::ClientTestingState() :
     m_firstEntering(true)
 {
@@ -17,6 +21,7 @@ ClientTestingState::ClientTestingState() :
 ClientTestingState::~ClientTestingState()
 {
     this->leaving();
+        m_gameClient.reset();
 }
 
 
@@ -24,9 +29,9 @@ void ClientTestingState::init()
 {
     m_firstEntering = false;
 
-    pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
+    //pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
 
-    char dot;
+    /*char dot;
     int a,b,c,d,port;
     std::cout<<"Server address: ";
     if (std::cin.peek() != '\n')
@@ -43,7 +48,11 @@ void ClientTestingState::init()
 
     m_gameClient = std::make_unique<GameClient>();
     m_gameClient->create();
-    m_gameClient->connectToServer(pou::NetAddress(a,b,c,d,port));
+    m_gameClient->connectToServer(pou::NetAddress(a,b,c,d,port));*/
+
+
+    m_gameClient = std::make_unique<GameClient>();
+    m_gameClient->create();
 
     m_gameUi.init();
 }
@@ -52,6 +61,8 @@ void ClientTestingState::entered()
 {
     if(m_firstEntering)
         this->init();
+
+    m_gameClient->connectToServer(GameData::serverAddress);
 }
 
 void ClientTestingState::leaving()
@@ -59,7 +70,6 @@ void ClientTestingState::leaving()
     if(m_gameClient)
     {
         m_gameClient->disconnectFromServer();
-        m_gameClient.reset();
     }
 }
 
@@ -78,7 +88,7 @@ void ClientTestingState::handleEvents(const EventsManager *eventsManager)
     m_gameUi.handleEvents(eventsManager);
 
     if(eventsManager->keyReleased(GLFW_KEY_ESCAPE))
-        m_manager->stop();
+        m_manager->switchState(MainMenuState::instance());
 
     if(eventsManager->isAskingToClose())
         m_manager->stop();

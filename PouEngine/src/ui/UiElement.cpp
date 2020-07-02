@@ -5,7 +5,9 @@ namespace pou
 
 UiElement::UiElement(UserInterface *interface) :
     m_interface(interface),
-    m_size(0.0f)
+    m_size(0.0f),
+    m_isVisible(true),
+    m_isMouseHover(false)
 {
 }
 
@@ -39,17 +41,51 @@ std::shared_ptr<SimpleNode> UiElement::nodeAllocator()
 
 void UiElement::render(UiRenderer *renderer)
 {
+    if(!m_isVisible)
+        return;
+
     for(auto node : m_childs)
         std::dynamic_pointer_cast<UiElement>(node)->render(renderer);
 }
 
 
-void UiElement::handleEvents(const EventsManager *eventManager)
+void UiElement::handleEvents(const EventsManager *eventsManager)
 {
+    m_isMouseHover = false;
+
+    if(!m_isVisible)
+        return;
+
+    auto mousePos = eventsManager->mousePosition();
+    auto &globalPos = this->getGlobalPosition();
+    auto &size      = this->getSize();
+    if(mousePos.x >= globalPos.x && mousePos.x <= globalPos.x + size.x
+    && mousePos.y >= globalPos.y && mousePos.y <= globalPos.y + size.y)
+        m_isMouseHover = true;
+
     for(auto node : m_childs)
-        std::dynamic_pointer_cast<UiElement>(node)->handleEvents(eventManager);
+        std::dynamic_pointer_cast<UiElement>(node)->handleEvents(eventsManager);
 }
 
+void UiElement::show()
+{
+    m_isVisible = true;
+}
+
+void UiElement::hide()
+{
+    m_isVisible = false;
+}
+
+bool UiElement::isVisible()
+{
+    return m_isVisible;
+}
+
+bool UiElement::isMouseHover()
+{
+    return m_isMouseHover;
+}
 
 
 

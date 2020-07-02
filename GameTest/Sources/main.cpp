@@ -11,6 +11,7 @@
 #include "states/ClientTestingState.h"
 #include "states/ClientServerTestingState.h"
 #include "states/PlayerServerTestingState.h"
+#include "states/MainMenuState.h"
 
 int main()
 {
@@ -43,8 +44,9 @@ int main()
         #else
             createInfos.name = "ProjectW";
             pou::VApp app(createInfos);
+            app.run(MainMenuState::instance());
             //app.run(PlayerServerTestingState::instance());
-            app.run(ClientTestingState::instance());
+            //app.run(ClientTestingState::instance());
             //app.run(ClientServerTestingState::instance());
         #endif
 

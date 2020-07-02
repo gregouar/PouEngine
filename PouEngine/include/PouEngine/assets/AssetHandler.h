@@ -31,6 +31,7 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
        /// static AssetType* loadAssetFromStream(const AssetTypeId& id,sf::InputStream *stream, AssetLoadType = LoadType_Now);
 
         static AssetType* addAsset(bool plannedObsolescence=false, int lifeSpan=1);
+        static AssetType* dummyAsset();
 
         void addToLoadingThread(AssetType*);
         void removeFromLoadingThread(AssetType*);

@@ -153,6 +153,13 @@ enum ConnectionStatus
     NBR_CONNECTIONSTATUS,
 };
 
+enum TextAlignType
+{
+    TextAlignType_Left,
+    TextAlignType_Center,
+    //TextAlignType_Right, //Not implemeted *yet*
+};
+
 typedef std::chrono::duration<double, std::chrono::seconds::period> Time;
 
 typedef unsigned int AssetTypeId;

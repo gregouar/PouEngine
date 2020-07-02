@@ -29,15 +29,21 @@ class StatesManager
         void handleEvents(const EventsManager *eventsManager);
         void update(const Time &elapsedTime);
         void draw(RenderWindow *renderWindow);
+        void handleSwitchs();
 
         VApp* getApp();
 
     protected:
         void attachApp(VApp*);
 
+        void switchStateImpl(GameState*);
+
     private:
         std::vector<GameState*> m_states;
         VApp *m_attachedApp;
+
+        bool m_switchState;
+        GameState *m_nextState;
 };
 
 }

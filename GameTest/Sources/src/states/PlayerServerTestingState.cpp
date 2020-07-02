@@ -9,6 +9,10 @@
 
 #include "PouEngine/renderers/UiRenderer.h"
 
+#include "states/MainMenuState.h"
+
+#include "logic/GameData.h"
+
 PlayerServerTestingState::PlayerServerTestingState() :
     m_firstEntering(true)
 {
@@ -25,19 +29,17 @@ void PlayerServerTestingState::init()
 {
     m_firstEntering = false;
 
-    pou::SoundBanksHandler::loadAssetFromFile("../data/MasterSoundBank.bank");
-
-    m_gameServer.create(46969,true);
-    m_gameServer.generateWorld();
-
-    int localClientNbr = m_gameServer.addLocalPlayer();
-    m_localClientNbr = (size_t)localClientNbr;
-
     m_gameUi.init();
 }
 
 void PlayerServerTestingState::entered()
 {
+    m_gameServer.create(GameData::serverAddress.getPort(),true);
+    m_gameServer.generateWorld();
+
+    int localClientNbr = m_gameServer.addLocalPlayer();
+    m_localClientNbr = (size_t)localClientNbr;
+
     if(m_firstEntering)
         this->init();
 }
@@ -63,7 +65,7 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
     m_gameUi.handleEvents(eventsManager);
 
     if(eventsManager->keyReleased(GLFW_KEY_ESCAPE))
-        m_manager->stop();
+        m_manager->switchState(MainMenuState::instance());
 
     if(eventsManager->isAskingToClose())
         m_manager->stop();

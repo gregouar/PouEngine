@@ -337,6 +337,13 @@ void AssetHandler<AssetType>::cleanAll()
         m_loadThread.join();
 }
 
+
+template<typename AssetType>
+AssetType* AssetHandler<AssetType>::dummyAsset()
+{
+    return AssetHandler<AssetType>::instance()->getDummyAsset();
+}
+
 template<typename AssetType>
 AssetType* AssetHandler<AssetType>::getDummyAsset()
 {

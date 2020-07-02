@@ -198,6 +198,9 @@ void GameWorld::destroy()
     if(m_scene)
         delete m_scene;
     m_scene = nullptr;
+
+    if(m_musicEvent)
+        pou::AudioEngine::destroyEvent(m_musicEvent);
 }
 
 bool GameWorld::initPlayer(size_t player_id)

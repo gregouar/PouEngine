@@ -22,8 +22,14 @@ class UiElement : public SimpleNode
 
         const glm::vec2 &getSize();
 
-        virtual void handleEvents(const EventsManager *eventManager);
+        virtual void handleEvents(const EventsManager *eventsManager);
         virtual void render(UiRenderer *renderer);
+
+        virtual void show();
+        virtual void hide();
+
+        bool isVisible();
+        bool isMouseHover();
 
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
@@ -33,6 +39,8 @@ class UiElement : public SimpleNode
 
     private:
         glm::vec2 m_size;
+        bool m_isVisible;
+        bool m_isMouseHover;
 };
 
 }

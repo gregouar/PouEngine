@@ -15,7 +15,8 @@ GameWorld::GameWorld(bool renderable) :
     m_isRenderable(renderable),
     ///m_curLocalTime(0),
     ///m_lastSyncTime(-1),
-    m_camera(nullptr)
+    m_camera(nullptr),
+    m_musicEvent(0)
    /// m_wantedRewind(-1)
 {
 }
@@ -288,8 +289,8 @@ void GameWorld::createPlayerCamera(Player *player)
         m_worldGrid->setRenderProbe(cameraNode,2048);
 
         ///This should be moved somewhere else
-        auto music = pou::AudioEngine::createEvent("event:/Music");
-        pou::AudioEngine::playEvent(music);
+        m_musicEvent = pou::AudioEngine::createEvent("event:/Music");
+        pou::AudioEngine::playEvent(m_musicEvent);
     }
 }
 

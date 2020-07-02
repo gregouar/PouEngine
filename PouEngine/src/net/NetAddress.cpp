@@ -1,5 +1,8 @@
 #include "PouEngine/net/NetAddress.h"
 
+#include <iostream>
+#include <sstream>
+
 namespace pou
 {
 
@@ -15,6 +18,27 @@ NetAddress::NetAddress(unsigned char a, unsigned char b, unsigned char c, unsign
 
 NetAddress::NetAddress(unsigned int address, unsigned short port) :
     m_address(address), m_port(port)
+{
+
+}
+
+
+NetAddress::NetAddress(const std::string &addressAndPort)
+{
+    std::istringstream iss(addressAndPort);
+
+    char dot;
+    int a,b,c,d,port;
+
+    iss>>a>>dot>>b>>dot>>c>>dot>>d>>dot>>port;
+
+    (*this) = NetAddress(a,b,c,d,port);
+    //m_address = (a << 24) | (b << 16) | (c << 8) | d;
+    //m_port = port;
+}
+
+NetAddress::NetAddress(const std::string &address, const std::string &port) :
+    NetAddress(address+":"+port)
 {
 
 }
@@ -51,6 +75,19 @@ unsigned char NetAddress::getD() const
 unsigned short NetAddress::getPort() const
 {
     return m_port;
+}
+
+std::string NetAddress::getPortString() const
+{
+    return std::move(std::to_string(getPort()));
+}
+
+std::string NetAddress::getIpAddressString() const
+{
+    return std::move(std::to_string((int)getA())+"."+
+                     std::to_string((int)getB())+"."+
+                     std::to_string((int)getC())+"."+
+                     std::to_string((int)getD()));
 }
 
 std::string NetAddress::getAddressString() const

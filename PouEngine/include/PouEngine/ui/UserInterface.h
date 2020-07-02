@@ -29,6 +29,8 @@ class UserInterface
     private:
         UiElement m_rootElement;
 
+        ///Add focus handling (using z pos + child depth)
+
        /// NodeTypeId m_curNewId;
         ///std::list<UiElement*> m_createdElements;
 };

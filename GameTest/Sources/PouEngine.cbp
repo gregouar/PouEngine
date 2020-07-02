@@ -37,6 +37,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -69,6 +70,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -106,6 +108,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -140,6 +143,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -176,6 +180,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -212,6 +217,7 @@
 					<Add directory="GameTest/Sources/include/net/netsyncelements" />
 					<Add directory="PouEngine/include/PouEngine/sync" />
 					<Add directory="PouEngine/include/PouEngine/text" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -238,6 +244,8 @@
 					<Add directory="PouEngine/include/PouEngine/assets" />
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/include/PouEngine/ui" />
+					<Add directory="GameTest/Sources/include/states" />
+					<Add directory="PouEngine/src/ui" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -362,10 +370,12 @@
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Profiler.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/TexturesPacker.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UiButton.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiPicture.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiProgressBar.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiText.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/ui/UiTextInput.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UserInterface.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBO.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/vulkanImpl/DynamicUBODescriptor.h" />
@@ -644,10 +654,12 @@
 		<Unit filename="../../PouEngine/src/tools/Profiler.cpp" />
 		<Unit filename="../../PouEngine/src/tools/TexturesPacker.cpp" />
 		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UiButton.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiPicture.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiProgressBar.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiText.cpp" />
+		<Unit filename="../../PouEngine/src/ui/UiTextInput.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UserInterface.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBO.cpp" />
 		<Unit filename="../../PouEngine/src/vulkanImpl/DynamicUBODescriptor.cpp" />
@@ -675,6 +687,7 @@
 		<Unit filename="include/character/CharacterState.h" />
 		<Unit filename="include/character/Hitbox.h" />
 		<Unit filename="include/character/Player.h" />
+		<Unit filename="include/logic/GameData.h" />
 		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
 		<Unit filename="include/net/GameServer.h" />
@@ -682,6 +695,7 @@
 		<Unit filename="include/net/SyncElements.h" />
 		<Unit filename="include/states/ClientServerTestingState.h" />
 		<Unit filename="include/states/ClientTestingState.h" />
+		<Unit filename="include/states/MainMenuState.h" />
 		<Unit filename="include/states/PlayerServerTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />
 		<Unit filename="include/states/TestingState.h" />
@@ -702,11 +716,13 @@
 		<Unit filename="src/character/CharacterState.cpp" />
 		<Unit filename="src/character/Hitbox.cpp" />
 		<Unit filename="src/character/Player.cpp" />
+		<Unit filename="src/logic/GameData.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />
 		<Unit filename="src/net/NetMessageTypes.cpp" />
 		<Unit filename="src/states/ClientServerTestingState.cpp" />
 		<Unit filename="src/states/ClientTestingState.cpp" />
+		<Unit filename="src/states/MainMenuState.cpp" />
 		<Unit filename="src/states/PlayerServerTestingState.cpp" />
 		<Unit filename="src/states/ServerTestingState.cpp" />
 		<Unit filename="src/states/TestingState.cpp" />

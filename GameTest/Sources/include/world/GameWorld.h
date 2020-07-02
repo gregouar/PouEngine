@@ -130,6 +130,8 @@ class GameWorld
         ///std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
         ///uint32_t m_wantedRewind;
 
+        pou::SoundTypeId m_musicEvent;
+
     public:
         static const int        MAX_NBR_PLAYERS;
 

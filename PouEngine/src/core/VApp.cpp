@@ -209,6 +209,7 @@ void VApp::loop()
 
         m_eventsManager.update();
 
+        m_statesManager.handleSwitchs();
         if(m_statesManager.peekState() == nullptr)
             this->stop();
         else {

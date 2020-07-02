@@ -89,12 +89,19 @@ RenderableUiElement::~RenderableUiElement()
 
 void RenderableUiElement::render(UiRenderer *renderer)
 {
+    if(!this->isVisible())
+        return;
+
     this->updateDatum();
     renderer->addOrderedUiElements(m_datum,m_datum.modelMat3[2]);
 
     UiElement::render(renderer);
 }
 
+void RenderableUiElement::setColor(const glm::vec4 &color)
+{
+    m_color = color;
+}
 
 void RenderableUiElement::notify(NotificationSender *sender, int notificationType,
                                  void* data)

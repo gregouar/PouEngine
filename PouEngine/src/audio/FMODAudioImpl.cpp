@@ -332,6 +332,8 @@ bool FMODAudioImpl::destroyEvent(SoundTypeId id)
     if(foundedEvent == m_events.end())
         return (false);
 
+    FMOD_Studio_EventInstance_Stop(foundedEvent->second, FMOD_STUDIO_STOP_ALLOWFADEOUT);
+
     if(FMOD_Studio_EventInstance_Release(foundedEvent->second) != FMOD_OK)
         r = false;
 
