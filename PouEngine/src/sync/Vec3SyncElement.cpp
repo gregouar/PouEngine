@@ -36,6 +36,11 @@ void Vec3SyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::u
     m_precision = precision;
 }
 
+void Vec3SyncElement::operator=(const glm::vec3& v)
+{
+    this->setValue(v);
+}
+
 void Vec3SyncElement::setValue(const glm::vec3 &v)
 {
     if(m_attribute.setValue(v))
@@ -109,6 +114,11 @@ void Vec3LinSyncElement::setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm
 void Vec3LinSyncElement::setReconciliationPrecision(glm::vec3 precision)
 {
     m_attribute.setReconciliationPrecision(precision);
+}
+
+void Vec3LinSyncElement::operator=(const glm::vec3& v)
+{
+    this->setValue(v);
 }
 
 void Vec3LinSyncElement::setValue(const glm::vec3 &v)

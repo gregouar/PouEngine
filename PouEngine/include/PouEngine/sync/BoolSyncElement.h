@@ -13,6 +13,8 @@ class BoolSyncElement : public AbstractSyncElement
         BoolSyncElement(bool v);
         virtual ~BoolSyncElement();
 
+        void operator=(bool v);
+
         void    setValue(bool v);
         bool    getValue() const;
 

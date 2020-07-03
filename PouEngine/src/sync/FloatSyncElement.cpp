@@ -36,6 +36,11 @@ void FloatSyncElement::setMinMaxAndPrecision(float min, float max, size_t precis
     m_precision = precision;
 }
 
+void FloatSyncElement::operator=(float v)
+{
+    this->setValue(v);
+}
+
 void FloatSyncElement::setValue(float v)
 {
     if(m_attribute.setValue(v))

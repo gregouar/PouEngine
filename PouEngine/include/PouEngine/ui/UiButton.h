@@ -38,10 +38,12 @@ class UiButton : public UiElement
         void setColor(UiButtonState state, const glm::vec4 &color);
         void setStateElement(UiButtonState state, std::shared_ptr<UiElement> uiElement);
         void setLabel(const std::string &label, int fontSize = 0, const glm::vec4 &color = glm::vec4(0), FontAsset *font = nullptr);
-        void setToggable(bool toggable = true);
+        void setToggable(bool toggable = true, bool disableUntoggle = false);
+        void setToggled(bool toggled = true);
 
         std::shared_ptr<UiText> getLabel();
 
+        void activate();
         bool isClicked();
 
     protected:
@@ -59,6 +61,7 @@ class UiButton : public UiElement
 
         bool m_toggable;
         bool m_isToggled;
+        bool m_disableUntoggle;
 };
 
 }

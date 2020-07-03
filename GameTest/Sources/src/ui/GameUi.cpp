@@ -5,23 +5,20 @@
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/FontAsset.h"
 
-GameUi::GameUi()
+GameUi::GameUi() :
+    m_player(nullptr)
 {
-    //ctor
 }
 
 GameUi::~GameUi()
 {
-    //this->cleanup;
 }
 
 
 bool GameUi::init()
 {
-   // m_mainInterface = std::make_unique<m_mainInterface> ();
-
     m_lifeBar = this->createProgressBar(true);
-    m_lifeBar->setPosition(17,0);
+    m_lifeBar->setPosition(17,30);
     m_lifeBar->setSize({288-34,32});
     m_lifeBar->setTextureRect({17,0},{288-34,32},false);
     m_lifeBar->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
@@ -33,9 +30,9 @@ bool GameUi::init()
     m_lifeBar->addChildNode(m_uiPictureTest);
 
     m_testText = std::make_shared<pou::UiText>(this);
-    m_testText->setPosition(0,50,0);
+    m_testText->setPosition(0,0,0);
     m_testText->setFont(pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF"));
-    m_testText->setText("Poupou is da Pou");
+    //m_testText->setText("Poupou is da Pou");
     m_testText->setFontSize(24);
     m_testText->setSize(288, 0);
     m_testText->setTextAlign(pou::TextAlignType_Center);
@@ -44,25 +41,40 @@ bool GameUi::init()
     return (true);
 }
 
-/*void GameUi::cleanup()
+void GameUi::update(const pou::Time &elapsed_time)
 {
-    //m_mainInterface.reset();
+    if(m_player)
+    {
+        this->updatePlayerLife();
+        m_testText->setText(m_player->getPlayerName());
+    }
 
-}*/
-
-/*void GameUi::update(pou::Time elapsed_time)
-{
-    this->update(elapsed_time);
-}*/
-
-void GameUi::updateCharacterLife(float cur, float max)
-{
-    m_lifeBar->setMinMaxValue(0,max);
-    m_lifeBar->setValue(cur);
-
-    //std::string text = "Poupou is da Pou: "+std::to_string((int)cur)+" / "+std::to_string((int)max);
-   std::string text = "Lorem Ipsum \n is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy \n text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-    //m_testText->setFontSize((int)cur);
-    m_testText->setText(text);
+    UserInterface::update(elapsed_time);
 }
 
+void GameUi::setPlayer(Player *player)
+{
+    m_player = player;
+
+    this->startListeningTo(player, pou::NotificationType_SenderDestroyed);
+}
+
+void GameUi::updatePlayerLife(/*float cur, float max*/)
+{
+    auto playerLife = m_player->getAttributes().life;
+    auto playerMaxLife = m_player->getModelAttributes().maxLife;
+
+    m_lifeBar->setMinMaxValue(0,playerMaxLife);
+    m_lifeBar->setValue(playerLife);
+}
+
+
+void GameUi::notify(pou::NotificationSender* sender, int notificationType,
+                    void* data)
+{
+    ///pou::UserInterface::notify(sender, notificationType, data);
+
+    if(notificationType == pou::NotificationType_SenderDestroyed
+    && sender == m_player)
+        m_player = nullptr;
+}

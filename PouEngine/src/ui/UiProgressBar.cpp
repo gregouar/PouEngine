@@ -37,7 +37,7 @@ UiProgressBar::~UiProgressBar()
 
 void UiProgressBar::setValue(float v)
 {
-    if(m_value >= m_minValue && m_value <= m_maxValue)
+    if(v >= m_minValue && v <= m_maxValue)
         m_value = v;
 }
 

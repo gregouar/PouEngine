@@ -6,6 +6,7 @@
 #include "PouEngine/scene/SceneNode.h"
 #include "net/SyncElements.h"
 #include "character/Player.h"
+#include "character/PlayerSave.h"
 
 
 enum NetMessageType
@@ -153,6 +154,8 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     //int world_id;
     uint32_t lastSyncTime;
     uint32_t localTime;
+
+    std::shared_ptr<PlayerSave> playerSave;
 
     std::shared_ptr<WorldNode> nodeBuffer;
     std::shared_ptr<Character> characterBuffer;

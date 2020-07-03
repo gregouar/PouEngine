@@ -25,12 +25,16 @@ class Player : public Character
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
+        void setPlayerName(const std::string &playerName);
+        const std::string &getPlayerName();
+
         virtual const std::list<Hitbox> *getHitboxes() const;
         ItemModelAsset *getItemModel(GearType type);
         size_t getInventorySize() const;
 
         void serializePlayer(pou::Stream *stream, uint32_t clientTime = -1);
 
+        void disableSync(bool disable = true);
         virtual void syncFromPlayer(Player *srcPlayer);
 
         ///virtual void    setTimeShift(int shift);
@@ -57,7 +61,9 @@ class Player : public Character
         bool m_userControlled;
 
     private:
-        pou::SyncComponent m_syncComponent;
+        pou::SyncComponent m_playerSyncComponent;
+
+        pou::StringSyncElement m_playerName;
 
         //pou::SyncTimer  m_dashDelayTimer, m_dashTimer;
         //bool        m_isDashing;

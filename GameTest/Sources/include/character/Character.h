@@ -204,7 +204,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         bool m_isDestinationSet;
         glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent
 
-        pou::SyncComponent m_syncComponent;
+        pou::SyncComponent m_characterSyncComponent;
         ///pou::SyncAttribute<std::string> m_curAnimation;
 
 

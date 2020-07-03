@@ -37,6 +37,11 @@ void IntSyncElement::useMinMax(int min, int max)
     m_max = max;
 }
 
+void IntSyncElement::operator=(int v)
+{
+    this->setValue(v);
+}
+
 void IntSyncElement::setValue(int v)
 {
     if(m_attribute.setValue(v))

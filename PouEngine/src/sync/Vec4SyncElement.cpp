@@ -37,6 +37,11 @@ void Vec4SyncElement::setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm::u
     m_precision = precision;
 }
 
+void Vec4SyncElement::operator=(const glm::vec4& v)
+{
+    this->setValue(v);
+}
+
 void Vec4SyncElement::setValue(const glm::vec4 &v)
 {
     if(m_attribute.setValue(v))
@@ -108,6 +113,12 @@ void Vec4LinSyncElement::setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm
     m_max = max;
     m_precision = precision;
 }
+
+void Vec4LinSyncElement::operator=(const glm::vec4& v)
+{
+    this->setValue(v);
+}
+
 
 void Vec4LinSyncElement::setValue(const glm::vec4 &v)
 {

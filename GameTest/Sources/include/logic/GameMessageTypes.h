@@ -7,38 +7,49 @@
 class Character;
 class WorldNode;
 class WorldSprite;
+class GameWorld;
 
 enum GameMessageType
 {
     GameMessageType_First = pou::NotificationType_Custom,
-    GameMessageType_NodeUpdated,
-    GameMessageType_SpriteUpdated,
-    GameMessageType_CharacterUpdated,
-    GameMessageType_CharacterDamaged,
+    GameMessageType_World_NodeUpdated,
+    GameMessageType_World_SpriteUpdated,
+    GameMessageType_World_CharacterUpdated,
+    GameMessageType_World_CharacterDamaged,
+    GameMessageType_Game_ChangeWorld,
+    GameMessageType_Net_Connected,
+    GameMessageType_Net_Disconnected,
     GameMessageType_Last,
 };
 
-struct GameMessage_NodeUpdated
+struct GameMessage_World_NodeUpdated
 {
     WorldNode   *node;
 };
 
-struct GameMessage_SpriteUpdated
+struct GameMessage_World_SpriteUpdated
 {
     WorldSprite *sprite;
 };
 
-struct GameMessage_CharacterUpdated
+struct GameMessage_World_CharacterUpdated
 {
     Character   *character;
 };
 
-struct GameMessage_CharacterDamaged
+struct GameMessage_World_CharacterDamaged
 {
     Character   *character;
     int         damages;
     glm::vec2   direction;
     //bool        fatal;
+};
+
+struct GameMessage_Game_ChangeWorld
+{
+    int clientId;
+    int playerId;
+    GameWorld *world;
 };
 
 

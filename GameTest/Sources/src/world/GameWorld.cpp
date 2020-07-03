@@ -29,25 +29,6 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 {
-    /**this->processPlayerActions(elapsed_time);
-    //if(m_isServer)
-        m_curLocalTime += elapsed_time.count();**/
-
-    //m_curLocalTime += elapsed_time.count();
-   /** if(!isRewinding)
-    {
-        m_syncTime = m_curLocalTime;  //We want to update the updateTime of syncedAtt with the localTime before rewinding !
-        if(m_wantedRewind != (uint32_t)(-1))
-        {
-            //std::cout<<"Rewind to:"<<m_wantedRewind<<std::endl;
-            uint32_t wantedRewind = m_wantedRewind;
-            m_wantedRewind = (uint32_t)(-1);
-            this->rewind(wantedRewind);
-        }
-    }**/
-
-    //std::cout<<"LocalTime:"<<m_curLocalTime<<std::endl;
-
     m_syncComponent.update(elapsed_time);
 
     auto localTime = m_syncComponent.getLocalTime();
@@ -57,7 +38,8 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
     while(!m_addedPlayersList.empty())
     {
-        this->initPlayer(m_addedPlayersList.back());
+        this->initPlayer(m_addedPlayersList.back().first,
+                         m_addedPlayersList.back().second);
         m_addedPlayersList.pop_back();
     }
 
@@ -68,22 +50,9 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     }
 
     this->updateSunLight(elapsed_time);
-    m_scene->update(elapsed_time, localTime /**m_syncTime**/);
-
+    m_scene->update(elapsed_time, localTime);
 
     this->processPlayerActions();
-
-    /**uint32_t cleanTime = m_curLocalTime - GameClient::MAX_PLAYER_REWIND;///GameServer::MAX_REWIND_AMOUNT;
-    auto cleanPlayerActionsIt = m_playerActions.lower_bound(cleanTime);
-    if(cleanPlayerActionsIt != m_playerActions.begin())
-        (--cleanPlayerActionsIt);
-
-    if(cleanPlayerActionsIt != m_playerActions.end())
-        m_playerActions.erase(m_playerActions.begin(), cleanPlayerActionsIt);**/
-
-   // while(!m_playerActions.empty()
-    //&& m_playerActions.begin()->first < ))
-      //  m_playerActions.erase(m_playerActions.begin());
 }
 
 void GameWorld::render(pou::RenderWindow *renderWindow)
@@ -121,7 +90,7 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     std::cout<<"End Rewind at "<<m_curLocalTime<<std::endl;
 }**/
 
-size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
+size_t GameWorld::askToAddPlayer(std::shared_ptr<PlayerSave> playerSave, /*const std::string &playerName,*/ bool isLocalPlayer)
 {
     auto player = std::make_shared<Player>(isLocalPlayer);
     auto player_id = m_syncComponent.syncElement(player);
@@ -134,7 +103,9 @@ size_t GameWorld::askToAddPlayer(bool isLocalPlayer)
     else
         player->disableDamageDealing();
 
-    m_addedPlayersList.push_back(player_id);
+    //player->setPlayerName(playerName);
+
+    m_addedPlayersList.push_back({player_id, playerSave});
     return player_id;
 }
 
@@ -238,12 +209,12 @@ uint32_t GameWorld::getLocalTime()
     return m_lastSyncTime;
 }**/
 
-Character *GameWorld::getSyncCharacter(int character_id)
+Character *GameWorld::getCharacter(int character_id)
 {
     return m_syncComponent.getCharacter(character_id).get();
 }
 
-Player *GameWorld::getSyncPlayer(int player_id)
+Player *GameWorld::getPlayer(int player_id)
 {
     return m_syncComponent.getPlayer(player_id).get();
 }

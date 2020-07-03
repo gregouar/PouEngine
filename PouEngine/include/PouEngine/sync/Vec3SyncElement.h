@@ -16,6 +16,8 @@ class Vec3SyncElement : public AbstractSyncElement
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision);
 
+        void operator=(const glm::vec3& v);
+
         void setValue(const glm::vec3 &v);
         const glm::vec3 &getValue() const;
 
@@ -41,6 +43,8 @@ class Vec3LinSyncElement : public AbstractSyncElement
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec3 min, glm::vec3 max, glm::uvec3 precision);
         void setReconciliationPrecision(glm::vec3 precision);
+
+        void operator=(const glm::vec3& v);
 
         void setValue(const glm::vec3 &v);
         const glm::vec3 &getValue() const;

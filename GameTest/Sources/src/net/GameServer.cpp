@@ -110,7 +110,7 @@ void GameServer::update(const pou::Time &elapsedTime)
 }
 
 
-void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
+/*void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
 {
     if(localClientNbr >= m_clientInfos.size())
         return;
@@ -124,7 +124,7 @@ void GameServer::render(pou::RenderWindow *renderWindow, size_t localClientNbr)
     pou::Profiler::pushClock("Render player server world");
     worldIt->second->render(renderWindow);
     pou::Profiler::popClock();
-}
+}*/
 
 
 void GameServer::syncClients(const pou::Time &elapsedTime)
@@ -132,7 +132,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
     for(auto &clientInfosIt : m_clientInfos)
     {
         auto &clientInfos = clientInfosIt.second;
-        auto clientNbr = clientInfosIt.first;
+        auto clientId = clientInfosIt.first;
 
         if(clientInfos.isLocalPlayer)
             continue;
@@ -140,11 +140,12 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
         if(clientInfos.world_id == 0)
         {
             auto &world = m_worlds.find(m_curWorldId)->second;
-            size_t player_id = world->askToAddPlayer();
 
             clientInfos.lastSyncTime  = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;
-            clientInfos.player_id     = player_id;
+
+            /*size_t player_id = world->askToAddPlayer(m_playerSave);
+            clientInfos.player_id     = player_id;*/
         }
 
         if(!clientInfos.playerCreated)
@@ -166,9 +167,9 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
             clientInfos.playerCreated = true;
             world->createWorldInitializationMsg(worldInitMsg);
-            m_server->sendBigReliableMessage(clientNbr, worldInitMsg);
+            m_server->sendBigReliableMessage(clientId, worldInitMsg);
 
-            pou::Logger::write("Sending WorldInit #"+std::to_string(m_curWorldId)+" to client #"+std::to_string(clientNbr));
+            pou::Logger::write("Sending WorldInit #"+std::to_string(m_curWorldId)+" to client #"+std::to_string(clientId));
             continue;
         }
 
@@ -189,30 +190,30 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
             worldSyncMsg->clientTime = clientInfos.localTime;
             world->getSyncComponent()->createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
-            m_server->sendMessage(clientNbr, worldSyncMsg, true);
+            m_server->sendMessage(clientId, worldSyncMsg, true);
         }
     }
 }
 
-int GameServer::addLocalPlayer()
+int GameServer::addLocalPlayer(std::shared_ptr<PlayerSave> playerSave/*const std::string &playerName*/)
 {
     if(!m_allowLocalPlayers)
         return (-1);
 
-    auto clientNbr = m_server->connectLocalClient();
-    if(clientNbr == m_server->getMaxNbrClients())
+    auto clientId = m_server->connectLocalClient();
+    if(clientId == m_server->getMaxNbrClients())
         return (-1);
 
     auto worldIt = m_worlds.find(m_curWorldId);
     if(worldIt == m_worlds.end())
         return (-1);
 
-    this->addClient(clientNbr, true);
-    auto player_id = worldIt->second->askToAddPlayer(true);
-    m_clientInfos[clientNbr].world_id  = m_curWorldId;
-    m_clientInfos[clientNbr].player_id = player_id;
+    this->addClient(clientId, true);
+    auto player_id = worldIt->second->askToAddPlayer(playerSave, true);
+    m_clientInfos[clientId].world_id  = m_curWorldId;
+    m_clientInfos[clientId].player_id = player_id;
 
-    return clientNbr;
+    return clientId;
 }
 
 size_t GameServer::generateWorld()
@@ -249,14 +250,14 @@ unsigned short GameServer::getPort() const
 }
 
 
-Player* GameServer::getPlayer(size_t clientNbr)
+Player* GameServer::getPlayer(size_t clientId)
 {
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
     if(!world)
         return (nullptr);
 
-    return world->getSyncPlayer(clientInfos->player_id);
+    return world->getPlayer(clientInfos->player_id);
 }
 
 
@@ -278,7 +279,7 @@ void GameServer::sendMsgTest(bool reliable, bool forceSend)
 }
 
 
-void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg)
+void GameServer::processMessage(int clientId, std::shared_ptr<pou::NetMessage> msg)
 {
     if(!msg)
         return;
@@ -287,53 +288,60 @@ void GameServer::processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> 
     {
         case NetMessageType_Test:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_Test>(msg);
-            pou::Logger::write("Server received test message from client #"+std::to_string(clientNbr)
+            pou::Logger::write("Server received test message from client #"+std::to_string(clientId)
                           +" with value="+std::to_string(castMsg->test_value)+" and id "+std::to_string(castMsg->id));
         }break;
 
         case NetMessageType_ConnectionStatus:{
             auto castMsg = std::dynamic_pointer_cast<pou::NetMessage_ConnectionStatus>(msg);
             if(castMsg->connectionStatus == pou::ConnectionStatus_Connected)
-                this->addClient(clientNbr);
+                this->addClient(clientId);
             else if(castMsg->connectionStatus == pou::ConnectionStatus_Disconnected)
-                this->disconnectClient(clientNbr);
+                this->disconnectClient(clientId);
         }break;
 
         case NetMessageType_PlayerSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(msg);
-            this->updateClientSync(clientNbr, castMsg);
+            this->updateClientSync(clientId, castMsg);
         }break;
 
         case NetMessageType_PlayerEvent:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerEvent>(msg);
-            this->processPlayerEvent(clientNbr, castMsg);
+            this->processPlayerEvent(clientId, castMsg);
         }break;
 
         /*case NetMessageType_AskForWorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(msg);
-            this->updateClientSync(clientNbr, castMsg);
+            this->updateClientSync(clientId, castMsg);
         }break;*/
 
         /*case NetMessageType_PlayerAction:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_PlayerAction>(msg);
-            this->processPlayerAction(clientNbr, castMsg->playerAction,  castMsg->clientTime);
+            this->processPlayerAction(clientId, castMsg->playerAction,  castMsg->clientTime);
         }break;*/
     }
 }
 
-void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_PlayerSync> msg)
+void GameServer::updateClientSync(int clientId, std::shared_ptr<NetMessage_PlayerSync> msg)
 {
-    if(msg->lastSyncTime == (uint32_t)(-1))
-        return;
-
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
     if(!world)
         return;
 
-    //std::cout<<"Received Sync from client #"<<clientNbr<<" of time: "<<msg->localTime<<std::endl;
+    if(msg->lastSyncTime == (uint32_t)(-1))
+    {
+        size_t player_id = world->askToAddPlayer(msg->playerSave);
 
-    world->getSyncComponent()->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientNbr));
+        auto clientInfosIt = m_clientInfos.find(clientId);
+        clientInfosIt->second.player_id = player_id;
+
+        return;
+    }
+
+    //std::cout<<"Received Sync from client #"<<clientId<<" of time: "<<msg->localTime<<std::endl;
+
+    world->getSyncComponent()->syncPlayerFromMsg(msg, clientInfos->player_id, m_server->getRTT(clientId));
 
     if(uint32less(clientInfos->lastSyncTime,msg->lastSyncTime))
         clientInfos->lastSyncTime = msg->lastSyncTime;
@@ -344,9 +352,9 @@ void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_Play
     }
 }
 
-void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_PlayerEvent> msg)
+void GameServer::processPlayerEvent(int clientId, std::shared_ptr<NetMessage_PlayerEvent> msg)
 {
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
     if(!world)
         return;
@@ -355,12 +363,12 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
     world->getSyncComponent()->addPlayerEvent(msg/*, clientInfos->player_id*/);
 }
 
-/*void GameServer::updateClientSync(int clientNbr, std::shared_ptr<NetMessage_AskForWorldSync> msg)
+/*void GameServer::updateClientSync(int clientId, std::shared_ptr<NetMessage_AskForWorldSync> msg)
 {
     if(msg->lastSyncTime == (uint32_t)(-1))
         return;
 
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
     if(!world)
         return;
@@ -435,16 +443,16 @@ void GameServer::processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_Pl
     }
 }*/
 
-void GameServer::addPlayerAction(size_t clientNbr, const PlayerAction &action/*, uint32_t localTime*/)
+/*void GameServer::addPlayerAction(size_t clientId, const PlayerAction &action)
 {
-    auto [clientInfos, world] = this->getClientInfosAndWorld(clientNbr);
+    auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
     if(world)
-        world->addPlayerAction(clientInfos->player_id, action/*,localTime*/);
-}
+        world->addPlayerAction(clientInfos->player_id, action);
+}*/
 
 
-void GameServer::addClient(int clientNbr, bool isLocalClient)
+void GameServer::addClient(int clientId, bool isLocalClient)
 {
     GameClientInfos clientInfos;
     clientInfos.isLocalPlayer = isLocalClient;
@@ -455,12 +463,12 @@ void GameServer::addClient(int clientNbr, bool isLocalClient)
     clientInfos.player_id = 0;
     clientInfos.world_id = 0;
 
-    m_clientInfos.insert({clientNbr, clientInfos});
+    m_clientInfos.insert({clientId, clientInfos});
 }
 
-void GameServer::disconnectClient(int clientNbr)
+void GameServer::disconnectClient(int clientId)
 {
-    auto it = m_clientInfos.find(clientNbr);
+    auto it = m_clientInfos.find(clientId);
     if(it == m_clientInfos.end())
         return;
 
@@ -512,9 +520,9 @@ void GameServer::threading()
 }
 
 
-std::pair<GameClientInfos*, GameWorld*> GameServer::getClientInfosAndWorld(size_t clientNbr)
+std::pair<GameClientInfos*, GameWorld*> GameServer::getClientInfosAndWorld(size_t clientId)
 {
-    auto clientInfosIt = m_clientInfos.find(clientNbr);
+    auto clientInfosIt = m_clientInfos.find(clientId);
     if(clientInfosIt == m_clientInfos.end())
         return {nullptr, nullptr};
     auto *clientInfos = &clientInfosIt->second;

@@ -158,8 +158,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     this->setAiComponent(std::make_unique<AiComponent>(this));
     ///m_syncComponent.addSyncSubComponent(m_input->getSyncComponent());
 
-    Character::m_syncComponent.addSyncElement(&m_modelAttributes);
-    Character::m_syncComponent.addSyncElement(&m_attributes);
+    m_characterSyncComponent.addSyncElement(&m_modelAttributes);
+    m_characterSyncComponent.addSyncElement(&m_attributes);
 }
 
 Character::~Character()
@@ -215,8 +215,8 @@ bool Character::createFromModel(CharacterModelAsset *model)
         WorldNode::disableRotationSync();
         ///m_node->disableRotationSync();
 
-    Character::m_syncComponent.updateLastUpdateTime();
-    m_lastModelUpdateTime = Character::m_syncComponent.getLocalTime();
+    m_characterSyncComponent.updateLastUpdateTime();
+    m_lastModelUpdateTime = m_characterSyncComponent.getLocalTime();
     ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     this->switchState(CharacterStateType_Standing);
@@ -382,12 +382,12 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
     {
         att.life -= damages;
 
-        GameMessage_CharacterDamaged msg;
+        GameMessage_World_CharacterDamaged msg;
         msg.character   = this;
         msg.damages     = damages;
         msg.direction   = direction;
 
-        pou::MessageBus::postMessage(GameMessageType_CharacterDamaged, &msg);
+        pou::MessageBus::postMessage(GameMessageType_World_CharacterDamaged, &msg);
     }
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
     m_attributes.setValue(att);
@@ -550,7 +550,7 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 
     float oldLife = m_attributes.getValue().life;
 
-    Character::m_syncComponent.update(elapsedTime, localTime);
+    m_characterSyncComponent.update(elapsedTime, localTime);
     m_aiComponent->update(elapsedTime, localTime);
     m_input->update(elapsedTime, localTime);
 
@@ -582,9 +582,9 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
         this->kill();
 
 
-    GameMessage_CharacterUpdated msg;
+    GameMessage_World_CharacterUpdated msg;
     msg.character = this;
-    pou::MessageBus::postMessage(GameMessageType_CharacterUpdated, &msg);
+    pou::MessageBus::postMessage(GameMessageType_World_CharacterUpdated, &msg);
 }
 
 /**void Character::rewind(uint32_t time)
@@ -708,7 +708,7 @@ void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDela
 {
     //m_node->setReconciliationDelay(serverDelay, clientDelay);
     WorldNode::setReconciliationDelay(serverDelay, clientDelay);
-    Character::m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
+    m_characterSyncComponent.setReconciliationDelay(serverDelay, clientDelay);
 
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
     if(m_aiComponent)
@@ -733,7 +733,7 @@ uint32_t Character::getLastCharacterUpdateTime()
 
     return lastUpdate;**/
 
-    auto lastUpdate = Character::m_syncComponent.getLastUpdateTime();
+    auto lastUpdate = m_characterSyncComponent.getLastUpdateTime();
 
     lastUpdate = uint32max(m_input->getSyncComponent()->getLastUpdateTime(), lastUpdate);
     if(m_aiComponent)
@@ -759,7 +759,7 @@ void Character::disableDeath(bool disable)
 
 void Character::disableSync(bool disable)
 {
-    Character::m_syncComponent.disableSync(disable);
+    m_characterSyncComponent.disableSync(disable);
     m_input->getSyncComponent()->disableSync(disable);
     m_aiComponent->getSyncComponent()->disableSync(disable);
 
@@ -844,7 +844,7 @@ void Character::serializeCharacter(pou::Stream *stream, uint32_t clientTime)
         }
     }**/
 
-    Character::m_syncComponent.serialize(stream, clientTime);
+    m_characterSyncComponent.serialize(stream, clientTime);
     m_input->getSyncComponent()->serialize(stream, clientTime);
     m_aiComponent->getSyncComponent()->serialize(stream, clientTime);
 }
@@ -857,7 +857,7 @@ void Character::syncFromCharacter(Character *srcCharacter)
     ///if(m_disableSync)
        /// return;
 
-    Character::m_syncComponent.syncFrom(srcCharacter->Character::m_syncComponent);
+    m_characterSyncComponent.syncFrom(srcCharacter->m_characterSyncComponent);
 
     m_input->getSyncComponent()->syncFrom(*srcCharacter->m_input->getSyncComponent());
     m_aiComponent->getSyncComponent()->syncFrom(*srcCharacter->m_aiComponent->getSyncComponent());

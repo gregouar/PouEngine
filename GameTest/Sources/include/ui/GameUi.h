@@ -5,9 +5,11 @@
 #include "PouEngine/ui/UiPicture.h"
 #include "PouEngine/ui/UiText.h"
 
+#include "character/Player.h"
+
 #include <memory>
 
-class GameUi : public pou::UserInterface
+class GameUi : public pou::UserInterface, public pou::NotificationListener
 {
     public:
         GameUi();
@@ -15,12 +17,24 @@ class GameUi : public pou::UserInterface
 
         bool init();
 
-        void updateCharacterLife(float cur, float max);
+        virtual void update(const pou::Time &elapsedTime) override;
+
+        void setPlayer(Player *player);
+
+        //void updateCharacterLife(float cur, float max);
 
     protected:
        // void cleanup();
 
+        void updatePlayerLife();
+
+        virtual void notify(pou::NotificationSender*, int notificationType,
+                            void* data);
+
+
     private:
+        Player *m_player;
+
         //std::unique_ptr<pou::UserInterface>     m_mainInterface;
         std::shared_ptr<pou::UiPicture>     m_uiPictureTest;
         std::shared_ptr<pou::UiProgressBar> m_lifeBar;

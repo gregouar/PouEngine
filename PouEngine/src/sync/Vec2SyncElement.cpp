@@ -36,6 +36,11 @@ void Vec2SyncElement::setMinMaxAndPrecision(glm::vec2 min, glm::vec2 max, glm::u
     m_precision = precision;
 }
 
+void Vec2SyncElement::operator=(const glm::vec2& v)
+{
+    this->setValue(v);
+}
+
 void Vec2SyncElement::setValue(const glm::vec2 &v)
 {
     if(m_attribute.setValue(v))

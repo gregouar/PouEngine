@@ -97,6 +97,7 @@ enum NotificationType
     NotificationType_ModelChanged,
     NotificationType_TextureChanged,
     NotificationType_TextureIsAboutToChange,
+    NotificationType_Ui_ButtonClicked,
     //NotificationType_UpdateShadow,
     NotificationType_Custom,
    // NotificationType_LightMoved,

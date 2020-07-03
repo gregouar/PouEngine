@@ -7,16 +7,13 @@
 
 #include "PouEngine/renderers/SceneRenderer.h"
 
-#include "PouEngine/ui/UserInterface.h"
-#include "PouEngine/ui/UiPicture.h"
-
 #include "net/GameServer.h"
 #include "net/GameClient.h"
 #include "ui/GameUi.h"
 
 class PlayerServerTestingState : public pou::GameState, public Singleton<PlayerServerTestingState>
 {
-     friend class Singleton<PlayerServerTestingState>;
+    friend class Singleton<PlayerServerTestingState>;
 
     public:
         virtual void entered();
@@ -27,6 +24,8 @@ class PlayerServerTestingState : public pou::GameState, public Singleton<PlayerS
         virtual void handleEvents(const EventsManager *eventsManager);
         virtual void update(const pou::Time &elapsedTime);
         virtual void draw(pou::RenderWindow *renderWindow);
+
+        void setConnectionData(int port, std::shared_ptr<PlayerSave> playerSave);
 
     protected:
         PlayerServerTestingState();
@@ -39,9 +38,12 @@ class PlayerServerTestingState : public pou::GameState, public Singleton<PlayerS
         bool m_firstEntering;
 
         GameServer  m_gameServer;
-        size_t      m_localClientNbr;
 
-        GameUi m_gameUi;
+        int m_port;
+        std::shared_ptr<PlayerSave> m_playerSave;
+        //size_t      m_localClientNbr;
+
+        //GameUi m_gameUi;
 };
 
 #endif // PLAYERSERVERTESTINGSTATE_H

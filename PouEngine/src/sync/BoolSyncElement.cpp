@@ -19,6 +19,11 @@ BoolSyncElement::~BoolSyncElement()
     //dtor
 }
 
+void BoolSyncElement::operator=(bool v)
+{
+    this->setValue(v);
+}
+
 void BoolSyncElement::setValue(bool v)
 {
     if(m_attribute.setValue(v))

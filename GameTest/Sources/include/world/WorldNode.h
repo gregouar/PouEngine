@@ -59,7 +59,7 @@ class WorldNode : public pou::SceneNode
 
     private:
         uint32_t m_nodeSyncId;
-        pou::SyncComponent m_syncComponent;
+        pou::SyncComponent m_nodeSyncComponent;
         uint32_t m_lastParentUpdateTime;
 
     public:

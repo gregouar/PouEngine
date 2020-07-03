@@ -9,7 +9,6 @@
 #include "states/TestingState.h"
 #include "states/ServerTestingState.h"
 #include "states/ClientTestingState.h"
-#include "states/ClientServerTestingState.h"
 #include "states/PlayerServerTestingState.h"
 #include "states/MainMenuState.h"
 
@@ -47,7 +46,6 @@ int main()
             app.run(MainMenuState::instance());
             //app.run(PlayerServerTestingState::instance());
             //app.run(ClientTestingState::instance());
-            //app.run(ClientServerTestingState::instance());
         #endif
 
         }

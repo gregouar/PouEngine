@@ -8,8 +8,6 @@ Player::Player(bool userControlled) :
 {
     m_gearsModel.resize(NBR_GEAR_TYPES, nullptr);
 
-    ///m_lastPlayerUpdateTime  = -1;
-    ///m_lastPlayerSyncTime    = -1;
     m_lastGearUpdateTime    = -1;
     m_lastInventoryUpdateTime = -1;
 
@@ -17,7 +15,7 @@ Player::Player(bool userControlled) :
     m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
-    ///m_node->setSyncReconciliationPrecision(glm::vec3(16));
+    m_playerSyncComponent.addSyncElement(&m_playerName);
 }
 
 Player::~Player()
@@ -41,7 +39,7 @@ bool Player::setModel(CharacterModelAsset *model)
     if(!Character::createFromModel(model))
         return (false);
 
-    Player::m_syncComponent.updateLastUpdateTime();
+    m_playerSyncComponent.updateLastUpdateTime();
 
     return (true);
 }
@@ -107,8 +105,8 @@ ItemModelAsset* Player::useGear(ItemModelAsset *itemModel)
     m_gearsModel[type] = itemModel;
     this->updateGearsAttributes();
 
-    Player::m_syncComponent.updateLastUpdateTime();
-    m_lastGearUpdateTime = Player::m_syncComponent.getLocalTime();
+    m_playerSyncComponent.updateLastUpdateTime();
+    m_lastGearUpdateTime = m_playerSyncComponent.getLocalTime();
 
     return (oldGear);
 }
@@ -128,9 +126,9 @@ ItemModelAsset* Player::addItemToInventory(ItemModelAsset* newItem, size_t itemN
     auto oldItem = m_inventory[itemNbr];
     m_inventory[itemNbr] = newItem;
 
-    Player::m_syncComponent.updateLastUpdateTime();
+    m_playerSyncComponent.updateLastUpdateTime();
     //this->setLastPlayerUpdateTime(m_curLocalTime);
-    m_lastInventoryUpdateTime = Player::m_syncComponent.getLocalTime();
+    m_lastInventoryUpdateTime = m_playerSyncComponent.getLocalTime();
 
     return oldItem;
 }
@@ -170,20 +168,20 @@ void Player::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     //std::cout<<"PosX:"<<m_syncPosition.getValue().x<<std::endl;
 
-    /**if(m_timeShift.update(elapsedTime, localTime))
-    {
-        int timeShift = m_timeShift.getValue();
-        if(timeShift > 0)
-            this->setReconciliationDelay(0, timeShift);
-        else
-            this->setReconciliationDelay(-timeShift-1, 1);
-
-       //this->setSyncDelay(m_timeShift.getValue());
-    }**/
-
-    Player::m_syncComponent.update(elapsedTime, localTime);
+    m_playerSyncComponent.update(elapsedTime, localTime);
 
     Character::update(elapsedTime, localTime);
+}
+
+void Player::setPlayerName(const std::string &playerName)
+{
+    m_playerName = playerName;
+    //m_playerName.setValue(playerName);
+}
+
+const std::string &Player::getPlayerName()
+{
+    return m_playerName.getValue();
 }
 
 const std::list<Hitbox> *Player::getHitboxes() const
@@ -236,6 +234,13 @@ void Player::serializePlayer(pou::Stream *stream, uint32_t clientTime)
         if(stream->isReading())
             m_timeShift.setValue(timeShift, true);
     }**/
+    m_playerSyncComponent.serialize(stream, clientTime);
+}
+
+void Player::disableSync(bool disable)
+{
+    m_playerSyncComponent.disableSync(disable);
+    Character::disableSync(disable);
 }
 
 void Player::syncFromPlayer(Player *srcPlayer)
@@ -250,7 +255,7 @@ void Player::syncFromPlayer(Player *srcPlayer)
 
     ///m_lastPlayerSyncTime = srcPlayer->m_curLocalTime;
 
-    Player::m_syncComponent.syncFrom(srcPlayer->Player::m_syncComponent);
+    m_playerSyncComponent.syncFrom(srcPlayer->m_playerSyncComponent);
 }
 
 /**void Player::setTimeShift(int shift)
@@ -266,7 +271,7 @@ void Player::syncFromPlayer(Player *srcPlayer)
 
 uint32_t Player::getLastPlayerUpdateTime()
 {
-    return Player::m_syncComponent.getLastUpdateTime();
+    return m_playerSyncComponent.getLastUpdateTime();
 }
 
 uint32_t Player::getLastGearUpdateTime()

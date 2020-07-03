@@ -52,11 +52,11 @@ uint16_t AbstractServer::getMaxNbrClients() const
     return m_clients.size();
 }
 
-bool AbstractServer::isClientConnected(uint16_t clientNbr) const
+bool AbstractServer::isClientConnected(uint16_t clientId) const
 {
-    if(clientNbr > getMaxNbrClients())
+    if(clientId > getMaxNbrClients())
         return (false);
-    return (m_clients[clientNbr].status == ConnectionStatus_Connected);
+    return (m_clients[clientId].status == ConnectionStatus_Connected);
 }
 
 

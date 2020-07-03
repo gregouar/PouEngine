@@ -16,6 +16,8 @@ class Vec2SyncElement : public AbstractSyncElement
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec2 min, glm::vec2 max, glm::uvec2 precision);
 
+        void operator=(const glm::vec2& v);
+
         void setValue(const glm::vec2 &v);
         const glm::vec2 &getValue() const;
 

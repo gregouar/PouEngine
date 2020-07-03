@@ -7,9 +7,10 @@
 #include "PouEngine/ui/UserInterface.h"
 #include "PouEngine/ui/UiPicture.h"
 #include "PouEngine/ui/UiButton.h"
+#include "PouEngine/ui/UiToggleButtonsGroup.h"
 #include "PouEngine/ui/UiTextInput.h"
 
-class MainMenuState : public pou::GameState, public Singleton<MainMenuState>
+class MainMenuState : public pou::GameState, public Singleton<MainMenuState>, public pou::NotificationListener
 {
     friend class Singleton<MainMenuState>;
 
@@ -29,6 +30,12 @@ class MainMenuState : public pou::GameState, public Singleton<MainMenuState>
 
         void init();
 
+        void connectionToServerAction();
+        void createServerAction();
+
+        virtual void notify(pou::NotificationSender*, int notificationType,
+                            void* data);
+
     protected:
 
     private:
@@ -41,6 +48,9 @@ class MainMenuState : public pou::GameState, public Singleton<MainMenuState>
         std::shared_ptr<pou::UiTextInput> m_serverAddressInput;
         std::shared_ptr<pou::UiTextInput> m_serverPortInput;
         std::shared_ptr<pou::UiTextInput> m_characterNameInput;
+
+        std::shared_ptr<pou::UiToggleButtonsGroup> m_charSelectButtons;
+        //std::shared_ptr<pou::UiButton> m_charSelectButton[3];
 };
 
 #endif // MAINMENUSTATE_H

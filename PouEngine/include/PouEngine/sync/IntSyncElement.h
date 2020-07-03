@@ -16,6 +16,8 @@ class IntSyncElement : public AbstractSyncElement
         void useBits(size_t bits);
         void useMinMax(int min, int max);
 
+        void operator=(int v);
+
         void    setValue(int v);
         int     getValue() const;
 

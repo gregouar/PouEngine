@@ -10,6 +10,7 @@
 #include "PouEngine/renderers/UiRenderer.h"
 
 #include "states/MainMenuState.h"
+#include "states/InGameState.h"
 
 #include "logic/GameData.h"
 
@@ -28,20 +29,25 @@ PlayerServerTestingState::~PlayerServerTestingState()
 void PlayerServerTestingState::init()
 {
     m_firstEntering = false;
-
-    m_gameUi.init();
 }
 
 void PlayerServerTestingState::entered()
 {
-    m_gameServer.create(GameData::serverAddress.getPort(),true);
+    m_gameServer.create(m_port /*GameData::serverAddress.getPort()*/,true);
     m_gameServer.generateWorld();
 
-    int localClientNbr = m_gameServer.addLocalPlayer();
-    m_localClientNbr = (size_t)localClientNbr;
+    int localClientNbr = m_gameServer.addLocalPlayer(m_playerSave);
+    //m_localClientNbr = (size_t)localClientNbr;
 
     if(m_firstEntering)
         this->init();
+
+    auto inGameState = InGameState::instance();
+    inGameState->setClientId(localClientNbr);
+
+    m_manager->pushState(inGameState);
+    auto [clientInfos, world]  = m_gameServer.getClientInfosAndWorld(localClientNbr);
+    inGameState->changeWorld(world, clientInfos->player_id);
 }
 
 void PlayerServerTestingState::leaving()
@@ -62,85 +68,35 @@ void PlayerServerTestingState::obscuring()
 
 void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
 {
-    m_gameUi.handleEvents(eventsManager);
-
     if(eventsManager->keyReleased(GLFW_KEY_ESCAPE))
         m_manager->switchState(MainMenuState::instance());
 
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
-
-    if(eventsManager->keyPressed(GLFW_KEY_1))
-        m_gameServer.addPlayerAction(m_localClientNbr, PlayerAction(PlayerActionType_UseItem,1));
-    if(eventsManager->keyPressed(GLFW_KEY_2))
-        m_gameServer.addPlayerAction(m_localClientNbr, PlayerAction(PlayerActionType_UseItem,2));
-    if(eventsManager->keyPressed(GLFW_KEY_3))
-        m_gameServer.addPlayerAction(m_localClientNbr, PlayerAction(PlayerActionType_UseItem,3));
-    if(eventsManager->keyPressed(GLFW_KEY_4))
-        m_gameServer.addPlayerAction(m_localClientNbr, PlayerAction(PlayerActionType_UseItem,4));
-    if(eventsManager->keyPressed(GLFW_KEY_5))
-        m_gameServer.addPlayerAction(m_localClientNbr, PlayerAction(PlayerActionType_UseItem,5));
-
-    glm::vec2 charDirection = {0,0};
-    if(eventsManager->keyIsPressed(GLFW_KEY_S))
-        charDirection.y = 1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_W))
-        charDirection.y = -1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_A))
-        charDirection.x = -1;
-    if(eventsManager->keyIsPressed(GLFW_KEY_D))
-        charDirection.x = 1;
-    if(eventsManager->keyPressed(GLFW_KEY_LEFT_ALT))
-        m_gameServer.addPlayerAction(m_localClientNbr,
-                                         PlayerAction(PlayerActionType_Dash));
-    m_gameServer.addPlayerAction(m_localClientNbr,
-                                     PlayerAction(PlayerActionType_Walk, charDirection));
-
-    m_gameServer.addPlayerAction(m_localClientNbr,
-                                     PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
-
-    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
-        m_gameServer.addPlayerAction(m_localClientNbr,
-                                         PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
-    if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
-        m_gameServer.addPlayerAction(m_localClientNbr,
-                                        PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
-    if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
-        m_gameServer.addPlayerAction(m_localClientNbr,
-                                         PlayerAction(PlayerActionType_CombatMode));
-
-
     if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameServer.sendMsgTest(false,true);
     if(eventsManager->keyPressed(GLFW_KEY_O))
         m_gameServer.sendMsgTest(true,false);
-
-    //if(eventsManager->keyPressed(GLFW_KEY_R))
-      //  m_gameServer.rewindWorld(1,60);
 }
 
 
 void PlayerServerTestingState::update(const pou::Time &elapsedTime)
 {
-    auto player = m_gameServer.getPlayer(m_localClientNbr);
-    if(player)
-        m_gameUi.updateCharacterLife(player->getAttributes().life,
-                                     player->getModelAttributes().maxLife);
-
-    m_gameUi.update(elapsedTime);
     m_gameServer.update(elapsedTime);
 }
 
 void PlayerServerTestingState::draw(pou::RenderWindow *renderWindow)
 {
-    m_gameServer.render(renderWindow, m_localClientNbr);
+}
 
-    if(renderWindow->getRenderer(pou::Renderer_Ui) != nullptr)
-    {
-        pou::UiRenderer *renderer = dynamic_cast<pou::UiRenderer*>(renderWindow->getRenderer(pou::Renderer_Ui));
-        m_gameUi.render(renderer);
-    }
+///
+///Protected
+///
 
+void PlayerServerTestingState::setConnectionData(int port, std::shared_ptr<PlayerSave> playerSave)
+{
+    m_port = port;
+    m_playerSave = playerSave;
 }
 

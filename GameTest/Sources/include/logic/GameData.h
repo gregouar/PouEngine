@@ -6,7 +6,7 @@
 class GameData
 {
     public:
-        static pou::NetAddress serverAddress;
+        //static pou::NetAddress serverAddress;
 };
 
 #endif // GAMEDATA_H_INCLUDED

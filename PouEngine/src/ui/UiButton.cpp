@@ -12,7 +12,8 @@ UiButton::UiButton(UserInterface *interface) : UiElement(interface),
     m_lastShowedState(NBR_UIBUTTONSTATES),
     m_lastShowedTextureState(NBR_UIBUTTONSTATES),
     m_toggable(false),
-    m_isToggled(false)
+    m_isToggled(false),
+    m_disableUntoggle(false)
 {
     m_canHaveFocus = true;
 }
@@ -40,10 +41,15 @@ void UiButton::handleEvents(const EventsManager *eventsManager)
             if(!m_interface->isFocusedOn(this))
                 return;
 
-            if(m_isToggled)
+            this->activate();
+
+            /*if(m_isToggled)
                 this->switchState(UiButtonState_Rest);
             else
+            {
                 this->switchState(UiButtonState_Released);
+                this->sendNotification(NotificationType_Ui_ButtonClicked);
+            }*/
         }
         else if(m_interface->isFocusedOn(this) && eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
             this->switchState(UiButtonState_Pressed);
@@ -142,9 +148,26 @@ void UiButton::setLabel(const std::string &label, int fontSize, const glm::vec4 
     m_textLabel->setText(label);
 }
 
-void UiButton::setToggable(bool toggable)
+void UiButton::setToggable(bool toggable, bool disableUntoggle)
 {
     m_toggable = toggable;
+    m_disableUntoggle = disableUntoggle;
+}
+
+void UiButton::setToggled(bool toggled)
+{
+    if(!m_toggable)
+        return;
+
+    m_isToggled = toggled;
+
+    if(!m_isToggled)
+        this->switchState(UiButtonState_Rest);
+    else
+    {
+        this->switchState(UiButtonState_Released);
+        this->sendNotification(NotificationType_Ui_ButtonClicked);
+    }
 }
 
 
@@ -153,10 +176,23 @@ std::shared_ptr<UiText> UiButton::getLabel()
     return m_textLabel;
 }
 
+void UiButton::activate()
+{
+    if(m_isToggled && !m_disableUntoggle)
+        this->switchState(UiButtonState_Rest);
+    else
+    {
+        this->switchState(UiButtonState_Released);
+        this->sendNotification(NotificationType_Ui_ButtonClicked);
+    }
+}
+
 bool UiButton::isClicked()
 {
     return (m_curState == UiButtonState_Released);
 }
+
+
 
 ///
 ///Protected

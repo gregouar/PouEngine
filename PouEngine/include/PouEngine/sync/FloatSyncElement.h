@@ -16,6 +16,8 @@ class FloatSyncElement : public AbstractSyncElement
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(float min, float max, size_t precision);
 
+        void operator=(float v);
+
         void    setValue(float v);
         float   getValue() const;
 

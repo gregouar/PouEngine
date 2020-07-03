@@ -20,11 +20,11 @@ class UdpServer : public AbstractServer
 
         virtual void update(const Time &elapsedTime);
 
-        virtual void sendMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg, bool forceSend);
-        virtual void sendBigReliableMessage(uint16_t clientNbr, std::shared_ptr<NetMessage> msg);
+        virtual void sendMessage(uint16_t clientId, std::shared_ptr<NetMessage> msg, bool forceSend);
+        virtual void sendBigReliableMessage(uint16_t clientId, std::shared_ptr<NetMessage> msg);
         virtual void receivePackets(std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
-        virtual float getRTT(uint16_t clientNbr) const;
+        virtual float getRTT(uint16_t clientId) const;
 
         //virtual uint16_t getMaxNbrClients() const;
 
@@ -35,13 +35,13 @@ class UdpServer : public AbstractServer
         virtual void processConnectionMessages(UdpBuffer &buffer,
                                                std::list<std::pair<int, std::shared_ptr<NetMessage> > > &netMessages);
 
-        virtual void sendConnectionMsg(uint16_t clientNbr, ConnectionMessage msg);
+        virtual void sendConnectionMsg(uint16_t clientId, ConnectionMessage msg);
         virtual void sendConnectionMsg(NetAddress &address, ConnectionMessage msg, int salt);
 
-        virtual void disconnectClient(uint16_t clientNbr, bool sendMsg = true);
+        virtual void disconnectClient(uint16_t clientId, bool sendMsg = true);
         virtual void denyConnectionFrom(NetAddress &address);
-        virtual void challengeConnexionFrom(uint16_t clientNbr);
-        virtual void allowConnectionFrom(uint16_t clientNbr);
+        virtual void challengeConnexionFrom(uint16_t clientId);
+        virtual void allowConnectionFrom(uint16_t clientId);
 
         uint16_t findClientIndex(NetAddress &address, int salt);
 

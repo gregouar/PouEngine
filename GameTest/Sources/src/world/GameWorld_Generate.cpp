@@ -203,14 +203,11 @@ void GameWorld::destroy()
         pou::AudioEngine::destroyEvent(m_musicEvent);
 }
 
-bool GameWorld::initPlayer(size_t player_id)
+bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave)
 {
     auto player = m_syncComponent.getPlayer(player_id);
     if(!player)
         return (false);
-
-    ///player->setMaxRewind(GameServer::MAX_REWIND_AMOUNT);
-    ///player->setLocalTime(0);
 
     player->update(pou::Time(0), 0);
 
@@ -219,20 +216,19 @@ bool GameWorld::initPlayer(size_t player_id)
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
-    ///player->setLocalTime(m_curLocalTime);
-
     CharacterModelAsset *playerModel;
-    if(player_id % 3 == 0)
-        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/sithXML.txt");
-    else if(player_id % 3 == 1)
+    if(playerSave->getPlayerType() % 3 == 0)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/char1XML.txt");
-    else
+    else if(playerSave->getPlayerType() % 3 == 1)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/mokouXML.txt");
+    else
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/sithXML.txt");
 
     m_syncComponent.syncElement(playerModel);
-
     player->setModel(playerModel);
-    //m_scene->getRootNode()->addChildNode(player);
+
+    playerSave->loadToPlayer(player.get());
+
     m_worldGrid->addChildNode(player/*->node()*/);
 
     player/*->node()*/->pou::SceneNode::setPosition(pos);
@@ -261,12 +257,6 @@ bool GameWorld::initPlayer(size_t player_id)
     player->addItemToInventory(playerWeapon,5);
 
     player->setTeam(1);
-
-    /**for(auto it = m_syncCharacters.begin() ; it != m_syncCharacters.end() ; ++it)
-    {
-        player->addToNearbyCharacters(it->second);
-        it->second->addToNearbyCharacters(player);
-    }**/
 
     m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
 

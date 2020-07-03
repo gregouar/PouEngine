@@ -9,5 +9,6 @@
 #include "PouEngine/sync/Vec2SyncElement.h"
 #include "PouEngine/sync/Vec3SyncElement.h"
 #include "PouEngine/sync/Vec4SyncElement.h"
+#include "PouEngine/sync/StringSyncElement.h"
 
 #endif // SYNCELEMENTS_H_INCLUDED

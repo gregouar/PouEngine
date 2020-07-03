@@ -16,18 +16,18 @@ WorldNode::WorldNode() :
     m_lastParentUpdateTime(-1)
 {
     m_syncPosition.setMinMaxAndPrecision(-WorldNode::NODE_MAX_POS, WorldNode::NODE_MAX_POS, glm::uvec3(0,0,2));
-    m_syncComponent.addSyncElement(&m_syncPosition);
+    m_nodeSyncComponent.addSyncElement(&m_syncPosition);
 
     m_syncRotations.setMinMaxAndPrecision(glm::vec3(-3.15), glm::vec3(3.15), glm::uvec3(2));
-    m_syncComponent.addSyncElement(&m_syncRotations);
+    m_nodeSyncComponent.addSyncElement(&m_syncRotations);
 
     m_syncScale.setMinMaxAndPrecision(glm::vec3(-WorldNode::NODE_MAX_SCALE),
                                   glm::vec3(WorldNode::NODE_MAX_SCALE),
                                   glm::uvec3(WorldNode::NODE_SCALE_DECIMALS));
-    m_syncComponent.addSyncElement(&m_syncScale);
+    m_nodeSyncComponent.addSyncElement(&m_syncScale);
 
     m_syncColor.setMinMaxAndPrecision(glm::vec4(0), glm::vec4(10,10,10,1), glm::uvec4(2));
-    m_syncComponent.addSyncElement(&m_syncColor);
+    m_nodeSyncComponent.addSyncElement(&m_syncColor);
 }
 
 WorldNode::~WorldNode()
@@ -62,17 +62,17 @@ std::shared_ptr<WorldNode> WorldNode::createChildNode(glm::vec3 p)
 
 void WorldNode::syncFrom(WorldNode* srcNode)
 {
-    m_syncComponent.syncFrom(srcNode->m_syncComponent);
+    m_nodeSyncComponent.syncFrom(srcNode->m_nodeSyncComponent);
 }
 
 void WorldNode::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    m_syncComponent.setReconciliationDelay(serverDelay, clientDelay);
+    m_nodeSyncComponent.setReconciliationDelay(serverDelay, clientDelay);
 }
 
 void WorldNode::setMaxRewind(int maxRewind)
     {
-    m_syncComponent.setMaxRewindAmount(maxRewind);
+    m_nodeSyncComponent.setMaxRewindAmount(maxRewind);
 }
 
 /**void WorldNode::setSyncReconciliationPrecision(glm::vec3 positionPrecision)
@@ -87,7 +87,7 @@ void WorldNode::disableRotationSync(bool disable)
 
 void WorldNode::disableSync(bool disable)
 {
-    m_syncComponent.disableSync(disable);
+    m_nodeSyncComponent.disableSync(disable);
 }
 
 void WorldNode::setPosition(glm::vec3 pos)
@@ -136,7 +136,7 @@ const glm::vec4 &WorldNode::getColor() const
 
 uint32_t WorldNode::getLastUpdateTime()
 {
-    return m_syncComponent.getLastUpdateTime();
+    return m_nodeSyncComponent.getLastUpdateTime();
 }
 
 uint32_t WorldNode::getLastParentUpdateTime()
@@ -151,19 +151,19 @@ uint32_t WorldNode::getNodeSyncId()
 
 void WorldNode::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    if(m_syncComponent.update(elapsedTime, localTime))
+    if(m_nodeSyncComponent.update(elapsedTime, localTime))
         this->askForUpdateModelMatrix();
 
     SceneNode::update(elapsedTime, localTime);
 
-    GameMessage_NodeUpdated msg;
+    GameMessage_World_NodeUpdated msg;
     msg.node   = this;
-    pou::MessageBus::postMessage(GameMessageType_NodeUpdated, &msg);
+    pou::MessageBus::postMessage(GameMessageType_World_NodeUpdated, &msg);
 }
 
 void WorldNode::serialize(pou::Stream *stream, uint32_t clientTime)
 {
-    m_syncComponent.serialize(stream, clientTime);
+    m_nodeSyncComponent.serialize(stream, clientTime);
 }
 
 ///Protected
@@ -172,8 +172,8 @@ bool WorldNode::setParent(SimpleNode *p)
 {
     if(SceneNode::setParent(p))
     {
-        m_syncComponent.updateLastUpdateTime();
-        m_lastParentUpdateTime = m_syncComponent.getLocalTime();
+        m_nodeSyncComponent.updateLastUpdateTime();
+        m_lastParentUpdateTime = m_nodeSyncComponent.getLocalTime();
         return (true);
     }
     return (false);

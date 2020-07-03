@@ -28,10 +28,10 @@ GameClient::GameClient() :
     pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
     pou::NetEngine::setMaxRewindAmount(200);
 
-    m_lastPlayerWalkDirection = glm::vec2(0);
+    //m_lastPlayerWalkDirection = glm::vec2(0);
     m_lastServerAckTime = (uint32_t)(-1);
 
-    pou::MessageBus::addListener(this, GameMessageType_CharacterDamaged);
+    pou::MessageBus::addListener(this, GameMessageType_World_CharacterDamaged);
 }
 
 GameClient::~GameClient()
@@ -67,12 +67,14 @@ void GameClient::disconnectionCleanup()
     //m_world.destroy();
 }
 
-bool GameClient::connectToServer(const pou::NetAddress &address)
+bool GameClient::connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave)
 {
     if(!m_client)
         return (false);
 
     this->disconnectFromServer();
+
+    m_playerSave = playerSave;
 
     return m_client->connectToServer(address);
 }
@@ -83,6 +85,8 @@ bool GameClient::disconnectFromServer()
 
     if(m_client)
         r = r & m_client->disconnectFromServer();
+
+    pou::MessageBus::postMessage(GameMessageType_Net_Disconnected);
 
     this->disconnectionCleanup();
 
@@ -102,7 +106,7 @@ Player* GameClient::getPlayer()
     if(!m_world)
         return (nullptr);
 
-    return m_world->getSyncPlayer(m_curPlayerId);
+    return m_world->getPlayer(m_curPlayerId);
 }
 
 
@@ -135,11 +139,6 @@ void GameClient::update(const pou::Time &elapsedTime)
     pou::Profiler::popClock();
 }
 
-void GameClient::render(pou::RenderWindow *renderWindow)
-{
-    if(m_world)
-        m_world->render(renderWindow);
-}
 
 void GameClient::sendMsgTest(bool reliable, bool forceSend)
 {
@@ -151,110 +150,6 @@ void GameClient::sendMsgTest(bool reliable, bool forceSend)
     pou::Logger::write("Client send test message with value:"+std::to_string(testMsg->test_value)+" and id: "+std::to_string(testMsg->id));
 }
 
-
-
-void GameClient::addPlayerAction(const PlayerAction &action)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    /**if(action.actionType == PlayerActionType_CursorMove)
-    {
-        m_curCursorPos = action.direction;
-        auto player = m_world.getPlayer(m_curPlayerId);
-        if(player)
-            player->processAction(action);
-        return;
-    }**/
-
-    if(action.actionType == PlayerActionType_Walk)
-        m_lastPlayerWalkDirection = action.direction;
-
-    if(m_world)
-        m_world->addPlayerAction(m_curPlayerId, action);
-}
-
-/*void GameClient::playerCursor(glm::vec2 direction)
-{
-    m_curCursorPos = direction;
-
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    auto player = m_world.getPlayer(m_curPlayerId);
-    if(player)
-    {
-        PlayerAction action;
-        action.actionType = PlayerActionType_CursorMove;
-        action.direction = direction;
-        player->processAction(action);
-        ///player->lookAt(direction);
-    }
-}
-
-void GameClient::playerLook(glm::vec2 direction)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Look;
-    playerAction.direction  = direction;
-
-    m_world.addPlayerAction(m_curPlayerId, playerAction);
-}
-
-void GameClient::playerWalk(glm::vec2 direction)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    if(m_lastPlayerWalkDirection != direction || !GameServer::USEREWIND)
-    {
-        m_lastPlayerWalkDirection = direction;
-        PlayerAction playerAction;
-        playerAction.actionType = PlayerActionType_Walk;
-        playerAction.direction  = direction;
-
-        m_world.addPlayerAction(m_curPlayerId, playerAction);
-    }
-}
-
-void GameClient::playerDash(glm::vec2 direction)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Dash;
-    playerAction.direction  = direction;
-
-    m_world.addPlayerAction(m_curPlayerId, playerAction);
-}
-
-void GameClient::playerAttack(glm::vec2 direction)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_Attack;
-    playerAction.direction  = direction;
-
-    m_world.addPlayerAction(m_curPlayerId, playerAction);
-}
-
-void GameClient::playerUseItem(size_t itemNbr)
-{
-    if(!m_client || m_curWorldId == 0)
-        return;
-
-    PlayerAction playerAction;
-    playerAction.actionType = PlayerActionType_UseItem;
-    playerAction.value      = itemNbr;
-
-    m_world.addPlayerAction(m_curPlayerId, playerAction);
-}*/
 
 ///Protected
 
@@ -274,7 +169,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             auto castMsg = std::dynamic_pointer_cast<pou::NetMessage_ConnectionStatus>(msg);
             if(castMsg->connectionStatus == pou::ConnectionStatus_Connected)
             {
-                // Do something, probably
+                pou::MessageBus::postMessage(GameMessageType_Net_Connected);
             }
             else if(castMsg->connectionStatus == pou::ConnectionStatus_Disconnected)
                 this->disconnectionCleanup();
@@ -289,6 +184,15 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
             m_world = std::make_unique<GameWorld>(true);
             m_world->generateFromMsg(castMsg);
+
+            /*auto player = m_world->getPlayer(m_curPlayerId);
+            player->setPlayerName(m_playerName);*/
+
+            GameMessage_Game_ChangeWorld gameMsg;
+            gameMsg.clientId    = 0;
+            gameMsg.world       = m_world.get();
+            gameMsg.playerId    = m_curPlayerId;
+            pou::MessageBus::postMessage(GameMessageType_Game_ChangeWorld, &gameMsg);
 
             pou::Logger::write("Received world #"+std::to_string(m_curWorldId));
         }break;
@@ -320,37 +224,23 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
     if(m_curWorldId == 0 && !m_isWaitingForWorldSync)
     {
         m_isWaitingForWorldSync = true;
-        //auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
         auto msg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(pou::NetEngine::createNetMessage(NetMessageType_PlayerSync));
         msg->isReliable = true;
         msg->lastSyncTime = -1;
         msg->localTime = 0;
+
+        msg->playerSave = m_playerSave;
+
         m_client->sendMessage(msg, true);
 
         return;
     } else if(m_curWorldId != 0 && m_world) {
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
-            //auto msg = std::dynamic_pointer_cast<NetMessage_AskForWorldSync>(pou::NetEngine::createNetMessage(NetMessageType_AskForWorldSync));
+            /*auto player = m_world->getPlayer(m_curPlayerId);
+            player->setPlayerName(m_playerName);*/
             auto msg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(pou::NetEngine::createNetMessage(NetMessageType_PlayerSync));
 
-            /*if(m_lastPlayerWalkDirection != glm::vec2(0))
-            {
-                PlayerAction playerAction;
-                playerAction.actionType = PlayerActionType_Walk;
-                playerAction.direction  = m_lastPlayerWalkDirection;
-                m_world.addPlayerAction(m_curPlayerId, playerAction);
-            }*/
-
-            //Could add condition to do this only if attackMode is on
-            /**{
-                PlayerAction playerAction;
-                playerAction.actionType = PlayerActionType_CursorMove;
-                playerAction.direction  = glm::normalize(m_curCursorPos);
-                m_world.addPlayerAction(m_curPlayerId, playerAction);
-            }**/
-
-            //std::cout<<"Last Server Ack:"<<m_lastServerAckTime<<" vs cur time:"<<m_world.getLocalTime()<<std::endl;
             m_world->getSyncComponent()->createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
             m_syncTimer.reset(GameClient::SYNCDELAY);
@@ -363,7 +253,7 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
     if(!m_world)
         return;
 
-    auto player = m_world->getSyncPlayer(m_curPlayerId);
+    auto player = m_world->getPlayer(m_curPlayerId);
     if(!player)
         return;
 
@@ -372,9 +262,9 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
     playerEventMsg->isReliable  = true;
     playerEventMsg->localTime   = m_world->getLocalTime();
 
-    if(notificationType == GameMessageType_CharacterDamaged)
+    if(notificationType == GameMessageType_World_CharacterDamaged)
     {
-        GameMessage_CharacterDamaged *gameMsg = static_cast<GameMessage_CharacterDamaged*>(data);
+        auto *gameMsg = static_cast<GameMessage_World_CharacterDamaged*>(data);
 
         if(gameMsg->character == player)
             return;

@@ -339,7 +339,14 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
     stream->serializeUint32(localTime); //This is the client local time
 
     if(lastSyncTime == (uint32_t)-1)
+    {
+        if(stream->isReading())
+            playerSave = std::make_shared<PlayerSave>();
+
+        playerSave->serialize(stream);
+
         return;
+    }
 
     {
         auto &nodePtr = nodeSync.node;

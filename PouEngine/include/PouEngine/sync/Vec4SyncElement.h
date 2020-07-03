@@ -16,6 +16,8 @@ class Vec4SyncElement : public AbstractSyncElement
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm::uvec4 precision);
 
+        void operator=(const glm::vec4& v);
+
         void setValue(const glm::vec4 &v);
         const glm::vec4 &getValue() const;
 
@@ -40,6 +42,8 @@ class Vec4LinSyncElement : public AbstractSyncElement
 
         void useMinMax(bool use = true);
         void setMinMaxAndPrecision(glm::vec4 min, glm::vec4 max, glm::uvec4 precision);
+
+        void operator=(const glm::vec4& v);
 
         void setValue(const glm::vec4 &v);
         const glm::vec4 &getValue() const;

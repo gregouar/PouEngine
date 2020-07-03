@@ -34,43 +34,44 @@ class GameServer
 
         void update(const pou::Time &elapsedTime);
         void syncClients(const pou::Time &elapsedTime);
-        void render(pou::RenderWindow *renderWindow, size_t clientNbr);
+        //void render(pou::RenderWindow *renderWindow, size_t clientId);
 
-        int addLocalPlayer(); //ClientNbr
-        /*void playerCursor(size_t clientNbr, glm::vec2 cursorPos, float localTime = -1);
-        void playerLook(size_t clientNbr, glm::vec2 direction, float localTime = -1);
-        void playerWalk(size_t clientNbr, glm::vec2 direction, float localTime = -1);
-        void playerDash(size_t clientNbr, glm::vec2 direction, float localTime = -1);
-        void playerAttack(size_t clientNbr, glm::vec2 direction, float localTime = -1);
-        void playerUseItem(size_t clientNbr, size_t itemNbr, float localTime = -1);*/
-        void addPlayerAction(size_t clientNbr, const PlayerAction &action/*, uint32_t localTime = -1*/);
+        int addLocalPlayer(std::shared_ptr<PlayerSave> playerSave/*const std::string &playerName*/); //Return clientId
+        /*void playerCursor(size_t clientId, glm::vec2 cursorPos, float localTime = -1);
+        void playerLook(size_t clientId, glm::vec2 direction, float localTime = -1);
+        void playerWalk(size_t clientId, glm::vec2 direction, float localTime = -1);
+        void playerDash(size_t clientId, glm::vec2 direction, float localTime = -1);
+        void playerAttack(size_t clientId, glm::vec2 direction, float localTime = -1);
+        void playerUseItem(size_t clientId, size_t itemNbr, float localTime = -1);*/
+        //void addPlayerAction(size_t clientId, const PlayerAction &action/*, uint32_t localTime = -1*/);
 
         size_t generateWorld();
         ///void rewindWorld(size_t world_id, uint32_t time);
 
-        Player* getPlayer(size_t clientNbr);
+        Player* getPlayer(size_t clientId);
+        std::pair<GameClientInfos*, GameWorld*> getClientInfosAndWorld(size_t clientId);
 
         //const pou::NetAddress *getAddress() const;
         unsigned short getPort() const;
 
         void sendMsgTest(bool reliable, bool forceSend);
 
+
     protected:
         void cleanup();
 
-        void processMessage(int clientNbr, std::shared_ptr<pou::NetMessage> msg);
-        //void processPlayerActions(int clientNbr, std::shared_ptr<NetMessage_PlayerAction> msg);
-        void updateClientSync(int clientNbr, std::shared_ptr<NetMessage_PlayerSync> msg);
-        void processPlayerEvent(int clientNbr, std::shared_ptr<NetMessage_PlayerEvent> msg);
+        void processMessage(int clientId, std::shared_ptr<pou::NetMessage> msg);
+        //void processPlayerActions(int clientId, std::shared_ptr<NetMessage_PlayerAction> msg);
+        void updateClientSync(int clientId, std::shared_ptr<NetMessage_PlayerSync> msg);
+        void processPlayerEvent(int clientId, std::shared_ptr<NetMessage_PlayerEvent> msg);
 
-        void addClient(int clientNbr, bool isLocalClient = false);
-        void disconnectClient(int clientNbr);
+        void addClient(int clientId, bool isLocalClient = false);
+        void disconnectClient(int clientId);
 
         void updateWorlds(const pou::Time &elapsedTime);
 
         void threading();
 
-        std::pair<GameClientInfos*, GameWorld*> getClientInfosAndWorld(size_t clientNbr);
 
     private:
         std::atomic<bool> m_serverIsRunning;

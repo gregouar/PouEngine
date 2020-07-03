@@ -21,9 +21,9 @@ void WorldSprite::update(const pou::Time &elapsedTime, uint32_t localTime)
 
     pou::SpriteEntity::update(elapsedTime, localTime);
 
-    GameMessage_SpriteUpdated msg;
+    GameMessage_World_SpriteUpdated msg;
     msg.sprite = this;
-    pou::MessageBus::postMessage(GameMessageType_SpriteUpdated, &msg);
+    pou::MessageBus::postMessage(GameMessageType_World_SpriteUpdated, &msg);
 }
 
 bool WorldSprite::syncFrom(WorldSprite* srcSprite)

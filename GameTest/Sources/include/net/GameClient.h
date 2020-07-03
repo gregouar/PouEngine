@@ -16,26 +16,15 @@ class GameClient : public pou::NotificationListener
 
         bool create(unsigned short port = 0);
 
-        bool connectToServer(const pou::NetAddress &address);
+        bool connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave);
         bool disconnectFromServer();
 
         void update(const pou::Time &elapsedTime);
-        void render(pou::RenderWindow *renderWindow);
 
-        //const pou::NetAddress &getAddress() const;
         const pou::NetAddress &getServerAddress() const;
         unsigned short getPort() const;
 
         Player *getPlayer();
-
-        /*void playerCursor(glm::vec2 direction);
-        void playerLook(glm::vec2 direction);
-        void playerWalk(glm::vec2 direction);
-        void playerDash(glm::vec2 direction);
-        void playerAttack(glm::vec2 direction);
-        void playerUseItem(size_t itemNbr);*/
-
-        void addPlayerAction(const PlayerAction &action);
 
         void sendMsgTest(bool reliable, bool forceSend);
 
@@ -53,14 +42,12 @@ class GameClient : public pou::NotificationListener
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
 
-       // uint32_t    m_lastPlayerWalkTime;
-        glm::vec2   m_lastPlayerWalkDirection;
+        std::shared_ptr<PlayerSave> m_playerSave;
 
         std::unique_ptr<GameWorld>  m_world;
         uint16_t    m_curWorldId;
         uint16_t    m_curPlayerId;
         bool        m_isWaitingForWorldSync;
-        //pou::Timer  m_syncWorldTimer;
 
         glm::vec2   m_curCursorPos;
 
@@ -70,7 +57,6 @@ class GameClient : public pou::NotificationListener
 
         uint32_t    m_lastServerAckTime;
 
-        //static const float CLIENTWORLD_SYNC_DELAY;
     public:
         static const int        TICKRATE;
         static const pou::Time  TICKDELAY;
