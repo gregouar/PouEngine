@@ -10,8 +10,10 @@ EventsManager::EventsManager()
     {
         m_keyIsPressed[i]   = false;
         m_keyPressed[i]     = false;
+        m_keyRepeated[i]    = false;
         m_keyReleased[i]    = false;
     }
+    m_keyMod = 0;
 
     for(auto i = 0 ; i <= GLFW_MOUSE_BUTTON_LAST ; ++i)
     {
@@ -99,13 +101,24 @@ std::string EventsManager::getTextEnteredAsUtf8() const
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
     std::string textEntered = converter.to_bytes(m_textEntered);
 
-    return std::move(textEntered);
+    return /*std::move(*/textEntered/*)*/;
 }
 
-bool EventsManager::keyPressed(int key) const
+std::string EventsManager::getClipBoard() const
+{
+    return std::string(glfwGetClipboardString(m_window));
+}
+
+void EventsManager::setClipBoard(const std::string &text) const
+{
+    glfwSetClipboardString(NULL, text.c_str());
+}
+
+bool EventsManager::keyPressed(int key, bool allowRepeat) const
 {
     if(key >= 0 && key <= GLFW_KEY_LAST)
-        return m_keyPressed[key];
+        return (m_keyPressed[key] & !m_keyRepeated[key])
+        | (m_keyPressed[key] & m_keyRepeated[key] & allowRepeat) ;
     return (false);
 }
 
@@ -121,6 +134,11 @@ bool EventsManager::keyReleased(int key) const
     if(key >= 0 && key <= GLFW_KEY_LAST)
         return m_keyReleased[key];
     return (false);
+}
+
+bool EventsManager::keyMod(int mod) const
+{
+    return (m_keyMod & mod);
 }
 
 bool EventsManager::mouseButtonPressed(int button) const
@@ -190,12 +208,33 @@ void EventsManager::updateKey(int key, int action)
             m_keyPressed[key]   = true;
             m_keyIsPressed[key] = true;
             m_justPressedKeys.push(key);
+
+            if(key == GLFW_KEY_LEFT_SHIFT)
+                m_keyMod |= GLFW_MOD_SHIFT;
+            if(key == GLFW_KEY_LEFT_CONTROL)
+                m_keyMod |= GLFW_MOD_CONTROL;
+            if(key == GLFW_KEY_LEFT_ALT)
+                m_keyMod |= GLFW_MOD_ALT;
+        }
+        else if(action == GLFW_REPEAT)
+        {
+            m_keyPressed[key]   = true;
+            m_keyRepeated[key]  = true;
+            m_justPressedKeys.push(key);
         }
         else if(action == GLFW_RELEASE)
         {
             m_keyReleased[key]  = true;
             m_keyIsPressed[key] = false;
+            m_keyRepeated[key]  = false;
             m_justReleasedKeys.push(key);
+
+            if(key == GLFW_KEY_LEFT_SHIFT)
+                m_keyMod &= ~GLFW_MOD_SHIFT;
+            if(key == GLFW_KEY_LEFT_CONTROL)
+                m_keyMod &= ~GLFW_MOD_CONTROL;
+            if(key == GLFW_KEY_LEFT_ALT)
+                m_keyMod &= ~GLFW_MOD_ALT;
         }
     }
 }

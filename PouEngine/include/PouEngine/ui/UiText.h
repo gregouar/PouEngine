@@ -21,7 +21,7 @@ class UiText : public UiElement
         virtual void setSize(glm::vec2 s);
 
         void setFont(FontAsset *font);
-        void setText(const std::string &text);
+        virtual void setText(const std::string &text);
         virtual void setFontSize(int pt);
         virtual void setColor(const glm::vec4 &color);
         void setTextAlign(TextAlignType textAlign);
@@ -35,6 +35,7 @@ class UiText : public UiElement
         int computeWordSize(size_t charPos);
         //void jumpLine();
         int computeTextSize(size_t startPos, size_t endPos);
+        int computeCharPos(glm::vec2 pos);
 
     private:
         FontAsset *m_font;

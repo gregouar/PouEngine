@@ -21,9 +21,13 @@ class EventsManager
         std::string getTextEnteredAsUtf8() const;
         const std::u32string &getTextEntered() const;
 
-        bool keyPressed(int key)    const;
+        std::string getClipBoard() const;
+        void setClipBoard(const std::string &text) const;
+
+        bool keyPressed(int key, bool allowRepeat = false)    const;
         bool keyIsPressed(int key)  const;
         bool keyReleased(int key)   const;
+        bool keyMod(int mod) const;
 
         bool mouseButtonPressed(int button)     const;
         bool mouseButtonIsPressed(int button)   const;
@@ -56,11 +60,13 @@ class EventsManager
     private:
         GLFWwindow *m_window;
 
-        std::u32string m_textEntered;
+        std::u32string  m_textEntered;
 
         bool m_keyPressed[GLFW_KEY_LAST+1];
+        bool m_keyRepeated[GLFW_KEY_LAST+1];
         bool m_keyIsPressed[GLFW_KEY_LAST+1];
         bool m_keyReleased[GLFW_KEY_LAST+1];
+        int  m_keyMod;
 
         std::stack<int> m_justPressedKeys, m_justReleasedKeys,
                         m_justPressedMouseButtons, m_justReleasedMouseButtons;

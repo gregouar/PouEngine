@@ -84,7 +84,7 @@ bool UserInterface::isFocusedOn(UiElement *element)
 
 UiFocusWeight UserInterface::computeFocusWeight(UiElement *element)
 {
-    return {element->getGlobalPosition().z, element->getTreeDepth()};
+    return {element->getGlobalPosition().z, (float)element->getTreeDepth()};
 }
 
 }

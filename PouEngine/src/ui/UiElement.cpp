@@ -23,6 +23,20 @@ UiElement::~UiElement()
 
 void UiElement::setSize(glm::vec2 s)
 {
+    if(s.x < 0)
+    {
+        this->move(s.x, 0);
+        ///this->setScale(-1,0);
+        s.x = -s.x;
+    }
+
+    if(s.y < 0)
+    {
+        this->move(s.y, 0);
+        ///this->scale(0,-1);
+        s.y = -s.y;
+    }
+
     if(s.x >= 0 && s.y >= 0)
         m_size = s;
 }

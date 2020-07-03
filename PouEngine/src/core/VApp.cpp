@@ -228,8 +228,8 @@ void VApp::loop()
         m_renderWindow.display();
         Profiler::popClock();
 
-        if(m_eventsManager.keyPressed(GLFW_KEY_P))
-            m_renderWindow.takeScreenshot("../screenshots/screen.jpg");
+        /*if(m_eventsManager.keyPressed(GLFW_KEY_P))
+            m_renderWindow.takeScreenshot("../screenshots/screen.jpg");*/
     }
 
 

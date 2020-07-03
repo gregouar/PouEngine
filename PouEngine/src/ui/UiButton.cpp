@@ -45,7 +45,7 @@ void UiButton::handleEvents(const EventsManager *eventsManager)
             else
                 this->switchState(UiButtonState_Released);
         }
-        else if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
+        else if(m_interface->isFocusedOn(this) && eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
             this->switchState(UiButtonState_Pressed);
         else
             this->switchState(UiButtonState_Hover);

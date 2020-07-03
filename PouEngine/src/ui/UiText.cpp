@@ -248,14 +248,34 @@ int UiText::computeTextSize(size_t startPos, size_t endPos)
     for(auto i = startPos ; i < endPos ; ++i)
     {
         auto c = m_text[i];
-
         auto glyph = m_font->getGlyph(c, m_fontSize);
-
         if(glyph)
             x += glyph->getAdvance();
     }
 
     return x;
+}
+
+int UiText::computeCharPos(glm::vec2 pos)
+{
+    int charPos = 0;
+    int x = 0;
+    int lastGlyphAdvance = 0;
+
+    while(pos.x > x)
+    {
+        auto c = m_text[charPos];
+        auto glyph = m_font->getGlyph(c, m_fontSize);
+        if(glyph)
+            lastGlyphAdvance = glyph->getAdvance();
+        x += lastGlyphAdvance;
+        charPos++;
+    }
+
+    if(pos.x < x - lastGlyphAdvance/2)
+        charPos -= 1;
+
+    return charPos;
 }
 
 /*void UiText::jumpLine()
