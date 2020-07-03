@@ -35,8 +35,6 @@ class InGameState : public pou::GameState, public Singleton<InGameState>, pou::N
         virtual void notify(pou::NotificationSender*, int notificationType,
                             void* data);
 
-
-
     private:
         bool m_firstEntering;
 

@@ -393,10 +393,10 @@ bool SimpleNode::setParent(SimpleNode *p)
         if(m_parent != nullptr)
             this->startListeningTo(m_parent);
 
-        this->askForUpdateModelMatrix();
-
         if(oldParent != nullptr && p != nullptr)
             oldParent->removeChildNode(this);
+
+        this->askForUpdateModelMatrix();
 
         return (true);
     }

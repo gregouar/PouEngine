@@ -6,7 +6,8 @@
 
 struct GridProbe
 {
-    std::shared_ptr<pou::SimpleNode> node;
+    //std::shared_ptr<pou::SimpleNode> node;
+    pou::SimpleNode *node;
     float radius;
 };
 
@@ -31,9 +32,11 @@ class WorldGrid : /**public pou::SceneGrid,**/ public WorldNode
         void resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize);
         void enlargeForPosition(glm::vec2 pos);
 
-        void addUpdateProbe(std::shared_ptr<pou::SimpleNode> node, float radius);
+        //void addUpdateProbe(std::shared_ptr<pou::SimpleNode> node, float radius);
+        void addUpdateProbe(pou::SimpleNode *node, float radius);
         void removeUpdateProbe(pou::SimpleNode *node);
-        void setRenderProbe(std::shared_ptr<pou::SimpleNode> node, float radius);
+        //void setRenderProbe(std::shared_ptr<pou::SimpleNode> node, float radius);
+        void setRenderProbe(pou::SimpleNode *node, float radius);
 
         void probesZones(std::set< std::vector<std::shared_ptr<pou::SimpleNode> > *> &zonesToUpdate, GridProbe &probe);
         //void probesZones(std::set< std::shared_ptr<SimpleNode> > &nodesToUpdate, GridProbe &probe);
@@ -55,6 +58,8 @@ class WorldGrid : /**public pou::SceneGrid,**/ public WorldNode
 
         std::vector< std::vector< std::vector< std::shared_ptr<pou::SimpleNode> > > >
             m_grid;
+
+        //std::set<pou::SimpleNode*> m_needToUpdateNodes;
 
     private:
         float m_quadSize;

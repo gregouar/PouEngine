@@ -12,7 +12,7 @@ WorldGrid::WorldGrid() :
 
 WorldGrid::~WorldGrid()
 {
-    //dtor
+    this->removeAllChilds();
 }
 
 
@@ -30,6 +30,8 @@ void WorldGrid::addChildNode(std::shared_ptr<pou::SimpleNode> childNode)
     //childNode->setParent(this);
     this->setAsParentTo(this, childNode.get());
     this->startListeningTo(childNode.get());
+
+    //m_needToUpdateNodes.insert(childNode.get());
 }
 
 bool WorldGrid::removeChildNode(pou::SimpleNode *childNode)
@@ -41,6 +43,13 @@ bool WorldGrid::removeChildNode(pou::SimpleNode *childNode)
 
 bool WorldGrid::removeChildNode(pou::SimpleNode *childNode, glm::ivec2 gridPos)
 {
+    /*for(auto probeIt = m_updateProbes.begin() ; probeIt != m_updateProbes.end() ; ++probeIt)
+        if(probeIt->node.get() == childNode)
+            probeIt = m_updateProbes.erase(probeIt);
+
+    if(m_renderProbe.node.get() == childNode)
+        m_renderProbe.node.reset();*/
+
     if(gridPos.x < 0 || gridPos.y < 0 || gridPos.x >= m_gridSize.x || gridPos.y >= m_gridSize.y)
         return (false);
 
@@ -60,6 +69,8 @@ bool WorldGrid::removeChildNode(pou::SimpleNode *childNode, glm::ivec2 gridPos)
 
 void WorldGrid::removeAllChilds()
 {
+    m_grid.clear();
+    m_gridSize = glm::vec2(0);
     /* do something */
 }
 
@@ -174,28 +185,37 @@ void WorldGrid::enlargeForPosition(glm::vec2 pos)
         this->resizeQuad(minPos, gridSize);
 }
 
-void WorldGrid::addUpdateProbe(std::shared_ptr<pou::SimpleNode> node, float radius)
+//void WorldGrid::addUpdateProbe(std::shared_ptr<pou::SimpleNode> node, float radius)
+void WorldGrid::addUpdateProbe(pou::SimpleNode *node, float radius)
 {
+    if(!node)
+        return;
+
     GridProbe probe;
     probe.node = node;
     probe.radius = radius;
     m_updateProbes.push_back(probe);
+
+    this->startListeningTo(node);
 }
 
 void WorldGrid::removeUpdateProbe(pou::SimpleNode *node)
 {
     for(auto it = m_updateProbes.begin() ; it != m_updateProbes.end() ; ++it)
-        if(it->node.get() == node)
+        if(it->node == node)
         {
             m_updateProbes.erase(it);
             return;
         }
 }
 
-void WorldGrid::setRenderProbe(std::shared_ptr<pou::SimpleNode> node, float radius)
+//void WorldGrid::setRenderProbe(std::shared_ptr<pou::SimpleNode> node, float radius)
+void WorldGrid::setRenderProbe(pou::SimpleNode *node, float radius)
 {
     m_renderProbe.node      = node;
     m_renderProbe.radius    = radius;
+    if(node)
+        this->startListeningTo(node);
 }
 
 void WorldGrid::probesZones(std::set< std::vector<std::shared_ptr<pou::SimpleNode> > *> &zonesToUpdate, GridProbe &probe)
@@ -242,7 +262,13 @@ void WorldGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
     for(auto* zone : zonesToUpdate)
     for(auto node : *zone)
     //for(auto node : nodesToUpdate)
+    {
         node->update(elapsedTime, localTime), ++i;
+       // m_needToUpdateNodes.erase(node.get());
+    }
+
+   // for(auto node : m_needToUpdateNodes)
+     //   node->update(elapsedTime, localTime);
 
     for(auto &nodeToMove : m_nodesToMove)
     {
@@ -298,5 +324,9 @@ void WorldGrid::notify(pou::NotificationSender* sender, int notificationType, vo
     }
 
     if(notificationType == pou::NotificationType_SenderDestroyed)
+    {
         this->removeUpdateProbe((pou::SimpleNode*)sender);
+        if(sender == m_renderProbe.node)
+            m_renderProbe.node = nullptr;
+    }
 }

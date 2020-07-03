@@ -179,7 +179,7 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 
     auto player = m_syncComponent.getPlayer(worldInitMsg->player_id);
     this->createPlayerCamera(player.get());
-     m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
+     m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
 
     m_scene->update(pou::Time(0),m_syncComponent.getLocalTime());
 }
@@ -258,7 +258,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     player->setTeam(1);
 
-    m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
+    m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
 
     return (true);
 }

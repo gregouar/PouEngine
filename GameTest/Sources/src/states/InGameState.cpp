@@ -46,6 +46,7 @@ void InGameState::entered()
 
 void InGameState::leaving()
 {
+    m_world = nullptr;
 }
 
 void InGameState::revealed()
