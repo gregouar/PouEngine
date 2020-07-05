@@ -47,6 +47,7 @@ void InGameState::entered()
 void InGameState::leaving()
 {
     m_world = nullptr;
+    m_gameUi.setPlayer(nullptr);
 }
 
 void InGameState::revealed()
@@ -148,7 +149,9 @@ void InGameState::changeWorld(GameWorld *world, int playerId)
     m_world = world;
     m_playerId = playerId;
 
-    auto player = m_world->getPlayer(m_playerId);
+    Player *player = nullptr;
+    if(m_world)
+        player = m_world->getPlayer(m_playerId);
     m_gameUi.setPlayer(player);
 }
 

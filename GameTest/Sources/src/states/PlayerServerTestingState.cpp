@@ -33,14 +33,13 @@ void PlayerServerTestingState::init()
 
 void PlayerServerTestingState::entered()
 {
-    m_gameServer.create(m_port /*GameData::serverAddress.getPort()*/,true);
+    if(m_firstEntering)
+        this->init();
+
+    m_gameServer.create(m_port,true);
     m_gameServer.generateWorld();
 
     int localClientNbr = m_gameServer.addLocalPlayer(m_playerSave);
-    //m_localClientNbr = (size_t)localClientNbr;
-
-    if(m_firstEntering)
-        this->init();
 
     auto inGameState = InGameState::instance();
     inGameState->setClientId(localClientNbr);

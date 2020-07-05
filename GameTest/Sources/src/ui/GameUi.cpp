@@ -43,11 +43,12 @@ bool GameUi::init()
 
 void GameUi::update(const pou::Time &elapsed_time)
 {
+    this->updatePlayerLife();
+
     if(m_player)
-    {
-        this->updatePlayerLife();
         m_testText->setText(m_player->getPlayerName());
-    }
+    else
+        m_testText->setText(std::string());
 
     UserInterface::update(elapsed_time);
 }
@@ -61,6 +62,14 @@ void GameUi::setPlayer(Player *player)
 
 void GameUi::updatePlayerLife(/*float cur, float max*/)
 {
+    if(!m_player)
+    {
+        m_lifeBar->hide();
+        return;
+    }
+    else
+        m_lifeBar->show();
+
     auto playerLife = m_player->getAttributes().life;
     auto playerMaxLife = m_player->getModelAttributes().maxLife;
 

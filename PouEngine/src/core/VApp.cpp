@@ -180,14 +180,17 @@ void VApp::loop()
     {
         Time elapsedTime = clock.restart();
 
+        Profiler::resetLoop(ENABLE_PROFILER);
+
         if(useHardVSync && elapsedTime < vSyncDelay)
         {
             std::this_thread::sleep_for(vSyncDelay-elapsedTime);
             clock.restart();
             elapsedTime = vSyncDelay;
+
+            Profiler::resetLoop(ENABLE_PROFILER);
         }
 
-        Profiler::resetLoop(ENABLE_PROFILER);
 
         if(m_eventsManager.resizedWindow())
         {

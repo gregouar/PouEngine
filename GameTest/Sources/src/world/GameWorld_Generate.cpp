@@ -5,8 +5,12 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+//For tests
+#include "PouEngine/system/Clock.h"
+
 #include "net/GameServer.h"
 #include "net/GameClient.h"
+#include "logic/GameMessageTypes.h"
 
 
 void GameWorld::init()
@@ -26,24 +30,40 @@ void GameWorld::init()
 
 }
 
-void GameWorld::generate()
+void GameWorld::generate(bool generateInThread)
 {
     ///this->createScene();
     this->init();
 
+    m_worldReady = false;
+
+    if(generateInThread)
+        m_generatingThread = std::thread(&GameWorld::generateImpl, this);
+    else
+        this->generateImpl();
+}
+
+
+void GameWorld::generateImpl()
+{
+    pou::Logger::write("Generating world...");
+
     m_dayTime = glm::linearRand(0,360);
 
-    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt");
+    auto loadType = pou::LoadType_Now;
+
+    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt",loadType);
     m_syncComponent.syncElement(grassSheet);
 
-    auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt");
+    auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt",loadType);
     m_syncComponent.syncElement(rockSheet);
 
     for(auto x = -100 ; x < 100 ; x++)
     for(auto y = -100 ; y < 100 ; y++)
     {
         ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
-        auto grassNode = m_worldGrid->createChildNode(x*64,y*64);
+        //auto grassNode = m_worldGrid->createChildNode(x*64,y*64);
+        auto grassNode = std::make_shared<WorldNode>();
         m_syncComponent.syncElement(grassNode);
 
         auto spriteEntity = std::make_shared<WorldSprite>();
@@ -52,27 +72,26 @@ void GameWorld::generate()
         int modulo = 4;
         if(abs(rd % modulo) == 0)
             spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
-            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_2"));
         else if(abs(rd % modulo) == 1)
             spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
-            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_1"));
         else if(abs(rd % modulo) == 2)
             spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
-            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_3"));
         else if(abs(rd % modulo) == 3)
             spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
-            ///spriteEntity = m_scene->createSpriteEntity(grassSheet->getSpriteModel("grass1_4"));
 
         grassNode->attachObject(spriteEntity);
         m_syncComponent.syncElement(spriteEntity);
 
+        grassNode->setPosition({x*64,y*64,0});
         grassNode->setScale(glm::vec3(
                                 glm::linearRand(0,10) > 5 ? 1 : -1,
                                 1,//glm::linearRand(0,10) > 5 ? 1 : -1,
                                 1));
+
+        m_worldGrid->addChildNode(grassNode);
     }
 
-    auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt");
+    auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
 
 
@@ -104,8 +123,7 @@ void GameWorld::generate()
         m_syncComponent.syncElement(tree);
     }
 
-
-    auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt");
+    auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt",loadType);
     m_syncComponent.syncElement(lanternModel);
 
     for(auto x = -10 ; x < 10 ; x++)
@@ -125,9 +143,7 @@ void GameWorld::generate()
         m_syncComponent.syncElement(lantern);
     }
 
-
-
-    auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt");
+    auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt",loadType);
     m_syncComponent.syncElement(duckModel);
 
     for(auto x = -10 ; x < 10 ; x++)
@@ -152,6 +168,9 @@ void GameWorld::generate()
     }
 
     m_scene->update(pou::Time(0));
+    m_worldReady = true;
+
+    pou::Logger::write("World generated !");
 }
 
 void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
@@ -162,31 +181,38 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
     m_syncComponent.createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
 }
 
-void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
+void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool generateInThread)
 {
     this->init();
+    m_worldReady = false;
 
+    if(generateInThread)
+        m_generatingThread = std::thread(&GameWorld::generateFromMsgImpl, this, worldInitMsg);
+    else
+        this->generateFromMsgImpl(worldInitMsg);
+}
+
+void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
+{
     m_dayTime = worldInitMsg->dayTime;
-
-   /** m_worldGrid = std::make_shared<WorldGrid>();
-    m_worldGrid->setQuadSize(1024);
-    m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
-    m_scene->getRootNode()->addChildNode(m_worldGrid);
-    m_syncNodes.insert(worldInitMsg->worldGrid_nodeId, m_worldGrid);**/
 
     m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();
 
     auto player = m_syncComponent.getPlayer(worldInitMsg->player_id);
     this->createPlayerCamera(player.get());
-     m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
+    ///m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
 
     m_scene->update(pou::Time(0),m_syncComponent.getLocalTime());
+    m_worldReady = true;
 }
 
 
 void GameWorld::destroy()
 {
+    if(m_generatingThread.joinable())
+        m_generatingThread.join();
+
     m_camera = nullptr;
 
     m_sunLight.reset();
@@ -209,16 +235,19 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
     if(!player)
         return (false);
 
-    player->update(pou::Time(0), 0);
+    //pou::Clock clock;
+    //clock.restart();
+
+    ///player->update(pou::Time(0), 0);
 
     glm::vec2 pos(glm::linearRand(-200,200), glm::linearRand(-200,200));
-    player/*->node()*/->pou::SceneNode::setPosition(pos);
+    player->pou::SceneNode::setPosition(pos);
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
     CharacterModelAsset *playerModel;
     if(playerSave->getPlayerType() % 3 == 0)
-        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/char1XML.txt");
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/char1XML.txt"/*, pou::LoadType_InThread*/);
     else if(playerSave->getPlayerType() % 3 == 1)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/mokouXML.txt");
     else
@@ -231,8 +260,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     m_worldGrid->addChildNode(player/*->node()*/);
 
-    player/*->node()*/->pou::SceneNode::setPosition(pos);
-
+    ///player/*->node()*/->pou::SceneNode::setPosition(pos);
 
     ItemModelAsset *playerWeapon;
 
@@ -258,7 +286,11 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     player->setTeam(1);
 
-    m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
+    ///m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
+
+    GameMessage_World_NewPlayer gameMsg;
+    gameMsg.player = player.get();
+    pou::MessageBus::postMessage(GameMessageType_World_NewPlayer, &gameMsg);
 
     return (true);
 }

@@ -13,8 +13,9 @@
 #include "world/WorldGrid.h"
 #include "world/GameWorld_Sync.h"
 
+#include <thread>
 
-class GameWorld
+class GameWorld : public pou::NotificationListener
 {
     public:
         GameWorld(bool renderable);
@@ -24,13 +25,13 @@ class GameWorld
         void render(pou::RenderWindow *renderWindow);
 
         void init();
-        void generate();
+        void generate(bool generateInThread = true);
         ///void rewind(uint32_t time, bool simulate = true);
         void destroy();
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
 
-        void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+        void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool generateInThread = true);
 
         size_t  askToAddPlayer(std::shared_ptr<PlayerSave> playerSave
                                /*const std::string &playerName = std::string()*/, bool isLocalPlayer = false);
@@ -40,6 +41,8 @@ class GameWorld
         void addPlayerAction(int player_id, const PlayerAction &playerAction);
 
         glm::vec2 convertScreenToWorldCoord(glm::vec2 p);
+
+        bool isReady();
 
         uint32_t getLocalTime();
 
@@ -52,6 +55,9 @@ class GameWorld
         void createScene();
         void createPlayerCamera(Player *player);
 
+        void generateImpl();
+        void generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+
         bool    initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave);
         bool    removePlayer(size_t player_id);
 
@@ -60,7 +66,14 @@ class GameWorld
         //void processPlayerActions(const pou::Time elapsed_time);
         void processPlayerActions();
 
+        virtual void notify(pou::NotificationSender* sender, int notificationType, void* data) override;
+
     private:
+        std::atomic<bool> m_worldReady;
+        std::thread m_generatingThread;
+        //std::mutex  m_serverMutex;
+
+
         pou::Scene *m_scene;
         std::shared_ptr<WorldNode> m_worldRootNode;
         std::shared_ptr<WorldGrid> m_worldGrid;

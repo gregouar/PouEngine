@@ -36,8 +36,7 @@ class GameClient : public pou::NotificationListener
 
         void updateWorld(const pou::Time &elapsedTime);
 
-        virtual void notify(pou::NotificationSender*, int notificationType,
-                            void* data);
+        virtual void notify(pou::NotificationSender*, int notificationType, void* data) override;
 
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
@@ -48,6 +47,7 @@ class GameClient : public pou::NotificationListener
         uint16_t    m_curWorldId;
         uint16_t    m_curPlayerId;
         bool        m_isWaitingForWorldSync;
+        bool        m_isWaitingForWorldGen;
 
         glm::vec2   m_curCursorPos;
 

@@ -4,14 +4,16 @@
 
 #include "PouEngine/core/MessageBus.h"
 
-class Character;
+class GameWorld;
 class WorldNode;
 class WorldSprite;
-class GameWorld;
+class Character;
+class Player;
 
 enum GameMessageType
 {
     GameMessageType_First = pou::NotificationType_Custom,
+    GameMessageType_World_NewPlayer,
     GameMessageType_World_NodeUpdated,
     GameMessageType_World_SpriteUpdated,
     GameMessageType_World_CharacterUpdated,
@@ -20,6 +22,11 @@ enum GameMessageType
     GameMessageType_Net_Connected,
     GameMessageType_Net_Disconnected,
     GameMessageType_Last,
+};
+
+struct GameMessage_World_NewPlayer
+{
+    Player   *player;
 };
 
 struct GameMessage_World_NodeUpdated

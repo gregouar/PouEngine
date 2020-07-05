@@ -21,6 +21,7 @@ GameClient::GameClient() :
     //m_world(true, false),
     m_curWorldId(0),
     m_isWaitingForWorldSync(false),
+    m_isWaitingForWorldGen(false),
     m_curCursorPos(0),
     m_remainingTime(0)
 {
@@ -62,6 +63,12 @@ void GameClient::disconnectionCleanup()
 {
     m_isWaitingForWorldSync = false;
     m_curWorldId = 0;
+
+    GameMessage_Game_ChangeWorld gameMsg;
+    gameMsg.clientId    = 0;
+    gameMsg.world       = nullptr;
+    gameMsg.playerId    = 0;
+    pou::MessageBus::postMessage(GameMessageType_Game_ChangeWorld, &gameMsg);
 
     m_world.reset();
     //m_world.destroy();
@@ -184,15 +191,10 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
             m_world = std::make_unique<GameWorld>(true);
             m_world->generateFromMsg(castMsg);
+            m_isWaitingForWorldGen = true;
 
             /*auto player = m_world->getPlayer(m_curPlayerId);
             player->setPlayerName(m_playerName);*/
-
-            GameMessage_Game_ChangeWorld gameMsg;
-            gameMsg.clientId    = 0;
-            gameMsg.world       = m_world.get();
-            gameMsg.playerId    = m_curPlayerId;
-            pou::MessageBus::postMessage(GameMessageType_Game_ChangeWorld, &gameMsg);
 
             pou::Logger::write("Received world #"+std::to_string(m_curWorldId));
         }break;
@@ -212,11 +214,14 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
 {
     if(m_world)
     {
+       // int nbrTicks = 0;
         while(m_remainingTime > GameClient::TICKDELAY)
         {
             m_world->update(GameClient::TICKDELAY);
             m_remainingTime -= GameClient::TICKDELAY;
+           // nbrTicks++;
         }
+        //std::cout<<"NbrTicks:"<<nbrTicks<<std::endl;
     } else
         m_remainingTime = pou::Time(0);
 
@@ -234,7 +239,20 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         m_client->sendMessage(msg, true);
 
         return;
-    } else if(m_curWorldId != 0 && m_world) {
+    }
+    else if(m_curWorldId != 0 && m_world &&m_world->isReady())
+    {
+        if(m_isWaitingForWorldGen)
+        {
+            m_isWaitingForWorldGen = false;
+
+            GameMessage_Game_ChangeWorld gameMsg;
+            gameMsg.clientId    = 0;
+            gameMsg.world       = m_world.get();
+            gameMsg.playerId    = m_curPlayerId;
+            pou::MessageBus::postMessage(GameMessageType_Game_ChangeWorld, &gameMsg);
+        }
+
         if(m_syncTimer.update(elapsedTime) || !m_syncTimer.isActive())
         {
             /*auto player = m_world->getPlayer(m_curPlayerId);

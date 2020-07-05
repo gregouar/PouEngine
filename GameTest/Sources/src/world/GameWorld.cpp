@@ -5,12 +5,17 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+//For tests
+#include "PouEngine/system/Clock.h"
+
 #include "net/GameServer.h"
 #include "net/GameClient.h"
+#include "logic/GameMessageTypes.h"
 
 const int GameWorld::MAX_NBR_PLAYERS = 4;
 
 GameWorld::GameWorld(bool renderable) :
+    m_worldReady(false),
     m_scene(nullptr),
     m_isRenderable(renderable),
     ///m_curLocalTime(0),
@@ -19,6 +24,7 @@ GameWorld::GameWorld(bool renderable) :
     m_musicEvent(0)
    /// m_wantedRewind(-1)
 {
+    pou::MessageBus::addListener(this, GameMessageType_World_NewPlayer);
 }
 
 GameWorld::~GameWorld()
@@ -29,6 +35,12 @@ GameWorld::~GameWorld()
 
 void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 {
+    if(!m_worldReady)
+        return;
+    else if(m_generatingThread.joinable())
+        m_generatingThread.join();
+
+
     m_syncComponent.update(elapsed_time);
 
     auto localTime = m_syncComponent.getLocalTime();
@@ -50,6 +62,7 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     }
 
     this->updateSunLight(elapsed_time);
+
     m_scene->update(elapsed_time, localTime);
 
     this->processPlayerActions();
@@ -57,10 +70,7 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
 void GameWorld::render(pou::RenderWindow *renderWindow)
 {
-    if(!m_isRenderable)
-        return;
-
-    if(!m_scene)
+    if(!m_isRenderable || !m_scene || !m_worldReady)
         return;
 
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
@@ -198,6 +208,10 @@ glm::vec2 GameWorld::convertScreenToWorldCoord(glm::vec2 p)
     return m_scene->convertScreenToWorldCoord(p, m_camera.get());
 }
 
+bool GameWorld::isReady()
+{
+    return m_worldReady;
+}
 
 uint32_t GameWorld::getLocalTime()
 {
@@ -247,7 +261,7 @@ void GameWorld::createScene()
 
 void GameWorld::createPlayerCamera(Player *player)
 {
-    if(m_isRenderable && !m_camera)
+    if(m_isRenderable && !m_camera && player)
     {
         m_camera = std::make_shared<pou::CameraObject>();
         auto listeningCamera = std::make_shared<pou::CameraObject>();
@@ -360,3 +374,14 @@ void GameWorld::processPlayerActions()
     }
 }**/
 
+
+void GameWorld::notify(pou::NotificationSender* sender, int notificationType, void* data)
+{
+    ///I should find way to verify the player is in this world
+
+    if(notificationType == GameMessageType_World_NewPlayer)
+    {
+        auto gameMsg = static_cast<GameMessage_World_NewPlayer*>(data);
+        m_worldGrid->addUpdateProbe(gameMsg->player, 2048);
+    }
+}

@@ -215,15 +215,14 @@ void GameWorld_Sync::createWorldSyncMsg_Node(WorldNode *nodePtr, std::shared_ptr
 {
     if(uint32leq(nodePtr->getLastUpdateTime(), lastSyncTime))
         return;
-
     worldSyncMsg->nodes.push_back({nodePtr->getNodeSyncId() /**it->first**/, NodeSync()});
     auto &nodeSync = worldSyncMsg->nodes.back().second;
 
     nodeSync.parentNodeId = 0;
 
     if(/*nodePtr->getParent() != m_scene->getRootNode()
-    &&*/ uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime())
-    && nodePtr->getParent())
+    &&*/ /*uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime())
+    &&*/ nodePtr->getParent())
     {
         auto parentNode = (WorldNode*)nodePtr->getParent();
         nodeSync.parentNodeId = parentNode->getNodeSyncId();///m_syncNodes.findId((WorldNode*)nodePtr->getParent());
@@ -313,7 +312,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(desiredMinLocalTime < m_curLocalTime || m_curLocalTime < desiredMaxLocalTime)
         {
-            std::cout<<"Jump time from "<<m_curLocalTime<<" tot "<<  desiredLocalTime<<std::endl;
+            pou::Logger::write("Jump time from "+std::to_string(m_curLocalTime)+" to "+std::to_string(desiredLocalTime));
 
             m_curLocalTime = desiredLocalTime;
             m_deltaRTT = deltaRTT;
@@ -360,7 +359,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
                 if(playerId == (int)clientPlayerId)
                 {
                     player = std::make_shared<Player>();
-                   // m_worldGrid->addUpdateProbe(player/*->node()*/, 2048);
+                   // m_worldGrid->addUpdateProbe(player, 2048);
                 }
                 else
                 {
@@ -372,6 +371,10 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
                 this->syncElement((std::shared_ptr<Character>)player, playerSync.characterId);
 
                 player->setTeam(1);
+
+                GameMessage_World_NewPlayer gameMsg;
+                gameMsg.player = player.get();
+                pou::MessageBus::postMessage(GameMessageType_World_NewPlayer, &gameMsg);
             }
         }
 
@@ -417,8 +420,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         }
     }
 
-    ///TEST
-    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+    /*for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
         if(playerIt->first != clientPlayerId)
         {
@@ -431,9 +433,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             playerIt->second->disableSync();
             playerIt->second->setReconciliationDelay(0,0);
         }
-    }
-    ///
-
+    }*/
 
     for(auto &playerIt : worldSyncMsg->players)
     {
@@ -488,12 +488,13 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             if(parentptr /*&& parentptr.get() != nodePtr->getParent()*/)
             {
                 ///This is problematic, I really have an issue because I could miss sync
-                nodePtr->removeFromParent();
+                /*nodePtr->removeFromParent();
                 auto oldPos = nodePtr->getPosition();
                 nodePtr->setPosition(nodeSync.node->getPosition());
                 nodePtr->update(pou::Time(0));
                 parentptr->addChildNode(nodePtr);
-                nodePtr->setPosition(oldPos);
+                nodePtr->setPosition(oldPos);*/
+                parentptr->addChildNode(nodePtr);
             }
         }
     }
@@ -561,6 +562,23 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         this->desyncElement(nodePtr.get());
         nodePtr->removeFromParent();
+    }
+
+
+
+    for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
+    {
+        if(playerIt->first != clientPlayerId)
+        {
+            uint32_t delay = m_deltaRTT*1.5;
+            playerIt->second->setReconciliationDelay(delay,0);
+            playerIt->second->disableInputSync(false);
+        }
+        else
+        {
+            playerIt->second->disableSync();
+            playerIt->second->setReconciliationDelay(0,0);
+        }
     }
 
 }
@@ -810,6 +828,8 @@ std::shared_ptr<Player>     GameWorld_Sync::getPlayer(int player_id)
 
 void GameWorld_Sync::notify(pou::NotificationSender*, int notificationType, void* data)
 {
+    ///I should find way to verify these nodes coincides are in the concerned world.
+
     if(notificationType == GameMessageType_World_NodeUpdated)
     {
         auto *gameMsg = static_cast<GameMessage_World_NodeUpdated*>(data);

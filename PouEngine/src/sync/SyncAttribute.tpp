@@ -336,7 +336,10 @@ bool LinSyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     //if(itSyncValue == this->m_syncValues.end() || itSyncValue->first != interpTime)
     {
         if(itSyncValue == this->m_syncValues.begin())
-            return (false);
+        {
+            if(!this->m_firstSync)
+                return (false);
+        }
         else
             (--itSyncValue);
 

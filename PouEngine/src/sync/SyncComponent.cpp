@@ -19,7 +19,8 @@ SyncComponent::~SyncComponent()
 
 bool SyncComponent::update(const Time &elapsedTime, uint32_t localTime)
 {
-    m_curLocalTime = localTime;
+    if(localTime != uint32_t(-1))
+        m_curLocalTime = localTime;
 
     bool r = false;
     for(auto *syncElement : m_syncElements)

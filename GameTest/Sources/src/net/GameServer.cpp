@@ -18,8 +18,8 @@ const pou::Time GameServer::SYNCDELAY(1.0f/GameServer::SYNCRATE);
 GameServer::GameServer() :
     m_serverIsRunning(false),
     m_curWorldId(0),
-    m_remainingTime(0),
-    m_isInThread(false)
+    m_remainingTime(0)
+//    m_isInThread(false)
 {
     initializeNetMessages();
     pou::NetEngine::setSyncDelay(GameServer::TICKRATE/GameServer::SYNCRATE);
@@ -33,17 +33,17 @@ GameServer::~GameServer()
     this->cleanup();
 }
 
-bool GameServer::create(unsigned short port, bool allowLocalPlayers, bool launchInThread)
+bool GameServer::create(unsigned short port, bool allowLocalPlayers/*, bool launchInThread*/)
 {
     m_server = std::move(pou::NetEngine::createServer());
     m_server->start(GameWorld::MAX_NBR_PLAYERS,port);
     m_serverIsRunning = true;
 
-    if(launchInThread)
+    /*if(launchInThread)
     {
         m_isInThread = true;
         m_serverThread = std::thread(&GameServer::threading, this);
-    }
+    }*/
 
     m_allowLocalPlayers = allowLocalPlayers;
 
@@ -58,7 +58,7 @@ void GameServer::shutdown()
     m_serverIsRunning = false;
 
     {
-        std::lock_guard<std::mutex> lock(m_serverMutex);
+        //std::lock_guard<std::mutex> lock(m_serverMutex);
         m_worlds.clear();
 
         if(m_server)
@@ -68,8 +68,8 @@ void GameServer::shutdown()
         }
     }
 
-    if(m_serverThread.joinable())
-        m_serverThread.join();
+    //if(m_serverThread.joinable())
+      //  m_serverThread.join();
 }
 
 void GameServer::cleanup()
@@ -97,10 +97,10 @@ void GameServer::update(const pou::Time &elapsedTime)
     std::list<std::pair<int, std::shared_ptr<pou::NetMessage> > > netMessages;
     m_server->receivePackets(netMessages);
 
-    if(!m_isInThread)
+    //if(!m_isInThread)
         pou::Profiler::pushClock("Update server worlds");
     this->updateWorlds(tickedElapsedTime);
-    if(!m_isInThread)
+    //if(!m_isInThread)
         pou::Profiler::popClock();
 
     for(auto &clientAndMsg : netMessages)
@@ -499,7 +499,7 @@ void GameServer::updateWorlds(const pou::Time &elapsedTime)
     m_remainingTime = totalTime;
 }
 
-void GameServer::threading()
+/*void GameServer::threading()
 {
     pou::Clock clock;
     pou::Time totalTime = pou::Time(0);
@@ -517,8 +517,7 @@ void GameServer::threading()
             totalTime = pou::Time(0);
         }
     }
-}
-
+}*/
 
 std::pair<GameClientInfos*, GameWorld*> GameServer::getClientInfosAndWorld(size_t clientId)
 {

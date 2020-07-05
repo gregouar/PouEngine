@@ -128,28 +128,28 @@ bool MaterialAsset::loadFromXML(TiXmlHandle *hdl)
     {
         if(std::string(textElem->Attribute("type")).compare("albedo") == 0)
         {
-            m_albedoMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
+            m_albedoMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),LoadType_InThread /**m_loadType**/);
             this->startListeningTo(m_albedoMap);
             if(!m_albedoMap->isLoaded())
                 loaded = false;
         }
         else if(std::string(textElem->Attribute("type")).compare("normal") == 0)
         {
-            m_normalMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
+            m_normalMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),LoadType_InThread /**m_loadType**/);
             this->startListeningTo(m_normalMap);
             if(!m_normalMap->isLoaded())
                 loaded = false;
         }
         else if(std::string(textElem->Attribute("type")).compare("height") == 0)
         {
-            m_heightMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
+            m_heightMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),LoadType_InThread /**m_loadType**/);
             this->startListeningTo(m_heightMap);
             if(!m_heightMap->isLoaded())
                 loaded = false;
         }
         else if(std::string(textElem->Attribute("type")).compare("rme") == 0)
         {
-            m_rmeMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),m_loadType);
+            m_rmeMap = TexturesHandler::loadAssetFromFile(m_fileDirectory+textElem->GetText(),LoadType_InThread /**m_loadType**/);
             this->startListeningTo(m_rmeMap);
             if(!m_rmeMap->isLoaded())
                 loaded = false;

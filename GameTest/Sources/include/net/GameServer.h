@@ -29,7 +29,7 @@ class GameServer
         GameServer();
         virtual ~GameServer();
 
-        bool create(unsigned short port = 0, bool allowLocalPlayers = false, bool launchInThread = false);
+        bool create(unsigned short port = 0, bool allowLocalPlayers = false/*, bool launchInThread = false*/);
         void shutdown();
 
         void update(const pou::Time &elapsedTime);
@@ -70,11 +70,11 @@ class GameServer
 
         void updateWorlds(const pou::Time &elapsedTime);
 
-        void threading();
+        //void threading();
 
 
     private:
-        std::atomic<bool> m_serverIsRunning;
+        bool m_serverIsRunning;
         std::unique_ptr<pou::AbstractServer> m_server;
 
 
@@ -85,9 +85,9 @@ class GameServer
         pou::Time m_remainingTime;
 
 
-        bool        m_isInThread;
+        /*bool        m_isInThread;
         std::thread m_serverThread;
-        std::mutex  m_serverMutex;
+        std::mutex  m_serverMutex;*/
 
         bool        m_allowLocalPlayers;
 

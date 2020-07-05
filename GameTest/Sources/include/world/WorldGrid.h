@@ -56,6 +56,8 @@ class WorldGrid : /**public pou::SceneGrid,**/ public WorldNode
         std::list<GridProbe> m_updateProbes;
         GridProbe m_renderProbe;
 
+        ///I could try to replace std::vector< std::shared_ptr<pou::SimpleNode> >  by a node (representing a square on the grid)
+        ///But then I need to somehow sync these nodes
         std::vector< std::vector< std::vector< std::shared_ptr<pou::SimpleNode> > > >
             m_grid;
 

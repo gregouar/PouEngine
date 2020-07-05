@@ -47,6 +47,9 @@
 	</animation>
 	
 	<animation name="interrupt">
+		<frame frameTime=.01>
+			<reset />
+		</frame>
 		<frame>
 			<!--<tag value="hurtSound">playSound</tag>-->
 			<sound>hurtSound</sound>
