@@ -157,8 +157,8 @@ enum ConnectionStatus
 enum TextAlignType
 {
     TextAlignType_Left,
-    TextAlignType_Center,
-    //TextAlignType_Right, //Not implemeted *yet*
+    TextAlignType_Center, //Not completely implemented *yet*
+    TextAlignType_Right, //Not completely implemented *yet*
 };
 
 typedef std::chrono::duration<double, std::chrono::seconds::period> Time;

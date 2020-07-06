@@ -243,7 +243,7 @@ void UdpPacketsExchanger::sendPacket(NetAddress &address, UdpPacket &packet, boo
 
         firstMsg = true;
         for(auto it = netMsgList.nonReliableMsgList.begin() ;
-            it != netMsgList.nonReliableMsgList.end() ; ++it)
+            it != netMsgList.nonReliableMsgList.end() ; /*++it*/)
         {
             WriteStream tempStream;
             auto msgSize = (*it)->serialize(&tempStream) + 2;

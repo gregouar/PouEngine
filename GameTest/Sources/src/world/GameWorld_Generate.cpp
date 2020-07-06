@@ -310,6 +310,8 @@ bool GameWorld::removePlayer(size_t player_id)
     m_worldGrid->removeUpdateProbe(player/*->node()*/.get());
     m_syncComponent.desyncElement(player.get());
 
+    std::cout<<"Player counts:"<<player.use_count()<<std::endl;
+
     ///return m_syncPlayers.freeId(player_id);
     return (true);
 }

@@ -116,6 +116,11 @@ Player* GameClient::getPlayer()
     return m_world->getPlayer(m_curPlayerId);
 }
 
+float GameClient::getRTT() const
+{
+    return m_client->getRTT();
+}
+
 
 void GameClient::update(const pou::Time &elapsedTime)
 {

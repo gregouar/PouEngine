@@ -106,6 +106,8 @@ void RenderableUiElement::setColor(const glm::vec4 &color)
 void RenderableUiElement::notify(NotificationSender *sender, int notificationType,
                                  void* data)
 {
+    UiElement::notify(sender, notificationType, data);
+
     if(notificationType == NotificationType_AssetLoaded ||
        notificationType == NotificationType_TextureChanged ||
        notificationType == NotificationType_ModelChanged ||

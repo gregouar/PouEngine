@@ -293,19 +293,13 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
     uint32_t deltaRTT = (uint32_t)(RTT*GameServer::TICKRATE);
     deltaRTT += pou::NetEngine::getSyncDelay();
 
-    if(deltaRTT < 15) //To avoid too small RTT
-        deltaRTT = 15;
+   // if(deltaRTT < 15) //To avoid too small RTT
+     //   deltaRTT = 15;
 
     {
-
-        /**uint32_t desiredLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(deltaRTT*1),(int64_t)0);
-        uint32_t desiredMaxLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(deltaRTT*1.5),(int64_t)0);
-        uint32_t desiredMinLocalTime = std::max((int64_t)worldSyncMsg->localTime - (int64_t)(deltaRTT*.75),(int64_t)0);**/
-
         uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1);
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);
-
 
         if(m_lastSyncTime == (uint32_t)(-1))
             m_curLocalTime = desiredLocalTime;
@@ -319,7 +313,6 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         }
 
         m_lastSyncTime = worldSyncMsg->localTime;
-
     }
 
 
@@ -852,9 +845,13 @@ void GameWorld_Sync::notify(pou::NotificationSender*, int notificationType, void
 void GameWorld_Sync::removeFromUpdatedCharacters(Character *character)
 {
     for(auto i = 0 ; i < 1 ; ++i)
-        for(auto it = m_updatedCharacters[i].begin() ; it != m_updatedCharacters[i].end() ; ++it)
+        for(auto it = m_updatedCharacters[i].begin() ; it != m_updatedCharacters[i].end() ; )
+        {
             if(*it == character)
                 it = m_updatedCharacters[i].erase(it);
+            else
+                ++it;
+        }
 }
 
 void GameWorld_Sync::processPlayerEvents()

@@ -151,10 +151,12 @@ void UiText::generatedGlyphes()
             pos.x = 0;
             pos.y += m_fontSize;
             verticalSize += m_fontSize;
-
-            if(m_textAlign == TextAlignType_Center)
+            if(m_textAlign == TextAlignType_Center || m_textAlign == TextAlignType_Right)
             {
-                int delta = this->getSize().x/2 - lineSize/2;
+                int delta = this->getSize().x - lineSize;
+                if(m_textAlign == TextAlignType_Center)
+                    delta /= 2;
+
                 int i = 0;
                 for(auto it = m_glyphes.rbegin() ;  it != m_glyphes.rend() && i < charNbr - lastJump ; ++i, ++it)
                     (*it)->move(delta,0);
@@ -206,9 +208,12 @@ void UiText::generatedGlyphes()
     }
 
     ///I could create a sub uiElement per line, and a sub uiElement for the whole text, would be easier to handle centering
-    if(m_textAlign == TextAlignType_Center)
+    if(m_textAlign == TextAlignType_Center || m_textAlign == TextAlignType_Right)
     {
-        int delta = this->getSize().x/2 - lineSize/2;
+        int delta = this->getSize().x - lineSize;
+        if(m_textAlign == TextAlignType_Center)
+            delta /= 2;
+
         int i = 0;
         for(auto it = m_glyphes.rbegin() ;  it != m_glyphes.rend() && i < charNbr - lastJump ; ++i, ++it)
             (*it)->move(delta,0);

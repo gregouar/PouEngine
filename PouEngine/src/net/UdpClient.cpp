@@ -16,7 +16,7 @@ namespace pou
 const float UdpClient::CONNECTING_ATTEMPT_DELAY = 1.0f;
 const float UdpClient::CONNECTING_MAX_TIME = 10.0f;
 const float UdpClient::DEFAULT_PINGDELAY = .5f;
-const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 30.0f;
+const float UdpClient::DEFAULT_DECONNECTIONPINGDELAY = 10.0f;
 
 
 UdpClient::UdpClient() :

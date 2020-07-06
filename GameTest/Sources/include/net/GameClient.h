@@ -23,6 +23,7 @@ class GameClient : public pou::NotificationListener
 
         const pou::NetAddress &getServerAddress() const;
         unsigned short getPort() const;
+        float getRTT() const;
 
         Player *getPlayer();
 

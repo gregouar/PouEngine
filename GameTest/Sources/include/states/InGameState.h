@@ -24,6 +24,7 @@ class InGameState : public pou::GameState, public Singleton<InGameState>, pou::N
         virtual void draw(pou::RenderWindow *renderWindow);
 
         void setClientId(int clientId);
+        void setRTTInfo(float RTT);
         void changeWorld(GameWorld *world, int playerId);
 
     protected:

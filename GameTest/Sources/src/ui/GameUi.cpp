@@ -5,9 +5,13 @@
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/FontAsset.h"
 
+#include "logic/GameMessageTypes.h"
+
+
 GameUi::GameUi() :
     m_player(nullptr)
 {
+    pou::MessageBus::addListener(this, GameMessageType_World_NewPlayer);
 }
 
 GameUi::~GameUi()
@@ -17,38 +21,50 @@ GameUi::~GameUi()
 
 bool GameUi::init()
 {
-    m_lifeBar = this->createProgressBar(true);
+    m_playerHud = std::make_shared<pou::UiElement>(this);
+    this->addRootElement(m_playerHud);
+
+    m_lifeBar =std::make_shared<pou::UiProgressBar>(this);
     m_lifeBar->setPosition(17,30);
     m_lifeBar->setSize({288-34,32});
     m_lifeBar->setTextureRect({17,0},{288-34,32},false);
     m_lifeBar->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
+    m_playerHud->addChildNode(m_lifeBar);
 
-    m_uiPictureTest = this->createUiPicture(false);
-    m_uiPictureTest->setPosition(-17,0,-1);
-    m_uiPictureTest->setSize(288,32);
-    m_uiPictureTest->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
-    m_lifeBar->addChildNode(m_uiPictureTest);
+    auto lifeBarBackground = std::make_shared<pou::UiPicture>(this);
+    lifeBarBackground->setPosition(-17,0,-1);
+    lifeBarBackground->setSize(288,32);
+    lifeBarBackground->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
+    m_lifeBar->addChildNode(lifeBarBackground);
 
-    m_testText = std::make_shared<pou::UiText>(this);
-    m_testText->setPosition(0,0,0);
-    m_testText->setFont(pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF"));
+    m_font = pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF");
+
+    m_charNameText = std::make_shared<pou::UiText>(this);
+    m_charNameText->setPosition(0,0,0);
+    m_charNameText->setFont(m_font);
     //m_testText->setText("Poupou is da Pou");
-    m_testText->setFontSize(24);
-    m_testText->setSize(288, 0);
-    m_testText->setTextAlign(pou::TextAlignType_Center);
-    this->addRootElement(m_testText);
+    m_charNameText->setFontSize(24);
+    m_charNameText->setSize(288, 0);
+    m_charNameText->setTextAlign(pou::TextAlignType_Center);
+    m_playerHud->addChildNode(m_charNameText);
+
+    m_RTTText = std::make_shared<pou::UiText>(this);
+    m_RTTText->setPosition(1024,0,0);
+    m_RTTText->setFont(m_font);
+    m_RTTText->setFontSize(16);
+    //m_RTTText->setText("Poupou is da Pou");
+    //m_charNameText->setSize(0, 0);
+    m_RTTText->setTextAlign(pou::TextAlignType_Right);
+    this->addRootElement(m_RTTText);
+
 
     return (true);
 }
 
 void GameUi::update(const pou::Time &elapsed_time)
 {
-    this->updatePlayerLife();
-
-    if(m_player)
-        m_testText->setText(m_player->getPlayerName());
-    else
-        m_testText->setText(std::string());
+    this->updatePlayerHud();
+    this->updatePlayerList();
 
     UserInterface::update(elapsed_time);
 }
@@ -60,15 +76,30 @@ void GameUi::setPlayer(Player *player)
     this->startListeningTo(player, pou::NotificationType_SenderDestroyed);
 }
 
-void GameUi::updatePlayerLife(/*float cur, float max*/)
+void GameUi::setRTTInfo(float RTT)
+{
+    if(RTT == 0)
+    {
+        m_RTTText->hide();
+        return;
+    }
+
+    m_RTTText->setText("Ping: "+std::to_string((int)(RTT*1000)/2)+" ms");
+    m_RTTText->show();
+}
+
+void GameUi::updatePlayerHud()
 {
     if(!m_player)
     {
-        m_lifeBar->hide();
+        m_playerHud->hide();
         return;
     }
     else
-        m_lifeBar->show();
+    {
+        m_playerHud->show();
+        m_charNameText->setText(m_player->getPlayerName());
+    }
 
     auto playerLife = m_player->getAttributes().life;
     auto playerMaxLife = m_player->getModelAttributes().maxLife;
@@ -78,12 +109,74 @@ void GameUi::updatePlayerLife(/*float cur, float max*/)
 }
 
 
+void GameUi::updatePlayerList()
+{
+    if(!m_player)
+        return;
+
+    auto playerPos = m_player->getGlobalXYPosition();
+
+    for(auto &p : m_playerList)
+    if(p.player != m_player)
+    {
+        auto otherPlayerPos = p.player->getGlobalXYPosition();
+
+        p.playerNameText->setText(p.player->getPlayerName());
+        p.playerNameText->setPosition(otherPlayerPos - playerPos
+                                      + glm::vec2(1024,768)*0.5f - glm::vec2(0,64)); ///I should probably replace this by some kind of world->convertCoord
+    }
+}
+
+void GameUi::addPlayer(Player *player)
+{
+    /*for(auto p : m_playerList)
+        if(p.player == player)
+            return;*/
+
+    auto playerNameText = std::make_shared<pou::UiText>(this);
+    playerNameText->setFont(m_font);
+    playerNameText->setFontSize(12);
+    playerNameText->setTextAlign(pou::TextAlignType_Center);
+    //playerNameText->setText("Player");
+    m_playerHud->addChildNode(playerNameText);
+
+    OtherPlayerUi playerUi;
+    playerUi.player = player;
+    playerUi.playerNameText = playerNameText;
+    m_playerList.push_back(playerUi);
+
+    this->startListeningTo(player, pou::NotificationType_SenderDestroyed);
+}
+
+void GameUi::removePlayer(Player *player)
+{
+    if(player == m_player)
+        m_player = nullptr;
+
+    for(auto playerIt = m_playerList.begin() ; playerIt != m_playerList.end() ;)
+    {
+        if(playerIt->player == player)
+        {
+            playerIt->playerNameText->removeFromParent();
+            playerIt = m_playerList.erase(playerIt);
+        }
+        else
+            ++playerIt;
+    }
+}
+
+
 void GameUi::notify(pou::NotificationSender* sender, int notificationType,
                     void* data)
 {
     ///pou::UserInterface::notify(sender, notificationType, data);
 
-    if(notificationType == pou::NotificationType_SenderDestroyed
-    && sender == m_player)
-        m_player = nullptr;
+    if(notificationType == pou::NotificationType_SenderDestroyed)
+        this->removePlayer((Player*)sender);
+
+    if(notificationType == GameMessageType_World_NewPlayer)
+    {
+        auto gameMsg = static_cast<GameMessage_World_NewPlayer*>(data);
+        this->addPlayer(gameMsg->player);
+    }
 }

@@ -160,6 +160,10 @@ void InGameState::setClientId(int clientId)
     m_clientId = clientId;
 }
 
+void InGameState::setRTTInfo(float RTT)
+{
+    m_gameUi.setRTTInfo(RTT);
+}
 
 ///
 ///Protected

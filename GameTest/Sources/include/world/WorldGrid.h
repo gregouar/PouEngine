@@ -28,6 +28,8 @@ class WorldGrid : /**public pou::SceneGrid,**/ public WorldNode
         virtual std::shared_ptr<pou::SimpleNode> extractChildNode(pou::SimpleNode *childNode);
         virtual std::shared_ptr<pou::SimpleNode> extractChildNode(pou::SimpleNode *childNode, glm::ivec2 gridPos);
 
+        void moveChildNode(pou::SimpleNode *childNode, glm::ivec2 oldGridPos);
+
         void setQuadSize(float s);
         void resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize);
         void enlargeForPosition(glm::vec2 pos);
@@ -50,6 +52,8 @@ class WorldGrid : /**public pou::SceneGrid,**/ public WorldNode
     protected:
         virtual void notify(pou::NotificationSender* , int notificationType,
                             void* data = nullptr) override;
+
+        void addChildNodeToGrid(std::shared_ptr<pou::SimpleNode> childNode);
 
 
     protected:

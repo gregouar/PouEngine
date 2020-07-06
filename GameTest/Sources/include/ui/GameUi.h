@@ -9,6 +9,12 @@
 
 #include <memory>
 
+struct OtherPlayerUi
+{
+    Player *player;
+    std::shared_ptr<pou::UiText> playerNameText;
+};
+
 class GameUi : public pou::UserInterface, public pou::NotificationListener
 {
     public:
@@ -20,13 +26,16 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
         virtual void update(const pou::Time &elapsedTime) override;
 
         void setPlayer(Player *player);
-
-        //void updateCharacterLife(float cur, float max);
+        void setRTTInfo(float RTT);
 
     protected:
        // void cleanup();
 
-        void updatePlayerLife();
+        void updatePlayerHud();
+        void updatePlayerList();
+
+        void addPlayer(Player *player);
+        void removePlayer(Player *player);
 
         virtual void notify(pou::NotificationSender*, int notificationType,
                             void* data);
@@ -35,11 +44,16 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
     private:
         Player *m_player;
 
-        //std::unique_ptr<pou::UserInterface>     m_mainInterface;
-        std::shared_ptr<pou::UiPicture>     m_uiPictureTest;
+        pou::FontAsset *m_font;
+
+        std::shared_ptr<pou::UiElement>     m_playerHud;
         std::shared_ptr<pou::UiProgressBar> m_lifeBar;
 
-        std::shared_ptr<pou::UiText>        m_testText;
+        std::shared_ptr<pou::UiText>        m_charNameText;
+        std::vector< OtherPlayerUi >        m_playerList;
+
+        float m_RTTInfo;
+        std::shared_ptr<pou::UiText>        m_RTTText;
 };
 
 #endif // GAMEUI_H

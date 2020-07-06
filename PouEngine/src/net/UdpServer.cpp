@@ -12,7 +12,7 @@ namespace pou
 {
 
 
-const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 30.0f;
+const float UdpServer::DEFAULT_DECONNECTIONPINGDELAY = 10.0f;
 const float UdpServer::DEFAULT_PINGDELAY = .5f;
 
 UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_disconnectionPingDelay(DEFAULT_DECONNECTIONPINGDELAY)
@@ -298,6 +298,8 @@ void UdpServer::allowConnectionFrom(uint16_t clientId)
 {
     if(clientId == m_clients.size())
         return;
+
+    Logger::write("Client connected from: "+m_clients[clientId].address.getAddressString());
 
     m_clients[clientId].status = ConnectionStatus_Connected; //ConnectionStatus_Connecting
     this->sendConnectionMsg(clientId, ConnectionMessage_ConnectionAccepted);

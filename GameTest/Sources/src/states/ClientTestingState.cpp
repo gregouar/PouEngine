@@ -90,6 +90,10 @@ void ClientTestingState::update(const pou::Time &elapsedTime)
 {
     if(m_gameClient)
         m_gameClient->update(elapsedTime);
+
+
+    auto inGameState = InGameState::instance();
+    inGameState->setRTTInfo(m_gameClient->getRTT());
 }
 
 void ClientTestingState::draw(pou::RenderWindow *renderWindow)

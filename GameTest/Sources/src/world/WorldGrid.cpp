@@ -21,6 +21,17 @@ void WorldGrid::addChildNode(std::shared_ptr<pou::SimpleNode> childNode)
     ///This allows to compute actual global position
     childNode->update(pou::Time(0));
 
+    this->addChildNodeToGrid(childNode);
+
+    //childNode->setParent(this);
+    this->setAsParentTo(this, childNode.get());
+    this->startListeningTo(childNode.get());
+
+    //m_needToUpdateNodes.insert(childNode.get());
+}
+
+void WorldGrid::addChildNodeToGrid(std::shared_ptr<pou::SimpleNode> childNode)
+{
     auto childPos = childNode->getGlobalXYPosition();
     this->enlargeForPosition(childPos);
 
@@ -32,11 +43,6 @@ void WorldGrid::addChildNode(std::shared_ptr<pou::SimpleNode> childNode)
     //std::cout<<"AddChiuld:"<<gridPos.x<<" "<<gridPos.y<<std::endl;
 
     m_grid[gridPos.y][gridPos.x].push_back(childNode);
-    //childNode->setParent(this);
-    this->setAsParentTo(this, childNode.get());
-    this->startListeningTo(childNode.get());
-
-    //m_needToUpdateNodes.insert(childNode.get());
 }
 
 bool WorldGrid::removeChildNode(pou::SimpleNode *childNode)
@@ -48,9 +54,13 @@ bool WorldGrid::removeChildNode(pou::SimpleNode *childNode)
 
 bool WorldGrid::removeChildNode(pou::SimpleNode *childNode, glm::ivec2 gridPos)
 {
-    /*for(auto probeIt = m_updateProbes.begin() ; probeIt != m_updateProbes.end() ; ++probeIt)
+    /*for(auto probeIt = m_updateProbes.begin() ; probeIt != m_updateProbes.end() ; )
+    {
         if(probeIt->node.get() == childNode)
             probeIt = m_updateProbes.erase(probeIt);
+        else
+            ++probeIt
+    }
 
     if(m_renderProbe.node.get() == childNode)
         m_renderProbe.node.reset();*/
@@ -121,6 +131,27 @@ std::shared_ptr<pou::SimpleNode> WorldGrid::extractChildNode(pou::SimpleNode *ch
     return (nullptr);
 }
 
+void WorldGrid::moveChildNode(pou::SimpleNode *childNode, glm::ivec2 oldGridPos)
+{
+    if(oldGridPos.x < 0 || oldGridPos.y < 0 || oldGridPos.x >= m_gridSize.x || oldGridPos.y >= m_gridSize.y)
+        return;
+
+    std::shared_ptr<pou::SimpleNode> rNode;
+
+    for(auto childIt = m_grid[oldGridPos.y][oldGridPos.x].begin() ;
+        childIt != m_grid[oldGridPos.y][oldGridPos.x].end() ; ++childIt)
+    {
+        if(childIt->get() == childNode)
+        {
+            rNode = *childIt;
+            m_grid[oldGridPos.y][oldGridPos.x].erase(childIt);
+            break;
+        }
+    }
+
+    if(rNode)
+        this->addChildNodeToGrid(rNode);
+}
 
 void WorldGrid::setQuadSize(float s)
 {
@@ -282,8 +313,11 @@ void WorldGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
 
     for(auto &nodeToMove : m_nodesToMove)
     {
+        this->moveChildNode(nodeToMove.second, nodeToMove.first);
+        /**
         auto ptrNode = this->extractChildNode(nodeToMove.second, nodeToMove.first);
         this->addChildNode(ptrNode);
+        **/
     }
 
     m_nodesToMove.clear();

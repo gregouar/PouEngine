@@ -181,8 +181,9 @@ void SimpleNode::setPosition(glm::vec2 xyPos)
 
 void SimpleNode::setPosition(glm::vec3 pos)
 {
+    if(m_position != pos)
+        this->askForUpdateModelMatrix();
     m_position = pos;
-    this->askForUpdateModelMatrix();
 }
 
 
