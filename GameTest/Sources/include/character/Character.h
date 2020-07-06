@@ -143,8 +143,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         void disableDeath(bool disable = true); //Could be used to prevent to kill character before server approval
         void disableSync(bool disable = true);
+        void disableStateSync(bool disable = true);
         void disableInputSync(bool disable = true);
         void disableDamageDealing(bool disable = true); //Used to only show cosmetic effect of damages
+        void disableDamageReceiving(bool disable = true);
 
         bool areDamagesOnlyCosmetic();
 
@@ -183,8 +185,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         uint32_t m_lastModelUpdateTime;
 
         bool m_disableDeath;
-        //bool m_disableInputSync;
         bool m_disableDamageDealing;
+        bool m_disableDamageReceiving;
 
         int m_team;
 
@@ -195,6 +197,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         CharacterModelAsset*    m_model;
         std::unique_ptr<CharacterState> m_states[NBR_CharacterStateTypes];
         CharacterState*         m_curState;
+        pou::IntSyncElement     m_curStateId;
 
         std::shared_ptr<AiComponent> m_aiComponent;
 

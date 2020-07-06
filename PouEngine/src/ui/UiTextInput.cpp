@@ -256,7 +256,10 @@ void UiTextInput::handleTextEdit(const EventsManager *eventsManager)
     }
 
     if(!eventsManager->getTextEntered().empty())
+    {
+        this->deleteSelectedText();
         this->insertText(m_cursorPosition, eventsManager->getTextEnteredAsUtf8(), true);
+    }
 
     if(eventsManager->keyPressed(GLFW_KEY_V) && eventsManager->keyMod(GLFW_MOD_CONTROL))
         this->insertText(m_cursorPosition, eventsManager->getClipBoard(), true);

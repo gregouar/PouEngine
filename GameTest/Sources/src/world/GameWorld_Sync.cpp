@@ -566,6 +566,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             uint32_t delay = m_deltaRTT*1.5;
             playerIt->second->setReconciliationDelay(delay,0);
             playerIt->second->disableInputSync(false);
+            playerIt->second->disableDamageReceiving(true);
         }
         else
         {

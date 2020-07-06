@@ -52,94 +52,9 @@ void CharacterInput::reset()
 
 void CharacterInput::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    /*bool syncUpdate = false;
-
-    syncUpdate |= m_lookingAt.update(elapsedTime, localTime);
-    syncUpdate |= m_lookingDirection.update(elapsedTime, localTime);
-    syncUpdate |= m_walkingDirection.update(elapsedTime, localTime);
-    syncUpdate |= m_attackingInput.update(elapsedTime, localTime);
-    syncUpdate |= m_attackingDirection.update(elapsedTime, localTime);
-    syncUpdate |= m_dashingInput.update(elapsedTime, localTime);
-    syncUpdate |= m_dashingDirection.update(elapsedTime, localTime);
-    syncUpdate |= m_pushedInput.update(elapsedTime, localTime);
-    syncUpdate |= m_pushedDirection.update(elapsedTime, localTime);
-
-    if(syncUpdate)
-        this->setLastUpdateTime(localTime);*/
-
     m_syncComponent.update(elapsedTime, localTime);
-
     m_pushedInput.setValue(false);
 }
-
-/*void CharacterInput::syncFrom(CharacterInput *input)
-{
-    m_lookingAt.syncFrom(&input->m_lookingAt);
-    m_lookingDirection.syncFrom(&input->m_lookingDirection);
-    m_walkingDirection.syncFrom(&input->m_walkingDirection);
-    m_attackingInput.syncFrom(&input->m_attackingInput);
-    m_attackingDirection.syncFrom(&input->m_attackingDirection);
-    m_dashingInput.syncFrom(&input->m_dashingInput);
-    m_dashingDirection.syncFrom(&input->m_dashingDirection);
-    m_pushedInput.syncFrom(&input->m_pushedInput);
-    m_pushedDirection.syncFrom(&input->m_pushedDirection);
-}
-
-
-void CharacterInput::serialize(pou::Stream *stream, uint32_t clientTime)
-{
-    bool updateWalking = false;
-    if(!stream->isReading() && uint32less(clientTime,m_walkingDirection.getLastUpdateTime()))
-        updateWalking = true;
-    stream->serializeBool(updateWalking);
-    if(updateWalking)
-    {
-        auto walking = m_walkingDirection.getValue();
-
-        stream->serializeFloat(walking.x,-1,1,2);
-        stream->serializeFloat(walking.y,-1,1,2);
-
-        if(stream->isReading())
-            m_walkingDirection.setValue(walking, true);
-    }
-
-    bool updateLooking = false;
-    if(!stream->isReading() && uint32less(clientTime,m_lookingDirection.getLastUpdateTime()))
-        updateLooking = true;
-    stream->serializeBool(updateLooking);
-    if(updateLooking)
-    {
-        auto looking = m_lookingDirection.getValue();
-
-        stream->serializeFloat(looking.x,-1,1,2);
-        stream->serializeFloat(looking.y,-1,1,2);
-
-        if(stream->isReading())
-            m_lookingDirection.setValue(looking, true);
-    }
-
-    {
-        bool isAttacking = m_attackingInput.getValue();
-        stream->serializeBool(isAttacking);
-        if(stream->isReading())
-            m_attackingInput.setValue(isAttacking, true);
-    }
-
-    {
-        bool isDashing = m_dashingInput.getValue();
-        stream->serializeBool(isDashing);
-        if(stream->isReading())
-            m_dashingInput.setValue(isDashing, true);
-    }
-}
-
-void CharacterInput::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
-{
-    m_lookingDirection.setReconciliationDelay(serverDelay, clientDelay);
-    m_walkingDirection.setReconciliationDelay(serverDelay, clientDelay);
-    m_attackingInput.setReconciliationDelay(serverDelay, clientDelay);
-    m_dashingInput.setReconciliationDelay(serverDelay, clientDelay);
-}*/
 
 glm::vec2 CharacterInput::getLookingAt()
 {
