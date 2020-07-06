@@ -45,6 +45,7 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
         Player *m_player;
 
         pou::FontAsset *m_font;
+        pou::FontAsset *m_font_pixel;
 
         std::shared_ptr<pou::UiElement>     m_playerHud;
         std::shared_ptr<pou::UiProgressBar> m_lifeBar;

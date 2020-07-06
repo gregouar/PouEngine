@@ -38,6 +38,7 @@ bool GameUi::init()
     m_lifeBar->addChildNode(lifeBarBackground);
 
     m_font = pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF");
+    m_font_pixel = pou::FontsHandler::loadAssetFromFile("../data/mago1.TTF");
 
     m_charNameText = std::make_shared<pou::UiText>(this);
     m_charNameText->setPosition(0,0,0);
@@ -121,9 +122,11 @@ void GameUi::updatePlayerList()
     {
         auto otherPlayerPos = p.player->getGlobalXYPosition();
 
+
+
         p.playerNameText->setText(p.player->getPlayerName());
-        p.playerNameText->setPosition(otherPlayerPos - playerPos
-                                      + glm::vec2(1024,768)*0.5f - glm::vec2(0,64)); ///I should probably replace this by some kind of world->convertCoord
+        p.playerNameText->setPosition(glm::round(otherPlayerPos - playerPos
+                                      + glm::vec2(1024,768)*0.5f - glm::vec2(0,64))); ///I should probably replace this by some kind of world->convertCoord
     }
 }
 
@@ -134,8 +137,8 @@ void GameUi::addPlayer(Player *player)
             return;*/
 
     auto playerNameText = std::make_shared<pou::UiText>(this);
-    playerNameText->setFont(m_font);
-    playerNameText->setFontSize(12);
+    playerNameText->setFont(m_font_pixel);
+    playerNameText->setFontSize(20);
     playerNameText->setTextAlign(pou::TextAlignType_Center);
     //playerNameText->setText("Player");
     m_playerHud->addChildNode(playerNameText);

@@ -574,7 +574,6 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             playerIt->second->setReconciliationDelay(0,0);
         }
     }
-
 }
 
 
