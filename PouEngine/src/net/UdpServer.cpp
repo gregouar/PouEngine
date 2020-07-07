@@ -22,7 +22,6 @@ UdpServer::UdpServer() : m_pingDelay(DEFAULT_PINGDELAY), m_disconnectionPingDela
 
 UdpServer::~UdpServer()
 {
-    //dtor
 }
 
 

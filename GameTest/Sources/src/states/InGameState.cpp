@@ -153,6 +153,7 @@ void InGameState::changeWorld(GameWorld *world, int playerId)
     if(m_world)
         player = m_world->getPlayer(m_playerId);
     m_gameUi.setPlayer(player);
+    //m_gameUi.clearPlayerList();
 }
 
 void InGameState::setClientId(int clientId)

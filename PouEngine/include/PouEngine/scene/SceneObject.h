@@ -26,16 +26,16 @@ class SceneObject : public NotificationListener
         bool isAShadowCaster();
 
         //void setLocalTime(uint32_t time);
-        uint32_t getLastUpdateTime();
-        uint32_t getLastNodeUpdateTime();
+        /**uint32_t getLastUpdateTime();
+        uint32_t getLastNodeUpdateTime();*/
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
 
     protected:
-        void setLastUpdateTime(uint32_t time, bool force = false);
-        SceneNode *setParentNode(SceneNode*);
+        ///void setLastUpdateTime(uint32_t time, bool force = false);
+        virtual SceneNode *setParentNode(SceneNode*);
 
     protected:
         SceneNode *m_parentNode;
@@ -45,9 +45,9 @@ class SceneObject : public NotificationListener
         bool m_isAShadowCaster;
 
         uint32_t m_curLocalTime;
-        uint32_t m_lastSyncTime;
+        /**uint32_t m_lastSyncTime;
         uint32_t m_lastUpdateTime;
-        uint32_t m_lastNodeUpdateTime;
+        uint32_t m_lastNodeUpdateTime;**/
 
     private:
 };

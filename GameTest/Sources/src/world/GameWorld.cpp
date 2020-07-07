@@ -33,6 +33,28 @@ GameWorld::~GameWorld()
 }
 
 
+void GameWorld::destroy()
+{
+    if(m_generatingThread.joinable())
+        m_generatingThread.join();
+
+    m_camera = nullptr;
+
+    m_sunLight.reset();
+    m_worldGrid.reset();
+
+    if(m_scene)
+        delete m_scene;
+    m_scene = nullptr;
+
+    m_syncComponent.clear();
+
+    if(m_musicEvent)
+        pou::AudioEngine::destroyEvent(m_musicEvent);
+}
+
+
+
 void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 {
     if(!m_worldReady)

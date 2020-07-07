@@ -257,7 +257,7 @@ std::shared_ptr<pou::SceneEntity> Character::addLimb(LimbModel *limbModel)
     {
         auto limbEntity = std::make_shared<pou::MeshEntity>();
 
-        limbEntity->setMesh(limbModel->mesh);
+        limbEntity->setMeshModel(limbModel->mesh);
         limbEntity->setShadowCastingType(pou::ShadowCasting_All);
 
         m_limbs.insert({limbModel, limbEntity});

@@ -14,9 +14,9 @@ SceneObject::SceneObject()
     m_isAShadowCaster   = false;
 
     m_curLocalTime = 0;
-    m_lastSyncTime = -1;
+    /**m_lastSyncTime = -1;
     m_lastUpdateTime = -1;
-    m_lastNodeUpdateTime = -1;
+    m_lastNodeUpdateTime = -1;**/
 }
 
 SceneObject::~SceneObject()
@@ -33,8 +33,8 @@ SceneNode* SceneObject::setParentNode(SceneNode *newParent)
     {
         this->stopListeningTo(m_parentNode);
         m_parentNode = newParent;
-        m_lastNodeUpdateTime = m_curLocalTime;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///m_lastNodeUpdateTime = m_curLocalTime;
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->startListeningTo(m_parentNode);
     }
     return oldParent;
@@ -68,7 +68,7 @@ bool SceneObject::isAShadowCaster()
     m_curLocalTime = time;
 }*/
 
-void SceneObject::setLastUpdateTime(uint32_t time, bool force)
+/**void SceneObject::setLastUpdateTime(uint32_t time, bool force)
 {
     if(force || m_lastUpdateTime < time || m_lastUpdateTime == (uint32_t)(-1))
         m_lastUpdateTime = time;
@@ -82,7 +82,7 @@ uint32_t SceneObject::getLastUpdateTime()
 uint32_t SceneObject::getLastNodeUpdateTime()
 {
     return m_lastNodeUpdateTime;
-}
+}**/
 
 void SceneObject::update(const Time &elapsedTime, uint32_t localTime)
 {

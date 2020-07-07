@@ -24,7 +24,7 @@ void SceneEntity::setVisible(bool visible)
     if(m_isVisible != visible)
     {
         m_isVisible = visible;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
     }
 }
 

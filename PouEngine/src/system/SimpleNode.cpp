@@ -33,7 +33,7 @@ void SimpleNode::destroy()
 {
     if(m_parent)
         m_parent->removeChildNode(this);
-    this->removeAllChilds();
+    //this->removeAllChilds();
     m_parent    = nullptr;
     m_treeDepth = 0;
 }
@@ -66,9 +66,9 @@ bool SimpleNode::removeChildNode(SimpleNode *childNode)
 
 void SimpleNode::removeAllChilds()
 {
-    for(auto &child : m_childs)
+   // for(auto &child : m_childs)
      //   if(child)
-            child->setParent(nullptr);
+         //  child->setParent(nullptr);
 
     m_childs.clear();
 }

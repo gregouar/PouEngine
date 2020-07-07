@@ -274,6 +274,13 @@ void UiTextInput::handleTextEdit(const EventsManager *eventsManager)
         eventsManager->setClipBoard(this->getSelectedText());
         this->deleteSelectedText();
     }
+
+
+    if(eventsManager->keyPressed(GLFW_KEY_Q) && eventsManager->keyMod(GLFW_MOD_CONTROL))
+    {
+        m_startingCursorPosition = 0;
+        this->setCursorPosition(this->getText().length(), false);
+    }
 }
 
 bool UiTextInput::isSelectionEmpty()

@@ -4,7 +4,8 @@
 
 WorldSprite::WorldSprite() : pou::SpriteEntity(),
     m_syncId(0),
-    m_lastModelUpdateTime(-1)
+    m_lastModelUpdateTime(-1),
+    m_lastNodeUpdateTime(-1)
 {
     //ctor
 }
@@ -48,14 +49,38 @@ uint32_t WorldSprite::getSyncId()
     return m_syncId;
 }
 
-uint32_t WorldSprite::getLastModelUptateTime()
+uint32_t WorldSprite::getLastUpdateTime()
+{
+    return m_syncComponent.getLastUpdateTime();
+}
+
+uint32_t WorldSprite::getLastModelUpdateTime()
 {
     return m_lastModelUpdateTime;
+}
+
+
+uint32_t WorldSprite::getLastNodeUpdateTime()
+{
+    return m_lastNodeUpdateTime;
 }
 
 ///
 ///Protected
 ///
+
+pou::SceneNode *WorldSprite::setParentNode(pou::SceneNode* parentNode)
+{
+    auto oldParent = pou::SpriteEntity::setParentNode(parentNode);
+
+    if(oldParent != parentNode)
+    {
+        m_syncComponent.updateLastUpdateTime();
+        m_lastNodeUpdateTime = m_syncComponent.getLastUpdateTime();
+    }
+
+    return oldParent;
+}
 
 void WorldSprite::setSyncId(uint32_t id)
 {

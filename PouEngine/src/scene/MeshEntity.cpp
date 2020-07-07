@@ -115,21 +115,25 @@ MeshEntity::~MeshEntity()
     //dtor
 }
 
-void MeshEntity::setMesh(AssetTypeId meshId)
+bool MeshEntity::setMeshModel(AssetTypeId meshId)
 {
-    this->setMesh(MeshesHandler::instance()->getAsset(meshId));
+    return this->setMeshModel(MeshesHandler::instance()->getAsset(meshId));
 }
 
-void MeshEntity::setMesh(MeshAsset* mesh)
+bool MeshEntity::setMeshModel(MeshAsset* mesh)
 {
     if(m_mesh != mesh)
     {
         this->stopListeningTo(m_mesh);
         m_mesh = mesh;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->startListeningTo(m_mesh);
         this->updateDatum();
+
+        return (true);
     }
+
+    return (false);
 }
 
 
@@ -138,7 +142,7 @@ void MeshEntity::setColor(Color color)
     if(m_color != color)
     {
         m_color = color;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -148,7 +152,7 @@ void MeshEntity::setRme(glm::vec3 rme)
     if(m_rme != rme)
     {
         m_rme = rme;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -163,7 +167,7 @@ void MeshEntity::setScale(glm::vec3 scale)
     if(m_scale != scale)
     {
         m_scale = scale;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -171,6 +175,11 @@ void MeshEntity::setScale(glm::vec3 scale)
 MeshDatum MeshEntity::getMeshDatum()
 {
     return m_datum;
+}
+
+MeshAsset *MeshEntity::getMeshModel()
+{
+    return m_mesh;
 }
 
 glm::vec3 MeshEntity::getScale()

@@ -37,6 +37,8 @@ class GameWorld_Sync : public pou::NotificationListener
         size_t syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId = 0);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet, uint32_t forceId = 0);
         size_t syncElement(std::shared_ptr<WorldSprite> spriteEntity, uint32_t forceId = 0);
+        size_t syncElement(pou::MeshAsset *meshModel, uint32_t forceId = 0);
+        size_t syncElement(std::shared_ptr<WorldMesh> meshEntity, uint32_t forceId = 0);
         size_t syncElement(CharacterModelAsset *characterModel, uint32_t forceId = 0);
         size_t syncElement(std::shared_ptr<Character> character, uint32_t forceId = 0);
         size_t syncElement(ItemModelAsset *characterModel, uint32_t forceId = 0);
@@ -61,6 +63,8 @@ class GameWorld_Sync : public pou::NotificationListener
                                     int player_id, uint32_t lastSyncTime);
         void createWorldSyncMsg_Sprite(WorldSprite *sprite, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
+        void createWorldSyncMsg_Mesh(WorldMesh *mesh, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+                                    int player_id, uint32_t lastSyncTime);
         void createWorldSyncMsg_Character(Character *character, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
 
@@ -76,18 +80,24 @@ class GameWorld_Sync : public pou::NotificationListener
 
         std::vector<WorldNode*>     m_updatedNodes;
         std::vector<WorldSprite*>   m_updatedSprites;
+        std::vector<WorldMesh*>     m_updatedMeshes;
         bool m_updatedCharactersBuffer;
         std::vector<Character*>     m_updatedCharacters[2];
 
         pou::IdPtrAllocator<WorldNode>              m_syncNodes;
+
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
         pou::IdPtrAllocator<WorldSprite>            m_syncSpriteEntities;
+        pou::IdAllocator<pou::MeshAsset*>           m_syncMeshModels;
+        pou::IdPtrAllocator<WorldMesh>              m_syncMeshEntities;
+
         pou::IdAllocator<CharacterModelAsset*>      m_syncCharacterModels;
         pou::IdPtrAllocator<Character>              m_syncCharacters;
         pou::IdAllocator<ItemModelAsset*>           m_syncItemModels;
         pou::IdPtrAllocator<Player>                 m_syncPlayers;
 
         std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
+        std::multimap<uint32_t, int> m_syncTimeMeshModels;
         std::multimap<uint32_t, int> m_syncTimeCharacterModels;
         std::multimap<uint32_t, int> m_syncTimeItemModels;
 
@@ -101,6 +111,8 @@ class GameWorld_Sync : public pou::NotificationListener
         static const int        NODEID_BITS;
         static const int        SPRITESHEETID_BITS;
         static const int        SPRITEENTITYID_BITS;
+        static const int        MESHMODELID_BITS;
+        static const int        MESHENTITYID_BITS;
         static const int        CHARACTERMODELSID_BITS;
         static const int        CHARACTERSID_BITS;
         static const int        ITEMMODELSID_BITS;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>WallMaterial</name>
+	<texture type="albedo">wallTextureTest.png</texture>
+	<texture type="normal">wallTextureTest_n.png</texture>
+	<roughness>.7</roughness>
+	<metalness>0</metalness>
+	<emissivity>0.0</emissivity>
+</material>

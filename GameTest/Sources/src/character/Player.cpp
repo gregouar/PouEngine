@@ -20,7 +20,6 @@ Player::Player(bool userControlled) :
 
 Player::~Player()
 {
-    //dtor
 }
 
 

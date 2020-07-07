@@ -3,6 +3,7 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
+#include "PouEngine/assets/MeshesHandler.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
 //For tests
@@ -11,6 +12,7 @@
 #include "net/GameServer.h"
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
+#include "world/WorldMesh.h"
 
 
 void GameWorld::init()
@@ -49,6 +51,7 @@ void GameWorld::generateImpl()
     pou::Logger::write("Generating world...");
 
     m_dayTime = glm::linearRand(0,360);
+    std::cout<< glm::linearRand(0,360)<<std::endl;
 
     auto loadType = pou::LoadType_Now;
 
@@ -167,6 +170,31 @@ void GameWorld::generateImpl()
         m_syncComponent.syncElement(duck);
     }
 
+    //pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
+
+    pou::MeshAsset *wallModel = pou::MeshesHandler::loadAssetFromFile("../data/wall/wallMeshXML.txt");
+    m_syncComponent.syncElement(wallModel);
+
+    {
+        glm::vec2 p;
+        p = glm::vec2(0,0);
+
+        auto wallNode = std::make_shared<WorldNode>();
+        m_syncComponent.syncElement(wallNode);
+
+        auto wallEntity = std::make_shared<WorldMesh>();
+        wallEntity->setMeshModel(wallModel);
+        wallEntity->setShadowCastingType(pou::ShadowCasting_All);
+
+        wallNode->attachObject(wallEntity);
+        m_syncComponent.syncElement(wallEntity);
+
+        wallNode->setPosition(p);
+
+        m_worldGrid->addChildNode(wallNode);
+    }
+
+
     m_scene->update(pou::Time(0));
     m_worldReady = true;
 
@@ -207,28 +235,6 @@ void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldI
     m_worldReady = true;
 }
 
-
-void GameWorld::destroy()
-{
-    if(m_generatingThread.joinable())
-        m_generatingThread.join();
-
-    m_camera = nullptr;
-
-    m_sunLight.reset();
-
-    m_syncComponent.clear();
-
-    m_worldGrid.reset();
-
-    if(m_scene)
-        delete m_scene;
-    m_scene = nullptr;
-
-    if(m_musicEvent)
-        pou::AudioEngine::destroyEvent(m_musicEvent);
-}
-
 bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave)
 {
     auto player = m_syncComponent.getPlayer(player_id);
@@ -259,6 +265,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
     playerSave->loadToPlayer(player.get());
 
     m_worldGrid->addChildNode(player/*->node()*/);
+    //m_scene->getRootNode()->addChildNode(player/*->node()*/);
 
     ///player/*->node()*/->pou::SceneNode::setPosition(pos);
 

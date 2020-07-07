@@ -37,7 +37,7 @@ class PlayerServerTestingState : public pou::GameState, public Singleton<PlayerS
     private:
         bool m_firstEntering;
 
-        GameServer  m_gameServer;
+        std::unique_ptr<GameServer>  m_gameServer;
 
         int m_port;
         std::shared_ptr<PlayerSave> m_playerSave;

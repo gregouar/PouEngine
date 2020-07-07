@@ -1,21 +1,21 @@
-#ifndef WORLDSPRITE_H
-#define WORLDSPRITE_H
+#ifndef WORLDMESH_H
+#define WORLDMESH_H
 
-#include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/sync/SyncElements.h"
 
-class WorldSprite : public pou::SpriteEntity
+class WorldMesh : public pou::MeshEntity
 {
     friend class GameWorld_Sync;
 
     public:
-        WorldSprite();
-        virtual ~WorldSprite();
+        WorldMesh();
+        virtual ~WorldMesh();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
-        virtual bool syncFrom(WorldSprite* srcSprite);
+        virtual bool syncFrom(WorldMesh* srcSprite);
 
-        virtual bool setSpriteModel(pou::SpriteModel* model);
+        virtual bool setMeshModel(pou::MeshAsset* model);
 
         uint32_t getSyncId();
         uint32_t getLastUpdateTime();
@@ -35,4 +35,4 @@ class WorldSprite : public pou::SpriteEntity
         pou::SyncComponent m_syncComponent;
 };
 
-#endif // WORLDSPRITE_H
+#endif // WORLDMESH_H

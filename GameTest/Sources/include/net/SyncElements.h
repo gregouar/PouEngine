@@ -7,6 +7,7 @@ class Character;
 class Player;
 class WorldNode;
 class WorldSprite;
+class WorldMesh;
 
 struct NodeSync
 {
@@ -23,6 +24,16 @@ struct SpriteEntitySync
 
     ///std::shared_ptr<WorldSprite> spriteEntity;
     WorldSprite *spriteEntity;
+};
+
+
+struct MeshEntitySync
+{
+    int meshModelId;
+    int nodeId;
+
+    ///std::shared_ptr<WorldSprite> spriteEntity;
+    WorldMesh *meshEntity;
 };
 
 struct CharacterSync

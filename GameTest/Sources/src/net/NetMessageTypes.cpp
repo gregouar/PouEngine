@@ -3,6 +3,7 @@
 #include "PouEngine/net/NetEngine.h"
 
 #include "world/GameWorld.h"
+#include "world/WorldMesh.h"
 #include "character/Character.h"
 #include "character/Player.h"
 
@@ -81,6 +82,18 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     for(int i = 0 ; i < nbr_spriteEntities ; ++i)
         this->serializeSpriteEntity(stream, spriteEntities[i]);
     //std::cout<<"Nbr SE:"<<nbr_spriteEntities<<std::endl;
+
+    int nbr_meshModels = meshModels.size();
+    stream->serializeBits(nbr_meshModels, GameWorld_Sync::MESHMODELID_BITS);
+    meshModels.resize(nbr_meshModels);
+    for(int i = 0 ; i < nbr_meshModels ; ++i)
+        this->serializeMeshModel(stream, meshModels[i]);
+
+    int nbr_meshEntities = meshEntities.size();
+    stream->serializeBits(nbr_meshEntities, GameWorld_Sync::MESHENTITYID_BITS);
+    meshEntities.resize(nbr_meshEntities);
+    for(int i = 0 ; i < nbr_meshEntities ; ++i)
+        this->serializeMeshEntity(stream, meshEntities[i]);
 
     int nbr_characterModels = characterModels.size();
     stream->serializeBits(nbr_characterModels, GameWorld_Sync::CHARACTERMODELSID_BITS);
@@ -180,7 +193,7 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
     stream->serializeBits(spriteEntityId, GameWorld_Sync::SPRITEENTITYID_BITS);
 
     bool newSpriteModel = false;
-    if(!stream->isReading() && uint32less(lastSyncTime,spriteEntityPtr->getLastModelUptateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,spriteEntityPtr->getLastModelUpdateTime()))
         newSpriteModel = true;
     stream->serializeBool(newSpriteModel);
     if(newSpriteModel)
@@ -202,6 +215,48 @@ void NetMessage_WorldSync::serializeSpriteEntity(pou::Stream *stream, std::pair<
         stream->serializeBits(spriteEntitySync.nodeId, GameWorld_Sync::NODEID_BITS);
     else
         spriteEntitySync.nodeId = 0;
+}
+
+void NetMessage_WorldSync::serializeMeshModel(pou::Stream *stream, std::pair<int, std::string > &meshModel)
+{
+    auto& [ meshModelId, meshModelpath ] = meshModel;
+    stream->serializeBits(meshModelId, GameWorld_Sync::MESHMODELID_BITS);
+    stream->serializeString(meshModelpath);
+}
+
+void NetMessage_WorldSync::serializeMeshEntity(pou::Stream *stream, std::pair<int, MeshEntitySync> &meshEntity)
+{
+    auto& [ meshEntityId, meshEntitySync ] = meshEntity;
+
+    auto &meshEntityPtr = meshEntitySync.meshEntity;
+    if(stream->isReading())
+    {
+        auto mesh =  std::make_shared<WorldMesh>();
+        meshesBuffer.push_back(mesh);
+        meshEntityPtr = mesh.get();
+        meshEntityPtr->update(pou::Time(0),localTime);
+        //spriteEntityPtr->setLocalTime(localTime);
+    }
+
+    stream->serializeBits(meshEntityId, GameWorld_Sync::MESHENTITYID_BITS);
+
+    bool newMeshModel = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,meshEntityPtr->getLastModelUpdateTime()))
+        newMeshModel = true;
+    stream->serializeBool(newMeshModel);
+    if(newMeshModel)
+        stream->serializeBits(meshEntitySync.meshModelId, GameWorld_Sync::MESHMODELID_BITS);
+    else
+        meshEntitySync.meshModelId = 0;
+
+    bool newNode = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,meshEntityPtr->getLastNodeUpdateTime()))
+        newNode = true;
+    stream->serializeBool(newNode);
+    if(newNode)
+        stream->serializeBits(meshEntitySync.nodeId, GameWorld_Sync::NODEID_BITS);
+    else
+        meshEntitySync.nodeId = 0;
 }
 
 void NetMessage_WorldSync::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)

@@ -72,12 +72,14 @@ bool UdpClient::disconnectFromServer()
     {
         Logger::write("Disconnected from server: "+m_serverAddress.getAddressString()
                       +"("+std::to_string(m_salt)+","+std::to_string(m_serverSalt)+")");
+
         for(auto i = 0 ; i < 5 ; ++i)
             this->sendConnectionMsg(m_serverAddress, ConnectionMessage_Disconnection);
 
         m_disconnection = true;
     }
 
+    ///m_packetsExchanger.clear();
     m_connectionStatus = ConnectionStatus_Disconnected;
 
     return (true);

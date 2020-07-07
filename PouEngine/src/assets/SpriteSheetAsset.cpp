@@ -91,7 +91,7 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
         if(m_useMaterial)
         {
             m_material = MaterialsHandler::instance()
-                            ->loadAssetFromFile(m_fileDirectory+textureName,LoadType_InThread/**m_loadType**/);
+                            ->loadAssetFromFile(m_fileDirectory+textureName,m_loadType);
             this->startListeningTo(m_material);
         } else {
             m_texture = TexturesHandler::instance()

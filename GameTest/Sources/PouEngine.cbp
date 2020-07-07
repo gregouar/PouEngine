@@ -709,6 +709,7 @@
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
 		<Unit filename="include/world/WorldGrid.h" />
+		<Unit filename="include/world/WorldMesh.h" />
 		<Unit filename="include/world/WorldNode.h" />
 		<Unit filename="include/world/WorldSprite.h" />
 		<Unit filename="main.cpp" />
@@ -738,6 +739,7 @@
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Unit filename="src/world/WorldGrid.cpp" />
+		<Unit filename="src/world/WorldMesh.cpp" />
 		<Unit filename="src/world/WorldNode.cpp" />
 		<Unit filename="src/world/WorldSprite.cpp" />
 		<Extensions />

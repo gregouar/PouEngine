@@ -160,7 +160,7 @@ void LightEntity::setType(LightType type)
     if(m_lightModel.type != type)
     {
         m_lightModel.type = type;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -171,7 +171,7 @@ void LightEntity::setDirection(glm::vec3 direction)
     {
         //glm::vec3 oldDirection = m_lightModel.direction;
         m_lightModel.direction = direction;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
 
         //this->sendNotification(NotificationType_UpdateShadow, &oldDirection);
@@ -188,7 +188,7 @@ void LightEntity::setDiffuseColor(Color color)
     if(m_lightModel.color != color)
     {
         m_lightModel.color = color;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -198,7 +198,7 @@ void LightEntity::setRadius(float radius)
     if(m_lightModel.radius != radius)
     {
         m_lightModel.radius = radius;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -208,7 +208,7 @@ void LightEntity::setIntensity(float intensity)
     if(m_lightModel.intensity != intensity)
     {
         m_lightModel.intensity = intensity;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }
@@ -218,7 +218,7 @@ void LightEntity::setModel(const LightModel &lightModel)
     //if(m_lightModel != lightModel)
     {
         m_lightModel = lightModel;
-        this->setLastUpdateTime(m_curLocalTime);
+        ///this->setLastUpdateTime(m_curLocalTime);
         this->updateDatum();
     }
 }

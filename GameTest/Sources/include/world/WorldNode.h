@@ -20,6 +20,7 @@ class WorldNode : public pou::SceneNode
         std::shared_ptr<WorldNode> createChildNode(glm::vec2 );
         std::shared_ptr<WorldNode> createChildNode(glm::vec3 );
 
+        using pou::SceneNode::setPosition;
         virtual void setPosition(glm::vec3 );
         virtual void setScale(glm::vec3 scale);
         virtual void setRotation(glm::vec3 rotation, bool inRadians = true);

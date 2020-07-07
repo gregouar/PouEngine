@@ -28,7 +28,7 @@ ClientTestingState::~ClientTestingState()
 
 void ClientTestingState::init()
 {
-    m_firstEntering = false;
+    //m_firstEntering = false;
 
     m_gameClient = std::make_unique<GameClient>();
     m_gameClient->create();

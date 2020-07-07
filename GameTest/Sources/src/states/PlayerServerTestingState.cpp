@@ -36,22 +36,25 @@ void PlayerServerTestingState::entered()
     if(m_firstEntering)
         this->init();
 
-    m_gameServer.create(m_port,true);
-    m_gameServer.generateWorld();
+    m_gameServer = std::make_unique<GameServer>();
+    m_gameServer->create(m_port,true);
+    m_gameServer->generateWorld();
 
-    int localClientNbr = m_gameServer.addLocalPlayer(m_playerSave);
+    int localClientNbr = m_gameServer->addLocalPlayer(m_playerSave);
 
     auto inGameState = InGameState::instance();
     inGameState->setClientId(localClientNbr);
 
     m_manager->pushState(inGameState);
-    auto [clientInfos, world]  = m_gameServer.getClientInfosAndWorld(localClientNbr);
+    auto [clientInfos, world]  = m_gameServer->getClientInfosAndWorld(localClientNbr);
     inGameState->changeWorld(world, clientInfos->player_id);
 }
 
 void PlayerServerTestingState::leaving()
 {
-    m_gameServer.shutdown();
+    if(m_gameServer)
+        m_gameServer->shutdown();
+    m_gameServer.reset();
 }
 
 void PlayerServerTestingState::revealed()
@@ -73,16 +76,16 @@ void PlayerServerTestingState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->isAskingToClose())
         m_manager->stop();
 
-    if(eventsManager->keyPressed(GLFW_KEY_I))
+    /*if(eventsManager->keyPressed(GLFW_KEY_I))
         m_gameServer.sendMsgTest(false,true);
     if(eventsManager->keyPressed(GLFW_KEY_O))
-        m_gameServer.sendMsgTest(true,false);
+        m_gameServer.sendMsgTest(true,false);*/
 }
 
 
 void PlayerServerTestingState::update(const pou::Time &elapsedTime)
 {
-    m_gameServer.update(elapsedTime);
+    m_gameServer->update(elapsedTime);
 }
 
 void PlayerServerTestingState::draw(pou::RenderWindow *renderWindow)

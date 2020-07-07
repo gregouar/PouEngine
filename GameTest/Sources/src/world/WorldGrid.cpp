@@ -12,7 +12,7 @@ WorldGrid::WorldGrid() :
 
 WorldGrid::~WorldGrid()
 {
-    this->removeAllChilds();
+    //this->removeAllChilds();
 }
 
 
@@ -84,6 +84,12 @@ bool WorldGrid::removeChildNode(pou::SimpleNode *childNode, glm::ivec2 gridPos)
 
 void WorldGrid::removeAllChilds()
 {
+    /*for(auto &gridRow : m_grid)
+    {
+        for(auto &zonesArray : gridRow)
+            zonesArray.clear();
+        gridRow.clear();
+    }*/
     m_grid.clear();
     m_gridSize = glm::vec2(0);
     /* do something */

@@ -38,8 +38,8 @@ class MeshEntity : public ShadowCaster
         MeshEntity();
         virtual ~MeshEntity();
 
-        void setMesh(AssetTypeId meshId);
-        void setMesh(MeshAsset* mesh);
+        bool setMeshModel(AssetTypeId meshId);
+        bool setMeshModel(MeshAsset* mesh);
 
         void setColor(Color color);
         void setRme(glm::vec3 rme);
@@ -49,6 +49,8 @@ class MeshEntity : public ShadowCaster
 
         MeshDatum getMeshDatum();
         glm::vec3 getScale();
+
+        MeshAsset *getMeshModel();
 
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;

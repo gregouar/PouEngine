@@ -3,15 +3,19 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
+#include "PouEngine/assets/MeshesHandler.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
 #include "net/GameServer.h"
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
+#include "world/WorldMesh.h"
 
 const int    GameWorld_Sync::NODEID_BITS            = 16;
 const int    GameWorld_Sync::SPRITESHEETID_BITS     = 10;
 const int    GameWorld_Sync::SPRITEENTITYID_BITS    = 16;
+const int    GameWorld_Sync::MESHMODELID_BITS       = 10;
+const int    GameWorld_Sync::MESHENTITYID_BITS      = 16;
 const int    GameWorld_Sync::CHARACTERMODELSID_BITS = 12;
 const int    GameWorld_Sync::CHARACTERSID_BITS      = 16;
 const int    GameWorld_Sync::ITEMMODELSID_BITS      = 12;
@@ -24,6 +28,8 @@ GameWorld_Sync::GameWorld_Sync() :
     m_syncNodes.setMax(pow(2,GameWorld_Sync::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld_Sync::SPRITESHEETID_BITS));
     m_syncSpriteEntities.setMax(pow(2,GameWorld_Sync::SPRITEENTITYID_BITS));
+    m_syncMeshModels.setMax(pow(2,GameWorld_Sync::MESHMODELID_BITS));
+    m_syncMeshEntities.setMax(pow(2,GameWorld_Sync::MESHENTITYID_BITS));
     m_syncCharacterModels.setMax(pow(2,GameWorld_Sync::CHARACTERMODELSID_BITS));
     m_syncCharacters.setMax(pow(2,GameWorld_Sync::CHARACTERSID_BITS));
     m_syncItemModels.setMax(pow(2,GameWorld_Sync::ITEMMODELSID_BITS));
@@ -33,12 +39,13 @@ GameWorld_Sync::GameWorld_Sync() :
 
     pou::MessageBus::addListener(this, GameMessageType_World_NodeUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_SpriteUpdated);
+    pou::MessageBus::addListener(this, GameMessageType_World_MeshUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_CharacterUpdated);
 }
 
 GameWorld_Sync::~GameWorld_Sync()
 {
-
+    this->clear();
 }
 
 void GameWorld_Sync::clear()
@@ -49,10 +56,15 @@ void GameWorld_Sync::clear()
     m_syncNodes.clear();
     m_syncSpriteSheets.clear();
     m_syncSpriteEntities.clear();
+    m_syncMeshModels.clear();
+    m_syncMeshEntities.clear();
     m_syncCharacterModels.clear();
     m_syncItemModels.clear();
     m_syncPlayers.clear();
 
+    m_updatedNodes.clear();
+    m_updatedSprites.clear();
+    m_updatedMeshes.clear();
     m_updatedCharacters[0].clear();
     m_updatedCharacters[1].clear();
 
@@ -69,6 +81,7 @@ void GameWorld_Sync::update(const pou::Time &elapsedTime)
 
     m_updatedNodes.clear();
     m_updatedSprites.clear();
+    m_updatedMeshes.clear();
     m_updatedCharacters[m_updatedCharactersBuffer].clear();
 
     this->processPlayerEvents();
@@ -112,6 +125,30 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
     } else {
         for(auto it = m_updatedSprites.begin() ; it != m_updatedSprites.end() ; ++it)
             this->createWorldSyncMsg_Sprite(*it, worldSyncMsg, player_id, lastSyncTime);
+    }
+
+    {
+        worldSyncMsg->meshModels.clear();
+        auto it = m_syncTimeMeshModels.upper_bound(lastSyncTime);
+        if(lastSyncTime == (uint32_t)(-1))
+            it = m_syncTimeMeshModels.begin();
+        for( ; it != m_syncTimeMeshModels.end() ; ++it)
+        {
+            auto meshModelId = it->second;
+            auto meshModel = m_syncMeshModels.findElement(meshModelId);
+            auto &mehModelPath = meshModel->getFilePath();
+            worldSyncMsg->meshModels.push_back({meshModelId,mehModelPath});
+        }
+    }
+
+    worldSyncMsg->meshEntities.clear();
+    if(lastSyncTime == (uint32_t)(-1))
+    {
+        for(auto it = m_syncMeshEntities.begin() ; it != m_syncMeshEntities.end() ; ++it)
+            this->createWorldSyncMsg_Mesh(it->second.get(), worldSyncMsg, player_id, lastSyncTime);
+    } else {
+        for(auto it = m_updatedMeshes.begin() ; it != m_updatedMeshes.end() ; ++it)
+            this->createWorldSyncMsg_Mesh(*it, worldSyncMsg, player_id, lastSyncTime);
     }
 
     {
@@ -262,6 +299,32 @@ void GameWorld_Sync::createWorldSyncMsg_Sprite(WorldSprite *spriteEntity, std::s
     spriteEntitySync.nodeId = nodeId;
 }
 
+void GameWorld_Sync::createWorldSyncMsg_Mesh(WorldMesh *meshEntity, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+                            int player_id, uint32_t lastSyncTime)
+{
+    if(uint32leq(meshEntity->getLastUpdateTime(), lastSyncTime))
+        return;
+
+    worldSyncMsg->meshEntities.push_back({meshEntity->getSyncId(),MeshEntitySync()});
+    auto &meshEntitySync = worldSyncMsg->meshEntities.back().second;
+
+    auto meshModel = meshEntity->getMeshModel();
+    if(meshModel == nullptr)
+        return;
+
+    size_t meshModelId = m_syncMeshModels.findId(meshModel);
+
+    size_t nodeId = 0;
+
+    auto parentNode = (WorldNode*)meshEntity->getParentNode();
+    if(parentNode != nullptr)
+        nodeId = parentNode->getNodeSyncId();///m_syncNodes.findId(parentNode);
+
+    meshEntitySync.meshEntity = meshEntity;
+    meshEntitySync.meshModelId = meshModelId;
+    meshEntitySync.nodeId = nodeId;
+}
+
 void GameWorld_Sync::createWorldSyncMsg_Character(Character *character, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                             int player_id, uint32_t lastSyncTime)
 {
@@ -321,6 +384,13 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         auto& [ spriteSheetId, spriteSheetPath ] = spriteSheetIt;
         auto *spriteSheetPtr = pou::SpriteSheetsHandler::loadAssetFromFile(spriteSheetPath);
         this->syncElement(spriteSheetPtr, spriteSheetId);
+    }
+
+    for(auto &meshModelIt : worldSyncMsg->meshModels)
+    {
+        auto& [ meshModelId, meshModelPath ] = meshModelIt;
+        auto *meshModelPtr = pou::MeshesHandler::loadAssetFromFile(meshModelPath);
+        this->syncElement(meshModelPtr, meshModelId);
     }
 
     for(auto &characterModelIt : worldSyncMsg->characterModels)
@@ -525,6 +595,36 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         }
     }
 
+
+    for(auto &meshEntityIt : worldSyncMsg->meshEntities)
+    {
+        auto& [ meshEntityId, meshEntitySync ] = meshEntityIt;
+
+        auto meshEntity = m_syncMeshEntities.findElement(meshEntityId);
+
+        //bool isNew = false;
+        if(meshEntity == nullptr)
+        {
+            meshEntity = std::make_shared<WorldMesh>();
+            this->syncElement(meshEntity, meshEntityId);
+        }
+
+        meshEntity->syncFrom(meshEntitySync.meshEntity);
+
+        if(meshEntitySync.meshModelId != 0)
+        {
+            auto *meshModelPtr = m_syncMeshModels.findElement(meshEntitySync.meshModelId);
+            meshEntity->setMeshModel(meshModelPtr);
+        }
+
+        if(meshEntitySync.nodeId != 0)
+        {
+            auto node = m_syncNodes.findElement(meshEntitySync.nodeId);
+            if(node != nullptr)
+                node->attachObject(meshEntity);
+        }
+    }
+
     for(auto desyncPlayer : worldSyncMsg->desyncPlayers)
     {
         auto playerPtr = m_syncPlayers.findElement(desyncPlayer);
@@ -712,6 +812,26 @@ size_t GameWorld_Sync::syncElement(std::shared_ptr<WorldSprite> spriteEntity, ui
     return forceId;
 }
 
+size_t GameWorld_Sync::syncElement(pou::MeshAsset *meshModel, uint32_t forceId)
+{
+    if(forceId == 0)
+        forceId = m_syncMeshModels.allocateId(meshModel);
+    else
+        m_syncMeshModels.insert(forceId, meshModel);
+    m_syncTimeMeshModels.insert({m_curLocalTime, forceId});
+    return forceId;
+}
+
+size_t GameWorld_Sync::syncElement(std::shared_ptr<WorldMesh> meshEntity, uint32_t forceId)
+{
+    if(forceId == 0)
+        forceId = m_syncMeshEntities.allocateId(meshEntity);
+    else
+        m_syncMeshEntities.insert(forceId, meshEntity);
+    meshEntity->setSyncId(forceId);
+    return forceId;
+}
+
 size_t GameWorld_Sync::syncElement(CharacterModelAsset *characterModel, uint32_t forceId)
 {
     if(forceId == 0)
@@ -833,6 +953,12 @@ void GameWorld_Sync::notify(pou::NotificationSender*, int notificationType, void
     {
         auto *gameMsg = static_cast<GameMessage_World_SpriteUpdated*>(data);
         m_updatedSprites.push_back(gameMsg->sprite);
+    }
+
+    if(notificationType == GameMessageType_World_MeshUpdated)
+    {
+        auto *gameMsg = static_cast<GameMessage_World_MeshUpdated*>(data);
+        m_updatedMeshes.push_back(gameMsg->mesh);
     }
 
     if(notificationType == GameMessageType_World_CharacterUpdated)
