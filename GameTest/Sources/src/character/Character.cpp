@@ -105,6 +105,101 @@ void SyncCharacterModelAttributes::serializeImpl(pou::Stream *stream, uint32_t c
         m_attribute.setValue(v, true);
 }
 
+///
+///CharacterSkeleton
+///
+
+///const float CharacterSkeleton::DEFAULT_HURTCOLOR_DELAY = .02f;
+///const float CharacterSkeleton::DEFAULT_HURTCOLOR_FADEOUTSPEED = 10.0f;
+
+CharacterSkeleton::CharacterSkeleton(pou::SkeletonModelAsset *model) : pou::Skeleton(model)//,
+  /**  m_hurtColorAmount(0),
+    m_hurtColor(0)**/
+{
+
+}
+
+CharacterSkeleton::~CharacterSkeleton()
+{
+
+}
+
+void CharacterSkeleton::update(const pou::Time &elapsedTime, uint32_t localTime)
+{
+    /**m_hurtColorTimer.update(elapsedTime);
+
+    if(m_hurtColorAmount > 0 && !m_hurtColorTimer.isActive())
+    {
+        float delta = elapsedTime.count() * DEFAULT_HURTCOLOR_FADEOUTSPEED;
+        if(delta >= m_hurtColorAmount)
+            delta = m_hurtColorAmount;
+
+        this->colorize(-m_hurtColor * delta);
+        m_hurtColorAmount -= delta;
+    }**/
+
+    pou::Skeleton::update(elapsedTime, localTime);
+}
+
+/**void CharacterSkeleton::setHurtColor(const glm::vec4 &hurtColor)
+{
+    this->colorize(-hurtColor * m_hurtColorAmount);
+
+    m_hurtColorAmount = 1.0;
+    m_hurtColor = hurtColor;
+    m_hurtColorTimer.reset(DEFAULT_HURTCOLOR_DELAY);
+
+    this->colorize(hurtColor);
+}**/
+
+
+///
+///HurtNode
+///
+
+const float HurtNode::DEFAULT_HURTCOLOR_DELAY = .02f;
+const float HurtNode::DEFAULT_HURTCOLOR_FADEOUTSPEED = 10.0f;
+
+HurtNode::HurtNode(pou::SceneNode *node) :
+    m_node(node),
+    m_hurtColorAmount(0),
+    m_hurtColor(0)
+{
+
+}
+
+HurtNode::~HurtNode()
+{
+
+}
+
+bool HurtNode::update(const pou::Time &elapsedTime)
+{
+    m_hurtColorTimer.update(elapsedTime);
+
+    if(m_hurtColorAmount > 0 && !m_hurtColorTimer.isActive())
+    {
+        float delta = elapsedTime.count() * DEFAULT_HURTCOLOR_FADEOUTSPEED;
+        if(delta >= m_hurtColorAmount)
+            delta = m_hurtColorAmount;
+
+        m_node->colorize(-m_hurtColor * delta);
+        m_hurtColorAmount -= delta;
+    }
+
+    return (m_hurtColorAmount <= 0);
+}
+
+void HurtNode::setHurtColor(const glm::vec4 &hurtColor)
+{
+    m_node->colorize(-hurtColor * m_hurtColorAmount);
+
+    m_hurtColorAmount = 1.0;
+    m_hurtColor = hurtColor;
+    m_hurtColorTimer.reset(DEFAULT_HURTCOLOR_DELAY);
+
+    m_node->colorize(hurtColor);
+}
 
 
 ///
@@ -235,7 +330,7 @@ void Character::setAiComponent(std::shared_ptr<AiComponent> aiComponent)
    /// m_syncComponent.addSyncSubComponent(m_aiComponent->getSyncComponent());
 }
 
-bool Character::addSkeleton(std::shared_ptr<pou::Skeleton> skeleton, const std::string &name)
+bool Character::addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, const std::string &name)
 {
     return (m_skeletons.insert({name,std::move(skeleton)}).second);
 }
@@ -392,6 +487,9 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
 
         pou::MessageBus::postMessage(GameMessageType_World_CharacterDamaged, &msg);
     }
+
+
+
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
     m_attributes.setValue(att);
 
@@ -407,11 +505,22 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
         this->interrupt(damages);
     }
 
-    //this->m_lastAttributesUpdateTime = m_curLocalTime;
-    ///this->setLastCharacterUpdateTime(m_curLocalTime);
-
     return isFatal;
 }
+
+void Character::setHurtNodeColor(pou::SceneNode *hurtNode, const glm::vec4 &hurtColor)
+{
+    auto hurtNodeIt = m_hurtNodes.find(hurtNode);
+    if(hurtNodeIt == m_hurtNodes.end())
+        hurtNodeIt = m_hurtNodes.insert({hurtNode, HurtNode(hurtNode)}).first;
+    hurtNodeIt->second.setHurtColor(hurtColor);
+}
+
+/*void Character::setSkeletonHurtColor(pou::Skeleton *skeleton, const glm::vec4 &color)
+{
+    skeleton->setColor(color);
+}*/
+
 
 void Character::interrupt(float amount)
 {
@@ -443,9 +552,6 @@ bool Character::resurrect()
     m_isDead.setValue(false);
 
     this->switchState(CharacterStateType_Standing);
-
-    //this->m_lastAttributesUpdateTime = m_curLocalTime;
-    ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     return (true);
 }
@@ -551,6 +657,16 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     WorldNode::update(elapsedTime,localTime);
 
+    this->updateHurtNodes(elapsedTime);
+    this->updateSyncComponent(elapsedTime, localTime);
+
+    GameMessage_World_CharacterUpdated msg;
+    msg.character = this;
+    pou::MessageBus::postMessage(GameMessageType_World_CharacterUpdated, &msg);
+}
+
+void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t localTime)
+{
     float oldLife = m_attributes.getValue().life;
     int oldState = m_curStateId.getValue();
 
@@ -587,11 +703,17 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0
        && m_attributes.getValue().life <= 0)
         this->kill();
+}
 
-
-    GameMessage_World_CharacterUpdated msg;
-    msg.character = this;
-    pou::MessageBus::postMessage(GameMessageType_World_CharacterUpdated, &msg);
+void Character::updateHurtNodes(const pou::Time& elapsedTime)
+{
+    for(auto hurtNodeIt = m_hurtNodes.begin() ; hurtNodeIt != m_hurtNodes.end() ; )
+    {
+        if(hurtNodeIt->second.update(elapsedTime))
+            hurtNodeIt = m_hurtNodes.erase(hurtNodeIt);
+        else
+            ++hurtNodeIt;
+    }
 }
 
 /**void Character::rewind(uint32_t time)
@@ -673,7 +795,7 @@ CharacterModelAsset *Character::getModel() const
     return m_model;
 }
 
-pou::Skeleton *Character::getSkeleton(const std::string &skeletonName)
+CharacterSkeleton *Character::getSkeleton(const std::string &skeletonName)
 {
     auto skeletonIt = m_skeletons.find(skeletonName);
     if(skeletonIt == m_skeletons.end())
@@ -720,8 +842,6 @@ void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDela
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
     if(m_aiComponent)
         m_aiComponent->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
-    ///m_curAnimation.setReconciliationDelay(serverDelay, clientDelay);
-   /// m_attributes.setReconciliationDelay(serverDelay, clientDelay);
 }
 
 

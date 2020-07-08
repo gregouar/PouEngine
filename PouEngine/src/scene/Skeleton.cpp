@@ -293,7 +293,7 @@ std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::st
 }
 
 
-const SceneNode* Skeleton::findNode(const std::string &name) const
+SceneNode* Skeleton::findNode(const std::string &name)
 {
     auto found = m_nodesByName.find(name);
     if(found == m_nodesByName.end())

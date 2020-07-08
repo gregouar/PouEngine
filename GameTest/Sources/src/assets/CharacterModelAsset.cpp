@@ -71,7 +71,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
 
     for(auto &skeletonModel : m_skeletonModels)
     {
-        auto skeleton = std::make_shared<pou::Skeleton>(skeletonModel.second.skeleton);
+        auto skeleton = std::make_shared<CharacterSkeleton>(skeletonModel.second.skeleton);
         for(auto &limb : *(skeletonModel.second.assetsModel.getLimbs()))
         {
             auto sceneEntity = targetCharacter->addLimb(&limb);

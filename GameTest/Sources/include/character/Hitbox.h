@@ -22,15 +22,17 @@ class Hitbox
         const std::string &getSkeleton() const;
         const std::string &getNode() const;
         const pou::MathTools::Box &getBox() const;
+        const glm::vec4 &getColor() const;
 
     protected:
 
     private:
-        std::string     m_skeleton; ///Replace by ID !
-        std::string     m_node; ///Replace by ID !
+        std::string m_skeleton; ///Replace by ID !
+        std::string m_node; ///Replace by ID !
 
         std::vector<float>  m_factors;
         pou::MathTools::Box m_box;
+        glm::vec4           m_color; //Use for hit highlight
 };
 
 #endif // HITBOX_H

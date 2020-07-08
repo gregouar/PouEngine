@@ -42,6 +42,7 @@ void GameWorld::destroy()
 
     m_sunLight.reset();
     m_worldGrid.reset();
+    m_worldRootNode.reset();
 
     if(m_scene)
         delete m_scene;

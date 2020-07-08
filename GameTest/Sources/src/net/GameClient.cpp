@@ -206,7 +206,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
-            if(m_world)
+            if(m_world && m_world->isReady())
                 m_world->getSyncComponent()->syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
 
             if(uint32less(m_lastServerAckTime, castMsg->clientTime))
@@ -217,7 +217,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
 
 void GameClient::updateWorld(const pou::Time &elapsedTime)
 {
-    if(m_world)
+    if(m_world && m_world->isReady())
     {
        // int nbrTicks = 0;
         while(m_remainingTime > GameClient::TICKDELAY)
@@ -245,7 +245,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
 
         return;
     }
-    else if(m_curWorldId != 0 && m_world &&m_world->isReady())
+    else if(m_curWorldId != 0 && m_world && m_world->isReady())
     {
         if(m_isWaitingForWorldGen)
         {

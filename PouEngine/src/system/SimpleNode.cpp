@@ -26,17 +26,17 @@ SimpleNode::SimpleNode() :
 
 SimpleNode::~SimpleNode()
 {
-    this->destroy();
+    ///this->destroy();
 }
 
-void SimpleNode::destroy()
+/*void SimpleNode::destroy()
 {
-    if(m_parent)
-        m_parent->removeChildNode(this);
+   /// if(m_parent)
+       /// m_parent->removeChildNode(this);
     //this->removeAllChilds();
     m_parent    = nullptr;
     m_treeDepth = 0;
-}
+}*/
 
 void SimpleNode::addChildNode(std::shared_ptr<SimpleNode> childNode)
 {

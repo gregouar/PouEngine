@@ -229,6 +229,7 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
 
     this->rotateCharacterToward(elapsedTime, m_attackingDirection);
 
+
     auto hitboxes   = m_character->getHitboxes();
     if(!hitboxes)
         return;
@@ -283,9 +284,15 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                         for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
                             totalDamages += m_character->getModelAttributes().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
 
-                        enemy->damage(totalDamages,
-                                      enemy/*->node()*/->getGlobalXYPosition()-m_character/*->node()*/->getGlobalXYPosition(),
-                                      m_character->areDamagesOnlyCosmetic());
+                        //if(!m_character->areDamagesOnlyCosmetic())
+                            enemy->damage(totalDamages,
+                                          enemy->getGlobalXYPosition()-m_character->getGlobalXYPosition(),
+                                          m_character->areDamagesOnlyCosmetic());
+                        //enemy->setSkeletonHurtColor(hurtSkeleton, hurtBox.getColor());
+
+
+                        ///hurtSkeleton->setHurtColor(hurtBox.getColor());
+                        enemy->setHurtNodeColor(hurtNode, hurtBox.getColor());
                     }
                 }
 

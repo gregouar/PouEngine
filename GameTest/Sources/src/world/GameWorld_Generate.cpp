@@ -117,7 +117,7 @@ void GameWorld::generateImpl()
                     glm::linearRand(0,10) > 5 ? 1 : -1,
                     1));
         float red = glm::linearRand(1.0,1.0);
-        float green = glm::linearRand(0.9,1.0);
+        float green = glm::linearRand(0.8,1.0);
         float blue = green;//glm::linearRand(0.9,1.0);
         tree->setColor(glm::vec4(red,green,blue,1));
         ///m_scene->getRootNode()->addChildNode(tree);
@@ -232,7 +232,10 @@ void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldI
     ///m_worldGrid->addUpdateProbe(player.get()/*->node()*/, 2048);
 
     m_scene->update(pou::Time(0),m_syncComponent.getLocalTime());
+
     m_worldReady = true;
+
+    pou::Logger::write("World generated !");
 }
 
 bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave)

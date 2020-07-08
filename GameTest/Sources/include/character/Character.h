@@ -70,7 +70,51 @@ class SyncCharacterModelAttributes  : public pou::AbstractSyncElement
         pou::SyncAttribute<CharacterModelAttributes> m_attribute;
 };
 
+class CharacterSkeleton : public pou::Skeleton
+{
+    public:
+        CharacterSkeleton(pou::SkeletonModelAsset *model);
+        virtual ~CharacterSkeleton();
 
+        virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
+
+        ///void setHurtColor(const glm::vec4 &hurtColor);
+
+    protected:
+
+    private:
+        /**float m_hurtColorAmount;
+        glm::vec4 m_hurtColor;
+        pou::Timer m_hurtColorTimer;
+
+    public:
+        static const float DEFAULT_HURTCOLOR_DELAY;
+        static const float DEFAULT_HURTCOLOR_FADEOUTSPEED;**/
+};
+
+class HurtNode
+{
+    public:
+        HurtNode(pou::SceneNode *node);
+        virtual ~HurtNode();
+
+        bool update(const pou::Time &elapsedTime);
+
+        void setHurtColor(const glm::vec4 &hurtColor);
+
+    protected:
+
+    private:
+        pou::SceneNode *m_node;
+
+        float m_hurtColorAmount;
+        glm::vec4 m_hurtColor;
+        pou::Timer m_hurtColorTimer;
+
+    public:
+        static const float DEFAULT_HURTCOLOR_DELAY;
+        static const float DEFAULT_HURTCOLOR_FADEOUTSPEED;
+};
 
 class Character : //public pou::SceneObject, public pou::NotificationSender
     public WorldNode
@@ -101,7 +145,11 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         void setSyncData(GameWorld_Sync *worldSync, int id);
         void setTeam(int team);
 
-        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0), bool onlyCosmetic = false);
+        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0),
+                            bool onlyCosmetic = false);
+        virtual void setHurtNodeColor(pou::SceneNode *hurtNode, const glm::vec4 &hurtColor);
+        //virtual void setSkeletonHurtColor(pou::Skeleton *skeleton, const glm::vec4 &color); ///Maybe replace naked ptr by ID
+
         virtual void interrupt(float amount = 0);
         virtual bool kill(float amount = 0);
         virtual bool resurrect();
@@ -122,7 +170,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual const std::list<Hitbox> *getHurtboxes() const;
 
         CharacterModelAsset *getModel() const;
-        pou::Skeleton       *getSkeleton(const std::string &skeletonName);
+        CharacterSkeleton   *getSkeleton(const std::string &skeletonName);
         CharacterInput      *getInput();
 
         const CharacterAttributes       &getAttributes() const;
@@ -153,7 +201,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
     protected:
         void cleanup();
 
-        virtual bool addSkeleton(std::shared_ptr<pou::Skeleton> skeleton, const std::string &name);
+        virtual void updateSyncComponent(const pou::Time &elapsedTime, uint32_t localTime);
+        virtual void updateHurtNodes(const pou::Time &elapsedTime);
+
+        virtual bool addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, const std::string &name);
 
         virtual void switchState(CharacterStateTypes stateType);
 
@@ -167,21 +218,14 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         std::shared_ptr<CharacterInput> m_input;
 
-        /**pou::SyncAttribute<bool> m_isDead;
-
-        pou::SyncAttribute<CharacterModelAttributes>  m_modelAttributes;
-        pou::SyncAttribute<CharacterAttributes>       m_attributes;**/
-
         pou::BoolSyncElement m_isDead;
 
         SyncCharacterModelAttributes    m_modelAttributes;
         SyncCharacterAttributes         m_attributes;
 
         std::set<std::shared_ptr<Character> > m_nearbyCharacters;
-        std::map<std::string, std::shared_ptr<pou::Skeleton> > m_skeletons;
+        std::map<std::string, std::shared_ptr<CharacterSkeleton> > m_skeletons; /// Replace string by ID
 
-        ///uint32_t m_lastCharacterSyncTime;
-        ///uint32_t m_lastCharacterUpdateTime;
         uint32_t m_lastModelUpdateTime;
 
         bool m_disableDeath;
@@ -204,12 +248,12 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         std::map<LimbModel*, std::shared_ptr<pou::SceneEntity> >    m_limbs;
         std::map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
 
+        std::map<pou::SceneNode*, HurtNode> m_hurtNodes;
+
         bool m_isDestinationSet;
         glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent
 
         pou::SyncComponent m_characterSyncComponent;
-        ///pou::SyncAttribute<std::string> m_curAnimation;
-
 
     public:
 };

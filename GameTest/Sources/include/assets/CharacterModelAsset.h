@@ -108,6 +108,8 @@ class CharacterModelAsset : public pou::Asset
         const std::list<Hitbox> *getHitboxes() const;
         const std::list<Hitbox> *getHurtboxes() const;
 
+        /** ADD GET SKELETON ID AND GET NODE ID => use them in hitbox etc **/
+
     protected:
         bool loadFromXML(TiXmlHandle *);
         bool loadAiScript(TiXmlElement *element);

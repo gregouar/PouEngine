@@ -548,17 +548,8 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
                 continue;
 
             auto parentptr = m_syncNodes.findElement(nodeSync.parentNodeId);
-            if(parentptr /*&& parentptr.get() != nodePtr->getParent()*/)
-            {
-                ///This is problematic, I really have an issue because I could miss sync
-                /*nodePtr->removeFromParent();
-                auto oldPos = nodePtr->getPosition();
-                nodePtr->setPosition(nodeSync.node->getPosition());
-                nodePtr->update(pou::Time(0));
+            if(parentptr)
                 parentptr->addChildNode(nodePtr);
-                nodePtr->setPosition(oldPos);*/
-                parentptr->addChildNode(nodePtr);
-            }
         }
     }
 

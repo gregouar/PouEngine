@@ -84,8 +84,8 @@ class Skeleton : public SceneNode
             getTagValues(const std::string &tag);
         const std::string &getCurrentAnimationName();
 
-        const SceneNode* findNode(const std::string &name) const;
-        const SceneNode* findNode(int id) const;
+        SceneNode* findNode(const std::string &name);
+        SceneNode* findNode(int id);
 
         int getNodeState(int nodeId);
 

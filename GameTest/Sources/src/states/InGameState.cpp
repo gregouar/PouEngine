@@ -140,7 +140,6 @@ void InGameState::draw(pou::RenderWindow *renderWindow)
         pou::UiRenderer *renderer = dynamic_cast<pou::UiRenderer*>(renderWindow->getRenderer(pou::Renderer_Ui));
         m_gameUi.render(renderer);
     }
-
 }
 
 

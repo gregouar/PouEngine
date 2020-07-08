@@ -20,7 +20,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         SimpleNode(/**const NodeTypeId**/);
         virtual ~SimpleNode();
 
-        void destroy();
+        //void destroy();
 
         virtual void addChildNode(std::shared_ptr<SimpleNode> childNode);
 

@@ -300,7 +300,7 @@ void WorldGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
         this->probesZones(zonesToUpdate, probe);
        // this->probesZones(nodesToUpdate, probe);
 
-    //int nbrUpdatedNodes = 0;
+    int nbrUpdatedNodes = 0;
 
        size_t i = 0;
     for(auto* zone : zonesToUpdate)
@@ -309,10 +309,10 @@ void WorldGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
     {
         node->update(elapsedTime, localTime), ++i;
        // m_needToUpdateNodes.erase(node.get());
-       //nbrUpdatedNodes++;
+       nbrUpdatedNodes++;
     }
 
-    //std::cout<<"Nbr Updated nodes:"<<nbrUpdatedNodes<<std::endl;
+   // std::cout<<"Nbr Updated nodes:"<<nbrUpdatedNodes<<std::endl;
 
    // for(auto node : m_needToUpdateNodes)
      //   node->update(elapsedTime, localTime);
