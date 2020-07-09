@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <character>
-	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
+	<spritesheet name="mainSpriteSheet" path="playerSpritesheetXML.txt" />
 	
-	<soundbank path="char1SoundBank.bank" />
+	<soundbank path="playerSoundBank.bank" />
 	
-	<skeleton name="mainSkeleton" path="char1SkeletonXML.txt">
-		<limb node="body" sprite="body" spritesheet="mainSpriteSheet" />
-		<limb node="head" sprite="head" spritesheet="mainSpriteSheet" />
-		<limb node="bag" sprite="bag" spritesheet="mainSpriteSheet" />
-		<limb node="shoulderL" sprite="shoulderL" spritesheet="mainSpriteSheet" />
-		<limb node="shoulderR" sprite="shoulderR" spritesheet="mainSpriteSheet" />
-		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet" />
-		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
-		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
-		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
-		
-		<limb node="upperBody" sprite="body" spritesheet="mainSpriteSheet" />
-		<!--<limb node="upperLegs" sprite="upperLegs" spritesheet="mainSpriteSheet" />
-		<limb node="lowerLegs" sprite="lowerLegs" spritesheet="mainSpriteSheet" />-->
+	<skeleton name="mainSkeleton" path="playerSkeletonXML.txt">
+		<limb node="body" sprite="body_1" spritesheet="mainSpriteSheet" />
+		<limb node="head" sprite="head_sith" spritesheet="mainSpriteSheet" />
+		<limb node="bag" sprite="bag_sith" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="shoulderL_sith" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="shoulderR_sith" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL_1" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR_1" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL_1" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR_1" spritesheet="mainSpriteSheet" />
 		
 		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
 		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
@@ -49,7 +45,7 @@
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>
-		<life>100</life>
+		<life>1000</life>
 		<!--<attackDamages>25</attackDamages>-->
 	</attributes>
 </character>

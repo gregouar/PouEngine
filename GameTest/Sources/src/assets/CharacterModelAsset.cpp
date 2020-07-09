@@ -105,14 +105,19 @@ const CharacterModelAttributes &CharacterModelAsset::getAttributes() const
     return m_attributes;
 }
 
-const std::list<Hitbox> *CharacterModelAsset::getHitboxes() const
+const std::vector<Hitbox> *CharacterModelAsset::getHitboxes() const
 {
     return &m_hitboxes;
 }
 
-const std::list<Hitbox> *CharacterModelAsset::getHurtboxes() const
+const std::vector<Hitbox> *CharacterModelAsset::getHurtboxes() const
 {
     return &m_hurtboxes;
+}
+
+const std::vector<pou::BoxBody> *CharacterModelAsset::getCollisionboxes() const
+{
+    return &m_collisionboxes;
 }
 
 bool CharacterModelAsset::loadFromFile(const std::string &filePath)
@@ -193,6 +198,10 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
         if(!this->loadHitboxes(element, m_hurtboxes))
             loaded = false;
 
+    element = hdl->FirstChildElement("collisionboxes").Element();
+    if(element != nullptr)
+        if(!this->loadCollisionboxes(element, m_collisionboxes))
+            loaded = false;
 
     element = hdl->FirstChildElement("attributes").Element();
     if(element != nullptr)
@@ -432,7 +441,7 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
 }
 
 
-bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList)
+bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::vector<Hitbox> &boxList)
 {
     auto boxChild = element->FirstChildElement("box");
     while(boxChild != nullptr)
@@ -441,6 +450,41 @@ bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::list<Hitbox> 
 
         if(!boxList.back().loadFromXML(boxChild->ToElement()))
             pou::Logger::warning("Incomplete hitbox in character model: "+m_filePath);
+
+        boxChild = boxChild->NextSiblingElement("box");
+    }
+
+    return (true);
+}
+
+bool CharacterModelAsset::loadCollisionboxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList)
+{
+    auto boxChild = element->FirstChildElement("box");
+    while(boxChild != nullptr)
+    {
+        boxList.push_back(pou::BoxBody ());
+
+        auto &box = boxList.back().box;
+
+        auto boxElement = boxChild->ToElement();
+
+        auto sizeElement = boxElement->FirstChildElement("size");
+        if(sizeElement != nullptr)
+        {
+            if(sizeElement->Attribute("x") != nullptr)
+                box.size.x = pou::Parser::parseFloat(std::string(sizeElement->Attribute("x")));
+            if(sizeElement->Attribute("y") != nullptr)
+                box.size.y = pou::Parser::parseFloat(std::string(sizeElement->Attribute("y")));
+        }
+
+        auto centerElement = boxElement->FirstChildElement("center");
+        if(centerElement != nullptr)
+        {
+            if(centerElement->Attribute("x") != nullptr)
+                box.center.x = pou::Parser::parseFloat(std::string(centerElement->Attribute("x")));
+            if(centerElement->Attribute("y") != nullptr)
+                box.center.y = pou::Parser::parseFloat(std::string(centerElement->Attribute("y")));
+        }
 
         boxChild = boxChild->NextSiblingElement("box");
     }

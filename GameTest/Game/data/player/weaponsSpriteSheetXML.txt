@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--<spritesheet texture="char1spritesheet.png" scaleX=2 scaleY=2>-->
+<spritesheet material="weaponsMaterial.txt" scaleX=2 scaleY=2>
+	
+	<sprite name="sword" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="0" 	y="0" 	/>
+		<surface roughness=.7 metalness=1.0 emissivity=0.0 />
+	</sprite>
+	<sprite name="swordTrail">
+		<size 		x="41" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="66" y="0" 	/>
+	</sprite>
+	
+	
+	<sprite name="axe" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="7" 	y="24" 	/>
+		<position 	x="0" 	y="33" 	/>
+	</sprite>
+	
+	<sprite name="mokouSword" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="0" 	y="66" 	/>
+	</sprite>
+	
+	<sprite name="laserSword" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="33" y="33" 	/>
+		<surface  emissivity=.1 />
+	</sprite>
+	<sprite name="laserSwordTrail">
+		<size 		x="43" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="66" y="33" 	/>
+		<surface  emissivity=.05 />
+	</sprite>
+
+	<sprite name="energySword" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="33" 	y="66" 	/>
+	</sprite>
+	
+	<sprite name="yellowSword" castShadow="true">
+		<size 		x="32" 	y="32" 	/>
+		<center 	x="0" 	y="31" 	/>
+		<position 	x="33" 	y="0" 	/>
+	</sprite>
+	
+</spritesheet>

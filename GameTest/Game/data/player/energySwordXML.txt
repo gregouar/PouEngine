@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <item>
-	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
-	
-	<light name="saberLight" type="omni" radius=150 intensity=10.0 castShadow="false" >
-		<color r=1.0 g=0.0 b=0.0 a=1.0 />
-	</light>
-	
+	<spritesheet name="mainSpriteSheet" path="weaponsSpritesheetXML.txt" />
 	
 	<skeleton name="mainSkeleton">
-		<limb node="weapon" sprite="laserSword" spritesheet="mainSpriteSheet" />
-		<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />
-		
-		<limb node="weaponCenter" light="saberLight" />
+		<limb node="weapon" sprite="energySword" spritesheet="mainSpriteSheet" />
+		<!--<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />-->
 		
 		<sound name="attackSound" path="event:/LightSaberAttack" type="event" />
 	</skeleton>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <character>
+	<aiscript path="default" />
+	
 	<spritesheet name="mainSpriteSheet" path="crocoSpritesheetXML.txt" />
 	
 	<skeleton name="mainSkeleton" path="crocoSkeletonXML.txt">
@@ -29,8 +31,54 @@
 		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
 	</skeleton>
 	
+	<hitboxes>
+		<box skeleton="mainSkeleton" node="head" >
+			<size 		x="54" 	y="92" 	/>
+			<center 	x="26" 	y="90" 	/>
+			<factor type="pierce">.7</factor>
+			<factor type="blunt">.3</factor>
+		</box>
+	</hitboxes>
+	
+	<hurtboxes>
+		<box skeleton="mainSkeleton" node="head" >
+			<size 		x="54" 	y="92" 	/>
+			<center 	x="26" 	y="90" 	/>
+			<factor>1</factor>
+			<color r=10 g=10 b=10 />
+		</box>
+		<box skeleton="mainSkeleton" node="shoulderL" >
+			<size 		x="26" 	y="30" 	/>
+			<center 	x="14" 	y="14"	/>
+			<factor>.5</factor>
+			<color r=10 g=10 b=10 />
+		</box>
+		<box skeleton="mainSkeleton" node="shoulderR" >
+			<size 		x="26" 	y="30" 	/>
+			<center 	x="10" 	y="14"	/>
+			<factor>.5</factor>
+			<color r=10 g=10 b=10 />
+		</box>
+		<box skeleton="mainSkeleton" node="upperLegL" >
+			<size 		x="34" 	y="42" 	/>
+			<center 	x="32" 	y="26"	/>
+				<factor>.5</factor>
+				<color r=10 g=10 b=10 />
+		</box>
+		<box skeleton="mainSkeleton" node="upperLegR" >
+			<size 		x="34" 	y="42" 	/>
+			<center 	x="0" 	y="26"	/>
+			<factor>.5</factor>
+			<color r=10 g=10 b=10 />
+		</box>
+	</hurtboxes>
+	
+	
+	
 	<attributes>
 		<walkingSpeed>100</walkingSpeed>
 		<attackDelay>1</attackDelay>
+		<life>1000</life>
+		<attackDamages>10</attackDamages>
 	</attributes>
 </character>

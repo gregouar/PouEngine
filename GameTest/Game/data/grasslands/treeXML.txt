@@ -32,6 +32,13 @@
 		</box>
 	</hurtboxes>
 	
+	<collisionboxes>
+		<box>
+			<size 		x=24 	y=24 	/>
+			<center 	x=12 	y=12 	/>
+		</box>
+	</collisionboxes>
+	
 	
 	<attributes>
 		<walkingSpeed>0</walkingSpeed>

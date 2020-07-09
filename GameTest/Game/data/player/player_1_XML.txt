@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="playerSpritesheetXML.txt" />
+	
+	<soundbank path="playerSoundBank.bank" />
+	
+	<skeleton name="mainSkeleton" path="playerSkeletonXML.txt">
+		<limb node="body" sprite="body_1" spritesheet="mainSpriteSheet" />
+		<limb node="head" sprite="head_1" spritesheet="mainSpriteSheet" />
+		<limb node="bag" sprite="bag_1" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="shoulderL_1" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="shoulderR_1" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL_1" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR_1" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL_1" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR_1" spritesheet="mainSpriteSheet" />
+		
+		<limb node="upperBody" sprite="body_1" spritesheet="mainSpriteSheet" />
+		<!--<limb node="upperLegs" sprite="upperLegs" spritesheet="mainSpriteSheet" />
+		<limb node="lowerLegs" sprite="lowerLegs" spritesheet="mainSpriteSheet" />-->
+		
+		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
+		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
+		<sound name="deathSound" path="event:/CharacterDeath" type="event" />
+		<sound name="dashSound" path="event:/CharacterDash" type="event" />
+		
+	</skeleton>
+	
+	<hurtboxes>
+		<box skeleton="mainSkeleton" node="bodyHB" >
+			<size 		x="26" 	y="20" 	/>
+			<center 	x="12" 	y="10" 	/>
+			<factor>1</factor>
+		</box>
+	</hurtboxes>
+	
+	<collisionboxes>
+		<box>
+			<size 		x="26" 	y="20" 	/>
+			<center 	x="12" 	y="10" 	/>
+		</box>
+	</collisionboxes>
+	
+	<attributes>
+		<walkingSpeed>250</walkingSpeed>
+		<attackDelay>0</attackDelay>
+		<life>100</life>
+	</attributes>
+</character>

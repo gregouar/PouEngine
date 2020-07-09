@@ -28,7 +28,7 @@ class Player : public Character
         void setPlayerName(const std::string &playerName);
         const std::string &getPlayerName();
 
-        virtual const std::list<Hitbox> *getHitboxes() const;
+        virtual const std::vector<Hitbox> *getHitboxes() const;
         ItemModelAsset *getItemModel(GearType type);
         size_t getInventorySize() const;
 
@@ -48,7 +48,7 @@ class Player : public Character
         ///void setLastPlayerUpdateTime(uint32_t time, bool force = false);
 
     protected:
-        std::list<Hitbox>             m_hitboxes;
+        std::vector<Hitbox>           m_hitboxes;
         std::vector<ItemModelAsset *> m_gearsModel;
         std::vector<ItemModelAsset *> m_inventory;
 

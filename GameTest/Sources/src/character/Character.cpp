@@ -660,6 +660,12 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
 
+    if(m_model && elapsedTime.count() > 0)
+    {
+        auto collisionBoxes = m_model->getCollisionboxes();
+        pou::PhysicsEngine::addBoxBodies(this, *collisionBoxes);
+    }
+
     GameMessage_World_CharacterUpdated msg;
     msg.character = this;
     pou::MessageBus::postMessage(GameMessageType_World_CharacterUpdated, &msg);
@@ -776,14 +782,14 @@ bool Character::isAlive() const
     return (!m_isDead.getValue());
 }
 
-const std::list<Hitbox> *Character::getHitboxes() const
+const std::vector<Hitbox> *Character::getHitboxes() const
 {
     if(m_model == nullptr)
         return (nullptr);
     return m_model->getHitboxes();
 }
 
-const std::list<Hitbox> *Character::getHurtboxes() const
+const std::vector<Hitbox> *Character::getHurtboxes() const
 {
     if(m_model == nullptr)
         return (nullptr);

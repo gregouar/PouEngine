@@ -6,6 +6,7 @@
 #include "PouEngine/assets/SkeletonmodelAsset.h"
 #include "PouEngine/scene/Skeleton.h"
 #include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/physics/PhysicsEngine.h"
 
 #include "tinyxml/tinyxml.h"
 
@@ -105,8 +106,9 @@ class CharacterModelAsset : public pou::Asset
         bool generateCharacter(Character *targetCharacter);
 
         const CharacterModelAttributes &getAttributes() const;
-        const std::list<Hitbox> *getHitboxes() const;
-        const std::list<Hitbox> *getHurtboxes() const;
+        const std::vector<Hitbox> *getHitboxes() const;
+        const std::vector<Hitbox> *getHurtboxes() const;
+        const std::vector<pou::BoxBody> *getCollisionboxes() const;
 
         /** ADD GET SKELETON ID AND GET NODE ID => use them in hitbox etc **/
 
@@ -117,7 +119,8 @@ class CharacterModelAsset : public pou::Asset
         bool loadLightModel(TiXmlElement *element);
         bool loadSoundBank(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
-        bool loadHitboxes(TiXmlElement *element, std::list<Hitbox> &boxList);
+        bool loadHitboxes(TiXmlElement *element, std::vector<Hitbox> &boxList);
+        bool loadCollisionboxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList);
         bool loadAttributes(TiXmlElement *element);
 
     private:
@@ -127,7 +130,8 @@ class CharacterModelAsset : public pou::Asset
         std::map<std::string, pou::LightModel>          m_lightModels;
         std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;
 
-        std::list<Hitbox> m_hitboxes, m_hurtboxes;
+        std::vector<Hitbox> m_hitboxes, m_hurtboxes;
+        std::vector<pou::BoxBody> m_collisionboxes;
 
         CharacterModelAttributes m_attributes;
 };

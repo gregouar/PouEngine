@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <skeleton>
 	<node name="root"> 
-		<node name="upperBody" z=".1">
+		<node name="upperBody" z="1.1">
 			<node name="neck" y="-46" z="-.2">
 				<node name="head" y="-8" z=".3" />
 			</node>

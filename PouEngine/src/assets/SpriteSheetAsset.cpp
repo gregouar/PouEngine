@@ -211,14 +211,14 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                 spriteCenter = {spriteSize.x*0.5,
                                 spriteSize.y*0.5};
 
-            spriteModel->setSize(spriteSize);
-            spriteModel->setCenter(spriteCenter);
+            spriteModel->setSize(spriteSize*m_textureScale);
+            spriteModel->setCenter(spriteCenter*m_textureScale);
 
             if(customRme)
                 spriteModel->setRme(spriteRme);
 
             if(customPosition)
-                spriteModel->setTextureRect(spritePosition/m_textureScale,spriteSize/m_textureScale,false);
+                spriteModel->setTextureRect(spritePosition /* /m_textureScale */,spriteSize /*/m_textureScale*/,false);
 
             int spriteId = this->generateSpriteId(spriteName);
             spriteModel->setSpriteId(spriteId);

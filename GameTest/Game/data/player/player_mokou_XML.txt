@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <character>
-	<spritesheet name="mainSpriteSheet" path="char1SpritesheetXML.txt" />
+	<spritesheet name="mainSpriteSheet" path="playerSpritesheetXML.txt" />
 	
-	<soundbank path="char1SoundBank.bank" />
+	<soundbank path="playerSoundBank.bank" />
 	
-	<skeleton name="mainSkeleton" path="char1SkeletonXML.txt">
-		<limb node="body" sprite="body" spritesheet="mainSpriteSheet" />
-		<limb node="head" sprite="sithHead" spritesheet="mainSpriteSheet" />
-		<limb node="bag" sprite="sithBag" spritesheet="mainSpriteSheet" />
-		<limb node="shoulderL" sprite="sithShoulderL" spritesheet="mainSpriteSheet" />
-		<limb node="shoulderR" sprite="sithShoulderR" spritesheet="mainSpriteSheet" />
-		<limb node="handL" sprite="handL" spritesheet="mainSpriteSheet" />
-		<limb node="handR" sprite="handR" spritesheet="mainSpriteSheet" />
-		<limb node="footL" sprite="footL" spritesheet="mainSpriteSheet" />
-		<limb node="footR" sprite="footR" spritesheet="mainSpriteSheet" />
+	<skeleton name="mainSkeleton" path="playerSkeletonXML.txt">
+		<limb node="body" sprite="body_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="head" sprite="head_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="bag" sprite="bag_1" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderL" sprite="shoulderL_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="shoulderR" sprite="shoulderR_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="handL" sprite="handL_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="handR" sprite="handR_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="footL" sprite="footL_mokou" spritesheet="mainSpriteSheet" />
+		<limb node="footR" sprite="footR_mokou" spritesheet="mainSpriteSheet" />
 		
 		<sound name="stepSound" path="event:/CharacterFootstep" type="event" />
 		<sound name="hurtSound" path="event:/CharacterHurt" type="event" />
@@ -45,7 +45,7 @@
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>
-		<life>1000</life>
+		<life>100</life>
 		<!--<attackDamages>25</attackDamages>-->
 	</attributes>
 </character>

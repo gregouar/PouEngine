@@ -55,7 +55,7 @@ void GameWorld::generateImpl()
 
     auto loadType = pou::LoadType_Now;
 
-    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassXML.txt",loadType);
+    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt",loadType);
     m_syncComponent.syncElement(grassSheet);
 
     auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt",loadType);
@@ -100,6 +100,8 @@ void GameWorld::generateImpl()
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
+    //for(auto x = -1 ; x < 0 ; x++)
+    //for(auto y = -1 ; y < 0 ; y++)
     {
         glm::vec3 p = glm::vec3(glm::linearRand(-640.0f,640.0f),
                                 glm::linearRand(-640.0f,640.0f),
@@ -131,6 +133,8 @@ void GameWorld::generateImpl()
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
+    //for(auto x = -1 ; x < 0 ; x++)
+    //for(auto y = -1 ; y < 0 ; y++)
     {
         glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
 
@@ -168,6 +172,26 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(duck);
 
         m_syncComponent.syncElement(duck);
+    }
+
+    auto crocoModel = CharacterModelsHandler::loadAssetFromFile("../data/croco/crocoXML.txt",loadType);
+    m_syncComponent.syncElement(crocoModel);
+    {
+        glm::vec2 p, pp;
+
+        pp = glm::vec2(1000, 1000);
+
+        do
+        {
+            p = pp + glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        }while(glm::length(p) < 500.0f);
+
+        auto croco = std::make_shared<Character>();
+        croco->createFromModel(crocoModel);
+        croco->setPosition(p);
+        m_worldGrid->addChildNode(croco);
+
+        m_syncComponent.syncElement(croco);
     }
 
     //pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
@@ -254,13 +278,15 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
-    CharacterModelAsset *playerModel;
-    if(playerSave->getPlayerType() % 3 == 0)
-        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/char1XML.txt"/*, pou::LoadType_InThread*/);
-    else if(playerSave->getPlayerType() % 3 == 1)
-        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/mokouXML.txt");
-    else
-        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/char1/sithXML.txt");
+    CharacterModelAsset *playerModel(nullptr);
+    if(playerSave->getPlayerType() % 4 == 0)
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_1_XML.txt"/*, pou::LoadType_InThread*/);
+    else if(playerSave->getPlayerType() % 4 == 1)
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_mokou_XML.txt");
+    else if(playerSave->getPlayerType() % 4 == 2)
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_sith_XML.txt");
+    else if(playerSave->getPlayerType() % 4 == 3)
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_leather_XML.txt");
 
     m_syncComponent.syncElement(playerModel);
     player->setModel(playerModel);
@@ -274,23 +300,23 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     ItemModelAsset *playerWeapon;
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/swordXML.txt");
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/swordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,1);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/axeXML.txt");
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/axeXML.txt");
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,2);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/mokouSwordXML.txt");
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/mokouSwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,3);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/laserSwordXML.txt");
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/laserSwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,4);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/char1/energySwordXML.txt");
+    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/energySwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,5);
 

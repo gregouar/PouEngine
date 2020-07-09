@@ -293,6 +293,8 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
 
                         ///hurtSkeleton->setHurtColor(hurtBox.getColor());
                         enemy->setHurtNodeColor(hurtNode, hurtBox.getColor());
+
+                        break;
                     }
                 }
 

@@ -166,8 +166,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         bool isAlive() const;
 
-        virtual const std::list<Hitbox> *getHitboxes() const;
-        virtual const std::list<Hitbox> *getHurtboxes() const;
+        virtual const std::vector<Hitbox> *getHitboxes() const;
+        virtual const std::vector<Hitbox> *getHurtboxes() const;
 
         CharacterModelAsset *getModel() const;
         CharacterSkeleton   *getSkeleton(const std::string &skeletonName);

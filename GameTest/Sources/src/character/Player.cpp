@@ -183,7 +183,7 @@ const std::string &Player::getPlayerName()
     return m_playerName.getValue();
 }
 
-const std::list<Hitbox> *Player::getHitboxes() const
+const std::vector<Hitbox> *Player::getHitboxes() const
 {
     return &m_hitboxes;
 }

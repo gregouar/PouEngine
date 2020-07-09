@@ -191,7 +191,6 @@ void VApp::loop()
             Profiler::resetLoop(ENABLE_PROFILER);
         }
 
-
         if(m_eventsManager.resizedWindow())
         {
             m_renderWindow.resize();
@@ -226,6 +225,8 @@ void VApp::loop()
             m_statesManager.draw(&m_renderWindow);
             Profiler::popClock();
         }
+
+        //PhysicsEngine::instance()->resolveCollisions();
 
         Profiler::pushClock("Display");
         m_renderWindow.display();

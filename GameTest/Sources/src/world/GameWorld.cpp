@@ -5,6 +5,8 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+#include "PouEngine/physics/PhysicsEngine.h"
+
 //For tests
 #include "PouEngine/system/Clock.h"
 
@@ -89,6 +91,8 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     m_scene->update(elapsed_time, localTime);
 
     this->processPlayerActions();
+
+    pou::PhysicsEngine::resolveCollisions();
 }
 
 void GameWorld::render(pou::RenderWindow *renderWindow)

@@ -1,71 +1,60 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <spritesheet material="duckMaterial.txt" scaleX=2 scaleY=2>
 	<sprite name="head" castShadow="true">
-		<size 		x="22" 	y="46" 	/>
-		<center 	x="11" 	y="35" 	/>
-		<position 	x="12" 	y="0"	/>
+		<size 		x="11" 	y="23" 	/>
+		<center 	x="5.5" 	y="17.5" 	/>
+		<position 	x="6" 	y="0"	/>
 	</sprite>
 	<sprite name="body" castShadow="true">
-		<size 		x="46" 	y="68" 	/>
-		<center 	x="23" 	y="33" 	/>
-		<position 	x="0" 	y="48"	/>
+		<size 		x="24" 	y="34" 	/>
+		<center 	x="11.5" 	y="16.5" 	/>
+		<position 	x="0" 	y="24"	/>
 	</sprite>
 	<sprite name="tail">
-		<size 		x="22" 	y="26" 	/>
-		<center 	x="11" 	y="8" 	/>
-		<position 	x="12" 	y="118"	/>
+		<size 		x="11" 	y="13" 	/>
+		<center 	x="5.5" 	y="4" 	/>
+		<position 	x="6" 	y="59"	/>
 	</sprite>
 	<sprite name="wingL">
-		<size 		x="12" 	y="32" 	/>
-		<center 	x="6" 	y="6" 	/>
-		<position 	x="46" 	y="0"	/>
+		<size 		x="6" 	y="16" 	/>
+		<center 	x="3" 	y="3" 	/>
+		<position 	x="23" 	y="0"	/>
 	</sprite>
 	<sprite name="wingR">
-		<size 		x="12" 	y="32" 	/>
-		<center 	x="6" 	y="6" 	/>
-		<position 	x="60" 	y="0"	/>
+		<size 		x="6" 	y="16" 	/>
+		<center 	x="3" 	y="3" 	/>
+		<position 	x="30" 	y="0"	/>
 	</sprite>
 	<sprite name="legL">
-		<size 		x="10" 	y="56" 	/>
-		<center 	x="9" 	y="5" 	/>
-		<position 	x="48" 	y="56"	/>
+		<size 		x="5" 	y="28" 	/>
+		<center 	x="4.5" 	y="2.5" 	/>
+		<position 	x="24" 	y="28"	/>
 	</sprite>	
 	<sprite name="legR">
-		<size 		x="10" 	y="18" 	/>
-		<center 	x="1" 	y="5" 	/>
-		<position 	x="60" 	y="56"	/>
+		<size 		x="5" 	y="9" 	/>
+		<center 	x=".5" 	y="2/5" 	/>
+		<position 	x="30" 	y="28"	/>
 	</sprite>	
 	<sprite name="foot">
-		<size 		x="22" 	y="20" 	/>
-		<center 	x="11" 	y="15" 	/>
-		<position 	x="46" 	y="34"	/>
+		<size 		x="11" 	y="10" 	/>
+		<center 	x="5.5" 	y="7.5" 	/>
+		<position 	x="23" 	y="17"	/>
 	</sprite>	
 	
 	
 	<sprite name="headAttack" castShadow="true">
-		<size 		x="22" 	y="46" 	/>
-		<center 	x="11" 	y="35" 	/>
-		<position 	x="80" 	y="0"	/>
+		<size 		x="11" 	y="23" 	/>
+		<center 	x="5.5" 	y="17.5" 	/>
+		<position 	x="40" 	y="0"	/>
 		<nextSprite name="headAttack2" delay=.2 />
 	</sprite>
 	<sprite name="headAttack2" castShadow="true">
-		<size 		x="22" 	y="46" 	/>
-		<center 	x="11" 	y="35" 	/>
-		<position 	x="80" 	y="50"	/>
+		<size 		x="11" 	y="23" 	/>
+		<center 	x="5.5" 	y="17.5" 	/>
+		<position 	x="40" 	y="25"	/>
 		<nextSprite name="headAttack"  delay=.2 />
 	</sprite>
 	
-	
-	<sprite name="bodyHBTest">
-		<size 		x="46" 	y="60" 	/>
-		<center 	x="23" 	y="25" 	/>
-		<position 	x="0" 	y="146"	/>
-	</sprite>
-	<sprite name="beakHBTest">
-		<size 		x="14" 	y="20" 	/>
-		<center 	x="7" 	y="35" 	/>
-		<position 	x="48" 	y="146"	/>
-	</sprite>
 </spritesheet>
 
 

@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <item>
-	<spritesheet name="mainSpriteSheet" path="mokouSpritesheetXML.txt" />
+	<spritesheet name="mainSpriteSheet" path="weaponsSpritesheetXML.txt" />
+	
+	<light name="saberLight" type="omni" radius=150 intensity=10.0 castShadow="false" >
+		<color r=1.0 g=0.0 b=0.0 a=1.0 />
+	</light>
+	
 	
 	<skeleton name="mainSkeleton">
-		<limb node="weapon" sprite="sword" state="standing" spritesheet="mainSpriteSheet" />
-		<limb node="weapon" sprite="swordAttack" state="attack" spritesheet="mainSpriteSheet" />
-		<!--<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />-->
+		<limb node="weapon" sprite="laserSword" spritesheet="mainSpriteSheet" />
+		<limb node="weaponTrail" sprite="laserSwordTrail" state="attack" spritesheet="mainSpriteSheet" />
+		
+		<limb node="weaponCenter" light="saberLight" />
 		
 		<sound name="attackSound" path="event:/LightSaberAttack" type="event" />
 	</skeleton>

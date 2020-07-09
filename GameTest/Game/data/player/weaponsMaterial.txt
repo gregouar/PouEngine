@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <material>
-	<name>Char1Material</name>
+	<name>WeaponsMaterial</name>
 	<height>0</height>
-	<texture type="albedo">char1spritesheet.png</texture>
-	<texture type="normal">char1spritesheet_n.png</texture>
+	<texture type="albedo">weaponsSpritesheet.png</texture>
+	<texture type="normal">weaponsSpritesheet_n.png</texture>
 	<roughness>.8</roughness>
 	<metalness>.0</metalness>
 	<emissivity>0</emissivity>

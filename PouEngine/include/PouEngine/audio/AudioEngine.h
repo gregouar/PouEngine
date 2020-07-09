@@ -10,15 +10,11 @@
 namespace pou
 {
 
-class AudioEngine  : public Singleton<AudioEngine>
+class AudioEngine : public Singleton<AudioEngine>
 {
-
     friend class Singleton<AudioEngine>;
 
     public:
-        AudioEngine();
-        virtual ~AudioEngine();
-
         bool init(std::unique_ptr<AbstractAudioImpl> impl);
         bool cleanup();
 
@@ -46,6 +42,8 @@ class AudioEngine  : public Singleton<AudioEngine>
         static bool setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos);
 
     protected:
+        AudioEngine();
+        virtual ~AudioEngine();
 
     private:
         std::unique_ptr<AbstractAudioImpl> m_impl;
