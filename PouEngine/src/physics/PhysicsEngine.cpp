@@ -38,10 +38,13 @@ void PhysicsEngine::addBoxBodies(SimpleNode *node, const std::vector<BoxBody> &b
 
 void PhysicsEngine::resolveCollisionsImpl(/*const Time &elapsedTime*/)
 {
-    ///Need to find a much better way to do this
-    for(size_t i = 0 ; i < m_boxBodies.size() ; ++i)
-    for(size_t j = i+1 ; j < m_boxBodies.size() ; ++j)
-        this->resolveBoxToBoxCollision(&m_boxBodies[i], &m_boxBodies[j]);
+    for(int k = 0 ; k < 2 ; ++k)
+    {
+        ///Need to find a better way to do this, for example with a map of X coord
+        for(size_t i = 0 ; i < m_boxBodies.size() ; ++i)
+        for(size_t j = i+1 ; j < m_boxBodies.size() ; ++j)
+            this->resolveBoxToBoxCollision(&m_boxBodies[i], &m_boxBodies[j]);
+    }
 
     m_boxBodies.clear();
 }
@@ -61,6 +64,9 @@ void PhysicsEngine::addBoxBodiesImpl(SimpleNode *node, const std::vector<BoxBody
 
 void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
 {
+    if(body1->mass == -1 && body2->mass == -1)
+        return;
+
     auto &node1 = body1->node;
     auto &node2 = body2->node;
     auto &box1 = body1->box;
@@ -96,17 +102,19 @@ void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
     std::vector<glm::vec2> minkowskiDiff(8);
     this->computeMinkowskiDiff(box1.size, -p1, -p2, -p3, /*p4,*/ minkowskiDiff);
 
-    //We test if the Minkowski difference contains the origin ?
+    //If we are outside of the bounding box, there can be no collision
+    if(minkowskiDiff.empty())
+        return;
 
     float closestSquaredDistance = -1;
-    glm::vec2 closestPoint;
+    glm::vec2 closestPoint(0.0f);
     bool outside = false;
-    int sign = 0;
+    double sign = 0;
 
     //We compute the minimal separation vector in body1 coord by computing the point on the boundary of the Minkowsi difference closer to the origin
-    for(int i = 0 ; i < 8 ; ++i)
+    for(size_t i = 0 ; i < minkowskiDiff.size() ; ++i)
     {
-        auto ip = (i + 1) % 8;
+        auto ip = (i + 1) % minkowskiDiff.size();
         auto boundaryVector = minkowskiDiff[ip] - minkowskiDiff[i];
         auto originVector = - minkowskiDiff[i];
 
@@ -115,13 +123,14 @@ void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
 
         //std::cout<<minkowskiDiff[i].x<<" "<<minkowskiDiff[i].y<<std::endl;
 
+        float dotBoundary = glm::dot(boundaryVector,boundaryVector);
+        if(dotBoundary < .01)
+            continue;
+
         if(determinant * sign < 0)
             outside = true;
-        sign = determinant;
-
-        float dotBoundary = glm::dot(boundaryVector,boundaryVector);
-        if(dotBoundary < .1)
-            continue;
+        if(abs(determinant) > 0.1)
+            sign = determinant;
 
         float projectionFactor = glm::dot(boundaryVector, originVector)/dotBoundary;
         projectionFactor = glm::clamp(projectionFactor, 0.0f, 1.0f);
@@ -136,17 +145,51 @@ void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
         }
     }
 
-    if(!outside)
+    sign = 0;
+
+    if(!outside && closestSquaredDistance > 1)
     {
+        /*std::cout<<"Position Node1: "<<node1->getGlobalPosition().x<<" "<<node1->getGlobalPosition().y<<std::endl;
+        std::cout<<"Box1: "<<box1.size.x<<" "<<box1.size.y<<std::endl;
+        std::cout<<"Position Node2: "<<node2->getGlobalPosition().x<<" "<<node2->getGlobalPosition().y<<std::endl;
+        std::cout<<"Box2: "<<box2.size.x<<" "<<box2.size.y<<std::endl;
+        for(size_t i = 0 ; i < minkowskiDiff.size() ; ++i)
+        {
+            std::cout<<minkowskiDiff[i].x<<" "<<minkowskiDiff[i].y<<std::endl;
+
+            auto ip = (i + 1) % minkowskiDiff.size();
+            float determinant = (-minkowskiDiff[i].x)*(minkowskiDiff[ip].y - minkowskiDiff[i].y)
+                        - (-minkowskiDiff[i].y)*(minkowskiDiff[ip].x - minkowskiDiff[i].x);
+
+
+            std::cout<<"det : "<<determinant<<std::endl;
+            std::cout<<"sign : "<<sign<<std::endl;
+            std::cout<<"det * sign : "<<determinant * sign<<std::endl;
+
+            if(abs(determinant) > 0.1)
+                sign = determinant;
+        }*/
+
         auto minimalTranslationVector = node1->getModelMatrix() * glm::vec4(closestPoint.x, closestPoint.y,0,1) ;
+        minimalTranslationVector /= minimalTranslationVector.w;
         float ratio = .5;
+
+        if(body1->mass == -1)
+            ratio = 1.0;
+        else if(body2->mass == -1)
+            ratio = 0.0;
+        else if(!(body1->mass == 0 && body2->mass == 0))
+            ratio = body1->mass/(body1->mass + body2->mass);
 
         auto translationVector = glm::vec2(minimalTranslationVector) - glm::vec2(node1->getGlobalXYPosition());
 
-        std::cout<<translationVector.x<<" "<<translationVector.y<<std::endl;
+        //std::cout<<"Translation: "<<translationVector.x<<" "<<translationVector.y<<std::endl;
+        //std::cout<<"Ratio:"<<ratio<<std::endl;
 
         node2->move(translationVector * ratio);
         node1->move(-translationVector * (1.0f-ratio));
+        node1->update();
+        node2->update();
     }
 
 }
@@ -159,12 +202,11 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
 
     auto p4 = p2 + p3 - p1;
 
-    glm::vec2 minP = glm::vec2(std::min(std::min(std::min(p1.x,p2.x),p3.x),p4.x),
+    /*glm::vec2 minP = glm::vec2(std::min(std::min(std::min(p1.x,p2.x),p3.x),p4.x),
                                std::min(std::min(std::min(p1.y,p2.y),p3.y),p4.y));
 
     glm::vec2 maxP = glm::vec2(std::max(std::max(std::max(p1.x,p2.x),p3.x),p4.x),
                                std::max(std::max(std::max(p1.y,p2.y),p3.y),p4.y));
-
 
 
     //This is the box that will bound the Minkowski difference
@@ -172,6 +214,12 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
 
     outerSquare_ul = -maxP;
     outerSquare_dr = originBoxSize-minP;
+
+    if(outerSquare_ul.x > 0 || outerSquare_ul.y > 0 || outerSquare_dr.x < 0 || outerSquare_dr.y < 0)
+    {
+        minkowskiDiff.clear();
+        return;
+    }*/
 
     /*auto delta1 = p2 - p1;
     auto delta2 = p3 - p1;
@@ -195,6 +243,12 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
     if(p4.x < leftMost.x)
         leftMost = p4;
 
+    if(leftMost.x > 0)
+    {
+        minkowskiDiff.clear();
+        return;
+    }
+
     auto rightMost = p1;
     if(p2.x > rightMost.x)
         rightMost = p2;
@@ -202,6 +256,12 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
         rightMost = p3;
     if(p4.x > rightMost.x)
         rightMost = p4;
+
+    if(rightMost.x + originBoxSize.x < 0)
+    {
+        minkowskiDiff.clear();
+        return;
+    }
 
     auto topMost = p1;
     if(p2.y < topMost.y)
@@ -211,6 +271,12 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
     if(p4.y < topMost.y)
         topMost = p4;
 
+    if(topMost.y > 0)
+    {
+        minkowskiDiff.clear();
+        return;
+    }
+
     auto bottomMost = p1;
     if(p2.y > bottomMost.y)
         bottomMost = p2;
@@ -218,6 +284,12 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
         bottomMost = p3;
     if(p4.y > bottomMost.y)
         bottomMost = p4;
+
+    if(bottomMost.y + originBoxSize.y < 0)
+    {
+        minkowskiDiff.clear();
+        return;
+    }
 
     minkowskiDiff[0] = leftMost;
     minkowskiDiff[1] = topMost;

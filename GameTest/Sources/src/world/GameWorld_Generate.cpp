@@ -165,6 +165,9 @@ void GameWorld::generateImpl()
             p = pp + glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
         }while(glm::length(p) < 500.0f);
 
+        //p = glm::vec2(x*300, y*300);
+
+
         auto duck = std::make_shared<Character>();
         duck->createFromModel(duckModel);
         duck->pou::SceneNode::setPosition(p);
@@ -192,6 +195,20 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(croco);
 
         m_syncComponent.syncElement(croco);
+    }
+
+
+    auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
+    m_syncComponent.syncElement(barrelModel);
+    {
+        glm::vec3 p(100,0,60);
+
+        auto barrel = std::make_shared<Character>();
+        barrel->createFromModel(barrelModel);
+        barrel->setPosition(p);
+        m_worldGrid->addChildNode(barrel);
+
+        m_syncComponent.syncElement(barrel);
     }
 
     //pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);

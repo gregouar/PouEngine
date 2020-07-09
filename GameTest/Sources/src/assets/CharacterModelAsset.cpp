@@ -468,6 +468,11 @@ bool CharacterModelAsset::loadCollisionboxes(TiXmlElement *element, std::vector<
 
         auto boxElement = boxChild->ToElement();
 
+        float mass = 0;
+        auto massChild = boxElement->FirstChildElement("mass");
+        if(massChild != nullptr)
+            mass = pou::Parser::parseFloat(massChild->GetText());
+
         auto sizeElement = boxElement->FirstChildElement("size");
         if(sizeElement != nullptr)
         {
@@ -486,6 +491,9 @@ bool CharacterModelAsset::loadCollisionboxes(TiXmlElement *element, std::vector<
                 box.center.y = pou::Parser::parseFloat(std::string(centerElement->Attribute("y")));
         }
 
+        if(mass < 0)
+            mass = -1;
+        boxList.back().mass = mass;
         boxChild = boxChild->NextSiblingElement("box");
     }
 

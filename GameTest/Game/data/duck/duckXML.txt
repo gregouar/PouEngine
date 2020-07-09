@@ -45,6 +45,14 @@
 		</box>
 	</hurtboxes>
 	
+	<collisionboxes>
+		<box >
+			<size 		x="46" 	y="60" 	/>
+			<center 	x="23" 	y="25" 	/>
+			<mass>50</mass>
+		</box>
+	</collisionboxes>
+	
 	
 	<attributes>
 		<walkingSpeed>150</walkingSpeed>

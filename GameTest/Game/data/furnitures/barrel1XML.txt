@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="barrelSpritesheet.txt" />
+	
+	<skeleton name="mainSkeleton" path="singleNodeSkeletonXML.txt">
+		<limb node="root" 	sprite="barrel1" 	spritesheet="mainSpriteSheet" />
+		<limb node="root" 	mesh="barrelMeshXML.txt" />
+	</skeleton>
+	
+	<collisionboxes>
+		<box>
+			<size 		x=48 	y=48 	/>
+			<center 	x=24 	y=24 	/>
+			<mass>100</mass>
+		</box>
+	</collisionboxes>
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>1</life>
+	</attributes>
+</character>

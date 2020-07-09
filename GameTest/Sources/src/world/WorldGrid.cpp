@@ -169,6 +169,9 @@ void WorldGrid::setQuadSize(float s)
 
 void WorldGrid::resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize)
 {
+    std::cout<<minPos.x<<" "<<minPos.y<<" "<<m_minPos.x<<" "<<m_minPos.y<<std::endl;
+    std::cout<<gridSize.x<<" "<<gridSize.y<<" "<<m_gridSize.x<<" "<<m_gridSize.y<<std::endl;
+
     std::vector< std::vector< std::vector< std::shared_ptr<SimpleNode> > > >
             newGrid;
 
@@ -199,7 +202,33 @@ void WorldGrid::enlargeForPosition(glm::vec2 pos)
     auto gridSize = m_gridSize;
     bool enlarge = false;
 
-    if(pos.x < m_minPos.x * m_quadSize)
+    auto requiredGridPos = this->getGridPos(pos);
+
+    if(requiredGridPos.x < 0)
+    {
+        minPos.x += requiredGridPos.x;
+        enlarge = true;
+    }
+
+    if(requiredGridPos.y < 0)
+    {
+        minPos.y += requiredGridPos.x;
+        enlarge = true;
+    }
+
+    if(requiredGridPos.x >= m_gridSize.x)
+    {
+        m_gridSize.x = requiredGridPos.x + 1;
+        enlarge = true;
+    }
+
+    if(requiredGridPos.y >= m_gridSize.y)
+    {
+        m_gridSize.y = requiredGridPos.y + 1;
+        enlarge = true;
+    }
+
+    /*if(pos.x < m_minPos.x * m_quadSize)
     {
         minPos.x = glm::floor(pos.x/m_quadSize);
         enlarge = true;
@@ -221,7 +250,7 @@ void WorldGrid::enlargeForPosition(glm::vec2 pos)
     {
         gridSize.y = glm::ceil((m_minPos.y * m_quadSize + pos.y)/m_quadSize);
         enlarge = true;
-    }
+    }*/
 
     if(enlarge)
         this->resizeQuad(minPos, gridSize);

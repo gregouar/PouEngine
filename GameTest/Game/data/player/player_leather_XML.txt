@@ -46,6 +46,14 @@
 		</box>
 	</hurtboxes>
 	
+	<collisionboxes>
+		<box>
+			<size 		x="26" 	y="20" 	/>
+			<center 	x="12" 	y="10" 	/>
+			<mass>100</mass>
+		</box>
+	</collisionboxes>
+	
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>
 		<attackDelay>0</attackDelay>

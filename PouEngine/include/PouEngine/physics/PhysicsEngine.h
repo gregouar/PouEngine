@@ -10,6 +10,7 @@ namespace pou
 struct BoxBody
 {
     SimpleNode *node;
+    float mass;
     MathTools::Box box;
 };
 

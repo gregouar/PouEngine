@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>BarrelMaterial</name>
+	<texture type="albedo">barrel1.png</texture>
+	<texture type="normal">barrel1_n.png</texture>
+	<roughness>.5</roughness>
+	<metalness>0</metalness>
+	<emissivity>0.0</emissivity>
+</material>

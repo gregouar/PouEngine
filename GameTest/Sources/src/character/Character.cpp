@@ -660,7 +660,7 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
 
-    if(m_model && elapsedTime.count() > 0)
+    if(m_model && this->isAlive() && elapsedTime.count() > 0)
     {
         auto collisionBoxes = m_model->getCollisionboxes();
         pou::PhysicsEngine::addBoxBodies(this, *collisionBoxes);
