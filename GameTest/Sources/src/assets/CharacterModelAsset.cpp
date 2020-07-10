@@ -8,6 +8,8 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/SkeletonModelAsset.h"
 
+#include "PouEngine/scene/CollisionObject.h"
+
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Parser.h"
 
@@ -96,6 +98,21 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         targetCharacter->setAiComponent(aiScript);
     }
 
+    for(auto &collisionBox : m_collisionBoxes)
+    {
+        auto collisionObject = std::make_shared<pou::CollisionObject>();
+        collisionObject->setMass(collisionBox.mass);
+        collisionObject->setBox(collisionBox.box);
+        targetCharacter->attachObject(collisionObject);
+    }
+
+    for(auto &collisionDisk : m_collisionDisks)
+    {
+        auto collisionObject = std::make_shared<pou::CollisionObject>();
+        collisionObject->setMass(collisionDisk.mass);
+        collisionObject->setDisk(collisionDisk.radius);
+        targetCharacter->attachObject(collisionObject);
+    }
 
     return (true);
 }
@@ -115,10 +132,10 @@ const std::vector<Hitbox> *CharacterModelAsset::getHurtboxes() const
     return &m_hurtboxes;
 }
 
-const std::vector<pou::BoxBody> *CharacterModelAsset::getCollisionboxes() const
+/*const std::vector<pou::BoxBody> *CharacterModelAsset::getCollisionboxes() const
 {
     return &m_collisionboxes;
-}
+}*/
 
 bool CharacterModelAsset::loadFromFile(const std::string &filePath)
 {
@@ -198,10 +215,26 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
         if(!this->loadHitboxes(element, m_hurtboxes))
             loaded = false;
 
-    element = hdl->FirstChildElement("collisionboxes").Element();
+    element = hdl->FirstChildElement("collisions").Element();
     if(element != nullptr)
-        if(!this->loadCollisionboxes(element, m_collisionboxes))
+    {
+        if(!this->loadCollisionBoxes(element, m_collisionBoxes))
             loaded = false;
+
+        if(!this->loadCollisionDisks(element, m_collisionDisks))
+            loaded = false;
+    }
+
+    /*element = hdl->FirstChildElement("collisionboxes").Element();
+    if(element != nullptr)
+        if(!this->loadCollisionBoxes(element, m_collisionBoxes))
+            loaded = false;
+
+    element = hdl->FirstChildElement("collisiondisks").Element();
+    if(element != nullptr)
+        if(!this->loadCollisionDisks(element, m_collisionDisks))
+            loaded = false;*/
+
 
     element = hdl->FirstChildElement("attributes").Element();
     if(element != nullptr)
@@ -457,7 +490,7 @@ bool CharacterModelAsset::loadHitboxes(TiXmlElement *element, std::vector<Hitbox
     return (true);
 }
 
-bool CharacterModelAsset::loadCollisionboxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList)
+bool CharacterModelAsset::loadCollisionBoxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList)
 {
     auto boxChild = element->FirstChildElement("box");
     while(boxChild != nullptr)
@@ -495,6 +528,39 @@ bool CharacterModelAsset::loadCollisionboxes(TiXmlElement *element, std::vector<
             mass = -1;
         boxList.back().mass = mass;
         boxChild = boxChild->NextSiblingElement("box");
+    }
+
+    return (true);
+}
+
+bool CharacterModelAsset::loadCollisionDisks(TiXmlElement *element, std::vector<pou::DiskBody> &diskList)
+{
+    auto diskChild = element->FirstChildElement("disk");
+    while(diskChild != nullptr)
+    {
+        diskList.push_back(pou::DiskBody ());
+
+        auto boxElement = diskChild->ToElement();
+
+        float radius = 0;
+        auto radiusChild = boxElement->FirstChildElement("radius");
+        if(radiusChild != nullptr)
+            radius = pou::Parser::parseFloat(radiusChild->GetText());
+
+        if(radius < 0)
+            radius = 0;
+
+        float mass = 0;
+        auto massChild = boxElement->FirstChildElement("mass");
+        if(massChild != nullptr)
+            mass = pou::Parser::parseFloat(massChild->GetText());
+
+        if(mass < 0)
+            mass = -1;
+
+        diskList.back().radius = radius;
+        diskList.back().mass = mass;
+        diskChild = diskChild->NextSiblingElement("disk");
     }
 
     return (true);

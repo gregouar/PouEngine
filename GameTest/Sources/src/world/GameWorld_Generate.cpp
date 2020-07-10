@@ -8,6 +8,7 @@
 
 //For tests
 #include "PouEngine/system/Clock.h"
+#include "PouEngine/scene/CollisionObject.h"
 
 #include "net/GameServer.h"
 #include "net/GameClient.h"
@@ -197,7 +198,6 @@ void GameWorld::generateImpl()
         m_syncComponent.syncElement(croco);
     }
 
-
     auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
     m_syncComponent.syncElement(barrelModel);
     {
@@ -215,10 +215,9 @@ void GameWorld::generateImpl()
 
     pou::MeshAsset *wallModel = pou::MeshesHandler::loadAssetFromFile("../data/wall/wallMeshXML.txt");
     m_syncComponent.syncElement(wallModel);
-
     {
         glm::vec2 p;
-        p = glm::vec2(0,0);
+        p = glm::vec2(-100,-100);
 
         auto wallNode = std::make_shared<WorldNode>();
         m_syncComponent.syncElement(wallNode);
@@ -233,6 +232,10 @@ void GameWorld::generateImpl()
         wallNode->setPosition(p);
 
         m_worldGrid->addChildNode(wallNode);
+
+        auto wallCollision = std::make_shared<pou::CollisionObject>();
+        wallCollision->setBox({128,24});
+        wallNode->attachObject(wallCollision);
     }
 
 

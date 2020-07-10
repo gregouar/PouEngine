@@ -13,13 +13,13 @@
 		<limb node="lantern" 	light="lanternLight" />
 	</skeleton>
 	
-	<collisionboxes>
+	<collisions>
 		<box>
 			<size 		x=18 	y=18 	/>
 			<center 	x=9 	y=9 	/>
 			<mass>-1</mass>
 		</box>
-	</collisionboxes>
+	</collisions>
 	
 	<attributes>
 		<walkingSpeed>0</walkingSpeed>

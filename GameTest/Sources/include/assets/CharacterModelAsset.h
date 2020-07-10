@@ -108,7 +108,9 @@ class CharacterModelAsset : public pou::Asset
         const CharacterModelAttributes &getAttributes() const;
         const std::vector<Hitbox> *getHitboxes() const;
         const std::vector<Hitbox> *getHurtboxes() const;
-        const std::vector<pou::BoxBody> *getCollisionboxes() const;
+
+        //Could remove this
+        //const std::vector<pou::BoxBody> *getCollisionboxes() const;
 
         /** ADD GET SKELETON ID AND GET NODE ID => use them in hitbox etc **/
 
@@ -120,7 +122,8 @@ class CharacterModelAsset : public pou::Asset
         bool loadSoundBank(TiXmlElement *element);
         bool loadSkeleton(TiXmlElement *element);
         bool loadHitboxes(TiXmlElement *element, std::vector<Hitbox> &boxList);
-        bool loadCollisionboxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList);
+        bool loadCollisionBoxes(TiXmlElement *element, std::vector<pou::BoxBody> &boxList);
+        bool loadCollisionDisks(TiXmlElement *element, std::vector<pou::DiskBody> &diskList);
         bool loadAttributes(TiXmlElement *element);
 
     private:
@@ -131,7 +134,8 @@ class CharacterModelAsset : public pou::Asset
         std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;
 
         std::vector<Hitbox> m_hitboxes, m_hurtboxes;
-        std::vector<pou::BoxBody> m_collisionboxes;
+        std::vector<pou::BoxBody> m_collisionBoxes;
+        std::vector<pou::DiskBody> m_collisionDisks;
 
         CharacterModelAttributes m_attributes;
 };

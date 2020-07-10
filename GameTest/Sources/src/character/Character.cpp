@@ -297,6 +297,7 @@ bool Character::createFromModel(CharacterModelAsset *model)
     if(m_model == nullptr)
         return (false);
 
+    this->detachAllObjects();
     if(!m_model->generateCharacter(this))
        return (false);
 
@@ -536,6 +537,8 @@ bool Character::kill(float amount)
 
     m_isDead.setValue(true);
 
+    this->disableCollisions();
+
     this->switchState(CharacterStateType_Dead);
 
     return 1;
@@ -550,6 +553,8 @@ bool Character::resurrect()
     att.life = m_modelAttributes.getValue().maxLife;
     m_attributes.setValue(att);
     m_isDead.setValue(false);
+
+    this->disableCollisions(false);
 
     this->switchState(CharacterStateType_Standing);
 
@@ -660,11 +665,11 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
     this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
 
-    if(m_model && this->isAlive() && elapsedTime.count() > 0)
+    /**if(m_model && this->isAlive() && elapsedTime.count() > 0)
     {
         auto collisionBoxes = m_model->getCollisionboxes();
         pou::PhysicsEngine::addBoxBodies(this, *collisionBoxes);
-    }
+    }**/
 
     GameMessage_World_CharacterUpdated msg;
     msg.character = this;

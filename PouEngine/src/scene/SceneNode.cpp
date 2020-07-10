@@ -12,7 +12,8 @@ SceneNode::SceneNode(/**const NodeTypeId id**/) :
     SimpleNode(),
     ///SimpleNode(id),
     m_color(glm::vec4(1.0f)),
-    m_finalColor(1.0f)//,
+    m_finalColor(1.0f),
+    m_disableCollisions(false)
     //m_lastColorUpdateTime(-1)
 {
     m_scene = nullptr;
@@ -226,6 +227,17 @@ bool SceneNode::setParent(SimpleNode *p)
 
     return r;
 }
+
+void SceneNode::disableCollisions(bool disable)
+{
+    m_disableCollisions = disable;
+}
+
+bool SceneNode::areCollisionsDisabled()
+{
+    return m_disableCollisions;
+}
+
 
 /**void SceneNode::syncFromNode(SceneNode* srcNode)
 {

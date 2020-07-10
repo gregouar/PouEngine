@@ -44,6 +44,9 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         void detachAllObjects();
 
+        void disableCollisions(bool disable = true);
+        bool areCollisionsDisabled();
+
         ///virtual void syncFrom(SceneNode* srcNode);
 
         void colorize(const glm::vec4 &c);
@@ -90,6 +93,8 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         std::vector<std::shared_ptr<ShadowCaster> >   m_attachedShadowCasters;
 
         std::multimap<int, std::shared_ptr<SoundObject> > m_attachedSounds;
+
+        bool m_disableCollisions;
 };
 
 }

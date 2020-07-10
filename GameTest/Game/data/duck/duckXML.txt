@@ -45,13 +45,20 @@
 		</box>
 	</hurtboxes>
 	
-	<collisionboxes>
+	<!--<collisionboxes>
 		<box >
 			<size 		x="46" 	y="60" 	/>
 			<center 	x="23" 	y="25" 	/>
 			<mass>50</mass>
 		</box>
-	</collisionboxes>
+	</collisionboxes>-->
+	
+	<collisions>
+		<disk>
+			<mass>50</mass>
+			<radius>23</radius>
+		</disk>
+	</collisions>
 	
 	
 	<attributes>

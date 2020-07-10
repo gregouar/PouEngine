@@ -65,6 +65,8 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void rotate(glm::vec3 values, bool inRadians = true);
         virtual void setRotation(glm::vec3 rotation, bool inRadians = true);
 
+        glm::vec3 getVelocity() const;
+
         virtual const glm::vec3 &getPosition() const;
         glm::vec2 getXYPosition() const;
         const glm::vec3 &getGlobalPosition() const;
@@ -101,6 +103,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         void computeFlexibleMove(glm::vec3 );
 
     protected:
+        glm::vec3 m_lastGlobalPosition;
         glm::vec3 m_globalPosition;
 
         glm::vec3 m_position;

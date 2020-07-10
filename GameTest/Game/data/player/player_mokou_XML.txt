@@ -42,13 +42,12 @@
 		</box>
 	</hurtboxes>
 	
-	<collisionboxes>
-		<box>
-			<size 		x="26" 	y="20" 	/>
-			<center 	x="12" 	y="10" 	/>
+	<collisions>
+		<disk>
 			<mass>100</mass>
-		</box>
-	</collisionboxes>
+			<radius>13</radius>
+		</disk>
+	</collisions>
 	
 	<attributes>
 		<walkingSpeed>250</walkingSpeed>

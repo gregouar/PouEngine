@@ -7,13 +7,17 @@
 		<limb node="root" 	mesh="barrelMeshXML.txt" />
 	</skeleton>
 	
-	<collisionboxes>
-		<box>
+	<collisions>
+		<!--<box>
 			<size 		x=48 	y=48 	/>
 			<center 	x=24 	y=24 	/>
 			<mass>100</mass>
-		</box>
-	</collisionboxes>
+		</box>-->
+		<disk>
+			<mass>100</mass>
+			<radius>24</radius>
+		</disk>
+	</collisions>
 	
 	<attributes>
 		<walkingSpeed>0</walkingSpeed>

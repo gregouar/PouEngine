@@ -9,6 +9,7 @@ namespace pou
 
 SimpleNode::SimpleNode() :
     m_globalPosition(glm::vec3(0)),
+    m_lastGlobalPosition(0),
     m_position(glm::vec3(0)),
     m_eulerRotations(glm::vec3(0)),
     m_scale(glm::vec3(1.0)),
@@ -290,6 +291,12 @@ void SimpleNode::setRigidity(float rigidity)
     m_rigidity = rigidity;
 }
 
+
+glm::vec3 SimpleNode::getVelocity() const
+{
+    return this->getGlobalPosition() - m_lastGlobalPosition;
+}
+
 const glm::vec3 &SimpleNode::getPosition() const
 {
     return m_position;
@@ -417,6 +424,8 @@ std::shared_ptr<SimpleNode> SimpleNode::nodeAllocator()
 
 void SimpleNode::update(const Time &elapsedTime, uint32_t localTime)
 {
+    m_lastGlobalPosition = this->getGlobalPosition();
+
     if(m_needToUpdateModelMat)
         this->updateModelMatrix();
 

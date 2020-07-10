@@ -254,6 +254,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="PouEngine/include/PouEngine/scene" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -335,6 +336,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/SceneRenderingInstance.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/renderers/UiRenderer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/CameraObject.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/scene/CollisionObject.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/LightEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/MeshEntity.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/scene/Scene.h" />
@@ -623,6 +625,7 @@
 		<Unit filename="../../PouEngine/src/renderers/SceneRenderingInstance.cpp" />
 		<Unit filename="../../PouEngine/src/renderers/UiRenderer.cpp" />
 		<Unit filename="../../PouEngine/src/scene/CameraObject.cpp" />
+		<Unit filename="../../PouEngine/src/scene/CollisionObject.cpp" />
 		<Unit filename="../../PouEngine/src/scene/LightEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/MeshEntity.cpp" />
 		<Unit filename="../../PouEngine/src/scene/Scene.cpp" />
