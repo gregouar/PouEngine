@@ -255,6 +255,7 @@
 					<Add directory="GameTest/Sources/include/character" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="PouEngine/include/PouEngine/scene" />
+					<Add directory="GameTest/Sources/include/assets" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -699,6 +700,7 @@
 		<Unit filename="include/assets/AiScriptModelAsset.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
+		<Unit filename="include/assets/PrefabAsset.h" />
 		<Unit filename="include/character/Character.h" />
 		<Unit filename="include/character/CharacterInput.h" />
 		<Unit filename="include/character/CharacterState.h" />
@@ -720,6 +722,7 @@
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
+		<Unit filename="include/world/PrefabInstance.h" />
 		<Unit filename="include/world/WorldGrid.h" />
 		<Unit filename="include/world/WorldMesh.h" />
 		<Unit filename="include/world/WorldNode.h" />
@@ -730,6 +733,7 @@
 		<Unit filename="src/assets/AiScriptModelAsset.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
+		<Unit filename="src/assets/PrefabAsset.cpp" />
 		<Unit filename="src/character/Character.cpp" />
 		<Unit filename="src/character/CharacterInput.cpp" />
 		<Unit filename="src/character/CharacterState.cpp" />
@@ -750,6 +754,7 @@
 		<Unit filename="src/world/GameWorld.cpp" />
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
+		<Unit filename="src/world/PrefabInstance.cpp" />
 		<Unit filename="src/world/WorldGrid.cpp" />
 		<Unit filename="src/world/WorldMesh.cpp" />
 		<Unit filename="src/world/WorldNode.cpp" />

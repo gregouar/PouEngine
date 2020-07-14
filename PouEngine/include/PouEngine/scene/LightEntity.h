@@ -6,6 +6,8 @@
 #include "PouEngine/vulkanImpl/VulkanImpl.h"
 #include "PouEngine/Types.h"
 
+#include "tinyxml/tinyxml.h"
+
 #define LIGHT_TRIANGLECOUNT 6
 
 namespace pou
@@ -35,6 +37,8 @@ struct LightModel
 {
     LightModel();
 
+    bool loadFromXML(TiXmlElement *element);
+
     LightType   type;
     glm::vec3   direction;
     Color       color;
@@ -56,6 +60,8 @@ class LightEntity : public SceneEntity, public NotificationSender //, public Not
     public:
         LightEntity();
         virtual ~LightEntity();
+
+        virtual std::shared_ptr<SceneObject> createCopy();
 
         LightType   getType();
         glm::vec3   getDirection();

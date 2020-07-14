@@ -4,6 +4,7 @@
 class CharacterModelAsset;
 class ItemModelAsset;
 class AiScriptModelAsset;
+class PrefabAsset;
 
 enum DamageType
 {
@@ -25,5 +26,6 @@ template<class AssetType> class AssetHandler;
 typedef pou::AssetHandler<CharacterModelAsset>  CharacterModelsHandler;
 typedef pou::AssetHandler<ItemModelAsset>       ItemModelsHandler;
 typedef pou::AssetHandler<AiScriptModelAsset>   AiScriptModelsHandler;
+typedef pou::AssetHandler<PrefabAsset>          PrefabsHandler;
 
 #endif // TYPES_H_INCLUDED

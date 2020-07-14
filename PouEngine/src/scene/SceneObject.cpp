@@ -12,6 +12,7 @@ SceneObject::SceneObject()
     m_isALight          = false;
     m_isAnEntity        = false;
     m_isAShadowCaster   = false;
+    m_isASound          = false;
 
     m_curLocalTime = 0;
     /**m_lastSyncTime = -1;
@@ -59,6 +60,11 @@ bool SceneObject::isAnEntity()
 bool SceneObject::isAShadowCaster()
 {
     return m_isAShadowCaster;
+}
+
+bool SceneObject::isASound()
+{
+    return m_isASound;
 }
 
 /*void SceneObject::setLocalTime(uint32_t time)

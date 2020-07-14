@@ -8,6 +8,7 @@ class Player;
 class WorldNode;
 class WorldSprite;
 class WorldMesh;
+class PrefabInstance;
 
 struct NodeSync
 {
@@ -53,6 +54,14 @@ struct PlayerSync
     std::vector<int> inventoryItemModelsId;
 
     std::shared_ptr<Player> player;
+};
+
+struct PrefabSync
+{
+    int prefabModelId;
+    int nodeId;
+
+    PrefabInstance *prefab;
 };
 
 #endif // SYNCELEMENTS_H

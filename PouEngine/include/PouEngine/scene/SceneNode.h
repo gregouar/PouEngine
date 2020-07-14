@@ -44,10 +44,11 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         void detachAllObjects();
 
+        using SimpleNode::copyFrom;
+        virtual void copyFrom(const SceneNode* srcNode); //Also copy childs and objects
+
         void disableCollisions(bool disable = true);
         bool areCollisionsDisabled();
-
-        ///virtual void syncFrom(SceneNode* srcNode);
 
         void colorize(const glm::vec4 &c);
         virtual void setColor(const glm::vec4 &c);
@@ -64,12 +65,6 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
-
-        ///virtual void serializeNode(pou::Stream *stream, uint32_t localTime = -1);
-
-        /*virtual void notify(NotificationSender* , NotificationType,
-                            size_t dataSize = 0, char* data = nullptr) override;*/
-
     protected:
         virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
 
@@ -80,11 +75,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
     protected:
         Scene* m_scene;
         glm::vec4 m_color;
-        ///LinSyncAttribute<glm::vec4> m_color;
-        ///Vec4LinSyncElement m_color;
         glm::vec4 m_finalColor;
-
-        //float m_lastColorUpdateTime;
 
     private:
         std::vector<std::shared_ptr<SceneObject> >    m_attachedObjects;

@@ -6,6 +6,7 @@
 #include "world/WorldMesh.h"
 #include "character/Character.h"
 #include "character/Player.h"
+#include "world/PrefabInstance.h"
 
 void initializeNetMessages()
 {
@@ -122,6 +123,20 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     for(int i = 0 ; i < nbr_players ; ++i)
         this->serializePlayer(stream, players[i]);
     //std::cout<<"Nbr P:"<<nbr_players<<std::endl;
+
+    int nbr_prefabModels = prefabModels.size();
+    stream->serializeBits(nbr_prefabModels, GameWorld_Sync::PREFABASSETID_BITS);
+    prefabModels.resize(nbr_prefabModels);
+    for(int i = 0 ; i < nbr_prefabModels ; ++i)
+        this->serializePrefabAsset(stream, prefabModels[i]);
+    //std::cout<<"Nbr SS:"<<nbr_prefabModels<<std::endl;
+
+    int nbr_prefabs = prefabs.size();
+    stream->serializeBits(nbr_prefabs, GameWorld_Sync::PREFABINSTANCEID_BITS);
+    prefabs.resize(nbr_prefabs);
+    for(int i = 0 ; i < nbr_prefabs ; ++i)
+        this->serializePrefabInstance(stream, prefabs[i]);
+    //std::cout<<"Nbr SE:"<<nbr_prefabs<<std::endl;
 
     int nbr_desyncNodes = desyncNodes.size();
     stream->serializeBits(nbr_desyncNodes, GameWorld_Sync::NODEID_BITS);
@@ -349,6 +364,42 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 
     playerPtr->serializePlayer(stream,lastSyncTime);
 }
+
+
+void NetMessage_WorldSync::serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabModel)
+{
+    auto& [ prefabModelId, prefabPath ] = prefabModel;
+    stream->serializeBits(prefabModelId, GameWorld_Sync::PREFABASSETID_BITS);
+    stream->serializeString(prefabPath);
+}
+
+void NetMessage_WorldSync::serializePrefabInstance(pou::Stream *stream, std::pair<int, PrefabSync> &prefab)
+{
+    auto& [ prefabId, prefabSync ] = prefab;
+
+    auto &prefabPtr = prefabSync.prefab;
+    if(stream->isReading())
+    {
+        auto prefabBuffer =  std::make_shared<PrefabInstance>();
+        prefabsBuffer.push_back(prefabBuffer);
+        prefabPtr = prefabBuffer.get();
+        prefabPtr->update(pou::Time(0),localTime);
+    }
+
+    stream->serializeBits(prefabId, GameWorld_Sync::PREFABINSTANCEID_BITS);
+
+    bool newPrefabModel = false;
+    if(!stream->isReading() && uint32less(lastSyncTime,prefabPtr->getLastPrefabModelUpdateTime()))
+        newPrefabModel = true;
+    stream->serializeBool(newPrefabModel);
+    if(newPrefabModel)
+        stream->serializeBits(prefabSync.prefabModelId, GameWorld_Sync::PREFABASSETID_BITS);
+    else
+        prefabSync.prefabModelId = 0;
+
+    stream->serializeBits(prefabSync.nodeId, GameWorld_Sync::NODEID_BITS);
+}
+
 
 
 ///

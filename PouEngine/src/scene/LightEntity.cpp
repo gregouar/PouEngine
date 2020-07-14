@@ -1,6 +1,7 @@
 #include "PouEngine/scene/LightEntity.h"
 
 #include "PouEngine/renderers/SceneRenderer.h"
+#include "PouEngine/tools/Parser.h"
 
 namespace pou
 {
@@ -54,6 +55,10 @@ std::array<VkVertexInputAttributeDescription, 5> LightDatum::getAttributeDescrip
     return attributeDescriptions;
 }
 
+///
+///LightModel
+///
+
 LightModel::LightModel() :
     type(LightType_Omni),
     direction(0.0,0.0,-1.0),
@@ -66,6 +71,85 @@ LightModel::LightModel() :
 {
 
 }
+
+
+bool LightModel::loadFromXML(TiXmlElement *element)
+{
+    auto att = element->Attribute("type");
+    if(att != nullptr)
+    {
+        if(std::string(att) == "omni")
+            type = pou::LightType_Omni;
+        else if(std::string(att) == "directional")
+            type = pou::LightType_Directional;
+        else if(std::string(att) == "spot")
+            type = pou::LightType_Spot;
+    }
+
+    att = element->Attribute("radius");
+    if(att != nullptr)
+        radius = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("intensity");
+    if(att != nullptr)
+        intensity = pou::Parser::parseFloat(att);
+
+    att = element->Attribute("castShadow");
+    if(att != nullptr)
+        castShadow = pou::Parser::parseBool(att);
+
+    auto colorChild = element->FirstChildElement("color");
+    if(colorChild != nullptr)
+    {
+        auto colorElement = colorChild->ToElement();
+        att = colorElement->Attribute("r");
+        if(att != nullptr)
+            color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("g");
+        if(att != nullptr)
+            color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("b");
+        if(att != nullptr)
+            color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("a");
+        if(att != nullptr)
+            color.a = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("red");
+        if(att != nullptr)
+            color.r = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("green");
+        if(att != nullptr)
+            color.g = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("blue");
+        if(att != nullptr)
+            color.b = pou::Parser::parseFloat(att);
+        att = colorElement->Attribute("alpha");
+        if(att != nullptr)
+            color.a = pou::Parser::parseFloat(att);
+    }
+
+    auto directionChild = element->FirstChildElement("direction");
+    if(directionChild != nullptr)
+    {
+        auto directionElement = directionChild->ToElement();
+        att = directionElement->Attribute("x");
+        if(att != nullptr)
+            direction.x = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("y");
+        if(att != nullptr)
+            direction.y = pou::Parser::parseFloat(att);
+        att = directionElement->Attribute("z");
+        if(att != nullptr)
+            direction.z = pou::Parser::parseFloat(att);
+    }
+
+    return (true);
+}
+
+
+///
+///LightEntity
+///
 
 LightEntity::LightEntity() : SceneEntity()
     /*m_type(LightType_Omni),
@@ -93,6 +177,13 @@ LightEntity::LightEntity() : SceneEntity()
 LightEntity::~LightEntity()
 {
     VTexturesManager::freeTexture(m_shadowMap);
+}
+
+std::shared_ptr<SceneObject> LightEntity::createCopy()
+{
+    auto newObject = std::make_shared<LightEntity>();
+    newObject->setModel(m_lightModel);
+    return newObject;
 }
 
 /*void LightEntity::draw(SceneRenderer *renderer)

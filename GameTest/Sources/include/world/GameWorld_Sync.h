@@ -43,6 +43,8 @@ class GameWorld_Sync : public pou::NotificationListener
         size_t syncElement(std::shared_ptr<Character> character, uint32_t forceId = 0);
         size_t syncElement(ItemModelAsset *characterModel, uint32_t forceId = 0);
         size_t syncElement(std::shared_ptr<Player> player, uint32_t forceId = 0);
+        size_t syncElement(PrefabAsset *prefabAsset, uint32_t forceId = 0);
+        size_t syncElement(std::shared_ptr<PrefabInstance> prefab, uint32_t forceId = 0);
 
         void desyncElement(WorldNode* node, bool noDesyncInsert = false);
         void desyncElement(Character *character, bool noDesyncInsert = false);
@@ -66,6 +68,8 @@ class GameWorld_Sync : public pou::NotificationListener
         void createWorldSyncMsg_Mesh(WorldMesh *mesh, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
         void createWorldSyncMsg_Character(Character *character, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+                                    int player_id, uint32_t lastSyncTime);
+        void createWorldSyncMsg_Prefab(PrefabInstance *prefab, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
 
         void removeFromUpdatedCharacters(Character *character);
@@ -96,10 +100,14 @@ class GameWorld_Sync : public pou::NotificationListener
         pou::IdAllocator<ItemModelAsset*>           m_syncItemModels;
         pou::IdPtrAllocator<Player>                 m_syncPlayers;
 
+        pou::IdAllocator<PrefabAsset*>              m_syncPrefabAssets;
+        pou::IdPtrAllocator<PrefabInstance>         m_syncPrefabInstances;
+
         std::multimap<uint32_t, int> m_syncTimeSpriteSheets;
         std::multimap<uint32_t, int> m_syncTimeMeshModels;
         std::multimap<uint32_t, int> m_syncTimeCharacterModels;
         std::multimap<uint32_t, int> m_syncTimeItemModels;
+        std::multimap<uint32_t, int> m_syncTimePrefabModels;
 
         std::multimap<uint32_t, int> m_desyncNodes;
         std::multimap<uint32_t, int> m_desyncCharacters;
@@ -116,6 +124,8 @@ class GameWorld_Sync : public pou::NotificationListener
         static const int        CHARACTERMODELSID_BITS;
         static const int        CHARACTERSID_BITS;
         static const int        ITEMMODELSID_BITS;
+        static const int        PREFABASSETID_BITS;
+        static const int        PREFABINSTANCEID_BITS;
 };
 
 #endif // GAMEWORLD_SYNC_H

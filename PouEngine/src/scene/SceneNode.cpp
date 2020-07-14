@@ -175,13 +175,34 @@ void SceneNode::detachSound(SoundObject *e,int id)
     }
 }
 
-
 void SceneNode::detachAllObjects()
 {
     while(!m_attachedObjects.empty())
         this->detachObject(m_attachedObjects.back().get());
 
     m_attachedSounds.clear();
+}
+
+void SceneNode::copyFrom(const SceneNode* srcNode)
+{
+    SimpleNode::copyFrom(srcNode);
+
+    this->setColor(srcNode->getColor());
+
+    for(auto object : srcNode->m_attachedObjects)
+    {
+        if(object->isASound())
+            continue;
+
+        auto newObject = object->createCopy();
+        this->attachObject(newObject);
+    }
+
+    for(auto sound : srcNode->m_attachedSounds)
+    {
+        auto newObject = sound.second->createSoundCopy();
+        this->attachSound(newObject, sound.first);
+    }
 }
 
 Scene* SceneNode::getScene()

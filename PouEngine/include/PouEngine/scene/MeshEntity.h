@@ -38,6 +38,8 @@ class MeshEntity : public ShadowCaster
         MeshEntity();
         virtual ~MeshEntity();
 
+        virtual std::shared_ptr<SceneObject> createCopy();
+
         bool setMeshModel(AssetTypeId meshId);
         bool setMeshModel(MeshAsset* mesh);
 

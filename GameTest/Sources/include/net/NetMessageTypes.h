@@ -78,6 +78,7 @@ struct NetMessage_WorldSync : public pou::NetMessage
     std::list<std::shared_ptr<WorldSprite> >    spritesBuffer;
     std::list<std::shared_ptr<WorldMesh> >      meshesBuffer;
     std::list<std::shared_ptr<Character> >      charactersBuffer;
+    std::list<std::shared_ptr<PrefabInstance> > prefabsBuffer;
 
     //int nbr_nodes;
     std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
@@ -89,6 +90,8 @@ struct NetMessage_WorldSync : public pou::NetMessage
     std::vector< std::pair<int, CharacterSync > > characters;
     std::vector< std::pair<int, std::string > > itemModels; //Id, Path
     std::vector< std::pair<int, PlayerSync > > players;
+    std::vector< std::pair<int, std::string > > prefabModels; //Id, Path
+    std::vector< std::pair<int, PrefabSync> > prefabs;
 
     std::vector<int> desyncNodes;
     std::vector<int> desyncCharacters;
@@ -105,6 +108,8 @@ struct NetMessage_WorldSync : public pou::NetMessage
     virtual void serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character);
     virtual void serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel);
     virtual void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
+    virtual void serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabAsset);
+    virtual void serializePrefabInstance(pou::Stream *stream, std::pair<int, PrefabSync> &prefabInstance);
 };
 
 struct NetMessage_WorldInit : public NetMessage_WorldSync

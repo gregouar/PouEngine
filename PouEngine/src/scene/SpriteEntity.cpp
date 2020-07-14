@@ -206,6 +206,18 @@ SpriteEntity::~SpriteEntity()
     //dtor
 }
 
+std::shared_ptr<SceneObject> SpriteEntity::createCopy()
+{
+    auto newObject = std::make_shared<SpriteEntity>();
+    newObject->setRotation(m_rotation);
+    newObject->setColor(m_color);
+    newObject->setRme(m_rme);
+    newObject->setOrdering(m_ordering);
+    newObject->setInheritRotation(m_inheritRotation);
+    newObject->setSpriteModel(m_spriteModel);
+    return newObject;
+}
+
 void SpriteEntity::rotate(float rotation)
 {
     this->setRotation(this->getRotation() + rotation);

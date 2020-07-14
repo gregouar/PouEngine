@@ -66,6 +66,8 @@ class SpriteEntity : public ShadowCaster
         SpriteEntity();
         virtual ~SpriteEntity();
 
+        virtual std::shared_ptr<SceneObject> createCopy();
+
         void rotate(float rotation);
 
         void setRotation(float rotation);

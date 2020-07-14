@@ -14,6 +14,7 @@
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
 #include "world/WorldMesh.h"
+#include "assets/PrefabAsset.h"
 
 
 void GameWorld::init()
@@ -30,7 +31,6 @@ void GameWorld::init()
     m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
     m_scene->getRootNode()->addChildNode(m_worldGrid);
     m_syncComponent.syncElement(m_worldGrid);
-
 }
 
 void GameWorld::generate(bool generateInThread)
@@ -52,7 +52,6 @@ void GameWorld::generateImpl()
     pou::Logger::write("Generating world...");
 
     m_dayTime = glm::linearRand(0,360);
-    std::cout<< glm::linearRand(0,360)<<std::endl;
 
     auto loadType = pou::LoadType_Now;
 
@@ -213,7 +212,7 @@ void GameWorld::generateImpl()
 
     //pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
 
-    pou::MeshAsset *wallModel = pou::MeshesHandler::loadAssetFromFile("../data/wall/wallMeshXML.txt");
+    /*pou::MeshAsset *wallModel = pou::MeshesHandler::loadAssetFromFile("../data/wall/wallMeshXML.txt");
     m_syncComponent.syncElement(wallModel);
     {
         glm::vec2 p;
@@ -236,7 +235,14 @@ void GameWorld::generateImpl()
         auto wallCollision = std::make_shared<pou::CollisionObject>();
         wallCollision->setBox({128,24});
         wallNode->attachObject(wallCollision);
-    }
+    }*/
+
+    auto prefabWall = PrefabsHandler::loadAssetFromFile("../data/wall/wallWithCollisionPrefabXML.txt");
+    m_syncComponent.syncElement(prefabWall);
+
+    auto wallNode = prefabWall->generate();
+    m_worldGrid->addChildNode(wallNode);
+    m_syncComponent.syncElement(wallNode);
 
 
     m_scene->update(pou::Time(0));
@@ -299,14 +305,16 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
     CharacterModelAsset *playerModel(nullptr);
-    if(playerSave->getPlayerType() % 4 == 0)
+    if(playerSave->getPlayerType() == 0)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_1_XML.txt"/*, pou::LoadType_InThread*/);
-    else if(playerSave->getPlayerType() % 4 == 1)
+    else if(playerSave->getPlayerType() == 1)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_mokou_XML.txt");
-    else if(playerSave->getPlayerType() % 4 == 2)
+    else if(playerSave->getPlayerType() == 2)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_sith_XML.txt");
-    else if(playerSave->getPlayerType() % 4 == 3)
+    else if(playerSave->getPlayerType()  == 3)
         playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_leather_XML.txt");
+    else if(playerSave->getPlayerType()  == 4)
+        playerModel = CharacterModelsHandler::loadAssetFromFile("../data/player/player_bone_XML.txt");
 
     m_syncComponent.syncElement(playerModel);
     player->setModel(playerModel);

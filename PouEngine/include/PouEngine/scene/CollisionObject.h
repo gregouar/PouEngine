@@ -13,6 +13,8 @@ class CollisionObject : public SceneObject
         CollisionObject();
         virtual ~CollisionObject();
 
+        virtual std::shared_ptr<SceneObject> createCopy();
+
         virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
 
         void setMass(float mass);

@@ -6,6 +6,8 @@
 #include "PouEngine/assets/MeshesHandler.h"
 #include "PouEngine/renderers/SceneRenderer.h"
 
+#include "assets/PrefabAsset.h"
+
 #include "net/GameServer.h"
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
@@ -19,6 +21,8 @@ const int    GameWorld_Sync::MESHENTITYID_BITS      = 16;
 const int    GameWorld_Sync::CHARACTERMODELSID_BITS = 12;
 const int    GameWorld_Sync::CHARACTERSID_BITS      = 16;
 const int    GameWorld_Sync::ITEMMODELSID_BITS      = 12;
+const int    GameWorld_Sync::PREFABASSETID_BITS     = 10;
+const int    GameWorld_Sync::PREFABINSTANCEID_BITS  = 16;
 
 GameWorld_Sync::GameWorld_Sync() :
     m_curLocalTime(0),
@@ -37,10 +41,14 @@ GameWorld_Sync::GameWorld_Sync() :
     m_syncPlayers.setMax(GameWorld::MAX_NBR_PLAYERS);
     m_syncPlayers.enableIdReuse();
 
+    m_syncPrefabAssets.setMax(pow(2,GameWorld_Sync::PREFABASSETID_BITS));
+    m_syncPrefabInstances.setMax(pow(2,GameWorld_Sync::PREFABINSTANCEID_BITS));
+
     pou::MessageBus::addListener(this, GameMessageType_World_NodeUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_SpriteUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_MeshUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_CharacterUpdated);
+    //pou::MessageBus::addListener(this, GameMessageType_World_PrefabUpdated); //Maybe ?
 }
 
 GameWorld_Sync::~GameWorld_Sync()
@@ -61,6 +69,8 @@ void GameWorld_Sync::clear()
     m_syncCharacterModels.clear();
     m_syncItemModels.clear();
     m_syncPlayers.clear();
+    m_syncPrefabAssets.clear();
+    m_syncPrefabInstances.clear();
 
     m_updatedNodes.clear();
     m_updatedSprites.clear();
@@ -231,6 +241,30 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
         playerSync.characterId = characterId;
     }
 
+    {
+        worldSyncMsg->prefabModels.clear();
+        auto it = m_syncTimePrefabModels.upper_bound(lastSyncTime);
+        if(lastSyncTime == (uint32_t)(-1))
+            it = m_syncTimePrefabModels.begin();
+        for( ; it != m_syncTimePrefabModels.end() ; ++it)
+        {
+            auto prefabModelId = it->second;
+            auto prefabAsset = m_syncPrefabAssets.findElement(prefabModelId);
+            auto &prefabPath = prefabAsset->getFilePath();
+            worldSyncMsg->prefabModels.push_back({prefabModelId,prefabPath});
+        }
+    }
+
+    worldSyncMsg->prefabs.clear();
+    if(lastSyncTime == (uint32_t)(-1))
+    {
+        for(auto it = m_syncPrefabInstances.begin() ; it != m_syncPrefabInstances.end() ; ++it)
+            this->createWorldSyncMsg_Prefab(it->second.get(), worldSyncMsg, player_id, lastSyncTime);
+    } else { //Maybe ?
+        //for(auto it = m_updatedSprites.begin() ; it != m_updatedSprites.end() ; ++it)
+          //  this->createWorldSyncMsg_Sprite(*it, worldSyncMsg, player_id, lastSyncTime);
+    }
+
     if(lastSyncTime != (uint32_t)(-1))
     {
         worldSyncMsg->desyncNodes.clear();
@@ -347,6 +381,29 @@ void GameWorld_Sync::createWorldSyncMsg_Character(Character *character, std::sha
     characterSync.nodeId = nodeId;
 }
 
+void GameWorld_Sync::createWorldSyncMsg_Prefab(PrefabInstance *prefab, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+                            int player_id, uint32_t lastSyncTime)
+{
+    if(uint32leq(prefab->getLastPrefabUpdateTime(), lastSyncTime))
+        return;
+
+    worldSyncMsg->prefabs.push_back({prefab->getPrefabSyncId(),PrefabSync()});
+    auto &prefabSync = worldSyncMsg->prefabs.back().second;
+
+    auto prefabModel = prefab->getPrefabModel();
+    if(prefabModel == nullptr)
+        return;
+
+    size_t prefabModelId = m_syncPrefabAssets.findId(prefabModel);
+
+    size_t nodeId = 0;
+    nodeId = prefab->getNodeSyncId();
+
+    prefabSync.prefab = prefab;
+    prefabSync.prefabModelId = prefabModelId;
+    prefabSync.nodeId = nodeId;
+}
+
 void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
     if(uint32leq(worldSyncMsg->localTime, m_lastSyncTime))
@@ -407,6 +464,37 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         this->syncElement(itemModelPtr, itemModelId);
     }
 
+    for(auto &prefabModelIt : worldSyncMsg->prefabModels)
+    {
+        auto& [ prefabModelId, prefabModelPath ] = prefabModelIt;
+        auto *prefabModelPtr = PrefabsHandler::loadAssetFromFile(prefabModelPath);
+        this->syncElement(prefabModelPtr, prefabModelId);
+    }
+
+    for(auto &prefabIt : worldSyncMsg->prefabs)
+    {
+        auto& [ prefabId, prefabSync ] = prefabIt;
+        auto prefabPtr = m_syncPrefabInstances.findElement(prefabId);
+        if(prefabPtr == nullptr)
+        {
+            prefabPtr = std::make_shared<PrefabInstance>();
+            this->syncElement(prefabPtr, prefabId);
+        }
+
+        if(prefabSync.prefabModelId != 0)
+        {
+            auto *prefabModel = m_syncPrefabAssets.findElement(prefabSync.prefabModelId);
+            if(prefabModel != nullptr)
+                prefabPtr->createFromModel(prefabModel);
+        }
+
+        if(prefabSync.nodeId != 0)
+        {
+            auto nodePtr = m_syncNodes.findElement(prefabSync.nodeId);
+            if(nodePtr == nullptr)
+                this->syncElement((std::shared_ptr<WorldNode>)prefabPtr, prefabSync.nodeId);
+        }
+    }
 
                 //std::cout<<"PlayerID :"<< clientPlayerId<<std::endl;
     for(auto &playerIt : worldSyncMsg->players)
@@ -865,6 +953,29 @@ size_t GameWorld_Sync::syncElement(std::shared_ptr<Player> player, uint32_t forc
     }
     else
         m_syncPlayers.insert(forceId, player);
+    return forceId;
+}
+
+size_t GameWorld_Sync::syncElement(PrefabAsset *prefabModel, uint32_t forceId)
+{
+    if(forceId == 0)
+        forceId = m_syncPrefabAssets.allocateId(prefabModel);
+    else
+        m_syncPrefabAssets.insert(forceId, prefabModel);
+    m_syncTimePrefabModels.insert({m_curLocalTime, forceId});
+    return forceId;
+}
+
+size_t GameWorld_Sync::syncElement(std::shared_ptr<PrefabInstance> prefab, uint32_t forceId)
+{
+    if(forceId == 0)
+    {
+        forceId = m_syncPrefabInstances.allocateId(prefab);
+        this->syncElement((std::shared_ptr<WorldNode>)prefab);
+    }
+    else
+        m_syncPrefabInstances.insert(forceId, prefab);
+    prefab->setSyncData(this, forceId);
     return forceId;
 }
 

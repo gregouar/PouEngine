@@ -38,7 +38,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
-        virtual void copyFrom(const SimpleNode* srcNode);
+        virtual void copyFrom(const SimpleNode* srcNode); //Also copy childs
 
         void move(float, float);
         void move(float, float, float);
@@ -84,7 +84,6 @@ class SimpleNode : public NotificationSender, public NotificationListener
         size_t getTreeDepth();
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
-        ///virtual void rewind(uint32_t time);
 
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
@@ -110,7 +109,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
         glm::vec3 m_eulerRotations;
         glm::vec3 m_scale;
 
-        float     m_rigidity;
+        float m_rigidity;
 
         float m_curFlexibleLength;
         float m_curFlexibleRotation;

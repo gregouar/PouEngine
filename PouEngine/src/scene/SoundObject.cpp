@@ -8,12 +8,25 @@ namespace pou
 
 SoundObject::SoundObject() : m_soundId(0), m_isEvent(true)
 {
-    //ctor
+    m_isASound = true;
 }
 
 SoundObject::~SoundObject()
 {
     //dtor
+}
+
+std::shared_ptr<SceneObject> SoundObject::createCopy()
+{
+    auto newObject = std::make_shared<SoundObject>();
+    newObject->m_soundId = m_soundId;
+    newObject->m_isEvent = m_isEvent;
+    return newObject;
+}
+
+std::shared_ptr<SoundObject> SoundObject::createSoundCopy()
+{
+    return std::dynamic_pointer_cast<SoundObject>(this->createCopy());
 }
 
 bool SoundObject::play()

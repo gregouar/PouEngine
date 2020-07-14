@@ -20,6 +20,13 @@ CameraObject::~CameraObject()
     this->setListening(false);
 }
 
+std::shared_ptr<SceneObject> CameraObject::createCopy()
+{
+    auto newObject = std::make_shared<CameraObject>();
+    newObject->setZoom(m_zoom);
+    newObject->setViewport(m_offset, m_extent);
+    return newObject;
+}
 
 void CameraObject::setViewport(glm::vec2 offset, glm::vec2 extent)
 {

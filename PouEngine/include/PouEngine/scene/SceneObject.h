@@ -21,9 +21,12 @@ class SceneObject : public NotificationListener
 
         SceneNode *getParentNode();
 
+        virtual std::shared_ptr<SceneObject> createCopy() = 0;
+
         bool isALight();
         bool isAnEntity();
         bool isAShadowCaster();
+        bool isASound();
 
         //void setLocalTime(uint32_t time);
         /**uint32_t getLastUpdateTime();
@@ -43,6 +46,7 @@ class SceneObject : public NotificationListener
         bool m_isALight;
         bool m_isAnEntity;
         bool m_isAShadowCaster;
+        bool m_isASound;
 
         uint32_t m_curLocalTime;
         /**uint32_t m_lastSyncTime;

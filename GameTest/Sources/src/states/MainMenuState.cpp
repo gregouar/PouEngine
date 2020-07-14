@@ -155,7 +155,7 @@ void MainMenuState::init()
     m_charSelectButtons = std::make_shared<pou::UiToggleButtonsGroup>(&m_ui);
     m_ui.addRootElement(m_charSelectButtons);
 
-    for(int i = 0 ; i < 4 ; ++i)
+    for(int i = 0 ; i < 5 ; ++i)
     {
         auto charSelectButton = std::make_shared<pou::UiButton>(&m_ui);
         charSelectButton->setPosition(200+100*i,550);

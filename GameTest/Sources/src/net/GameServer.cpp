@@ -139,7 +139,7 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
 
         if(clientInfos.world_id == 0)
         {
-            auto &world = m_worlds.find(m_curWorldId)->second;
+            //auto &world = m_worlds.find(m_curWorldId)->second;
 
             clientInfos.lastSyncTime  = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;

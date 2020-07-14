@@ -169,9 +169,6 @@ void WorldGrid::setQuadSize(float s)
 
 void WorldGrid::resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize)
 {
-    std::cout<<minPos.x<<" "<<minPos.y<<" "<<m_minPos.x<<" "<<m_minPos.y<<std::endl;
-    std::cout<<gridSize.x<<" "<<gridSize.y<<" "<<m_gridSize.x<<" "<<m_gridSize.y<<std::endl;
-
     std::vector< std::vector< std::vector< std::shared_ptr<SimpleNode> > > >
             newGrid;
 

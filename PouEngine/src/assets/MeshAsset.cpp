@@ -22,7 +22,7 @@ MeshAsset::MeshAsset(const AssetTypeId id) : Asset(id)
 
     m_scale = 1.0f;
 
-    m_materialsLoaded = true;
+    m_materialsLoaded = false;
     m_material        = nullptr;
 
     m_meshLoaded = false;
@@ -94,34 +94,40 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
 
     if(hdl == nullptr) return (false);
 
-    if(hdl->FirstChildElement("name").Element() != nullptr)
-        m_name = hdl->FirstChildElement("name").Element()->GetText();
-
-    if(hdl->FirstChildElement("scale").Element() != nullptr)
-        m_scale = Parser::parseFloat(hdl->FirstChildElement("scale").Element()->GetText());
-
-    if(hdl->FirstChildElement("material").Element() != nullptr)
+    if(!m_meshLoaded)
     {
-        std::string materialPath = hdl->FirstChildElement("material").Element()->GetText();
+        if(hdl->FirstChildElement("name").Element() != nullptr)
+            m_name = hdl->FirstChildElement("name").Element()->GetText();
 
-        m_material = MaterialsHandler::loadAssetFromFile(m_fileDirectory+materialPath,m_loadType);
-        this->startListeningTo(m_material);
-        if(!m_material->isLoaded())
+        if(hdl->FirstChildElement("scale").Element() != nullptr)
+            m_scale = Parser::parseFloat(hdl->FirstChildElement("scale").Element()->GetText());
+
+        if(hdl->FirstChildElement("model").Element() != nullptr)
         {
-            m_materialsLoaded = false;
-            loaded = false;
+            std::string modelPath = hdl->FirstChildElement("model").Element()->GetText();
+            this->loadModelFromObj(m_fileDirectory+modelPath);
         }
     }
 
-    if(!m_meshLoaded)
-    if(hdl->FirstChildElement("model").Element() != nullptr)
+    if(!m_materialsLoaded)
     {
-        std::string modelPath = hdl->FirstChildElement("model").Element()->GetText();
-        this->loadModelFromObj(m_fileDirectory+modelPath);
+        if(hdl->FirstChildElement("material").Element() != nullptr)
+        {
+            std::string materialPath = hdl->FirstChildElement("material").Element()->GetText();
+
+            m_material = MaterialsHandler::loadAssetFromFile(m_fileDirectory+materialPath,LoadType_Now);
+            this->startListeningTo(m_material);
+            if(!m_material->isLoaded())
+            {
+                m_materialsLoaded = false;
+                loaded = false;
+            }
+        } else
+            m_materialsLoaded = true;
     }
 
-    if(m_materialsLoaded)
-        loaded = true;
+    //if(m_materialsLoaded)
+      //  loaded = true;
 
     if(loaded)
         Logger::write("Mesh loaded from file: "+m_filePath);
@@ -238,7 +244,7 @@ void MeshAsset::setMaterial(MaterialAsset *material)
         {
             m_materialsLoaded = false;
             m_loaded = false;
-            Logger::write("Mesh loaded from file: "+m_filePath);
+            //Logger::write("Mesh loaded from file: "+m_filePath);
         }
         this->startListeningTo(m_material);
     }

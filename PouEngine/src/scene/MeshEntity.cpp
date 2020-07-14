@@ -115,6 +115,16 @@ MeshEntity::~MeshEntity()
     //dtor
 }
 
+std::shared_ptr<SceneObject> MeshEntity::createCopy()
+{
+    auto newObject = std::make_shared<MeshEntity>();
+    newObject->setColor(m_color);
+    newObject->setRme(m_rme);
+    newObject->setScale(m_scale);
+    newObject->setMeshModel(m_mesh);
+    return newObject;
+}
+
 bool MeshEntity::setMeshModel(AssetTypeId meshId)
 {
     return this->setMeshModel(MeshesHandler::instance()->getAsset(meshId));

@@ -23,6 +23,11 @@
 		<center 	x="8" 	y="9" 	/>
 		<position 	x="54" 	y="0" 	/>
 	</sprite>
+	<sprite name="head_bone" castShadow="true">
+		<size 		x="17" 	y="15" 	/>
+		<center 	x="8" 	y="9" 	/>
+		<position 	x="72" 	y="0" 	/>
+	</sprite>
 
 	<sprite name="shoulderL_1" castShadow="true">
 		<size 		x="13" 	y="15" 	/>
@@ -66,6 +71,16 @@
 		<center 	x="3" 	y="7" 	/>
 		<position 	x="14" 	y="69" 	/>
 	</sprite>
+	<sprite name="shoulderL_bone" castShadow="true">
+		<size 		x="13" 	y="15" 	/>
+		<center 	x="9" 	y="7" 	/>
+		<position 	x="0" 	y="86" 	/>
+	</sprite>
+	<sprite name="shoulderR_bone" castShadow="true">
+		<size 		x="13" 	y="15" 	/>
+		<center 	x="3" 	y="7" 	/>
+		<position 	x="14" 	y="86" 	/>
+	</sprite>
 	
 	
 	<sprite name="body_1" castShadow="true">
@@ -77,6 +92,11 @@
 		<size 		x="13" 	y="8" 	/>
 		<center 	x="6" 	y="3" 	/>
 		<position 	x="29" 	y="30"	/>
+	</sprite>
+	<sprite name="body_bone" castShadow="true">
+		<size 		x="13" 	y="8" 	/>
+		<center 	x="6" 	y="3" 	/>
+		<position 	x="29" 	y="41"	/>
 	</sprite>
 	
 	<sprite name="bag_1" castShadow="true">
@@ -110,6 +130,16 @@
 		<center 	x="3" 	y="5" 	/>
 		<position 	x="69" 	y="28" 	/>
 	</sprite>
+	<sprite name="handL_bone">
+		<size 		x="5" 	y="5" 	/>
+		<center 	x="0" 	y="4" 	/>
+		<position 	x="63" 	y="38" 	/>
+	</sprite>
+	<sprite name="handR_bone">
+		<size 		x="4" 	y="8" 	/>
+		<center 	x="3" 	y="5" 	/>
+		<position 	x="69" 	y="37" 	/>
+	</sprite>
 
 	<sprite name="footL_1">
 		<size 		x="4" 	y="8" 	/>
@@ -130,5 +160,15 @@
 		<size 		x="4" 	y="8" 	/>
 		<center 	x="1" 	y="5" 	/>
 		<position 	x="82" 	y="27" 	/>
+	</sprite>
+	<sprite name="footL_bone">
+		<size 		x="4" 	y="8" 	/>
+		<center 	x="2" 	y="5" 	/>
+		<position 	x="76" 	y="36" 	/>
+	</sprite>
+	<sprite name="footR_bone">
+		<size 		x="4" 	y="8" 	/>
+		<center 	x="1" 	y="5" 	/>
+		<position 	x="82" 	y="36" 	/>
 	</sprite>
 </spritesheet>

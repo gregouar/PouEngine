@@ -15,6 +15,8 @@ class CameraObject : public SceneObject
         CameraObject();
         virtual ~CameraObject();
 
+        virtual std::shared_ptr<SceneObject> createCopy();
+
         void setViewport(glm::vec2 offset, glm::vec2 extent); //Normalized viewport
 
         void setListening(bool listening = true);

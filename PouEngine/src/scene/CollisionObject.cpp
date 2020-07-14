@@ -17,6 +17,16 @@ CollisionObject::~CollisionObject()
     //dtor
 }
 
+std::shared_ptr<SceneObject> CollisionObject::createCopy()
+{
+    auto newObject = std::make_shared<CollisionObject>();
+    newObject->m_isBoxBody  = m_isBoxBody;
+    newObject->m_boxBody    = m_boxBody;
+    newObject->m_isDiskBody = m_isDiskBody;
+    newObject->m_diskBody   = m_diskBody;
+    return newObject;
+}
+
 void CollisionObject::update(const Time &elapsedTime, uint32_t localTime)
 {
     SceneObject::update(elapsedTime, localTime);

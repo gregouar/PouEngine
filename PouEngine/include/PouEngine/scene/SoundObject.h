@@ -16,6 +16,9 @@ class SoundObject : public SceneObject
         SoundObject();
         virtual ~SoundObject();
 
+        virtual std::shared_ptr<SceneObject> createCopy();
+        virtual std::shared_ptr<SoundObject> createSoundCopy();
+
         bool play();
         //bool pause();
         //bool stop();

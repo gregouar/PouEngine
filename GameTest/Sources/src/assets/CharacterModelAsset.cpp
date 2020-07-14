@@ -288,74 +288,7 @@ bool CharacterModelAsset::loadLightModel(TiXmlElement *element)
 
     pou::LightModel lightModel;
 
-    att = element->Attribute("type");
-    if(att != nullptr)
-    {
-        if(std::string(att) == "omni")
-            lightModel.type = pou::LightType_Omni;
-        else if(std::string(att) == "directional")
-            lightModel.type = pou::LightType_Directional;
-        else if(std::string(att) == "spot")
-            lightModel.type = pou::LightType_Spot;
-    }
-
-    att = element->Attribute("radius");
-    if(att != nullptr)
-        lightModel.radius = pou::Parser::parseFloat(att);
-
-    att = element->Attribute("intensity");
-    if(att != nullptr)
-        lightModel.intensity = pou::Parser::parseFloat(att);
-
-    att = element->Attribute("castShadow");
-    if(att != nullptr)
-        lightModel.castShadow = pou::Parser::parseBool(att);
-
-    auto colorChild = element->FirstChildElement("color");
-    if(colorChild != nullptr)
-    {
-        auto colorElement = colorChild->ToElement();
-        att = colorElement->Attribute("r");
-        if(att != nullptr)
-            lightModel.color.r = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("g");
-        if(att != nullptr)
-            lightModel.color.g = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("b");
-        if(att != nullptr)
-            lightModel.color.b = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("a");
-        if(att != nullptr)
-            lightModel.color.a = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("red");
-        if(att != nullptr)
-            lightModel.color.r = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("green");
-        if(att != nullptr)
-            lightModel.color.g = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("blue");
-        if(att != nullptr)
-            lightModel.color.b = pou::Parser::parseFloat(att);
-        att = colorElement->Attribute("alpha");
-        if(att != nullptr)
-            lightModel.color.a = pou::Parser::parseFloat(att);
-    }
-
-
-    auto directionChild = element->FirstChildElement("direction");
-    if(directionChild != nullptr)
-    {
-        auto directionElement = directionChild->ToElement();
-        att = directionElement->Attribute("x");
-        if(att != nullptr)
-            lightModel.direction.x = pou::Parser::parseFloat(att);
-        att = directionElement->Attribute("y");
-        if(att != nullptr)
-            lightModel.direction.y = pou::Parser::parseFloat(att);
-        att = directionElement->Attribute("z");
-        if(att != nullptr)
-            lightModel.direction.z = pou::Parser::parseFloat(att);
-    }
+    lightModel.loadFromXML(element);
 
     if(!m_lightModels.insert({lightName,lightModel}).second)
         pou::Logger::warning("Multiple lights with name \""+lightName+"\" in character model:"+m_filePath);
