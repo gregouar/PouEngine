@@ -88,9 +88,9 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
     this->updateSunLight(elapsed_time);
 
-    m_scene->update(elapsed_time, localTime);
-
     this->processPlayerActions();
+
+    m_scene->update(elapsed_time, localTime);
 
     pou::PhysicsEngine::resolveCollisions();
 }

@@ -39,6 +39,8 @@ void CharacterState::switchState(CharacterStateTypes stateType)
 
 void CharacterState::rotateCharacterToward(const pou::Time &elapsedTime, glm::vec2 direction)
 {
+    float ROTATION_SPEED = 10.0f;//10.0f;
+
     if(direction == glm::vec2(0))
         direction = glm::vec2(0,-1);
 
@@ -48,7 +50,7 @@ void CharacterState::rotateCharacterToward(const pou::Time &elapsedTime, glm::ve
     if(!modelAtt.immovable)
     {
         float curRotation = m_character/*->node()*/->getEulerRotation().z;
-        float rotationAmount = elapsedTime.count()*10.0f;
+        float rotationAmount = elapsedTime.count()*ROTATION_SPEED;
         float wantedRotation = pou::MathTools::computeWantedRotation( curRotation, direction );
 
         if(glm::abs(curRotation - wantedRotation) < 0.001f)

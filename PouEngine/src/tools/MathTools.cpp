@@ -81,6 +81,26 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
 }
 
 
+std::pair<bool, float> computeRayToLineSegmentIntersection(glm::vec2 u0, glm::vec2 v0,
+                                                            glm::vec2 u1, glm::vec2 v1)
+{
+    float det = v1.x * v0.y - v0.x * v1.y;
+
+    if(det == 0)
+        return {false, 0};
+
+    float s = (1.0f/det) * ((u0.x - u1.x) * v0.y - (u0.y - u1.y) * v0.x);
+    if(s < 0 || s > 1)
+        return {false, 0};
+
+    float t = (1/det) * -(-(u0.x - u1.x) * v1.y + (u0.y - u1.y) * v1.x);
+    if(t < 0 /*|| t > 1*/)
+        return {false, 0};
+
+    return {true, t /*u0 + v0*t*/};
+}
+
+
 int intLog2(int v)
 {
     int r = 1;

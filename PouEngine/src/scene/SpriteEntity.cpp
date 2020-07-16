@@ -215,6 +215,7 @@ std::shared_ptr<SceneObject> SpriteEntity::createCopy()
     newObject->setOrdering(m_ordering);
     newObject->setInheritRotation(m_inheritRotation);
     newObject->setSpriteModel(m_spriteModel);
+    newObject->setShadowCastingType(m_shadowCastingType);
     return newObject;
 }
 

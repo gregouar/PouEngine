@@ -210,33 +210,6 @@ void GameWorld::generateImpl()
         m_syncComponent.syncElement(barrel);
     }
 
-    //pou::MaterialAsset *wallMaterial = pou::MaterialsHandler::loadAssetFromFile("../data/wallXML.txt",loadType);
-
-    /*pou::MeshAsset *wallModel = pou::MeshesHandler::loadAssetFromFile("../data/wall/wallMeshXML.txt");
-    m_syncComponent.syncElement(wallModel);
-    {
-        glm::vec2 p;
-        p = glm::vec2(-100,-100);
-
-        auto wallNode = std::make_shared<WorldNode>();
-        m_syncComponent.syncElement(wallNode);
-
-        auto wallEntity = std::make_shared<WorldMesh>();
-        wallEntity->setMeshModel(wallModel);
-        wallEntity->setShadowCastingType(pou::ShadowCasting_All);
-
-        wallNode->attachObject(wallEntity);
-        m_syncComponent.syncElement(wallEntity);
-
-        wallNode->setPosition(p);
-
-        m_worldGrid->addChildNode(wallNode);
-
-        auto wallCollision = std::make_shared<pou::CollisionObject>();
-        wallCollision->setBox({128,24});
-        wallNode->attachObject(wallCollision);
-    }*/
-
     auto prefabWall = PrefabsHandler::loadAssetFromFile("../data/wall/wallWithCollisionPrefabXML.txt");
     m_syncComponent.syncElement(prefabWall);
 
@@ -244,6 +217,11 @@ void GameWorld::generateImpl()
     m_worldGrid->addChildNode(wallNode);
     m_syncComponent.syncElement(wallNode);
 
+    /*wallNode = prefabWall->generate();
+    m_worldGrid->addChildNode(wallNode);
+    wallNode->rotate(glm::vec3(0,0,90),false);
+    wallNode->move(-64,64);
+    m_syncComponent.syncElement(wallNode);*/
 
     m_scene->update(pou::Time(0));
     m_worldReady = true;

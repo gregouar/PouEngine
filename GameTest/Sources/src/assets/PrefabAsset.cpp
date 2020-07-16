@@ -324,6 +324,7 @@ bool PrefabAsset::loadMesh(WorldNode *node, TiXmlElement *element)
 
     auto mesh = std::make_shared<WorldMesh>();
     mesh->setMeshModel(meshModel);
+    mesh->setShadowCastingType(pou::ShadowCasting_All);
     node->attachObject(mesh);
 
     return (true);

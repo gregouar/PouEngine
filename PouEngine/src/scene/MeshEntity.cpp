@@ -122,6 +122,7 @@ std::shared_ptr<SceneObject> MeshEntity::createCopy()
     newObject->setRme(m_rme);
     newObject->setScale(m_scale);
     newObject->setMeshModel(m_mesh);
+    newObject->setShadowCastingType(m_shadowCastingType);
     return newObject;
 }
 

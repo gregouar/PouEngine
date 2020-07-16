@@ -660,8 +660,6 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
-    WorldNode::update(elapsedTime,localTime);
-
     this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
 
@@ -670,6 +668,8 @@ void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
         auto collisionBoxes = m_model->getCollisionboxes();
         pou::PhysicsEngine::addBoxBodies(this, *collisionBoxes);
     }**/
+
+    WorldNode::update(elapsedTime,localTime);
 
     GameMessage_World_CharacterUpdated msg;
     msg.character = this;

@@ -589,7 +589,7 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
             }
             else if(meshAtt != nullptr)
             {
-                auto *meshAsset = pou::MeshAssetsHandler::loadAssetFromFile(m_fileDirectory+std::string(meshAtt));
+                auto *meshAsset = pou::MeshAssetsHandler::loadAssetFromFile(m_fileDirectory+std::string(meshAtt), pou::LoadType_InThread);
                 m_limbs.push_back({std::string(nodeAtt), state, nullptr, meshAsset,nullptr});
             }
             else if(lightAtt != nullptr)

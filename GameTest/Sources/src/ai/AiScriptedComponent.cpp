@@ -22,6 +22,7 @@ void AiScriptedComponent::createFromModel(AiScriptModelAsset *model)
 void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     AiComponent::update(elapsedTime, localTime);
+    m_pathfindingTimer.update(elapsedTime);
 
     if(!m_model)
         return;
@@ -49,8 +50,9 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         }
         else if(distance > 70.0f*70.0f)
         {
-            input->setWalkingDirection(direction);
-            input->setLookingDirection(direction);
+            this->avoidCollisionsTo(m_target->getGlobalXYPosition());
+            //input->setWalkingDirection(direction);
+            //input->setLookingDirection(direction);
         }
         else
             input->setAttacking(true, direction);
@@ -58,6 +60,25 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         return;
     }
 
+    this->lookForTarget(300.0f);
+}
+
+
+void AiScriptedComponent::notify(pou::NotificationSender* sender, int notificationType, void* data)
+{
+    AiComponent::notify(sender, notificationType, data);
+
+    if(notificationType == pou::NotificationType_SenderDestroyed)
+    {
+        if(sender == m_target)
+            m_target = nullptr;
+    }
+}
+
+
+
+void AiScriptedComponent::lookForTarget(float maxDistance)
+{
     Character *closestEnemy = nullptr;
     float closestDistance = -1;
 
@@ -81,24 +102,52 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         }
     }
 
-    if(closestDistance != -1 && closestDistance < 300.0f*300.0f)
+    if(closestDistance != -1 && closestDistance < maxDistance*maxDistance)
     {
         m_target = closestEnemy;
         this->startListeningTo(m_target,pou::NotificationType_SenderDestroyed);
         m_targetId.setValue(m_target->getCharacterSyncId());
     }
-
 }
 
-
-void AiScriptedComponent::notify(pou::NotificationSender* sender, int notificationType, void* data)
+void AiScriptedComponent::avoidCollisionsTo(glm::vec2 destination)
 {
-    AiComponent::notify(sender, notificationType, data);
+    auto charPos = m_character->getGlobalXYPosition();
 
-    if(notificationType == pou::NotificationType_SenderDestroyed)
+    if(!m_pathfindingTimer.isActive())
     {
-        if(sender == m_target)
-            m_target = nullptr;
+        m_pathfinder.findPath(charPos, destination, 25.0f, -1);
+        m_pathfindingTimer.reset(0.1f);
+
+        auto &path = m_pathfinder.getPath();
+
+        std::cout<<"start:"<<charPos.x<<" "<<charPos.y<<std::endl;
+        for(auto no : path)
+            std::cout<<no.x<<" "<<no.y<<std::endl;
+        std::cout<<"destination:"<<destination.x<<" "<<destination.y<<std::endl;
+        std::cout<<std::endl;
     }
+
+    if(m_pathfinder.pathFounded())
+    {
+        auto &path = m_pathfinder.getPath();
+
+        while(glm::dot(path.front()-charPos, path.front()-charPos) < 10)
+            path.pop_front();
+
+        if(path.size() > 1)
+            destination = *std::next(path.begin());
+        else
+            destination = *path.begin();
+
+    }
+
+    auto direction = destination - m_character->getGlobalXYPosition();
+
+    auto input = m_character->getInput();
+
+    input->setWalkingDirection(direction);
+    input->setLookingDirection(direction);
 }
+
 
