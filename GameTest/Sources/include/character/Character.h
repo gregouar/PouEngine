@@ -156,10 +156,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         void startAnimation(const std::string &name, bool forceStart = true);
 
-        /**void addToNearbyCharacters(std::shared_ptr<Character> character);
-        void removeFromNearbyCharacters(std::shared_ptr<Character> character);
-        std::set< std::shared_ptr<Character> > &getNearbyCharacters();**/
-        std::vector<Character*> *getNearbyCharacters();
+        virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance, bool propagateToChilds = true);
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -168,6 +165,11 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         virtual const std::vector<Hitbox> *getHitboxes() const;
         virtual const std::vector<Hitbox> *getHurtboxes() const;
+
+        /**void addToNearbyCharacters(std::shared_ptr<Character> character);
+        void removeFromNearbyCharacters(std::shared_ptr<Character> character);
+        std::set< std::shared_ptr<Character> > &getNearbyCharacters();**/
+        std::vector<Character*> *getNearbyCharacters();
 
         CharacterModelAsset *getModel() const;
         CharacterSkeleton   *getSkeleton(const std::string &skeletonName);

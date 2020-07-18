@@ -60,8 +60,8 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float radi
     this->exploresNodes();
 
     auto *lastNode = &(*m_exploredNodes.rbegin());
-    if(lastNode == nullptr || lastNode->position != destination)
-        return (false);
+    /*if(lastNode == nullptr || lastNode->position != destination)
+        return (false);*/
 
     while(lastNode != nullptr)
     {
@@ -71,7 +71,7 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float radi
 
     m_pathFounded = true;
 
-    ///Do path smoothing
+    this->simplifyPath();
 
     return (true);
 }
@@ -80,6 +80,10 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float radi
 void Pathfinder::exploresNodes()
 {
     int nbrTest = 0;
+    bool foundDestination = false;
+
+    float closestDistance = -1;
+    PathNode *closestNode(nullptr);
 
     auto nodeIt = m_nodesToExplore.begin();
     while(!m_nodesToExplore.empty())
@@ -88,6 +92,9 @@ void Pathfinder::exploresNodes()
         auto &node = nodeIt->second;
 
         if(node.depth >= m_maxDepth)
+            break;
+
+        if(nbrTest > 255)
             break;
 
         auto start = node.parentNode->position;
@@ -100,6 +107,13 @@ void Pathfinder::exploresNodes()
             destination = collisionImpact.collisionImpact;
 
         m_exploredNodes.push_back({destination, node.parentNode, node.depth});
+
+        float distance = glm::dot(destination - m_destination, destination - m_destination);
+        if(distance < closestDistance || closestDistance == -1)
+        {
+            closestDistance = distance;
+            closestNode = &m_exploredNodes.back();
+        }
 
         if(collisionImpact.detectImpact)
         {
@@ -136,13 +150,56 @@ void Pathfinder::exploresNodes()
         if(destination == m_destination)
         {
             std::cout<<"Found destination !"<<std::endl;
+            foundDestination = true;
             break;
         }
 
         m_nodesToExplore.erase(nodeIt);
         nodeIt = m_nodesToExplore.begin();
     }
+
+    //If we did not find the destination, we take the closest solution
+    if(!foundDestination)
+    {
+        m_exploredNodes.push_back(*closestNode);
+    }
+
     std::cout<<"END : "<<nbrTest<<std::endl;
+}
+
+void Pathfinder::simplifyPath()
+{
+    std::list<glm::vec2> oldPath;
+    m_path.swap(oldPath);
+
+    m_path.push_back(oldPath.front());
+
+
+    while(m_path.back() != m_destination)
+    {
+        const auto &curNode = m_path.back();
+        auto lastNode = m_destination;
+
+        for(auto pathIt = oldPath.rbegin() ; pathIt != oldPath.rend() ; )
+        {
+            if(*pathIt == curNode)
+            {
+                m_path.push_back(lastNode);
+                break;
+            }
+
+            auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(curNode, *pathIt,
+                                                                                 20.0f, -1);
+            if(!collisionImpact.detectImpact)
+            {
+                m_path.push_back(*pathIt);
+                break;
+            }
+
+            lastNode = *pathIt;
+            ++pathIt;
+        }
+    }
 }
 
 float Pathfinder::estimateNodeWeight(const PathNode &p)
@@ -152,4 +209,6 @@ float Pathfinder::estimateNodeWeight(const PathNode &p)
     return glm::length(p.position - p.parentNode->position);
    // return  glm::length(m_destination - p);
 }
+
+
 

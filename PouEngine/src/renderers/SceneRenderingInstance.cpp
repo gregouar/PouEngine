@@ -18,6 +18,29 @@ SceneRenderingInstance::SceneRenderingInstance(SceneRenderingData *data, SceneRe
     m_renderedShadowCasters[1].reserve(5000); ///Change to smaller number !
 }
 
+void SceneRenderingInstance::drawRectangle(glm::vec3 pos, glm::vec2 size, glm::vec4 color)
+{
+    glm::mat4 modelMat(1.0);
+    modelMat = glm::translate(modelMat, pos);
+    modelMat = glm::scale(modelMat, {size.x,
+                                     size.y,
+                                     1.0});
+
+    SpriteDatum datum;
+    datum.albedo_color = color;
+    datum.rme_color = glm::vec3(1.0);
+    datum.albedo_texId = {0,0};
+    datum.normal_texId = {0,0};
+    datum.rme_texId = {0,0};
+
+    datum.modelMat0 = modelMat[0];
+    datum.modelMat1 = modelMat[1];
+    datum.modelMat2 = modelMat[2];
+    datum.modelMat3 = modelMat[3];
+
+    this->addToSpritesVbo(datum);
+}
+
 void SceneRenderingInstance::addToSpritesVbo(const SpriteDatum &datum)
 {
     if(m_spritesVboSize == 0)

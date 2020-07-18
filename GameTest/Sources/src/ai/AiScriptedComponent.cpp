@@ -22,7 +22,7 @@ void AiScriptedComponent::createFromModel(AiScriptModelAsset *model)
 void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     AiComponent::update(elapsedTime, localTime);
-    m_pathfindingTimer.update(elapsedTime);
+    //m_pathfindingTimer.update(elapsedTime);
 
     if(!m_model)
         return;
@@ -35,6 +35,9 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         return;
 
     input->reset();
+
+    if(!m_character->isAlive())
+        return;
 
     if(m_target && m_target->isAlive())
     {
@@ -110,7 +113,7 @@ void AiScriptedComponent::lookForTarget(float maxDistance)
     }
 }
 
-void AiScriptedComponent::avoidCollisionsTo(glm::vec2 destination)
+/*void AiScriptedComponent::avoidCollisionsTo(glm::vec2 destination)
 {
     auto charPos = m_character->getGlobalXYPosition();
 
@@ -148,6 +151,6 @@ void AiScriptedComponent::avoidCollisionsTo(glm::vec2 destination)
 
     input->setWalkingDirection(direction);
     input->setLookingDirection(direction);
-}
+}*/
 
 

@@ -1,8 +1,11 @@
 #ifndef AICOMPONENT_H
 #define AICOMPONENT_H
 
-#include "character/Character.h"
+
 #include "PouEngine/sync/IntSyncElement.h"
+
+#include "ai/Pathfinder.h"
+#include "character/Character.h"
 
 
 class AiComponent : public pou::NotificationListener
@@ -12,6 +15,9 @@ class AiComponent : public pou::NotificationListener
         virtual ~AiComponent();
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
+
+        std::list<glm::vec2> &getPlannedPath();
+
 
         //virtual void syncFrom(AiComponent *aiComponent);
         //virtual void serialize(pou::Stream *stream, uint32_t clientTime);
@@ -26,6 +32,8 @@ class AiComponent : public pou::NotificationListener
         virtual void notify(pou::NotificationSender*, int notificationType,
                             void* data) override;
 
+        void avoidCollisionsTo(glm::vec2 destination);
+
 
     protected:
         Character *m_character;
@@ -36,6 +44,9 @@ class AiComponent : public pou::NotificationListener
         pou::SyncComponent m_syncComponent;
 
     private:
+        ///I should store last known path and update it at regular intervals
+        Pathfinder m_pathfinder;
+        pou::Timer m_pathfindingTimer;
 };
 
 #endif // AICOMPONENT_H

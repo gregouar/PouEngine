@@ -78,8 +78,9 @@ void VInstance::submitToGraphicsQueue(VkSubmitInfo &infos, VkFence fence)
 {
     VInstance::lockGraphicsQueueAccess();
     VInstance::instance()->m_graphicsQueueAccessLocalMutex.lock();
-        if (vkQueueSubmit(VInstance::instance()->m_graphicsQueue, 1, &infos, fence) != VK_SUCCESS)
-            throw std::runtime_error("Failed to submit draw command buffer");
+        auto result = vkQueueSubmit(VInstance::instance()->m_graphicsQueue, 1, &infos, fence);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to submit draw command buffer: "+std::to_string((int)result));
     VInstance::instance()->m_graphicsQueueAccessLocalMutex.unlock();
     VInstance::unlockGraphicsQueueAccess();
 }
@@ -88,8 +89,9 @@ void VInstance::submitToGraphicsQueue(std::vector<VkSubmitInfo> &infos, VkFence 
 {
     VInstance::lockGraphicsQueueAccess();
     VInstance::instance()->m_graphicsQueueAccessLocalMutex.lock();
-        if (vkQueueSubmit(VInstance::instance()->m_graphicsQueue, infos.size(), infos.data(), fence) != VK_SUCCESS)
-            throw std::runtime_error("Failed to submit draw command buffer");
+        auto result = vkQueueSubmit(VInstance::instance()->m_graphicsQueue, infos.size(), infos.data(), fence);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to submit draw command buffer: "+std::to_string((int)result));
     VInstance::instance()->m_graphicsQueueAccessLocalMutex.unlock();
     VInstance::unlockGraphicsQueueAccess();
 }

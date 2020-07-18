@@ -575,6 +575,8 @@ CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRayImpl(glm::vec2 
         {
             auto mat = closestBody->node->getModelMatrix();
 
+            rayThickness += 10;
+
             auto p1 = -closestBody->box.center - glm::vec2(rayThickness); //Top left
             auto p2 = -closestBody->box.center + glm::vec2(closestBody->box.size.x, 0) + glm::vec2(rayThickness, -rayThickness); //Top right
             auto p3 = -closestBody->box.center + closestBody->box.size + glm::vec2(rayThickness); //Bottom right
@@ -621,6 +623,18 @@ CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRayImpl(glm::vec2 
                 impact.corner2_2 = glm::vec2(p4v)/p4v.w;
             }
         }
+
+        if(closestBody->isDisk)
+        {
+            auto coVect = glm::vec2(normalizedRayVect.y,-normalizedRayVect.x);
+            float squareLength = rayThickness+closestBody->radius;
+
+            impact.corner1_1 = closestImpact + coVect * squareLength;
+            impact.corner1_2 = impact.corner1_1 + normalizedRayVect * squareLength;
+
+            impact.corner2_1 = closestImpact - coVect * squareLength;
+            impact.corner2_2 = impact.corner2_1 + normalizedRayVect * squareLength;
+        }
     }
 
     return impact;
@@ -654,6 +668,10 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
     }
     else if(body->isBox)
     {
+        auto augmentedBox = body->box;
+        augmentedBox.size += glm::vec2((rayThickness) * 2);
+        augmentedBox.center += glm::vec2(rayThickness);
+
         auto invMat = body->node->getInvModelMatrix();
 
         auto relStartPoint = invMat * glm::vec4(startPoint.x, startPoint.y, 0, 1);
@@ -662,13 +680,14 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
 
         auto relRayVect = invMat * glm::vec4(normalizedRayVect.x, normalizedRayVect.y, 0, 1);
         relRayVect /= relRayVect.w;
+        relRayVect -= invMat * glm::vec4(0,0,0,1);//glm::vec4(body->node->getGlobalXYPosition().x, body->node->getGlobalXYPosition().y, 0, 0);
 
         float minRayRatio = -1;
 
         {
             auto [intersected, rayRatio]
                 = MathTools::computeRayToLineSegmentIntersection(relStartPoint, relRayVect,
-                                                                -body->box.center, glm::vec2(body->box.size.x,0));
+                                                                -augmentedBox.center, glm::vec2(augmentedBox.size.x,0));
             if(intersected && (rayRatio < minRayRatio || minRayRatio == -1))
             {
                 minRayRatio = rayRatio;
@@ -679,7 +698,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
         {
             auto [intersected, rayRatio]
                 = MathTools::computeRayToLineSegmentIntersection(relStartPoint, relRayVect,
-                                                                -body->box.center, glm::vec2(0,body->box.size.y));
+                                                                -augmentedBox.center, glm::vec2(0,augmentedBox.size.y));
             if(intersected && (rayRatio < minRayRatio || minRayRatio == -1))
             {
                 minRayRatio = rayRatio;
@@ -690,7 +709,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
         {
             auto [intersected, rayRatio]
                 = MathTools::computeRayToLineSegmentIntersection(relStartPoint, relRayVect,
-                                                                -body->box.center+glm::vec2(0,body->box.size.y), glm::vec2(body->box.size.x,0));
+                                                                -augmentedBox.center+glm::vec2(0,augmentedBox.size.y), glm::vec2(augmentedBox.size.x,0));
             if(intersected && (rayRatio < minRayRatio || minRayRatio == -1))
             {
                 minRayRatio = rayRatio;
@@ -701,7 +720,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
         {
             auto [intersected, rayRatio]
                 = MathTools::computeRayToLineSegmentIntersection(relStartPoint, relRayVect,
-                                                                -body->box.center+glm::vec2(body->box.size.x, 0), glm::vec2(0,body->box.size.y));
+                                                                -augmentedBox.center+glm::vec2(augmentedBox.size.x, 0), glm::vec2(0,augmentedBox.size.y));
             if(intersected && (rayRatio < minRayRatio || minRayRatio == -1))
             {
                 minRayRatio = rayRatio;
@@ -710,17 +729,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
         }
 
         if(minRayRatio != -1)
-        {
-            /*auto mat = body->node->getModelMatrix();
-            auto relIntersectionPoint = (relStartPoint + minRayRatio * relRayVect);
-            auto intersectionPoint =  mat * glm::vec4(relIntersectionPoint.x, relIntersectionPoint.y, 0, 1);
-            intersectionPoint /= intersectionPoint.w;
-            return {true, intersectionPoint};*/
-
-            ///(minRayRatio - rayThickness) is not very accurate, could have something a bit better by pushing along normal
-            ///Which would be easy to do in relative coordinates
-            return {collisionSide, startPoint + (minRayRatio - rayThickness) * normalizedRayVect};
-        }
+            return {collisionSide, startPoint + (minRayRatio - 5 /*- rayThickness*/) * normalizedRayVect};
     }
 
     return {collisionSide, collisionPos};

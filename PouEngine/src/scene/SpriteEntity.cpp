@@ -488,6 +488,7 @@ void SpriteEntity::updateDatum()
 
     m_datum.albedo_texId = {0,0};
     m_datum.normal_texId = {0,0};
+    m_datum.rme_texId = {0,0};
 
     if(m_spriteModel->isUsingMaterial())
     {

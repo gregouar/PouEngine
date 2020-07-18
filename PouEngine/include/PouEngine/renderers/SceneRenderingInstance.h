@@ -11,6 +11,8 @@ class SceneRenderingInstance
     public:
         SceneRenderingInstance(SceneRenderingData*, SceneRenderer*);
 
+        void drawRectangle(glm::vec3 pos, glm::vec2 size, glm::vec4 color=glm::vec4(1.0f));
+
         void addToSpritesVbo(const SpriteDatum &datum);
         void addToSpritesOrdered(const SpriteDatum &datum, float weight);
         void addToMeshesVbo(VMesh *mesh, const MeshDatum &datum);

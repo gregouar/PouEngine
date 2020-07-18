@@ -33,6 +33,7 @@ class Pathfinder //: public Singleton<Pathfinder>
         bool findPathImpl(glm::vec2 start, glm::vec2 destination, float radius, float minMass, int maxDepth);
         //void exploresNodes(PathNode *startNode);
         void exploresNodes();
+        void simplifyPath();
 
         float estimateNodeWeight(const PathNode &node);
 
