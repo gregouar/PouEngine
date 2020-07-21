@@ -200,7 +200,7 @@ void GameWorld::generateImpl()
     auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
     m_syncComponent.syncElement(barrelModel);
     {
-        glm::vec3 p(150,-50,60);
+        glm::vec3 p(100,0,60);
 
         auto barrel = std::make_shared<Character>();
         barrel->createFromModel(barrelModel);
@@ -213,15 +213,15 @@ void GameWorld::generateImpl()
     auto prefabWall = PrefabsHandler::loadAssetFromFile("../data/wall/wallWithCollisionPrefabXML.txt");
     m_syncComponent.syncElement(prefabWall);
 
-    /*auto wallNode = prefabWall->generate();
+    auto wallNode = prefabWall->generate();
     m_worldGrid->addChildNode(wallNode);
     m_syncComponent.syncElement(wallNode);
 
     ///
-    wallNode = prefabWall->generate();
+    /*wallNode = prefabWall->generate();
     wallNode->move(0,128);
     m_worldGrid->addChildNode(wallNode);
-    m_syncComponent.syncElement(wallNode);
+    m_syncComponent.syncElement(wallNode);*/
     ///
 
     wallNode = prefabWall->generate();
@@ -240,7 +240,7 @@ void GameWorld::generateImpl()
     m_worldGrid->addChildNode(wallNode);
     wallNode->rotate(glm::vec3(0,0,90),false);
     wallNode->move(128,64);
-    m_syncComponent.syncElement(wallNode);*/
+    m_syncComponent.syncElement(wallNode);
 
     m_scene->update(pou::Time(0));
     m_worldReady = true;

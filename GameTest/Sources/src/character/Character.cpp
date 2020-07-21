@@ -662,7 +662,7 @@ void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInst
 {
     WorldNode::generateRenderingData(renderingInstance, propagateToChilds);
 
-    auto &path = m_aiComponent->getPlannedPath();
+    /*auto &path = m_aiComponent->getPlannedPath();
     float i = 0;
     for(auto node : path)
     {
@@ -671,7 +671,7 @@ void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInst
         else
             renderingInstance->drawRectangle({node.x-5,node.y-5,100},{10,10},{i,i,1,1});
         i+=.1f;
-    }
+    }*/
     //if(!path.empty())
     //    std::cout<<"Path Length:"<<path.size()<<std::endl;
 

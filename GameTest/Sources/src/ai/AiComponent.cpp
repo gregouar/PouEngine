@@ -74,15 +74,14 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
 {
     auto charPos = m_character->getGlobalXYPosition();
 
-    auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(charPos, destination,
+    auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(charPos, destination - 20.0f * glm::normalize(destination - charPos),
                                                                          20.0f, -1);
-
 
     if(collisionImpact.detectImpact)
     {
         if(!m_pathfindingTimer.isActive())
         {
-            m_pathfinder.findPath(charPos, destination, 20.0f, -1);
+            m_pathfinder.findPath(charPos, destination, 20.0f, 20.0f, -1);
             m_pathfindingTimer.reset(0.5f);
 
             //auto &path = m_pathfinder.getPath();

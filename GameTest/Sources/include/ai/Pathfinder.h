@@ -22,7 +22,8 @@ class Pathfinder //: public Singleton<Pathfinder>
         Pathfinder();
         virtual ~Pathfinder();
         /*static*/ bool findPath(glm::vec2 start, glm::vec2 destination,
-                                 float radius = 0, float minMass = -1, int maxDepth = 16);
+                                 float pathRadius = 0, float destinationRadius = 0,
+                                 float minMassAvoidance = -1, int maxDepth = 16);
 
         bool pathFounded();
         std::list<glm::vec2> &getPath();
@@ -30,7 +31,7 @@ class Pathfinder //: public Singleton<Pathfinder>
     protected:
 
         void reset();
-        bool findPathImpl(glm::vec2 start, glm::vec2 destination, float radius, float minMass, int maxDepth);
+        bool findPathImpl(glm::vec2 start, glm::vec2 destination, float radius, float destinationRadius, float minMass, int maxDepth);
         //void exploresNodes(PathNode *startNode);
         void exploresNodes();
         void simplifyPath();
@@ -41,6 +42,7 @@ class Pathfinder //: public Singleton<Pathfinder>
         std::multimap<float, PathNode> m_nodesToExplore;
         std::list<PathNode> m_exploredNodes;
         float m_rayThickness;
+        float m_destinationRadius;
         float m_minMass;
         int m_maxDepth;
         glm::vec2 m_destination;

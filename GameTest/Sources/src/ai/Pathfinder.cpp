@@ -12,10 +12,11 @@ Pathfinder::~Pathfinder()
 
 
 bool Pathfinder::findPath(glm::vec2 start, glm::vec2 destination,
-                          float radius, float minMass, int maxDepth)
+                          float radius, float destinationRadius,
+                          float minMass, int maxDepth)
 {
    //return Pathfinder::instance()
-   return this->findPathImpl(start, destination, radius, minMass, maxDepth);
+   return this->findPathImpl(start, destination, radius, destinationRadius, minMass, maxDepth);
 }
 
 bool Pathfinder::pathFounded()
@@ -40,20 +41,21 @@ void Pathfinder::reset()
     m_pathFounded = false;
 }
 
-bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float radius, float minMass, int maxDepth)
+bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float pathRadius, float destinationRadius, float minMass, int maxDepth)
 {
     this->reset();
-    m_rayThickness  = radius;
+    m_rayThickness  = pathRadius;
     m_minMass       = minMass;
     m_maxDepth      = maxDepth;
     m_destination   = destination;
+    m_destinationRadius = destinationRadius;
 
     m_exploredNodes.push_back({start, nullptr, 0});
 
     PathNode destinationNode;
     destinationNode.depth = 1;
     destinationNode.parentNode = &m_exploredNodes.front();
-    destinationNode.position = destination;
+    destinationNode.position = destination - destinationRadius * glm::normalize(destination - start);
     m_nodesToExplore.insert({this->estimateNodeWeight(destinationNode), destinationNode});
 
     //this->exploresNodes(&m_exploredNodes.front());
@@ -94,7 +96,7 @@ void Pathfinder::exploresNodes()
         if(node.depth >= m_maxDepth)
             break;
 
-        if(nbrTest > 255)
+        if(nbrTest > 127)
             break;
 
         auto start = node.parentNode->position;
@@ -147,9 +149,9 @@ void Pathfinder::exploresNodes()
             }
         }
 
-        if(destination == m_destination)
+        //if(destination == m_destination)
+        if(glm::dot(destination - m_destination, destination - m_destination) < m_destinationRadius*m_destinationRadius)
         {
-            std::cout<<"Found destination !"<<std::endl;
             foundDestination = true;
             break;
         }
@@ -160,11 +162,7 @@ void Pathfinder::exploresNodes()
 
     //If we did not find the destination, we take the closest solution
     if(!foundDestination)
-    {
         m_exploredNodes.push_back(*closestNode);
-    }
-
-    std::cout<<"END : "<<nbrTest<<std::endl;
 }
 
 void Pathfinder::simplifyPath()

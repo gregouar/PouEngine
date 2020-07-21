@@ -14,7 +14,7 @@
 			<mass>100</mass>
 		</box>-->
 		<disk>
-			<mass>-100</mass>
+			<mass>100</mass>
 			<radius>24</radius>
 		</disk>
 	</collisions>
