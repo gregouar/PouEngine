@@ -83,17 +83,6 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
         {
             m_pathfinder.findPath(charPos, destination, 20.0f, 20.0f, -1);
             m_pathfindingTimer.reset(0.5f);
-
-            //auto &path = m_pathfinder.getPath();
-            //path.push_back({collisionImpact.collisionImpact});
-
-            /*auto &path = m_pathfinder.getPath();
-
-            std::cout<<"start:"<<charPos.x<<" "<<charPos.y<<std::endl;
-            for(auto no : path)
-                std::cout<<no.x<<" "<<no.y<<std::endl;
-            std::cout<<"destination:"<<destination.x<<" "<<destination.y<<std::endl;
-            std::cout<<std::endl;*/
         }
 
         if(m_pathfinder.pathFounded())
@@ -103,12 +92,8 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
             while(glm::dot(path.front()-charPos, path.front()-charPos) < 100)
                 path.pop_front();
 
-            /*if(path.size() > 1)
-                destination = *std::next(path.begin());
-            else*/
             if(!path.empty())
                 destination = *path.begin();
-
         }
     } else
         m_pathfinder.getPath().clear();

@@ -293,7 +293,8 @@ void GameWorld_Sync::createWorldSyncMsg_Node(WorldNode *nodePtr, std::shared_ptr
 
     if(/*nodePtr->getParent() != m_scene->getRootNode()
     &&*/ /*uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime())
-    &&*/ nodePtr->getParent())
+    &&*/ nodePtr->getParent()
+    && nodePtr->getNodeSyncId() != 1 && nodePtr->getNodeSyncId() != 2) //ID 1 and 2 are reserved for the rootNode and gridNode, which both have parent a SceneNode and not a WorldNode
     {
         auto parentNode = (WorldNode*)nodePtr->getParent();
         nodeSync.parentNodeId = parentNode->getNodeSyncId();///m_syncNodes.findId((WorldNode*)nodePtr->getParent());
@@ -504,7 +505,6 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         auto player = m_syncPlayers.findElement(playerId);
         if(player == nullptr)
         {
-                //std::cout<<"Sync Player :" <<playerId<<" with char id "<<playerSync.characterId<<std::endl;
             if(playerSync.characterId != 0)
             {
                 if(playerId == (int)clientPlayerId)
@@ -711,7 +711,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             continue;
 
         this->desyncElement(playerPtr.get());
-        playerPtr/*->node()*/->removeFromParent();
+        playerPtr->removeFromParent();
     }
 
     for(auto desyncCharacter : worldSyncMsg->desyncCharacters)
@@ -723,7 +723,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         this->desyncElement(characterPtr.get());
 
         this->removeFromUpdatedCharacters(characterPtr.get());
-        characterPtr/*->node()*/->removeFromParent();
+        characterPtr->removeFromParent();
     }
 
     for(auto desyncNode : worldSyncMsg->desyncNodes)

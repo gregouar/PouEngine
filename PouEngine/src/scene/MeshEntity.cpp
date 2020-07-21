@@ -200,7 +200,7 @@ glm::vec3 MeshEntity::getScale()
 
 void MeshEntity::generateRenderingData(SceneRenderingInstance *renderingInstance)
 {
-    if(m_mesh != nullptr && m_mesh->isLoaded() && m_datum.albedo_color.a > 0)
+    if(m_mesh != nullptr && /**m_mesh->isLoaded() &&**/ m_datum.albedo_color.a > 0)
         renderingInstance->addToMeshesVbo(m_mesh->getMesh(), this->getMeshDatum());
 }
 

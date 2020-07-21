@@ -65,7 +65,6 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
     else if(m_generatingThread.joinable())
         m_generatingThread.join();
 
-
     m_syncComponent.update(elapsed_time);
 
     auto localTime = m_syncComponent.getLocalTime();
