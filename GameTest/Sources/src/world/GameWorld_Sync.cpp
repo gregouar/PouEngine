@@ -13,7 +13,7 @@
 #include "logic/GameMessageTypes.h"
 #include "world/WorldMesh.h"
 
-const int    GameWorld_Sync::NODEID_BITS            = 16;
+const int    GameWorld_Sync::NODEID_BITS            = 24;
 const int    GameWorld_Sync::SPRITESHEETID_BITS     = 10;
 const int    GameWorld_Sync::SPRITEENTITYID_BITS    = 16;
 const int    GameWorld_Sync::MESHMODELID_BITS       = 10;

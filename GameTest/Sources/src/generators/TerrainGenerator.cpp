@@ -5,170 +5,27 @@
 #include "PouEngine/assets/SpriteSheetAsset.h"
 #include "PouEngine/assets/MeshesHandler.h"
 
+#include <stack>
+
+
+///
+///TerrainGenerator
+///
+
 TerrainGenerator::TerrainGenerator()
 {
     ///Add Flip to sprite (not node) !
 
     ///For testing purposes:
     m_tileSize = glm::vec2(64,64);
-    m_terrainSize = glm::vec2(100,100);
-    m_nbrLayers = 2;
+    m_terrainSize = glm::vec2(200,200);
+    m_gridSize = m_terrainSize + glm::vec2(1);
+   // m_nbrLayers = 2;
 
-    auto groundSpriteSheet =  pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt");
-
-    TerrainGenerator_LayerModel dirtLayerModel;
-    dirtLayerModel.spriteSheet = groundSpriteSheet;
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("dirt1_2"));
-        dirtLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("dirt1_3"));
-        dirtLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("dirt1_4"));
-        dirtLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-    }
-    m_layerModels.push_back(dirtLayerModel);
-
-
-
-    TerrainGenerator_LayerModel grassLayerModel;
-    grassLayerModel.spriteSheet = groundSpriteSheet;
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_1"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_2"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_3"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_4"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Fill].push_back({1, sprite});
-    }
-
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_smallcorner1"));
-        sprite->setRotation(180, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_SmallCorner_TL].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_smallcorner1"));
-        sprite->setRotation(-90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_SmallCorner_TR].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_smallcorner1"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_SmallCorner_BL].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_smallcorner1"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_SmallCorner_BR].push_back({1, sprite});
-    }
-
-
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom1"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_B].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom2"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_B].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom1"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_L].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom2"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_L].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom1"));
-        sprite->setRotation(180, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_T].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom2"));
-        sprite->setRotation(180, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_T].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom1"));
-        sprite->setRotation(-90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_R].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bottom2"));
-        sprite->setRotation(-90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Side_R].push_back({1, sprite});
-    }
-
-
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner1"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_TR].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner2"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_TR].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner1"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_BR].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner2"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_BR].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner1"));
-        sprite->setRotation(180, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_BL].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner2"));
-        sprite->setRotation(180, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_BL].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner1"));
-        sprite->setRotation(-90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_TL].push_back({1, sprite});
-        sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_bigcorner2"));
-        sprite->setRotation(-90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_BigCorner_TL].push_back({1, sprite});
-    }
-
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_diag1"));
-        grassLayerModel.elements[TerrainGenerator_BorderType_Diag_TL_BR].push_back({1, sprite});
-    }
-    {
-        auto sprite = std::make_shared<WorldSprite>();
-        sprite->setSpriteModel(groundSpriteSheet->getSpriteModel("grass1_diag1"));
-        sprite->setRotation(90, false);
-        grassLayerModel.elements[TerrainGenerator_BorderType_Diag_BL_TR].push_back({1, sprite});
-    }
-
-
-    m_layerModels.push_back(grassLayerModel);
-
+    auto layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile("../data/grasslands/dirtLayerModelXML.txt");
+    m_layerModels.push_back(layerModel);
+    layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile("../data/grasslands/grassLayerModelXML.txt");
+    m_layerModels.push_back(layerModel);
 }
 
 TerrainGenerator::~TerrainGenerator()
@@ -177,127 +34,131 @@ TerrainGenerator::~TerrainGenerator()
 }
 
 
-void TerrainGenerator::generatorOnNode(std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent)
+void TerrainGenerator::generatorOnNode(std::shared_ptr<WorldNode> targetNode, int seed, GameWorld_Sync *syncComponent)
 {
+    m_rng.seed(seed);
+
     this->generateGrid();
 
-    for(auto x = 0 ; x < m_terrainSize.x-1 ; x++)
-    for(auto y = 0 ; y < m_terrainSize.y-1 ; y++)
-    {
-        auto tileNode = std::make_shared<WorldNode>();
-        tileNode->setPosition(x * m_tileSize.x, y * m_tileSize.y);
-        this->generateSprites(x, y, tileNode, syncComponent);
+    /**if(syncComponent)
+    for(auto &layerModel : m_layerModels)
+        syncComponent->syncElement(layerModel.spriteSheet);**/
 
-        if(syncComponent)
-            syncComponent->syncElement(tileNode);
-
-        targetNode->addChildNode(tileNode);
-    }
-
-    /**auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt",pou::LoadType_Now);
-    if(syncComponent)
-        syncComponent->syncElement(grassSheet);
+    auto centeringShift = m_terrainSize * m_tileSize * 0.5f;
 
     for(auto x = 0 ; x < m_terrainSize.x ; x++)
     for(auto y = 0 ; y < m_terrainSize.y ; y++)
     {
-        auto grassNode = std::make_shared<WorldNode>();
-        if(syncComponent)
-            syncComponent->syncElement(grassNode);
+        auto tileNode = std::make_shared<WorldNode>();
+        tileNode->setPosition(x * m_tileSize.x, y * m_tileSize.y);
+        tileNode->move(-centeringShift);
+        this->generateSprites(x, y, tileNode, syncComponent);
 
-        auto spriteEntity = std::make_shared<WorldSprite>();
+        ///I should not sync all nodes... but use a random seed to share.
+        //if(syncComponent)
+          //  syncComponent->syncElement(tileNode);
 
-        //int rd = glm::linearRand(0,96);
-        int rd = x+y;
-
-        if(y < 2)
-        {
-            int modulo = 4;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
-            else if(abs(rd % modulo) == 2)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
-            else if(abs(rd % modulo) == 3)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
-        }
-        else
-        {
-            int modulo = 3;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_2"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_3"));
-            else if(abs(rd % modulo) == 2)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_4"));
-            else if(abs(rd % modulo) == 3)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt2_1"));
-        }
-
-
-
-        grassNode->attachObject(spriteEntity);
-        if(syncComponent)
-            syncComponent->syncElement(spriteEntity);
-
-        if(y == 2)
-        {
-            spriteEntity = std::make_shared<WorldSprite>();
-            int modulo = 2;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom1"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom2"));
-            grassNode->attachObject(spriteEntity);
-
-            if(syncComponent)
-                syncComponent->syncElement(spriteEntity);
-        }
-
-        grassNode->setScale(glm::vec3(
-                                glm::linearRand(0,10) > 5 ? 1 : -1,
-                                1,//glm::linearRand(0,10) > 5 ? 1 : -1,
-                                1));
-        if(y > 2)
-            grassNode->scale(glm::vec3(1,glm::linearRand(0,10) > 5 ? 1 : -1,1));
-
-
-        grassNode->setPosition({x*64,y*64,0});
-
-        targetNode->addChildNode(grassNode);
-    }**/
+        targetNode->addChildNode(tileNode);
+    }
 }
 
 ///
 ///Protected
 ///
 
-int TerrainGenerator::getGridValue(int x, int y)
+size_t TerrainGenerator::getGridValue(int x, int y)
 {
-    return m_generatingGrid[y * m_terrainSize.x + x];
+    return m_generatingGrid[y * m_gridSize.x + x];
 }
 
 void TerrainGenerator::generateGrid()
 {
-    m_generatingGrid.resize(m_terrainSize.x * m_terrainSize.y, 0);
+    m_generatingGrid.resize(m_gridSize.x * m_gridSize.y, 0);
 
-    for(size_t y = 0 ; y < m_terrainSize.y ; ++y)
-    for(size_t x = 0 ; x < m_terrainSize.x ; ++x)
-        m_generatingGrid[y * m_terrainSize.x + x] = std::rand() % m_nbrLayers;
+    if(m_layerModels.size() <= 1)
+        return;
 
-    /*for(size_t y = 0 ; y < m_terrainSize.y ; ++y)
+    //for(size_t l = 1 ; l < m_layerModels.size() ; ++l)
+    size_t l = 1;
+    for(auto layerIt = std::next(m_layerModels.begin()) ; layerIt != m_layerModels.end() ; ++layerIt, ++l)
     {
-        for(size_t x = 0 ; x < m_terrainSize.x ; ++x)
-            std::cout<<m_generatingGrid[y * m_terrainSize.x + x];
-        std::cout<<std::endl;
-    }*/
+        float spawnSparsity = (*layerIt)->getSpawnPointSparsity();
+        for(auto y = 0 ; y < m_gridSize.y ; y += spawnSparsity)
+        for(auto x = 0 ; x < m_gridSize.x ; x += spawnSparsity)
+            this->spawnLayerElement(x,y,l,(*layerIt)->getSpawnProbability(), (*layerIt)->getExpandProbability());
+    }
+}
+
+void TerrainGenerator::spawnLayerElement(int x, int y, size_t layer, float spawnProbability, float expandProbability)
+{
+
+    std::stack<glm::ivec2>  spawningList,
+                            newSpawningList;
+    spawningList.push({x,y});
+
+    while(!(spawningList.empty() && newSpawningList.empty()))
+    {
+        if(spawningList.empty())
+            spawningList.swap(newSpawningList);
+
+        auto pos = spawningList.top();
+        spawningList.pop();
+
+        if(pos.x < 0 || pos.y < 0 || pos.x >= m_gridSize.x || pos.y >= m_gridSize.y)
+            continue;
+
+        if(m_generatingGrid[pos.y * m_gridSize.x + pos.x] >= layer)
+            continue;
+
+        float spawnRandValue = pou::RNGesus::uniformFloat(0,1,&m_rng);///glm::linearRand(0.0f, 1.0f);
+        if(spawnRandValue > spawnProbability)
+            continue;
+
+        spawnProbability = expandProbability; //After first try, we want to use expandProbability
+
+        m_generatingGrid[pos.y * m_gridSize.x + pos.x] = layer;
+
+        newSpawningList.push({pos.x-1, pos.y});
+        newSpawningList.push({pos.x+1, pos.y});
+        newSpawningList.push({pos.x, pos.y-1});
+        newSpawningList.push({pos.x, pos.y+1});
+    }
+
+    /*
+    if(m_generatingGrid[y * m_gridSize.x + x] >= layer)
+        return;
+
+    float spawnRandValue = glm::linearRand(0.0f, 1.0f);
+    if(spawnRandValue > spawnProbability)
+        return;
+
+    m_generatingGrid[y * m_gridSize.x + x] = layer;
+
+    int xp = x;
+    int yp = y;
+
+    xp = x-1;
+    if(xp >= 0 && m_generatingGrid[yp * m_gridSize.x + xp] < layer)
+        this->spawnLayerElement(xp, yp, layer, expandProbability, expandProbability);
+
+    xp = x+1;
+    if(xp < m_gridSize.x && m_generatingGrid[yp * m_gridSize.x + xp] < layer)
+        this->spawnLayerElement(xp, yp, layer, expandProbability, expandProbability);
+
+    xp = x;
+    yp = y-1;
+    if(yp >= 0 && m_generatingGrid[yp * m_gridSize.x + xp] < layer)
+        this->spawnLayerElement(xp, yp, layer, expandProbability, expandProbability);
+
+    yp = y+1;
+    if(yp < m_gridSize.y && m_generatingGrid[yp * m_gridSize.x + xp] < layer)
+        this->spawnLayerElement(xp, yp, layer, expandProbability, expandProbability);*/
 }
 
 void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent)
 {
     auto layerModelIt = m_layerModels.begin();
-    for(auto l = 0 ; l < m_nbrLayers ; ++l, ++layerModelIt)
+    for(size_t l = 0 ; l < m_layerModels.size() ; ++l, ++layerModelIt)
     {
         if(this->getGridValue(x,    y)      < l
         && this->getGridValue(x+1,  y)      < l
@@ -318,42 +179,17 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
             this->getGridValue(x+1,  y+1)   >= l
         };
 
-        //int boolGridValue = (((int)boolGrid)<<3) | (((int)boolGrid)<<2)| (((int)boolGrid)<<1) | ((int)boolGrid);
         int boolGridValue = (boolGrid[0]<<3) | (boolGrid[1]<<2)| (boolGrid[2]<<1) | boolGrid[3];
-        this->generateSprite(&layerModelIt->elements[boolGridValue], targetNode, syncComponent);
+
+        auto sprite = (*layerModelIt)->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
+        if(sprite)
+        {
+            targetNode->attachObject(sprite);
+            if(syncComponent)
+                syncComponent->syncElement(sprite);
+        }
     }
 }
 
-void TerrainGenerator::generateSprite(std::list<TerrainGenerator_LayerModelElement> *listModel,
-                    std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent)
-{
-    if(listModel->empty())
-        return;
-
-    ///This is super inefficient, please change this ASAP
-    float totalProbability = 0;
-    for(auto &element : *listModel)
-        totalProbability += element.probability;
-
-    float randValue = glm::linearRand(0.0f, totalProbability);
-    float curProb = 0;
-
-    auto elementIt = listModel->begin();
-    while(true)
-    {
-        curProb += elementIt->probability;
-        if(curProb >= randValue)
-            break;
-        ++elementIt;
-    }
-
-    if(elementIt != listModel->end())
-    {
-        auto copySprite = elementIt->sprite->createCopy();
-        targetNode->attachObject(copySprite);
-        if(syncComponent)
-            syncComponent->syncElement(std::dynamic_pointer_cast<WorldSprite>(copySprite));
-    }
-}
 
 

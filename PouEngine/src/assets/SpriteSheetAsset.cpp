@@ -256,9 +256,14 @@ SpriteModel* SpriteSheetAsset::getSpriteModel(const std::string &spriteName)
 {
     auto founded = m_spritesIdByName.find(spriteName);
     if(founded == m_spritesIdByName.end())
+    {
+        pou::Logger::warning("Sprite named \""+spriteName+"\" not found in spritesheet:"+m_filePath);
         return (nullptr);
+    }
 
     return this->getSpriteModel(founded->second);
+
+
     /*auto spriteModel = m_sprites.find(spriteName);
 
     if(spriteModel == m_sprites.end())

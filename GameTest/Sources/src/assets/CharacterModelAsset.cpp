@@ -580,9 +580,9 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
                 {
                     auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
                     m_limbs.push_back({std::string(nodeAtt), state, spriteModel, nullptr, nullptr});
-                    if(spriteModel == nullptr)
+                    /*if(spriteModel == nullptr)
                         pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
-                                        +std::string(spriteSheetAtt)+"\"");
+                                        +std::string(spriteSheetAtt)+"\"");*/
 
                 } else
                     pou::Logger::warning("Spritesheet named \""+std::string(spriteSheetAtt)+"\" not found");

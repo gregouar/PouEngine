@@ -192,6 +192,8 @@ std::array<VkVertexInputAttributeDescription, 12> SpriteDatum::getAttributeDescr
 SpriteEntity::SpriteEntity() :
     m_spriteModel(nullptr),
     m_rotation(0.0f),
+    m_flipX(false),
+    m_flipY(false),
     m_color(1.0,1.0,1.0,1.0),
     m_rme(1.0,1.0,1.0),
     m_ordering(NOT_ORDERED),
@@ -231,6 +233,11 @@ void SpriteEntity::setRotation(float rotation, bool inRadians)
     }
 }
 
+void SpriteEntity::setFlip(bool x, bool y)
+{
+    m_flipX = x;
+    m_flipY = y;
+}
 
 void SpriteEntity::setColor(Color color)
 {
@@ -520,10 +527,16 @@ void SpriteEntity::updateDatum()
         modelMat = glm::translate(modelMat, m_parentNode->getGlobalPosition());
 
     modelMat = glm::rotate(modelMat, m_rotation, glm::vec3(0.0,0.0,1.0));
-    modelMat = glm::translate(modelMat, glm::vec3(-m_spriteModel->getCenter(),0.0));
-    modelMat = glm::scale(modelMat, {m_spriteModel->getSize().x,
-                                     m_spriteModel->getSize().y,
+    modelMat = glm::scale(modelMat, {(m_flipX ? -1 : 1),
+                                     (m_flipY ? -1 : 1),
                                      1.0});
+    modelMat = glm::translate(modelMat, glm::vec3(-m_spriteModel->getCenter(),0.0));
+    modelMat = glm::scale(modelMat, {m_spriteModel->getSize().x, // * (m_flipX ? -1 : 1),
+                                     m_spriteModel->getSize().y, // * (m_flipY ? -1 : 1),
+                                     1.0});
+    /*modelMat = glm::scale(modelMat, {m_spriteModel->getSize().x * (m_flipX ? -1 : 1),
+                                     m_spriteModel->getSize().y * (m_flipY ? -1 : 1),
+                                     1.0});*/
 
     m_datum.modelMat0 = modelMat[0];
     m_datum.modelMat1 = modelMat[1];
@@ -542,6 +555,7 @@ void SpriteEntity::updateDatum()
 void SpriteEntity::copyTo(SpriteEntity *target)
 {
     target->setRotation(m_rotation);
+    target->setFlip(m_flipX, m_flipY);
     target->setColor(m_color);
     target->setRme(m_rme);
     target->setOrdering(m_ordering);

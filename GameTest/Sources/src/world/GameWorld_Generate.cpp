@@ -131,8 +131,13 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(grassNode);
     }*/
 
+
+    ///Store this and share with clients !
+    auto terrainSeed = pou::RNGesus::rand();
+    std::cout<<"TERRAIN SEED:"<<terrainSeed<<std::endl;
+
     TerrainGenerator terrainGenerator;
-    terrainGenerator.generatorOnNode(m_worldGrid, &m_syncComponent);
+    terrainGenerator.generatorOnNode(m_worldGrid, terrainSeed, &m_syncComponent);
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);

@@ -389,6 +389,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/tools/MathTools.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Parser.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/Profiler.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/tools/RNGesus.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/tools/TexturesPacker.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/RenderableUiElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/ui/UiButton.h" />
@@ -677,6 +678,7 @@
 		<Unit filename="../../PouEngine/src/tools/MathTools.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Parser.cpp" />
 		<Unit filename="../../PouEngine/src/tools/Profiler.cpp" />
+		<Unit filename="../../PouEngine/src/tools/RNGesus.cpp" />
 		<Unit filename="../../PouEngine/src/tools/TexturesPacker.cpp" />
 		<Unit filename="../../PouEngine/src/ui/RenderableUiElement.cpp" />
 		<Unit filename="../../PouEngine/src/ui/UiButton.cpp" />
@@ -710,6 +712,7 @@
 		<Unit filename="include/assets/CharacterModelAsset.h" />
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/assets/PrefabAsset.h" />
+		<Unit filename="include/assets/TerrainLayerModelAsset.h" />
 		<Unit filename="include/character/Character.h" />
 		<Unit filename="include/character/CharacterInput.h" />
 		<Unit filename="include/character/CharacterState.h" />
@@ -717,6 +720,7 @@
 		<Unit filename="include/character/Player.h" />
 		<Unit filename="include/character/PlayerSave.h" />
 		<Unit filename="include/generators/TerrainGenerator.h" />
+		<Unit filename="include/generators/TerrainGenerator_TileModels.h" />
 		<Unit filename="include/logic/GameData.h" />
 		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
@@ -745,6 +749,7 @@
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
 		<Unit filename="src/assets/PrefabAsset.cpp" />
+		<Unit filename="src/assets/TerrainLayerModelAsset.cpp" />
 		<Unit filename="src/character/Character.cpp" />
 		<Unit filename="src/character/CharacterInput.cpp" />
 		<Unit filename="src/character/CharacterState.cpp" />
@@ -752,6 +757,7 @@
 		<Unit filename="src/character/Player.cpp" />
 		<Unit filename="src/character/PlayerSave.cpp" />
 		<Unit filename="src/generators/TerrainGenerator.cpp" />
+		<Unit filename="src/generators/TerrainGenerator_TileModels.cpp" />
 		<Unit filename="src/logic/GameData.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />

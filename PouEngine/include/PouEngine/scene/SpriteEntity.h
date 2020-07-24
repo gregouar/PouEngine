@@ -72,6 +72,7 @@ class SpriteEntity : public ShadowCaster
         void rotate(float rotation);
 
         void setRotation(float rotation, bool inRadians = true);
+        void setFlip(bool x, bool y);
         void setColor(Color color);
         void setRme(glm::vec3 rme);
         virtual bool setSpriteModel(SpriteModel* model);
@@ -115,6 +116,7 @@ class SpriteEntity : public ShadowCaster
 
     private:
         float       m_rotation;
+        bool        m_flipX, m_flipY;
         glm::vec4   m_color;
         glm::vec3   m_rme;
         SpriteOrdering  m_ordering;
