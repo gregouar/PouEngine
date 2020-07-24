@@ -15,6 +15,12 @@ WorldSprite::~WorldSprite()
     //dtor
 }
 
+std::shared_ptr<pou::SceneObject> WorldSprite::createCopy()
+{
+    auto newObject = std::make_shared<WorldSprite>();
+    this->copyTo(newObject.get());
+    return newObject;
+}
 
 void WorldSprite::update(const pou::Time &elapsedTime, uint32_t localTime)
 {

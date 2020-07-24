@@ -2,6 +2,8 @@
 
 #include "world/GameWorld.h"
 
+#include "PouEngine/system/Clock.h"
+
 AiComponent::AiComponent(Character *character) :
     m_character(character),
     m_target(nullptr),

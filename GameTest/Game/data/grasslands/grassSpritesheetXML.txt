@@ -22,33 +22,70 @@
 		<size 	x=32 y=32 />
 		<position 	x=128 y=0 />
 	</sprite>
-	<sprite name="grass1_5" castShadow=1>
-		<size 	x=32 y=32 />
-		<position 	x=160 y=0 />
+	
+	
+	<sprite name="dirt1_1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=0 y=64 />
+	</sprite>
+	<sprite name="dirt1_2" castShadow=1>
+		<size x=32 y=32 />
+		<position x=32 y=64 />
+	</sprite>
+	<sprite name="dirt1_3" castShadow=1>
+		<size x=32 y=32 />
+		<position x=64 y=64 />
+	</sprite>
+	<sprite name="dirt1_4" castShadow=1>
+		<size x=32 y=32 />
+		<position x=96 y=64 />
 	</sprite>
 	
 	
 	
-	<sprite name="grass2_1">
-		<size 	x=32 y=32 />
-		<position 	x=0 y=32 />
+	<sprite name="grass1_bottom1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=0 y=128 />
+	</sprite>
+	<sprite name="grass1_bottom2" castShadow=1>
+		<size x=32 y=32 />
+		<position x=32 y=128 />
+	</sprite>
+	<sprite name="grass1_bigcorner1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=64 y=128 />
+	</sprite>
+	<sprite name="grass1_bigcorner2" castShadow=1>
+		<size x=32 y=32 />
+		<position x=96 y=128 />
+	</sprite>
+	<sprite name="grass1_smallcorner1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=128 y=128 />
+	</sprite>
+	<sprite name="grass1_diag1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=160 y=128 />
 	</sprite>
 	
-	<sprite name="grass2_2">
-		<size 	x=32 y=32 />
-		<position 	x=32 y=32 />
+	
+	
+	<sprite name="dirt2_1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=32 y=96 />
 	</sprite>
-	<sprite name="grass2_3">
-		<size 	x=32 y=32 />
-		<position 	x=64 y=32 />
+	<sprite name="dirt2_2" castShadow=1>
+		<size x=32 y=32 />
+		<position x=64 y=96 />
 	</sprite>
-	<sprite name="grass2_4">
-		<size 	x=32 y=32 />
-		<position 	x=96 y=32 />
+	<sprite name="dirt2_3" castShadow=1>
+		<size x=32 y=32 />
+		<position x=96 y=96 />
 	</sprite>
-	<sprite name="grass2_5">
-		<size 	x=32 y=32 />
-		<position 	x=128 y=32 />
+	<sprite name="dirt2_4" castShadow=1>
+		<size x=32 y=32 />
+		<position x=128 y=96 />
 	</sprite>
+
 	
 </spritesheet>

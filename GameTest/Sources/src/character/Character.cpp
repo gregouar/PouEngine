@@ -232,7 +232,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
 
     ///m_node->attachObject(this);
     ///m_node->setSyncReconciliationPrecision(glm::vec3(32));
-    m_syncPosition.setReconciliationPrecision(glm::vec3(32));
+    m_syncPosition.setReconciliationPrecision(glm::vec3(4));
     m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
     m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
 
@@ -496,7 +496,7 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
 
     if(att.life <= 0 && !m_disableDeath)
         isFatal = this->kill(damages);
-    else
+    else //if(!onlyCosmetic)
     {
         if(!m_modelAttributes.getValue().immovable)
         if(direction != glm::vec2(0) && damages >= m_modelAttributes.getValue().maxLife*.25)

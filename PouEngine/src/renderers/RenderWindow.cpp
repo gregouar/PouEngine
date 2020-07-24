@@ -89,6 +89,7 @@ void RenderWindow::resize()
 
 void RenderWindow::takeScreenshot(const std::string &filepath)
 {
+    VInstance::waitDeviceIdle();
     VulkanHelpers::takeScreenshot(this->getSwapchainAttachments()[this->getFrameIndex()], filepath);
 }
 

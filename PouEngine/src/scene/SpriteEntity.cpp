@@ -209,13 +209,7 @@ SpriteEntity::~SpriteEntity()
 std::shared_ptr<SceneObject> SpriteEntity::createCopy()
 {
     auto newObject = std::make_shared<SpriteEntity>();
-    newObject->setRotation(m_rotation);
-    newObject->setColor(m_color);
-    newObject->setRme(m_rme);
-    newObject->setOrdering(m_ordering);
-    newObject->setInheritRotation(m_inheritRotation);
-    newObject->setSpriteModel(m_spriteModel);
-    newObject->setShadowCastingType(m_shadowCastingType);
+    this->copyTo(newObject.get());
     return newObject;
 }
 
@@ -224,8 +218,11 @@ void SpriteEntity::rotate(float rotation)
     this->setRotation(this->getRotation() + rotation);
 }
 
-void SpriteEntity::setRotation(float rotation)
+void SpriteEntity::setRotation(float rotation, bool inRadians)
 {
+    if(!inRadians)
+        rotation = rotation*glm::pi<float>()/180.0;
+
     if(m_rotation != rotation)
     {
         m_rotation = rotation;
@@ -540,6 +537,19 @@ void SpriteEntity::updateDatum()
     /*m_shadowDatum.texPos    = m_datum.texPos;
     m_shadowDatum.texExtent = m_datum.texExtent;*/
 }
+
+
+void SpriteEntity::copyTo(SpriteEntity *target)
+{
+    target->setRotation(m_rotation);
+    target->setColor(m_color);
+    target->setRme(m_rme);
+    target->setOrdering(m_ordering);
+    target->setInheritRotation(m_inheritRotation);
+    target->setSpriteModel(m_spriteModel);
+    target->setShadowCastingType(m_shadowCastingType);
+}
+
 
 
 

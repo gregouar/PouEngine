@@ -549,6 +549,7 @@ void VulkanHelpers::takeScreenshot(const VFramebufferAttachment &source, const s
 
     // Map image memory so we can start copying from it
     char* data;
+    ///vkMapMemory(VInstance::device(), dstImage.memory.vkMemory, 0, VK_WHOLE_SIZE, 0, (void**)&data);
     vkMapMemory(VInstance::device(), dstImage.memory.vkMemory, dstImage.memory.offset, dstImage.memory.memRequirements.size, 0, (void**)&data);
     data += subResourceLayout.offset;
 

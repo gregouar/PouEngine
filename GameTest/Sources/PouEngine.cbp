@@ -39,6 +39,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -73,6 +74,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -112,6 +114,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -148,6 +151,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -186,6 +190,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -224,6 +229,7 @@
 					<Add directory="PouEngine/include/PouEngine/text" />
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -257,6 +263,7 @@
 					<Add directory="PouEngine/include/PouEngine/scene" />
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="GameTest/Sources/include/ai" />
+					<Add directory="GameTest/Sources/include/generators" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -709,6 +716,7 @@
 		<Unit filename="include/character/Hitbox.h" />
 		<Unit filename="include/character/Player.h" />
 		<Unit filename="include/character/PlayerSave.h" />
+		<Unit filename="include/generators/TerrainGenerator.h" />
 		<Unit filename="include/logic/GameData.h" />
 		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
@@ -743,6 +751,7 @@
 		<Unit filename="src/character/Hitbox.cpp" />
 		<Unit filename="src/character/Player.cpp" />
 		<Unit filename="src/character/PlayerSave.cpp" />
+		<Unit filename="src/generators/TerrainGenerator.cpp" />
 		<Unit filename="src/logic/GameData.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />

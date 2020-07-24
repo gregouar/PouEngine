@@ -12,6 +12,9 @@ class WorldSprite : public pou::SpriteEntity
         WorldSprite();
         virtual ~WorldSprite();
 
+        ///Should implement also copyFrom (and use it)
+        virtual std::shared_ptr<pou::SceneObject> createCopy();
+
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         virtual bool syncFrom(WorldSprite* srcSprite);
 

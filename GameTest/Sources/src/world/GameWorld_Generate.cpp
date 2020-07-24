@@ -16,6 +16,8 @@
 #include "world/WorldMesh.h"
 #include "assets/PrefabAsset.h"
 
+#include "generators/TerrainGenerator.h"
+
 
 void GameWorld::init()
 {
@@ -51,17 +53,17 @@ void GameWorld::generateImpl()
 {
     pou::Logger::write("Generating world...");
 
-    m_dayTime = glm::linearRand(0,360);
+    m_dayTime = 200; //glm::linearRand(0,360);
 
     auto loadType = pou::LoadType_Now;
 
-    auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt",loadType);
-    m_syncComponent.syncElement(grassSheet);
+    //auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt",loadType);
+    //m_syncComponent.syncElement(grassSheet);
 
     auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt",loadType);
     m_syncComponent.syncElement(rockSheet);
 
-    for(auto x = -100 ; x < 100 ; x++)
+    /*for(auto x = -100 ; x < 100 ; x++)
     for(auto y = -100 ; y < 100 ; y++)
     {
         ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
@@ -71,28 +73,66 @@ void GameWorld::generateImpl()
 
         auto spriteEntity = std::make_shared<WorldSprite>();
 
-        int rd = x+y;//glm::linearRand(0,96);
-        int modulo = 4;
-        if(abs(rd % modulo) == 0)
-            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
-        else if(abs(rd % modulo) == 1)
-            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
-        else if(abs(rd % modulo) == 2)
-            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
-        else if(abs(rd % modulo) == 3)
-            spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
+        //int rd = glm::linearRand(0,96);
+        int rd = x+y;
+
+        if(y < 2)
+        {
+            int modulo = 4;
+            if(abs(rd % modulo) == 0)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
+            else if(abs(rd % modulo) == 1)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
+            else if(abs(rd % modulo) == 2)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
+            else if(abs(rd % modulo) == 3)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
+        }
+        else
+        {
+            int modulo = 3;
+            if(abs(rd % modulo) == 0)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_2"));
+            else if(abs(rd % modulo) == 1)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_3"));
+            else if(abs(rd % modulo) == 2)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_4"));
+            else if(abs(rd % modulo) == 3)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt2_1"));
+        }
+
+
 
         grassNode->attachObject(spriteEntity);
         m_syncComponent.syncElement(spriteEntity);
 
-        grassNode->setPosition({x*64,y*64,0});
+        if(y == 2)
+        {
+            spriteEntity = std::make_shared<WorldSprite>();
+            int modulo = 2;
+            if(abs(rd % modulo) == 0)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom1"));
+            else if(abs(rd % modulo) == 1)
+                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom2"));
+            grassNode->attachObject(spriteEntity);
+            m_syncComponent.syncElement(spriteEntity);
+        }
+
         grassNode->setScale(glm::vec3(
                                 glm::linearRand(0,10) > 5 ? 1 : -1,
                                 1,//glm::linearRand(0,10) > 5 ? 1 : -1,
                                 1));
+        if(y > 2)
+            grassNode->scale(glm::vec3(1,glm::linearRand(0,10) > 5 ? 1 : -1,1));
+
+
+        grassNode->setPosition({x*64,y*64,0});
 
         m_worldGrid->addChildNode(grassNode);
-    }
+    }*/
+
+    TerrainGenerator terrainGenerator;
+    terrainGenerator.generatorOnNode(m_worldGrid, &m_syncComponent);
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);

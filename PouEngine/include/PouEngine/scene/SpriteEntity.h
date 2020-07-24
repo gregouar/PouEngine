@@ -66,11 +66,12 @@ class SpriteEntity : public ShadowCaster
         SpriteEntity();
         virtual ~SpriteEntity();
 
+        ///Should implement also copyFrom (and use it)
         virtual std::shared_ptr<SceneObject> createCopy();
 
         void rotate(float rotation);
 
-        void setRotation(float rotation);
+        void setRotation(float rotation, bool inRadians = true);
         void setColor(Color color);
         void setRme(glm::vec3 rme);
         virtual bool setSpriteModel(SpriteModel* model);
@@ -102,6 +103,8 @@ class SpriteEntity : public ShadowCaster
         void cleanup();
         void updateDatum();
         glm::vec2 generateShadowDatum(glm::vec3 direction);
+
+        void copyTo(SpriteEntity *target);
 
     protected:
         SpriteDatum          m_datum;
