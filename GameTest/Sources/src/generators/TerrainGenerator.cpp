@@ -51,6 +51,13 @@ void TerrainGenerator::generatesOnNode(std::shared_ptr<WorldNode> targetNode, in
     m_rng.seed(seed);
 
     this->generateGrid();
+    //this->printGrid();
+    this->decreasesGridNoise();
+    this->decreasesGridNoise();
+    //this->decreasesGridNoise();
+    //this->printGrid();
+    /*this->decreasesGridNoise();
+    this->printGrid();*/
 
     /**if(syncComponent)
     for(auto &layerModel : m_layerModels)
@@ -66,7 +73,6 @@ void TerrainGenerator::generatesOnNode(std::shared_ptr<WorldNode> targetNode, in
         tileNode->move(-centeringShift);
         this->generateSprites(x, y, tileNode, syncComponent);
 
-        ///I should not sync all nodes... but use a random seed to share.
         //if(syncComponent)
           //  syncComponent->syncElement(tileNode);
 
@@ -167,7 +173,7 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     else
         groundLayer->depth = 0;
 
-
+    groundLayer->spawnPointSparsity = 1;
     att = element->Attribute("spawnSparsity");
     if(att)
         groundLayer->spawnPointSparsity = pou::Parser::parseInt(std::string(att));
@@ -214,7 +220,29 @@ size_t TerrainGenerator::getGridDepth(int x, int y)
     return m_generatingGrid[y * m_gridSize.x + x]->depth;
 }
 
-bool TerrainGenerator::lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer)
+
+std::pair<bool, bool> TerrainGenerator::lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer)
+{
+    auto gridValue = this->getGridValue(x,y);
+   // if(gridValue == lookedLayer)
+     //   return {true, true};
+
+    bool occluded = false;
+
+    while(gridValue /*&& !gridValue->occulting*/)
+    {
+        if(gridValue == lookedLayer)
+            return {!occluded, true};
+
+        if(gridValue->occulting)
+            occluded = true;
+
+        gridValue = gridValue->parentLayer;
+    }
+    return {false, false};
+}
+
+/*bool TerrainGenerator::lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer)
 {
     auto gridValue = this->getGridValue(x,y);
     if(gridValue == layer)
@@ -227,6 +255,23 @@ bool TerrainGenerator::lookForNonOccludedLayer(int x, int y, TerrainGenerator_Gr
             return (true);
     }
     return (false);
+}*/
+
+
+void TerrainGenerator::printGrid()
+{
+    for(auto y = 0 ; y < m_gridSize.y ; ++y)
+    {
+        for(auto x = 0 ; x < m_gridSize.x ; ++x)
+        {
+            if(m_generatingGrid[y * m_gridSize.x + x])
+                std::cout<<m_generatingGrid[y * m_gridSize.x + x]->depth;
+            else
+                std::cout<<"#";
+        }
+        std::cout<<std::endl;
+    }
+    std::cout<<std::endl;
 }
 
 void TerrainGenerator::generateGrid()
@@ -263,6 +308,60 @@ void TerrainGenerator::generateGrid()
     }**/
 }
 
+void TerrainGenerator::decreasesGridNoise()
+{
+    std::vector<TerrainGenerator_GroundLayer*> newGrid;
+    newGrid.resize(m_generatingGrid.size(), nullptr);
+
+    ///NEED TO OPTIMIZE
+    for(auto y = 1 ; y < m_gridSize.y-1 ; ++y)
+    for(auto x = 1 ; x < m_gridSize.x-1 ; ++x)
+    {
+        std::map<TerrainGenerator_GroundLayer*, int> layerTypes;
+
+        for(auto xp = x - 1 ; xp <= x + 1 ; ++xp)
+        for(auto yp = y - 1 ; yp <= y + 1 ; ++yp)
+        {
+            auto oldGridValue = m_generatingGrid[yp * m_gridSize.x + xp];
+
+            while(oldGridValue)
+            {
+                auto layerTypesIt = layerTypes.lower_bound(oldGridValue);
+                if(layerTypesIt != layerTypes.end() && layerTypesIt->first == oldGridValue) //!(layerTypes.key_comp()(oldGridValue, layerTypesIt->first)))
+                    layerTypesIt->second++;
+                else
+                    layerTypes.insert(layerTypesIt, {oldGridValue, 1});
+
+                oldGridValue = oldGridValue->parentLayer;
+            }
+        }
+
+        //int maxAmout = 0;
+        size_t maxDepth = 0;
+        TerrainGenerator_GroundLayer* maxGroundLayer = nullptr;
+
+        for(auto it : layerTypes)
+        {
+            if(it.first)
+            if(it.second >= 5 && it.first->depth >= maxDepth)
+            {
+                maxDepth = it.first->depth;
+                maxGroundLayer = it.first;
+            }
+
+            /*if(it.second > maxAmout)
+            {
+                maxAmout = it.second;
+                maxGroundLayer = it.first;
+            }*/
+        }
+
+        newGrid[y * m_gridSize.x + x] = maxGroundLayer;
+    }
+
+
+    newGrid.swap(m_generatingGrid);
+}
 
 void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer)
 {
@@ -342,11 +441,11 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
     {
         auto layerDepth = groundLayer.depth;
 
-        if(this->getGridDepth(x,    y)      < layerDepth
+        /*if(this->getGridDepth(x,    y)      < layerDepth
         && this->getGridDepth(x+1,  y)      < layerDepth
         && this->getGridDepth(x,    y+1)    < layerDepth
         && this->getGridDepth(x+1,  y+1)    < layerDepth)
-            break;
+            break;*/
 
         /*if(this->getGridDepth(x,    y)      > layerDepth
         && this->getGridDepth(x+1,  y)      > layerDepth
@@ -367,7 +466,29 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
             (this->getGridDepth(x+1,  y+1)   > layerDepth) | (this->getGridValue(x+1, y+1) == &groundLayer)
         };*/
 
-         bool boolGrid[4] = {
+        bool isPresent[4], isNotOccluded[4];
+
+        auto result = this->lookForParentLayer(x,y,&groundLayer);
+        isNotOccluded[0]    = result.first;
+        isPresent[0]        = result.second;
+
+        result = this->lookForParentLayer(x+1,y,&groundLayer);
+        isNotOccluded[1]    = result.first;
+        isPresent[1]        = result.second;
+
+        result = this->lookForParentLayer(x,y+1,&groundLayer);
+        isNotOccluded[2]    = result.first;
+        isPresent[2]        = result.second;
+
+        result = this->lookForParentLayer(x+1,y+1,&groundLayer);
+        isNotOccluded[3]    = result.first;
+        isPresent[3]        = result.second;
+
+        if(!isNotOccluded[0] && !isNotOccluded[1] && !isNotOccluded[2] && !isNotOccluded[3])
+            continue;
+
+
+        /* bool boolGrid[4] = {
              (this->getGridDepth(x,    y)     > layerDepth) | this->lookForNonOccludedLayer(x,   y,  &groundLayer),
              (this->getGridDepth(x+1,  y)     > layerDepth) | this->lookForNonOccludedLayer(x+1, y,  &groundLayer),
              (this->getGridDepth(x,    y+1)   > layerDepth) | this->lookForNonOccludedLayer(x,   y+1,&groundLayer),
@@ -375,6 +496,9 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
          };
 
         int boolGridValue = (boolGrid[0]<<3) | (boolGrid[1]<<2)| (boolGrid[2]<<1) | boolGrid[3];
+        */
+
+        int boolGridValue = (isPresent[0]<<3) | (isPresent[1]<<2)| (isPresent[2]<<1) | isPresent[3];
 
         auto sprite = groundLayer.layerModel->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
         if(sprite)

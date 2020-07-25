@@ -4,6 +4,7 @@
 #include "PouEngine/types.h"
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Profiler.h"
+#include "PouEngine/tools/RNGesus.h"
 
 #include "net/GameClient.h"
 
@@ -268,7 +269,7 @@ void GameServer::sendMsgTest(bool reliable, bool forceSend)
         if(m_server->isClientConnected(i))
         {
             auto testMsg = std::dynamic_pointer_cast<NetMessage_Test>(pou::NetEngine::createNetMessage(NetMessageType_Test));//std::make_shared<ReliableMessage_test> ();
-            testMsg->test_value = glm::linearRand(0,100);
+            testMsg->test_value = pou::RNGesus::uniformInt(0,100);
             testMsg->isReliable = reliable;
 
             m_server->sendMessage(i,testMsg, forceSend);

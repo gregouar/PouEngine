@@ -6,7 +6,6 @@
 
 #include "net/NetMessageTypes.h"
 
-#include "states/TestingState.h"
 #include "states/ServerTestingState.h"
 #include "states/ClientTestingState.h"
 #include "states/PlayerServerTestingState.h"
@@ -18,15 +17,6 @@ int main()
 
     try {
         pou::VAppCreateInfos createInfos;
-
-        bool testingState = false;
-
-        if(testingState)
-        {
-            createInfos.name = "ProjectW";
-            pou::VApp app(createInfos);
-            app.run(TestingState::instance());
-        } else {
 
         #ifdef CLIENTONLY
             createInfos.name = "ProjectW - client";
@@ -48,7 +38,6 @@ int main()
             //app.run(ClientTestingState::instance());
         #endif
 
-        }
     } catch (const std::exception& e) {
         pou::Logger::fatalError(e.what());
         return EXIT_FAILURE;

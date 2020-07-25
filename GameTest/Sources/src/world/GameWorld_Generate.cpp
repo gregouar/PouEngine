@@ -51,103 +51,27 @@ void GameWorld::generateImpl()
 {
     pou::Logger::write("Generating world...");
 
-    m_dayTime = 200; //glm::linearRand(0,360);
+    m_dayTime = pou::RNGesus::uniformInt(0,360);
 
     auto loadType = pou::LoadType_Now;
 
-    //auto *grassSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/grassSpritesheetXML.txt",loadType);
-    //m_syncComponent.syncElement(grassSheet);
-
-    auto *rockSheet = pou::SpriteSheetsHandler::loadAssetFromFile("../data/grasslands/rocksSpritesheetXML.txt",loadType);
-    m_syncComponent.syncElement(rockSheet);
-
-    /*for(auto x = -100 ; x < 100 ; x++)
-    for(auto y = -100 ; y < 100 ; y++)
-    {
-        ///auto grassNode = m_scene->getRootNode()->createChildNode(x*64,y*64);
-        //auto grassNode = m_worldGrid->createChildNode(x*64,y*64);
-        auto grassNode = std::make_shared<WorldNode>();
-        m_syncComponent.syncElement(grassNode);
-
-        auto spriteEntity = std::make_shared<WorldSprite>();
-
-        //int rd = glm::linearRand(0,96);
-        int rd = x+y;
-
-        if(y < 2)
-        {
-            int modulo = 4;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_2"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_1"));
-            else if(abs(rd % modulo) == 2)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_3"));
-            else if(abs(rd % modulo) == 3)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_4"));
-        }
-        else
-        {
-            int modulo = 3;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_2"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_3"));
-            else if(abs(rd % modulo) == 2)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt1_4"));
-            else if(abs(rd % modulo) == 3)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("dirt2_1"));
-        }
-
-
-
-        grassNode->attachObject(spriteEntity);
-        m_syncComponent.syncElement(spriteEntity);
-
-        if(y == 2)
-        {
-            spriteEntity = std::make_shared<WorldSprite>();
-            int modulo = 2;
-            if(abs(rd % modulo) == 0)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom1"));
-            else if(abs(rd % modulo) == 1)
-                spriteEntity->setSpriteModel(grassSheet->getSpriteModel("grass1_bottom2"));
-            grassNode->attachObject(spriteEntity);
-            m_syncComponent.syncElement(spriteEntity);
-        }
-
-        grassNode->setScale(glm::vec3(
-                                glm::linearRand(0,10) > 5 ? 1 : -1,
-                                1,//glm::linearRand(0,10) > 5 ? 1 : -1,
-                                1));
-        if(y > 2)
-            grassNode->scale(glm::vec3(1,glm::linearRand(0,10) > 5 ? 1 : -1,1));
-
-
-        grassNode->setPosition({x*64,y*64,0});
-
-        m_worldGrid->addChildNode(grassNode);
-    }*/
-
-
-    ///Store this and share with clients !
     auto terrainSeed = pou::RNGesus::rand();
-    //TerrainGenerator terrainGenerator;
     m_terrainGenerator.loadFromFile("../data/grasslands/grasslandsTerrainGenerationXML.txt");
     m_terrainGenerator.generatesOnNode(m_worldGrid, terrainSeed, &m_syncComponent);
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
 
+    /** generate tree using terrain grid ! **/
 
     for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     //for(auto x = -1 ; x < 0 ; x++)
     //for(auto y = -1 ; y < 0 ; y++)
     {
-        glm::vec3 p = glm::vec3(glm::linearRand(-640.0f,640.0f),
-                                glm::linearRand(-640.0f,640.0f),
-                                glm::linearRand(0.0f,0.1f));
+        glm::vec3 p = glm::vec3(pou::RNGesus::uniformFloat(-640.0f,640.0f),
+                                pou::RNGesus::uniformFloat(-640.0f,640.0f),
+                                pou::RNGesus::uniformFloat(0.0f,0.1f));
 
         p += glm::vec3(x*640, y*640,0);
 
@@ -155,14 +79,14 @@ void GameWorld::generateImpl()
 
         tree->createFromModel(treeModel);
         tree->setPosition(p);
-        tree->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
+        tree->rotate(glm::vec3(0,0,pou::RNGesus::uniformFloat(-180,180)));
         tree->scale(glm::vec3(
-                    glm::linearRand(0,10) > 5 ? 1 : -1,
-                    glm::linearRand(0,10) > 5 ? 1 : -1,
+                    pou::RNGesus::uniformFloat(0,10) > 5 ? 1 : -1,
+                    pou::RNGesus::uniformFloat(0,10) > 5 ? 1 : -1,
                     1));
-        float red = glm::linearRand(1.0,1.0);
-        float green = glm::linearRand(0.8,1.0);
-        float blue = green;//glm::linearRand(0.9,1.0);
+        float red = pou::RNGesus::uniformFloat(1.0,1.0);
+        float green = pou::RNGesus::uniformFloat(0.8,1.0);
+        float blue = green;//pou::RNGesus::uniformFloat(0.9,1.0);
         tree->setColor(glm::vec4(red,green,blue,1));
         ///m_scene->getRootNode()->addChildNode(tree);
         m_worldGrid->addChildNode(tree);
@@ -178,14 +102,14 @@ void GameWorld::generateImpl()
     //for(auto x = -1 ; x < 0 ; x++)
     //for(auto y = -1 ; y < 0 ; y++)
     {
-        glm::vec2 p = glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+        glm::vec2 p = glm::vec2(pou::RNGesus::uniformFloat(-640,640), pou::RNGesus::uniformFloat(-640,640));
 
         p += glm::vec2(x*640, y*640);
 
         auto lantern = std::make_shared<Character>();
         lantern->createFromModel(lanternModel);
         lantern->pou::SceneNode::setPosition(p);
-        lantern->rotate(glm::vec3(0,0,glm::linearRand(-180,180)));
+        lantern->rotate(glm::vec3(0,0,pou::RNGesus::uniformFloat(-180,180)));
         ///m_scene->getRootNode()->addChildNode(lantern);
         m_worldGrid->addChildNode(lantern);
 
@@ -204,7 +128,7 @@ void GameWorld::generateImpl()
 
         do
         {
-            p = pp + glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+            p = pp + glm::vec2(pou::RNGesus::uniformFloat(-640,640), pou::RNGesus::uniformFloat(-640,640));
         }while(glm::length(p) < 500.0f);
 
         //p = glm::vec2(x*300, y*300);
@@ -228,7 +152,7 @@ void GameWorld::generateImpl()
 
         do
         {
-            p = pp + glm::vec2(glm::linearRand(-640,640), glm::linearRand(-640,640));
+            p = pp + glm::vec2(pou::RNGesus::uniformFloat(-640,640), pou::RNGesus::uniformFloat(-640,640));
         }while(glm::length(p) < 500.0f);
 
         auto croco = std::make_shared<Character>();
@@ -345,7 +269,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     ///player->update(pou::Time(0), 0);
 
-    glm::vec2 pos(glm::linearRand(-200,200), glm::linearRand(-200,200));
+    glm::vec2 pos(pou::RNGesus::uniformFloat(-200,200), pou::RNGesus::uniformFloat(-200,200));
     player->pou::SceneNode::setPosition(pos);
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());

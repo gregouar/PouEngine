@@ -3,12 +3,12 @@
 #include "PouEngine/net/UdpPacketTypes.h"
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Hasher.h"
+#include "PouEngine/tools/RNGesus.h"
 
 
 #include "PouEngine/core/VApp.h"
 
 #include <vector>
-#include <glm/gtc/random.hpp>
 
 namespace pou
 {
@@ -59,7 +59,7 @@ bool UdpClient::connectToServer(const NetAddress &serverAddress)
 
     m_connectionStatus  = ConnectionStatus_Connecting;
     m_serverAddress     = serverAddress;
-    m_salt              = glm::linearRand(0, (int)pow(2,SALT_SIZE));
+    m_salt              = RNGesus::uniformInt(0, (int)pow(2,SALT_SIZE));
 
     m_connectingTimer.reset(CONNECTING_MAX_TIME);
 

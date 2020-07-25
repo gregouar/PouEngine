@@ -16,6 +16,7 @@ struct TerrainGenerator_GroundLayer
 
     bool    occulting;
     size_t  depth;
+
     int     spawnPointSparsity;
     float   spawnProbability;
     float   expandProbability;
@@ -43,9 +44,13 @@ class TerrainGenerator
 
         TerrainGenerator_GroundLayer* getGridValue(int x, int y);
         size_t getGridDepth(int x, int y);
-        bool lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer);
+        //bool lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer);
+        std::pair<bool, bool> lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer); //First is non occluded, second is potentially occluded
+
+        void printGrid();
 
         void generateGrid();
+        void decreasesGridNoise();
         //void spawnLayerElement(int x, int y, size_t layer, float spawnProbability, float expandProbability);
         void spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer);
 

@@ -732,7 +732,6 @@
 		<Unit filename="include/states/MainMenuState.h" />
 		<Unit filename="include/states/PlayerServerTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />
-		<Unit filename="include/states/TestingState.h" />
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
@@ -767,7 +766,6 @@
 		<Unit filename="src/states/MainMenuState.cpp" />
 		<Unit filename="src/states/PlayerServerTestingState.cpp" />
 		<Unit filename="src/states/ServerTestingState.cpp" />
-		<Unit filename="src/states/TestingState.cpp" />
 		<Unit filename="src/ui/GameUi.cpp" />
 		<Unit filename="src/world/GameWorld.cpp" />
 		<Unit filename="src/world/GameWorld_Generate.cpp" />

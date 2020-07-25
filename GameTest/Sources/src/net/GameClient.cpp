@@ -3,6 +3,7 @@
 #include "net/NetMessageTypes.h"
 #include "PouEngine/Types.h"
 #include "PouEngine/tools/Profiler.h"
+#include "PouEngine/tools/RNGesus.h"
 #include "PouEngine/core/MessageBus.h"
 
 #include "net/GameServer.h"
@@ -155,7 +156,7 @@ void GameClient::update(const pou::Time &elapsedTime)
 void GameClient::sendMsgTest(bool reliable, bool forceSend)
 {
     auto testMsg = std::dynamic_pointer_cast<NetMessage_Test>(pou::NetEngine::createNetMessage(NetMessageType_Test));
-    testMsg->test_value = glm::linearRand(0,100);
+    testMsg->test_value = pou::RNGesus::uniformInt(0,100);
     testMsg->isReliable = reliable;
 
     m_client->sendMessage(testMsg, forceSend);

@@ -3,11 +3,10 @@
 
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Hasher.h"
+#include "PouEngine/tools/RNGesus.h"
 #include "PouEngine/net/UdpPacketTypes.h"
 
 #include <vector>
-#include <glm/gtc/random.hpp>
-
 namespace pou
 {
 
@@ -222,7 +221,7 @@ void UdpServer::processConnectionMessages(UdpBuffer &buffer, std::list<std::pair
         m_clients[clientId].lastPingAnswerTime = m_curLocalTime;
         m_clients[clientId].lastPingTime       = m_curLocalTime;
         m_clients[clientId].clientSalt = packet.salt;
-        m_clients[clientId].serverSalt = glm::linearRand(0, (int)pow(2,SALT_SIZE));
+        m_clients[clientId].serverSalt = RNGesus::uniformInt(0, (int)pow(2,SALT_SIZE));
         m_clients[clientId].isLocalClient = false;
 
         this->challengeConnexionFrom(clientId);
