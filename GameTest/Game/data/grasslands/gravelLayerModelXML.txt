@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<groundLayer>
+	<spritesheet name="mainSpriteSheet" path="grassSpritesheetXML.txt" />
+	
+	<tileModel type="fill">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="gravel1_fill1" allowRandomFlipX=1 allowRandomFlipY=1 />
+	</tileModel>
+</groundLayer>

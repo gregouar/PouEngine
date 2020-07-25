@@ -35,6 +35,9 @@ void NetMessage_WorldInit::serializeImpl(pou::Stream *stream)
     stream->serializeBits(world_id, 8);
     stream->serializeInt(player_id, 0, GameWorld::MAX_NBR_PLAYERS);
     stream->serializeInt(dayTime, 0, 360);
+
+    stream->serializeString(terrainGeneratorModel);
+    stream->serializeBits(terrainGeneratorSeed, 32);
     ///stream->serializeBits(worldGrid_nodeId, GameWorld::NODEID_BITS);
 
     NetMessage_WorldSync::serializeImpl(stream);

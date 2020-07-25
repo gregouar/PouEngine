@@ -16,8 +16,6 @@
 #include "world/WorldMesh.h"
 #include "assets/PrefabAsset.h"
 
-#include "generators/TerrainGenerator.h"
-
 
 void GameWorld::init()
 {
@@ -134,10 +132,9 @@ void GameWorld::generateImpl()
 
     ///Store this and share with clients !
     auto terrainSeed = pou::RNGesus::rand();
-    std::cout<<"TERRAIN SEED:"<<terrainSeed<<std::endl;
-
-    TerrainGenerator terrainGenerator;
-    terrainGenerator.generatorOnNode(m_worldGrid, terrainSeed, &m_syncComponent);
+    //TerrainGenerator terrainGenerator;
+    m_terrainGenerator.loadFromFile("../data/grasslands/grasslandsTerrainGenerationXML.txt");
+    m_terrainGenerator.generatesOnNode(m_worldGrid, terrainSeed, &m_syncComponent);
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
@@ -297,6 +294,10 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
 {
     //worldInitMsg->localTime = m_curLocalTime;
     worldInitMsg->dayTime = (int)m_dayTime;
+
+    worldInitMsg->terrainGeneratorModel = m_terrainGenerator.getFilePath();
+    worldInitMsg->terrainGeneratorSeed  = m_terrainGenerator.getGeneratingSeed();
+
     //worldInitMsg->worldGrid_nodeId = (int)m_syncNodes.findId(m_worldGrid);
     m_syncComponent.createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
 }
@@ -315,6 +316,9 @@ void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitM
 void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
 {
     m_dayTime = worldInitMsg->dayTime;
+
+    m_terrainGenerator.loadFromFile(worldInitMsg->terrainGeneratorModel);
+    m_terrainGenerator.generatesOnNode(m_worldGrid, worldInitMsg->terrainGeneratorSeed, &m_syncComponent);
 
     m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();

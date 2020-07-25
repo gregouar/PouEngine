@@ -457,8 +457,6 @@ bool MeshAsset::generateModel(  std::vector<MeshVertex> &vertexList,
     else
         commandPoolName = COMMANDPOOL_MESHESLOADING;
 
-    std::cout<<"!!!!! GENERATE MESH!"<<m_filePath<<std::endl;
-
     if(!m_meshLoaded)
         m_meshLoaded = m_mesh->generateMesh(vertexList, indexList,commandPoolName);
 

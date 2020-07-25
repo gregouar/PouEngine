@@ -15,11 +15,6 @@ TerrainLayerModelAsset::TerrainLayerModelAsset(const pou::AssetTypeId id) : Asse
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
-
-    ///For testing purposes
-    m_spawnPointSparsity    = 20;
-    m_spawnProbability      = 0.2f;
-    m_expandProbability     = 0.6f;
 }
 
 TerrainLayerModelAsset::~TerrainLayerModelAsset()
@@ -64,7 +59,7 @@ pou::SpriteModel *TerrainLayerModelAsset::getSpriteModel(const std::string &spri
     return spriteModel;
 }
 
-float TerrainLayerModelAsset::getSpawnPointSparsity()
+/*float TerrainLayerModelAsset::getSpawnPointSparsity()
 {
     return m_spawnPointSparsity;
 }
@@ -75,7 +70,7 @@ float TerrainLayerModelAsset::getSpawnProbability()
 float TerrainLayerModelAsset::getExpandProbability()
 {
     return m_expandProbability;
-}
+}*/
 
 ///
 ///Protected

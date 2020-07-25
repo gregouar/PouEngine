@@ -41,9 +41,9 @@ class TerrainLayerModelAsset : public pou::Asset
 
         std::shared_ptr<WorldSprite> generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng = nullptr);
 
-        float getSpawnPointSparsity();
+        /*float getSpawnPointSparsity();
         float getSpawnProbability();
-        float getExpandProbability();
+        float getExpandProbability();*/
 
     protected:
         bool loadFromXML(TiXmlHandle *);
@@ -55,9 +55,9 @@ class TerrainLayerModelAsset : public pou::Asset
         TerrainGenerator_TileModels m_tileModels[NBR_BORDER_TYPES];
 
         ///I think this should be move somewhere else
-        float m_spawnPointSparsity;
+        /*float m_spawnPointSparsity;
         float m_spawnProbability;
-        float m_expandProbability;
+        float m_expandProbability;*/
 };
 
 #endif // TERRAINLAYERMODELASSET_H

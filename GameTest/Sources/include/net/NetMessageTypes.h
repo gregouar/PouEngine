@@ -126,6 +126,10 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
     int player_id;
     int dayTime;
 
+    std::string terrainGeneratorModel;
+    int terrainGeneratorSeed;
+
+
     ///int worldGrid_nodeId;
 
     virtual void serializeImpl(pou::Stream *stream);

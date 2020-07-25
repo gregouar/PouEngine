@@ -103,7 +103,6 @@ bool VMesh::generateMesh(std::vector<MeshVertex> &vertexList,
         }*/
   //  }
 
-    ///I could have some kind of VMesh heh
     VkDeviceSize vertexBufferSize   = sizeof(MeshVertex) * vertexList.size();
     VkDeviceSize indexBufferSize    = sizeof(uint16_t) * indexList.size();
 

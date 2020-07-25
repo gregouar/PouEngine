@@ -69,6 +69,52 @@
 	</sprite>
 	
 	
+	<sprite name="flower1_fill1" castShadow=0>
+		<size x=32 y=32 />
+		<position x=256 y=0 />
+	</sprite>
+	<sprite name="flower1_fill2" castShadow=0>
+		<size x=32 y=32 />
+		<position x=288 y=0 />
+	</sprite>
+	<sprite name="flower1_bottom1" castShadow=0>
+		<size x=32 y=32 />
+		<position x=256 y=32 />
+	</sprite>
+	<sprite name="flower1_bottom2" castShadow=0>
+		<size x=32 y=32 />
+		<position x=288 y=32 />
+	</sprite>
+	<sprite name="flower1_bottom3" castShadow=0>
+		<size x=32 y=32 />
+		<position x=320 y=32 />
+	</sprite>
+	<sprite name="flower1_bigcorner1" castShadow=0>
+		<size x=32 y=32 />
+		<position x=352 y=32 />
+	</sprite>
+	<sprite name="flower1_smallcorner1" castShadow=0>
+		<size x=32 y=32 />
+		<position x=320 y=0 />
+	</sprite>
+	<sprite name="flower1_smallcorner2" castShadow=0>
+		<size x=32 y=32 />
+		<position x=352 y=0 />
+	</sprite>
+	<sprite name="flower1_smallcorner3" castShadow=0>
+		<size x=32 y=32 />
+		<position x=384 y=0 />
+	</sprite>
+	<sprite name="flower1_smallcorner4" castShadow=0>
+		<size x=32 y=32 />
+		<position x=416 y=0 />
+	</sprite>
+	
+	<sprite name="gravel1_fill1" castShadow=0>
+		<size x=32 y=32 />
+		<position x=128 y=64 />
+	</sprite>
+	
 	
 	<sprite name="dirt2_1" castShadow=1>
 		<size x=32 y=32 />
@@ -86,6 +132,8 @@
 		<size x=32 y=32 />
 		<position x=128 y=96 />
 	</sprite>
+	
+	
 
 	
 </spritesheet>
