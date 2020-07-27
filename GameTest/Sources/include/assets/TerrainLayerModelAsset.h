@@ -39,7 +39,8 @@ class TerrainLayerModelAsset : public pou::Asset
 
         pou::SpriteModel *getSpriteModel(const std::string &spriteSheetName, const std::string &spriteName);
 
-        std::shared_ptr<WorldSprite> generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng = nullptr);
+        ///std::shared_ptr<WorldSprite> generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng = nullptr);
+        TerrainGenerator_TileModels* getTileModels(TerrainGenerator_BorderType borderType);
 
         /*float getSpawnPointSparsity();
         float getSpawnProbability();

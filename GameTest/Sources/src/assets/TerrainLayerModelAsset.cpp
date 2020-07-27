@@ -171,12 +171,20 @@ bool TerrainLayerModelAsset::loadTileModels(TiXmlElement *element)
 }
 
 
-std::shared_ptr<WorldSprite> TerrainLayerModelAsset::generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng)
+/**std::shared_ptr<WorldSprite> TerrainLayerModelAsset::generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng)
 {
     if(borderType == NBR_BORDER_TYPES)
         return (nullptr);
 
     return m_tileModels[borderType].generateSprite(rng);
+}**/
+
+TerrainGenerator_TileModels* TerrainLayerModelAsset::getTileModels(TerrainGenerator_BorderType borderType)
+{
+    if(borderType == NBR_BORDER_TYPES)
+        return (nullptr);
+
+    return &m_tileModels[borderType];
 }
 
 

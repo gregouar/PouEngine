@@ -12,7 +12,9 @@
 
 
 TerrainGenerator_TileModels::TerrainGenerator_TileModels() :
-    m_totalProbability(0)
+    m_chosenSpriteMap(0),
+    m_totalProbability1(0),
+    m_totalProbability2(0)
 {
 }
 
@@ -66,7 +68,7 @@ bool TerrainGenerator_TileModels::loadFromXML(TiXmlElement *element, TerrainLaye
         if(flipYAtt)
             allowFlipY = pou::Parser::parseBool(std::string(flipYAtt));
 
-        int nbrSpriteVariants = 1 + allowFlipX + allowFlipY + (allowFlipX & allowFlipY);
+        /**int nbrSpriteVariants = 1 + allowFlipX + allowFlipY + (allowFlipX & allowFlipY);
 
         if(allowFlipX)
         {
@@ -87,7 +89,13 @@ bool TerrainGenerator_TileModels::loadFromXML(TiXmlElement *element, TerrainLaye
             this->addTileModel(probability/nbrSpriteVariants, spriteCopy);
         }
 
-        this->addTileModel(probability/nbrSpriteVariants, sprite);
+        this->addTileModel(probability/nbrSpriteVariants, sprite);**/
+
+        TerrainGenerator_TileModel tileModel;
+        tileModel.allowFlipX = allowFlipX;
+        tileModel.allowFlipY = allowFlipY;
+        tileModel.spriteModel = sprite;
+        this->addTileModel(probability, tileModel);
 
         spriteChild = spriteChild->NextSiblingElement("sprite");
     }
@@ -95,26 +103,69 @@ bool TerrainGenerator_TileModels::loadFromXML(TiXmlElement *element, TerrainLaye
     return (true);
 }
 
-void TerrainGenerator_TileModels::addTileModel(float probability, std::shared_ptr<WorldSprite> spriteModel)
+void TerrainGenerator_TileModels::addTileModel(float probability, TerrainGenerator_TileModel tileModel)
 {
     if(probability <= 0)
         return;
 
-    m_totalProbability += probability;
-    m_spriteMap.insert({m_totalProbability, spriteModel});
+    auto *totalProbability = m_chosenSpriteMap ? &m_totalProbability1 : &m_totalProbability2;
+    auto *spriteMap = m_chosenSpriteMap ? &m_spriteMap1 : &m_spriteMap2;
+
+    /*if(chosenSpriteMap)
+    {
+        m_totalProbability1 += probability;
+        m_spriteMap1.insert({m_totalProbability1, tileModel});
+    } else {
+        m_totalProbability2 += probability;
+        m_spriteMap2.insert({m_totalProbability2, tileModel});
+    }*/
+    *totalProbability += probability;
+    spriteMap->insert({*totalProbability, tileModel});
+
+    m_chosenSpriteMap = !m_chosenSpriteMap;
 }
 
-std::shared_ptr<WorldSprite> TerrainGenerator_TileModels::generateSprite(pou::RNGenerator *rng)
+std::shared_ptr<WorldSprite> TerrainGenerator_TileModels::generateSprite(int modValue, pou::RNGenerator *rng)
 {
-    if(m_spriteMap.empty())
+    bool chosen = (modValue % 2);
+
+    auto totalProbability = chosen ? m_totalProbability1 : m_totalProbability2;
+    auto *spriteMap = chosen ? &m_spriteMap1 : &m_spriteMap2;
+
+    if(spriteMap->empty())
+    {
+        totalProbability = chosen ? m_totalProbability2 : m_totalProbability1;
+        spriteMap = chosen ? &m_spriteMap2 : &m_spriteMap1;
+
+        if(spriteMap->empty())
+            return (nullptr);
+    }
+
+    float randValue = pou::RNGesus::uniformFloat(0, totalProbability, rng);
+    auto spriteModelIt = spriteMap->lower_bound(randValue);
+    if(spriteModelIt == spriteMap->end())
         return (nullptr);
 
-    float randValue = pou::RNGesus::uniformFloat(0, m_totalProbability, rng);///glm::linearRand(0.0f, m_totalProbability);
-    auto spriteModelIt = m_spriteMap.lower_bound(randValue);
-    if(spriteModelIt == m_spriteMap.end())
-        return (nullptr);
 
-    return std::dynamic_pointer_cast<WorldSprite>(spriteModelIt->second->createCopy());
+    auto &tileModel = spriteModelIt->second;
+
+    auto createdSprite = std::dynamic_pointer_cast<WorldSprite>(tileModel.spriteModel->createCopy());
+
+    if(tileModel.allowFlipX)
+    {
+        float randValue = pou::RNGesus::uniformFloat(0.0f, 1.0f, rng);
+        if(randValue > .5f)
+            createdSprite->flip(1,0);
+    }
+
+    if(tileModel.allowFlipY)
+    {
+        float randValue = pou::RNGesus::uniformFloat(0.0f, 1.0f, rng);
+        if(randValue > .5f)
+            createdSprite->flip(0,1);
+    }
+
+    return createdSprite;
 }
 
 

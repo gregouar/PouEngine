@@ -500,7 +500,11 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
 
         int boolGridValue = (isPresent[0]<<3) | (isPresent[1]<<2)| (isPresent[2]<<1) | isPresent[3];
 
-        auto sprite = groundLayer.layerModel->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
+        auto tileModel = groundLayer.layerModel->getTileModels((TerrainGenerator_BorderType)boolGridValue);
+        if(!tileModel)
+            continue;
+
+        auto sprite = tileModel->generateSprite(x+y, &m_rng);//groundLayer.layerModel->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
         if(sprite)
         {
             targetNode->attachObject(sprite);

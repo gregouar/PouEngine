@@ -239,6 +239,11 @@ void SpriteEntity::setFlip(bool x, bool y)
     m_flipY = y;
 }
 
+void SpriteEntity::flip(bool x, bool y)
+{
+    this->setFlip(m_flipX != x, m_flipY != y);
+}
+
 void SpriteEntity::setColor(Color color)
 {
     if(m_color != color)

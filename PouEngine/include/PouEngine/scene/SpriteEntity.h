@@ -72,6 +72,7 @@ class SpriteEntity : public ShadowCaster
         void rotate(float rotation);
 
         void setRotation(float rotation, bool inRadians = true);
+        void flip(bool x, bool y);
         void setFlip(bool x, bool y);
         void setColor(Color color);
         void setRme(glm::vec3 rme);

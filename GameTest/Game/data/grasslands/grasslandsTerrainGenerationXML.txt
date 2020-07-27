@@ -12,7 +12,7 @@
 			<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.8 occulting=0 />
 		</groundLayer>
 		
-		<groundLayer name="gravel" path="gravelLayerModelXML.txt"spawnProbability=.4   occulting=0>
+		<groundLayer name="gravel" path="gravelLayerModelXML.txt"spawnProbability=.8   occulting=0>
 		</groundLayer>
 	</groundLayer>
 
