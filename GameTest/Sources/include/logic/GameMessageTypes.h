@@ -3,6 +3,7 @@
 
 
 #include "PouEngine/core/MessageBus.h"
+#include "character/CharacterInput.h"
 
 class GameWorld;
 class WorldNode;
@@ -15,6 +16,7 @@ enum GameMessageType
 {
     GameMessageType_First = pou::NotificationType_Custom,
     GameMessageType_World_NewPlayer,
+    GameMessageType_World_PlayerAction,
     GameMessageType_World_NodeUpdated,
     GameMessageType_World_SpriteUpdated,
     GameMessageType_World_MeshUpdated,
@@ -29,6 +31,12 @@ enum GameMessageType
 struct GameMessage_World_NewPlayer
 {
     Player   *player;
+};
+
+struct GameMessage_World_PlayerAction
+{
+    int   playerId;
+    PlayerAction   playerAction;
 };
 
 struct GameMessage_World_NodeUpdated

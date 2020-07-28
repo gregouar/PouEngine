@@ -217,6 +217,7 @@ void MainMenuState::update(const pou::Time &elapsedTime)
 {
     m_ui.update(elapsedTime);
 
+    ///I should add event system heh
     if(m_createServerButton->isClicked())
         this->createServerAction();
     else if(m_connectToServerButton->isClicked())
@@ -261,7 +262,7 @@ void MainMenuState::connectionToServerAction()
     playerSave->setPlayerName(m_characterNameInput->getText());
     playerSave->setPlayerType(m_charSelectButtons->getValue());
 
-    clientState->setConnectionData(serverAddress, playerSave);
+    clientState->setConnectionData(serverAddress, playerSave, false);
 
     m_manager->switchState(clientState);
 }

@@ -39,7 +39,7 @@ void ClientTestingState::entered()
     if(m_firstEntering)
         this->init();
 
-    m_gameClient->connectToServer(m_serverAddress, m_playerSave /*GameData::serverAddress*/);
+    m_gameClient->connectToServer(m_serverAddress, m_playerSave, m_useLockStepMode);
 
     auto inGameState = InGameState::instance();
     m_manager->pushState(inGameState);
@@ -102,10 +102,12 @@ void ClientTestingState::draw(pou::RenderWindow *renderWindow)
 
 
 void ClientTestingState::setConnectionData(const pou::NetAddress &serverAddress,
-                                           std::shared_ptr<PlayerSave> playerSave)
+                                           std::shared_ptr<PlayerSave> playerSave,
+                                           bool useLockStepMode)
 {
     m_serverAddress = serverAddress;
     m_playerSave = playerSave;
+    m_useLockStepMode = useLockStepMode;
 }
 
 

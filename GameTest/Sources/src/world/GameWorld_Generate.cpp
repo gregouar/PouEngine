@@ -226,25 +226,25 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
     m_syncComponent.createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
 }
 
-void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool generateInThread)
+void GameWorld::generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool useLockStepMode, bool generateInThread)
 {
     this->init();
     m_worldReady = false;
 
     if(generateInThread)
-        m_generatingThread = std::thread(&GameWorld::generateFromMsgImpl, this, worldInitMsg);
+        m_generatingThread = std::thread(&GameWorld::generateFromMsgImpl, this, worldInitMsg, useLockStepMode);
     else
-        this->generateFromMsgImpl(worldInitMsg);
+        this->generateFromMsgImpl(worldInitMsg, useLockStepMode);
 }
 
-void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
+void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool useLockStepMode)
 {
     m_dayTime = worldInitMsg->dayTime;
 
     m_terrainGenerator.loadFromFile(worldInitMsg->terrainGeneratorModel);
     m_terrainGenerator.generatesOnNode(m_worldGrid, worldInitMsg->terrainGeneratorSeed, &m_syncComponent);
 
-    m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0);
+    m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0,useLockStepMode);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();
 
     auto player = m_syncComponent.getPlayer(worldInitMsg->player_id);

@@ -240,6 +240,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     m_disableDeath      = false;
     m_disableDamageDealing = false;
     m_disableDamageReceiving = false;
+    m_disableAI = false;
 
     m_states[CharacterStateType_Standing]       = std::make_unique<CharacterState_Standing>(this);
     m_states[CharacterStateType_Walking]        = std::make_unique<CharacterState_Walking>(this);
@@ -702,7 +703,8 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
     int oldState = m_curStateId.getValue();
 
     m_characterSyncComponent.update(elapsedTime, localTime);
-    m_aiComponent->update(elapsedTime, localTime);
+    if(!m_disableAI)
+        m_aiComponent->update(elapsedTime, localTime);
     m_input->update(elapsedTime, localTime);
 
     if(oldState != m_curStateId.getValue())
@@ -930,6 +932,11 @@ void Character::disableDamageDealing(bool disable)
 void Character::disableDamageReceiving(bool disable)
 {
     m_disableDamageReceiving = disable;
+}
+
+void Character::disableAI(bool disable)
+{
+    m_disableAI = disable;
 }
 
 bool Character::areDamagesOnlyCosmetic()

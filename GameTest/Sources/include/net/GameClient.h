@@ -16,7 +16,8 @@ class GameClient : public pou::NotificationListener
 
         bool create(unsigned short port = 0);
 
-        bool connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave);
+        bool connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave,
+                             bool useLockStepMode = false);
         bool disconnectFromServer();
 
         void update(const pou::Time &elapsedTime);
@@ -42,6 +43,7 @@ class GameClient : public pou::NotificationListener
     private:
         std::unique_ptr<pou::AbstractClient> m_client;
 
+        bool m_useLockStepMode;
         std::shared_ptr<PlayerSave> m_playerSave;
 
         std::unique_ptr<GameWorld>  m_world;

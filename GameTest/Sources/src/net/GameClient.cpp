@@ -33,6 +33,7 @@ GameClient::GameClient() :
     //m_lastPlayerWalkDirection = glm::vec2(0);
     m_lastServerAckTime = (uint32_t)(-1);
 
+    pou::MessageBus::addListener(this, GameMessageType_World_PlayerAction);
     pou::MessageBus::addListener(this, GameMessageType_World_CharacterDamaged);
 }
 
@@ -75,7 +76,7 @@ void GameClient::disconnectionCleanup()
     //m_world.destroy();
 }
 
-bool GameClient::connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave)
+bool GameClient::connectToServer(const pou::NetAddress &address, std::shared_ptr<PlayerSave> playerSave, bool useLockStepMode)
 {
     if(!m_client)
         return (false);
@@ -83,6 +84,7 @@ bool GameClient::connectToServer(const pou::NetAddress &address, std::shared_ptr
     this->disconnectFromServer();
 
     m_playerSave = playerSave;
+    m_useLockStepMode = useLockStepMode;
 
     return m_client->connectToServer(address);
 }
@@ -196,7 +198,7 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
             m_isWaitingForWorldSync = false;
 
             m_world = std::make_unique<GameWorld>(true);
-            m_world->generateFromMsg(castMsg);
+            m_world->generateFromMsg(castMsg, m_useLockStepMode);
             m_isWaitingForWorldGen = true;
 
             /*auto player = m_world->getPlayer(m_curPlayerId);
@@ -208,7 +210,8 @@ void GameClient::processMessage(std::shared_ptr<pou::NetMessage> msg)
         case NetMessageType_WorldSync:{
             auto castMsg = std::dynamic_pointer_cast<NetMessage_WorldSync>(msg);
             if(m_world && m_world->isReady())
-                m_world->getSyncComponent()->syncWorldFromMsg(castMsg, m_curPlayerId, m_client->getRTT());
+                m_world->getSyncComponent()->syncWorldFromMsg(castMsg, m_curPlayerId,
+                                                              m_client->getRTT(), m_useLockStepMode);
 
             if(uint32less(m_lastServerAckTime, castMsg->clientTime))
                 m_lastServerAckTime = castMsg->clientTime;
@@ -239,6 +242,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
         msg->isReliable = true;
         msg->lastSyncTime = -1;
         msg->localTime = 0;
+        msg->useLockStepMode = m_useLockStepMode;
 
         msg->playerSave = m_playerSave;
 
@@ -264,6 +268,7 @@ void GameClient::updateWorld(const pou::Time &elapsedTime)
             /*auto player = m_world->getPlayer(m_curPlayerId);
             player->setPlayerName(m_playerName);*/
             auto msg = std::dynamic_pointer_cast<NetMessage_PlayerSync>(pou::NetEngine::createNetMessage(NetMessageType_PlayerSync));
+            msg->useLockStepMode = m_useLockStepMode;
 
             m_world->getSyncComponent()->createPlayerSyncMsg(msg, m_curPlayerId, m_lastServerAckTime);
             m_client->sendMessage(msg, true);
@@ -285,6 +290,24 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
 
     playerEventMsg->isReliable  = true;
     playerEventMsg->localTime   = m_world->getLocalTime();
+
+    if(m_useLockStepMode)
+    {
+        if(notificationType == GameMessageType_World_PlayerAction)
+        {
+            auto *gameMsg = static_cast<GameMessage_World_PlayerAction*>(data);
+
+            if(gameMsg->playerId != m_curPlayerId)
+                return;
+
+            if(gameMsg->playerAction.actionType == PlayerActionType_CursorMove)
+                return;
+
+            m_world->getSyncComponent()->syncPlayerAction(m_curPlayerId,gameMsg->playerAction);
+        }
+
+        return;
+    }
 
     if(notificationType == GameMessageType_World_CharacterDamaged)
     {

@@ -126,9 +126,9 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     std::cout<<"End Rewind at "<<m_curLocalTime<<std::endl;
 }**/
 
-size_t GameWorld::askToAddPlayer(std::shared_ptr<PlayerSave> playerSave, /*const std::string &playerName,*/ bool isLocalPlayer)
+size_t GameWorld::askToAddPlayer(std::shared_ptr<PlayerSave> playerSave, /*const std::string &playerName,*/ bool isLocalPlayer, bool useLockStepMode)
 {
-    auto player = std::make_shared<Player>(isLocalPlayer);
+    auto player = std::make_shared<Player>(isLocalPlayer || useLockStepMode);
     auto player_id = m_syncComponent.syncElement(player);
 
     if(player_id == 0)
@@ -136,7 +136,7 @@ size_t GameWorld::askToAddPlayer(std::shared_ptr<PlayerSave> playerSave, /*const
 
     if(isLocalPlayer)
         this->createPlayerCamera(player.get());
-    else
+    else if(!useLockStepMode)
         player->disableDamageDealing();
 
     //player->setPlayerName(playerName);
@@ -170,6 +170,12 @@ void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction)
         action.direction = normalize(action.direction);
 
     m_playerActions.push_back({player_id,action});
+    ///m_playerActions.insert({this->getLocalTime(),{player_id,action}});
+
+    GameMessage_World_PlayerAction msg;
+    msg.playerId = player_id;
+    msg.playerAction = action;
+    pou::MessageBus::postMessage(GameMessageType_World_PlayerAction, &msg);
 }
 
 /**void GameWorld::addPlayerAction(int player_id, const PlayerAction &playerAction, uint32_t clientTime)
@@ -379,24 +385,23 @@ void GameWorld::processPlayerActions()
     m_playerActions.clear();
 }
 
-
-
 /**void GameWorld::processPlayerActions()
 {
-    auto boundaries = m_playerActions.equal_range(m_curLocalTime);
+    auto curLocalTime = this->getLocalTime();
 
-    for(auto it = boundaries.first ; it != boundaries.second ; ++it)
+    for(auto playerActionIt = m_playerActions.begin() ;
+        playerActionIt != m_playerActions.end() && uint32leq(playerActionIt->first,curLocalTime) ;
+        )
     {
-        auto player_id = it->second.first;
-        auto player = m_syncPlayers.findElement(player_id);
+        auto player_id = playerActionIt->second.first;
+        auto player = m_syncComponent.getPlayer(player_id);
         if(player == nullptr)
-        {
-           // ++it;
             continue;
-        }
 
-        auto& playerAction = it->second.second;
+        auto& playerAction = playerActionIt->second.second;
         player->processAction(playerAction);
+
+        playerActionIt = m_playerActions.erase(playerActionIt);
     }
 }**/
 

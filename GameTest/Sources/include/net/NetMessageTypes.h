@@ -169,8 +169,12 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     uint32_t lastSyncTime;
     uint32_t localTime;
 
+    bool useLockStepMode;
+
+    ///For first sync only
     std::shared_ptr<PlayerSave> playerSave;
 
+    ///For non lockstep mode
     std::shared_ptr<WorldNode> nodeBuffer;
     std::shared_ptr<Character> characterBuffer;
 
@@ -178,6 +182,8 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     CharacterSync   characterSync;
     PlayerSync      playerSync;
 
+    ///For lockstep mode
+    std::vector< std::pair<uint32_t, PlayerAction> > lastPlayerActions;
 
     virtual void serializeImpl(pou::Stream *stream);
 };

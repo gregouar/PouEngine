@@ -416,14 +416,19 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
     if(stream->isReading())
         playerAction.actionType = (PlayerActionType)actionType;
 
-    if(playerAction.actionType == PlayerActionType_CursorMove
-    || playerAction.actionType == PlayerActionType_Walk
+    if(playerAction.actionType == PlayerActionType_Walk
     || playerAction.actionType == PlayerActionType_Look
     || playerAction.actionType == PlayerActionType_Attack
     || playerAction.actionType == PlayerActionType_Dash)
     {
         stream->serializeFloat(playerAction.direction.x,-1,1,2);
         stream->serializeFloat(playerAction.direction.y,-1,1,2);
+    }
+
+    if(playerAction.actionType == PlayerActionType_CursorMove)
+    {
+        stream->serializeFloat(playerAction.direction.x);
+        stream->serializeFloat(playerAction.direction.y);
     }
 
     if(playerAction.actionType == PlayerActionType_UseItem)
@@ -442,10 +447,12 @@ void serializePlayerAction(pou::Stream *stream, PlayerAction &playerAction)
 /// PlayerSync
 ///
 
+
 void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
 {
     stream->serializeUint32(lastSyncTime); //This is the last server sync time
     stream->serializeUint32(localTime); //This is the client local time
+    stream->serializeBool(useLockStepMode);
 
     if(lastSyncTime == (uint32_t)-1)
     {
@@ -454,6 +461,20 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
 
         playerSave->serialize(stream);
 
+        return;
+    }
+
+    if(useLockStepMode)
+    {
+        int nbrActions = std::min(lastPlayerActions.size(), size_t(255));
+        stream->serializeBits(nbrActions, 8);
+        lastPlayerActions.resize(nbrActions);
+        for(auto i = 0 ; i < nbrActions ; ++i)
+        {
+            auto& [actionTime, playerAction] = lastPlayerActions[i];
+            stream->serializeUint32(actionTime);
+            serializePlayerAction(stream, playerAction);
+        }
         return;
     }
 
@@ -477,7 +498,6 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
             characterPtr->update(pou::Time(0),localTime);
         }
         characterPtr->serializeCharacter(stream,lastSyncTime);
-        ///characterPtr->getCharacterSyncComponent()->serialize(stream,lastSyncTime);
     }
 
     {

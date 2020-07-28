@@ -26,7 +26,7 @@ const int    GameWorld_Sync::PREFABINSTANCEID_BITS  = 16;
 
 GameWorld_Sync::GameWorld_Sync() :
     m_curLocalTime(0),
-    m_lastSyncTime(-1),
+    m_lastWorldSyncTime(-1),
     m_updatedCharactersBuffer(0)
 {
     m_syncNodes.setMax(pow(2,GameWorld_Sync::NODEID_BITS));
@@ -58,7 +58,8 @@ GameWorld_Sync::~GameWorld_Sync()
 
 void GameWorld_Sync::clear()
 {
-    m_lastSyncTime = -1;
+    m_lastWorldSyncTime = -1;
+    m_lastPlayerSyncTime.clear();
     m_curLocalTime = 0;
 
     m_syncNodes.clear();
@@ -95,6 +96,7 @@ void GameWorld_Sync::update(const pou::Time &elapsedTime)
     m_updatedCharacters[m_updatedCharactersBuffer].clear();
 
     this->processPlayerEvents();
+    this->processPlayerActions();
 }
 
 
@@ -405,9 +407,9 @@ void GameWorld_Sync::createWorldSyncMsg_Prefab(PrefabInstance *prefab, std::shar
     prefabSync.nodeId = nodeId;
 }
 
-void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT)
+void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT, bool useLockStepMode)
 {
-    if(uint32leq(worldSyncMsg->localTime, m_lastSyncTime))
+    if(uint32leq(worldSyncMsg->localTime, m_lastWorldSyncTime))
         return;
 
     //if(worldSyncMsg->localTime > m_lastSyncTime)
@@ -422,7 +424,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);
 
-        if(m_lastSyncTime == (uint32_t)(-1))
+        if(m_lastWorldSyncTime == (uint32_t)(-1))
             m_curLocalTime = desiredLocalTime;
 
         if(desiredMinLocalTime < m_curLocalTime || m_curLocalTime < desiredMaxLocalTime)
@@ -433,8 +435,10 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             m_deltaRTT = deltaRTT;
         }
 
-        m_lastSyncTime = worldSyncMsg->localTime;
+        m_lastWorldSyncTime = worldSyncMsg->localTime;
     }
+
+    m_syncPlayerActions.erase(m_syncPlayerActions.begin(), m_syncPlayerActions.upper_bound(worldSyncMsg->clientTime));
 
 
     for(auto &spriteSheetIt : worldSyncMsg->spriteSheets)
@@ -507,7 +511,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         {
             if(playerSync.characterId != 0)
             {
-                if(playerId == (int)clientPlayerId)
+                if(playerId == (int)clientPlayerId && !useLockStepMode)
                 {
                     player = std::make_shared<Player>();
                    // m_worldGrid->addUpdateProbe(player, 2048);
@@ -549,12 +553,29 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             characterPtr = std::make_shared<Character>();
             this->syncElement(characterPtr, characterId);
 
-            characterPtr->disableInputSync();
+            //characterPtr->disableInputSync();
         }
 
         characterPtr->syncFromCharacter(characterSync.character);
-        characterPtr->setReconciliationDelay(0,m_deltaRTT*1);
+
+        if(useLockStepMode)
+        {
+            uint32_t delay = m_deltaRTT*1.5;
+            characterPtr->setReconciliationDelay(delay,0);
+            characterPtr->disableInputSync(false);
+            characterPtr->disableDamageReceiving(true);
+            characterPtr->disableAI();
+        }
+        else
+        {
+            characterPtr->setReconciliationDelay(0,m_deltaRTT*1);
+            characterPtr->disableInputSync();
+            //characterPtr->disableDamageReceiving(false);
+            //characterPtr->disableAI(false);
+        }
+
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
+
 
         if(characterSync.characterModelId != 0)
         {
@@ -594,7 +615,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         if(!player)
             continue;
 
-        if(playerIt.first != (int)clientPlayerId)
+        if(playerIt.first != (int)clientPlayerId || useLockStepMode)
         for(int i = 0 ; i < NBR_GEAR_TYPES ; ++i)
         {
             if(playerSync.gearModelsId[i] != 0)
@@ -740,7 +761,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
     for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
-        if(playerIt->first != clientPlayerId)
+        if(playerIt->first != clientPlayerId || useLockStepMode)
         {
             uint32_t delay = m_deltaRTT*1.5;
             playerIt->second->setReconciliationDelay(delay,0);
@@ -759,8 +780,20 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg,
                          int player_id, uint32_t lastSyncTime)
 {
-    playerSyncMsg->lastSyncTime   = getLastSyncTime();
-    playerSyncMsg->localTime      = getLocalTime();
+    playerSyncMsg->lastSyncTime   = this->getLastWorldSyncTime();
+    playerSyncMsg->localTime      = this->getLocalTime();
+
+    if(playerSyncMsg->useLockStepMode)
+    {
+        playerSyncMsg->lastPlayerActions.clear();
+
+        for(auto playerActionIt = m_syncPlayerActions.begin() ;
+            playerActionIt !=m_syncPlayerActions.end() ; ++playerActionIt)
+            if(playerActionIt->second.first == player_id)
+                playerSyncMsg->lastPlayerActions.push_back({playerActionIt->first, playerActionIt->second.second});
+
+        return;
+    }
 
     auto player  = m_syncPlayers.findElement(player_id);
 
@@ -815,6 +848,35 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
 
 void GameWorld_Sync::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
+    auto lastPlayerSyncTimeIt = m_lastPlayerSyncTime.lower_bound(clientPlayerId);
+    if(lastPlayerSyncTimeIt == m_lastPlayerSyncTime.end() || lastPlayerSyncTimeIt->first != clientPlayerId)
+        lastPlayerSyncTimeIt = m_lastPlayerSyncTime.insert(lastPlayerSyncTimeIt, {clientPlayerId,-1});
+    auto &lastPlayerSyncTime = (lastPlayerSyncTimeIt->second);
+
+    if(worldSyncMsg->useLockStepMode)
+    {
+        if(worldSyncMsg->lastPlayerActions.empty())
+            return;
+
+        auto minClientTime = worldSyncMsg->lastPlayerActions.begin()->first;
+
+        /**for(auto playerActionIt = worldSyncMsg->lastPlayerActions.begin() ;
+            playerActionIt != worldSyncMsg->lastPlayerActions.end() && playerActionIt->second.actionType == PlayerActionType_CursorMove ;
+            ++playerActionIt)**/
+
+        for(auto &playerActionIt : worldSyncMsg->lastPlayerActions)
+        {
+            if(uint32less(lastPlayerSyncTime, playerActionIt.first))
+            {
+                auto retimedActionTime = playerActionIt.first - minClientTime + m_curLocalTime;
+                this->addPlayerAction(clientPlayerId, playerActionIt.second, retimedActionTime);
+            }
+        }
+        return;
+    }
+
+    lastPlayerSyncTime = worldSyncMsg->localTime;
+
     auto player = m_syncPlayers.findElement(clientPlayerId);
 
     player/*->node()*/->syncFrom(worldSyncMsg->nodeSync.node);
@@ -839,6 +901,17 @@ void GameWorld_Sync::addPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> play
 {
     m_playerEvents.insert({playerEventMsg->localTime, playerEventMsg});
 }
+
+void GameWorld_Sync::addPlayerAction(uint32_t player_id, PlayerAction &playerAction, uint32_t actionTime)
+{
+    m_playerActions.insert({actionTime,{player_id, playerAction}});
+}
+
+void GameWorld_Sync::syncPlayerAction(uint32_t player_id, PlayerAction &playerAction)
+{
+    m_syncPlayerActions.insert({m_curLocalTime,{player_id, playerAction}});
+}
+
 
 /*void GameWorld::createAskForSyncMsg(std::shared_ptr<NetMessage_AskForWorldSync> askForWorldSyncMsg,
                                     int player_id, uint32_t lastSyncTime)
@@ -1019,9 +1092,9 @@ uint32_t GameWorld_Sync::getLocalTime()
     return m_curLocalTime;
 }
 
-uint32_t GameWorld_Sync::getLastSyncTime()
+uint32_t GameWorld_Sync::getLastWorldSyncTime()
 {
-    return m_lastSyncTime;
+    return m_lastWorldSyncTime;
 }
 
 
@@ -1103,7 +1176,6 @@ void GameWorld_Sync::processPlayerEvents()
 
             }break;
 
-
             case NBR_PLAYEREVENTTYPES:{
             }break;
         }
@@ -1111,3 +1183,23 @@ void GameWorld_Sync::processPlayerEvents()
 
     m_playerEvents.erase(m_playerEvents.begin(), upperBound);
 }
+
+void GameWorld_Sync::processPlayerActions()
+{
+    for(auto playerActionIt = m_playerActions.begin() ;
+        playerActionIt != m_playerActions.end() && uint32leq(playerActionIt->first,m_curLocalTime) ;
+        )
+    {
+        auto player_id = playerActionIt->second.first;
+
+        auto player = this->getPlayer(player_id);
+        if(player == nullptr)
+            continue;
+
+        auto& playerAction = playerActionIt->second.second;
+        player->processAction(playerAction);
+
+        playerActionIt = m_playerActions.erase(playerActionIt);
+    }
+}
+

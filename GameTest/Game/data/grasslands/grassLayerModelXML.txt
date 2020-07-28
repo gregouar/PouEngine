@@ -3,7 +3,7 @@
 	<spritesheet name="mainSpriteSheet" path="grassSpritesheetXML.txt" />
 	
 	<tileModel type="fill">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_1" allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_1" allowRandomFlipX=1  />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_2" allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_3" allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_4" allowRandomFlipX=1 />
@@ -41,18 +41,26 @@
 	
 	<tileModel type="bigCornerTopRight">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" />
 	</tileModel>
 	<tileModel type="bigCornerBottomRight">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=90 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=90 />
 	</tileModel>
 	<tileModel type="bigCornerBottomLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=180 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=180 />
 	</tileModel>
 	<tileModel type="bigCornerTopLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=-90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner1" rotation=-90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=-90 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bigcorner2" rotation=-90 />
 	</tileModel>
 	

@@ -197,6 +197,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         void disableInputSync(bool disable = true);
         void disableDamageDealing(bool disable = true); //Used to only show cosmetic effect of damages
         void disableDamageReceiving(bool disable = true);
+        void disableAI(bool disable = true);
 
         bool areDamagesOnlyCosmetic();
 
@@ -233,6 +234,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         bool m_disableDeath;
         bool m_disableDamageDealing;
         bool m_disableDamageReceiving;
+        bool m_disableAI;
 
         int m_team;
 

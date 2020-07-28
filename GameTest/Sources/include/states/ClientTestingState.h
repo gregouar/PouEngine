@@ -27,7 +27,8 @@ class ClientTestingState : public pou::GameState, public Singleton<ClientTesting
         virtual void update(const pou::Time &elapsedTime);
         virtual void draw(pou::RenderWindow *renderWindow);
 
-        void setConnectionData(const pou::NetAddress &serverAddress, std::shared_ptr<PlayerSave> playerSave);
+        void setConnectionData(const pou::NetAddress &serverAddress, std::shared_ptr<PlayerSave> playerSave,
+                               bool useLockStepMode);
 
     protected:
         ClientTestingState();
@@ -42,6 +43,7 @@ class ClientTestingState : public pou::GameState, public Singleton<ClientTesting
 
         pou::NetAddress m_serverAddress;
         std::shared_ptr<PlayerSave> m_playerSave;
+        bool m_useLockStepMode;
        // GameUi m_gameUi;
 };
 

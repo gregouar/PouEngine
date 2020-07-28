@@ -27,12 +27,16 @@ class GameWorld_Sync : public pou::NotificationListener
         void createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, int player_id, uint32_t lastSyncTime);
 
         //void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
-        void syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT);
+        void syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worldSyncMsg, size_t clientPlayerId, float RTT, bool useLockStepMode);
 
         void createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg,
                                  int player_id, uint32_t lastSyncTime);
         void syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> playerSyncMsg, size_t clientPlayerId, float RTT);
         void addPlayerEvent(std::shared_ptr<NetMessage_PlayerEvent> playerEventMsg/*, size_t clientPlayerId*/);
+
+        ///Only for lockStepMode
+        void addPlayerAction(uint32_t player_id, PlayerAction &playerAction, uint32_t actionTime);
+        void syncPlayerAction(uint32_t player_id, PlayerAction &playerAction);
 
         size_t syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId = 0);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet, uint32_t forceId = 0);
@@ -51,7 +55,7 @@ class GameWorld_Sync : public pou::NotificationListener
         void desyncElement(Player *player, bool noDesyncInsert = false);
 
         uint32_t getLocalTime();
-        uint32_t getLastSyncTime();
+        uint32_t getLastWorldSyncTime();
 
         std::vector<Character*>    *getUpdatedCharacters();
         std::shared_ptr<Character>  getCharacter(int character_id);
@@ -75,11 +79,13 @@ class GameWorld_Sync : public pou::NotificationListener
         void removeFromUpdatedCharacters(Character *character);
 
         void processPlayerEvents();
+        void processPlayerActions();
 
     private:
         uint32_t m_curLocalTime;
         uint32_t m_syncTime;
-        uint32_t m_lastSyncTime;
+        uint32_t m_lastWorldSyncTime;
+        std::map<int, uint32_t> m_lastPlayerSyncTime;
         uint32_t m_deltaRTT;
 
         std::vector<WorldNode*>     m_updatedNodes;
@@ -114,6 +120,8 @@ class GameWorld_Sync : public pou::NotificationListener
         std::multimap<uint32_t, int> m_desyncPlayers;
 
         std::multimap<uint32_t, std::shared_ptr<NetMessage_PlayerEvent> > m_playerEvents;
+        std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
+        std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_syncPlayerActions;
 
     public:
         static const int        NODEID_BITS;

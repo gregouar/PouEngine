@@ -190,7 +190,8 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
                                     (pou::NetEngine::createNetMessage(NetMessageType_WorldSync));
 
             worldSyncMsg->clientTime = clientInfos.localTime;
-            world->getSyncComponent()->createWorldSyncMsg(worldSyncMsg, clientInfos.player_id, clientInfos.lastSyncTime);
+            world->getSyncComponent()->createWorldSyncMsg(worldSyncMsg, clientInfos.player_id,
+                                                          clientInfos.lastSyncTime);
             m_server->sendMessage(clientId, worldSyncMsg, true);
         }
     }
@@ -330,9 +331,11 @@ void GameServer::updateClientSync(int clientId, std::shared_ptr<NetMessage_Playe
     if(!world)
         return;
 
+    ///clientInfos.useLockStepMode = msg->useLockStepMode;
+
     if(msg->lastSyncTime == (uint32_t)(-1))
     {
-        size_t player_id = world->askToAddPlayer(msg->playerSave);
+        size_t player_id = world->askToAddPlayer(msg->playerSave, false, msg->useLockStepMode);
 
         auto clientInfosIt = m_clientInfos.find(clientId);
         clientInfosIt->second.player_id = player_id;

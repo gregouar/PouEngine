@@ -32,10 +32,10 @@ class GameWorld : public pou::NotificationListener
 
         void createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
 
-        void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool generateInThread = true);
+        void generateFromMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool useLockStepMode, bool generateInThread = true);
 
         size_t  askToAddPlayer(std::shared_ptr<PlayerSave> playerSave
-                               /*const std::string &playerName = std::string()*/, bool isLocalPlayer = false);
+                               /*const std::string &playerName = std::string()*/, bool isLocalPlayer, bool useLockStepMode = false);
         bool    askToRemovePlayer(size_t player_id);
         bool    isPlayerCreated(size_t player_id);
 
@@ -57,7 +57,7 @@ class GameWorld : public pou::NotificationListener
         void createPlayerCamera(Player *player);
 
         void generateImpl();
-        void generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg);
+        void generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldInitMsg, bool useLockStepMode);
 
         bool    initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave);
         bool    removePlayer(size_t player_id);
@@ -91,6 +91,7 @@ class GameWorld : public pou::NotificationListener
         GameWorld_Sync m_syncComponent;
 
         std::vector< std::pair<size_t, PlayerAction> > m_playerActions;
+        ///std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
 
         pou::SoundTypeId m_musicEvent;
 
