@@ -306,8 +306,9 @@ void GameWorld::createPlayerCamera(Player *player)
         m_worldGrid->setRenderProbe(cameraNode.get(),2048);
 
         ///This should be moved somewhere else
-        m_musicEvent = pou::AudioEngine::createEvent("event:/Music");
-        pou::AudioEngine::playEvent(m_musicEvent);
+        //m_musicEvent = pou::AudioEngine::createEvent("event:/Music");
+        //pou::AudioEngine::playEvent(m_musicEvent);
+        m_worldGenerator.playWorldMusic();
     }
 }
 

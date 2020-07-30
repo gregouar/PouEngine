@@ -40,6 +40,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -75,6 +76,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -115,6 +117,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -152,6 +155,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -191,6 +195,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -230,6 +235,7 @@
 					<Add directory="PouEngine/src/ui" />
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -264,6 +270,7 @@
 					<Add directory="GameTest/Sources/include/assets" />
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="GameTest/Sources/include/generators" />
+					<Add directory="GameTest/Sources/include/audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -713,6 +720,7 @@
 		<Unit filename="include/assets/ItemModelAsset.h" />
 		<Unit filename="include/assets/PrefabAsset.h" />
 		<Unit filename="include/assets/TerrainLayerModelAsset.h" />
+		<Unit filename="include/audio/SoundModel.h" />
 		<Unit filename="include/character/Character.h" />
 		<Unit filename="include/character/CharacterInput.h" />
 		<Unit filename="include/character/CharacterState.h" />
@@ -721,6 +729,7 @@
 		<Unit filename="include/character/PlayerSave.h" />
 		<Unit filename="include/generators/TerrainGenerator.h" />
 		<Unit filename="include/generators/TerrainGenerator_TileModels.h" />
+		<Unit filename="include/generators/WorldGenerator.h" />
 		<Unit filename="include/logic/GameData.h" />
 		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
@@ -749,6 +758,7 @@
 		<Unit filename="src/assets/ItemModelAsset.cpp" />
 		<Unit filename="src/assets/PrefabAsset.cpp" />
 		<Unit filename="src/assets/TerrainLayerModelAsset.cpp" />
+		<Unit filename="src/audio/SoundModel.cpp" />
 		<Unit filename="src/character/Character.cpp" />
 		<Unit filename="src/character/CharacterInput.cpp" />
 		<Unit filename="src/character/CharacterState.cpp" />
@@ -757,6 +767,7 @@
 		<Unit filename="src/character/PlayerSave.cpp" />
 		<Unit filename="src/generators/TerrainGenerator.cpp" />
 		<Unit filename="src/generators/TerrainGenerator_TileModels.cpp" />
+		<Unit filename="src/generators/WorldGenerator.cpp" />
 		<Unit filename="src/logic/GameData.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />

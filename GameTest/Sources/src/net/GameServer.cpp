@@ -7,6 +7,7 @@
 #include "PouEngine/tools/RNGesus.h"
 
 #include "net/GameClient.h"
+#include "logic/GameMessageTypes.h"
 
 const int   GameServer::TICKRATE    = 60;
 const pou::Time GameServer::TICKDELAY(1.0f/GameServer::TICKRATE);
@@ -135,19 +136,38 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
         auto &clientInfos = clientInfosIt.second;
         auto clientId = clientInfosIt.first;
 
-        if(clientInfos.isLocalPlayer)
-            continue;
+        ///if(clientInfos.isLocalPlayer)
+          ///  continue;
 
         if(clientInfos.world_id == 0)
         {
-            //auto &world = m_worlds.find(m_curWorldId)->second;
+            if(!clientInfos.playerSave)
+                continue;
+
+            auto worldIt = m_worlds.find(m_curWorldId);
+            if(worldIt == m_worlds.end() || !worldIt->second->isReady())
+                continue;
 
             clientInfos.lastSyncTime  = (uint32_t)(-1);
             clientInfos.world_id      = m_curWorldId;
 
-            /*size_t player_id = world->askToAddPlayer(m_playerSave);
-            clientInfos.player_id     = player_id;*/
+            size_t player_id = worldIt->second->askToAddPlayer(clientInfos.playerSave,
+                                                               clientInfos.isLocalPlayer,
+                                                               clientInfos.useLockStepMode);
+            clientInfos.player_id = player_id;
+
+            if(clientInfos.isLocalPlayer)
+            {
+                GameMessage_Game_ChangeWorld gameMsg;
+                gameMsg.clientId    = 0;
+                gameMsg.world       = worldIt->second.get();
+                gameMsg.playerId    = player_id;
+                pou::MessageBus::postMessage(GameMessageType_Game_ChangeWorld, &gameMsg);
+            }
         }
+
+        if(clientInfos.isLocalPlayer)
+            continue;
 
         if(!clientInfos.playerCreated)
         {
@@ -175,6 +195,9 @@ void GameServer::syncClients(const pou::Time &elapsedTime)
         }
 
         if(clientInfos.lastSyncTime == (uint32_t)(-1))
+            continue;
+
+        if(clientInfos.isLocalPlayer)
             continue;
 
         auto worldIt = m_worlds.find(clientInfos.world_id);
@@ -206,14 +229,16 @@ int GameServer::addLocalPlayer(std::shared_ptr<PlayerSave> playerSave/*const std
     if(clientId == m_server->getMaxNbrClients())
         return (-1);
 
-    auto worldIt = m_worlds.find(m_curWorldId);
-    if(worldIt == m_worlds.end())
-        return (-1);
-
     this->addClient(clientId, true);
-    auto player_id = worldIt->second->askToAddPlayer(playerSave, true);
+    m_clientInfos[clientId].playerSave = playerSave;
+
+    /*auto worldIt = m_worlds.find(m_curWorldId);
+    if(worldIt == m_worlds.end())
+        return (-1);*/
+
+    /*auto player_id = worldIt->second->askToAddPlayer(playerSave, true);
     m_clientInfos[clientId].world_id  = m_curWorldId;
-    m_clientInfos[clientId].player_id = player_id;
+    m_clientInfos[clientId].player_id = player_id;*/
 
     return clientId;
 }
@@ -328,20 +353,21 @@ void GameServer::updateClientSync(int clientId, std::shared_ptr<NetMessage_Playe
 {
     auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
-    if(!world)
-        return;
-
-    ///clientInfos.useLockStepMode = msg->useLockStepMode;
+    clientInfos->useLockStepMode = msg->useLockStepMode;
 
     if(msg->lastSyncTime == (uint32_t)(-1))
     {
-        size_t player_id = world->askToAddPlayer(msg->playerSave, false, msg->useLockStepMode);
+        /**size_t player_id = world->askToAddPlayer(msg->playerSave, false, msg->useLockStepMode);
 
         auto clientInfosIt = m_clientInfos.find(clientId);
-        clientInfosIt->second.player_id = player_id;
+        clientInfosIt->second.player_id = player_id;**/
+        clientInfos->playerSave = msg->playerSave;
 
         return;
     }
+
+    if(!world)
+        return;
 
     //std::cout<<"Received Sync from client #"<<clientId<<" of time: "<<msg->localTime<<std::endl;
 

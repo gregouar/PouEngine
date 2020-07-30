@@ -377,8 +377,8 @@ std::shared_ptr<pou::SoundObject> Character::addSound(SoundModel *soundModel)
 {
     auto soundObject = std::make_shared<pou::SoundObject> ();
 
-    if(soundModel->isEvent)
-        soundObject->setSoundEventModel(soundModel->path);
+    if(soundModel->isEvent())
+        soundObject->setSoundEventModel(soundModel->getPath());
 
     m_sounds.insert({soundModel, soundObject});
 
@@ -433,7 +433,7 @@ bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &sk
         return (false);
 
     auto soundObject = this->addSound(soundModel);
-    skeleton->second->attachSound(soundObject,soundModel->name);
+    skeleton->second->attachSound(soundObject,soundModel->getName());
 
     return (true);
 }
@@ -453,7 +453,7 @@ bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::strin
     if(sound == m_sounds.end())
         return (false);
 
-    skeleton->second->detachSound(sound->second.get(),soundModel->name);
+    skeleton->second->detachSound(sound->second.get(),soundModel->getName());
     m_sounds.erase(sound);
 
     return (true);

@@ -47,9 +47,13 @@ class FMODAudioImpl : public AbstractAudioImpl
 
         FMOD_VECTOR vectorToFmod(const glm::vec3& v);
 
+        void updateMasterVolumes();
+
     private:
         FMOD_STUDIO_SYSTEM  *m_studioSystem;
         FMOD_SYSTEM         *m_system;
+
+        //FMOD_STUDIO_BUS     *m_masterBus;
 
         int m_nbrChannels;
         int m_currentChannelId;

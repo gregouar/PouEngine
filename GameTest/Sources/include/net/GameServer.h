@@ -16,12 +16,14 @@ struct GameClientInfos
     uint32_t   lastSyncTime;
     uint32_t   localTime;
     uint32_t   lastActionTime;
-    ///bool       useLockStepMode;
+    bool       useLockStepMode;
 
     bool playerCreated;
     bool isLocalPlayer;
 
     pou::Timer syncTimer;
+
+    std::shared_ptr<PlayerSave> playerSave;
 };
 
 class GameServer

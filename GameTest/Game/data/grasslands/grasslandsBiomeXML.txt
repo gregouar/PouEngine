@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<biome>
+	<parameters>
+		<music path="event:/GrasslandsMusic" type="event" />
+	</parameters>
+
+	<terrain>
+		<parameters>
+			<tileSize x=64 y=64 />
+			<terrainSize x=200 y=200 />
+		</parameters>
+		
+		<groundLayer name="dirt" path="dirtLayerModelXML.txt">
+			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 >
+				<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=.5 occulting=1 />
+				<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.8 occulting=0 />
+			</groundLayer>
+			
+			<groundLayer name="gravel" path="gravelLayerModelXML.txt"spawnProbability=.8   occulting=0>
+			</groundLayer>
+		</groundLayer>
+	</terrain>
+</biome>

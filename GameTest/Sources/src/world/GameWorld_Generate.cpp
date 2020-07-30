@@ -55,19 +55,17 @@ void GameWorld::generateImpl()
 
     auto loadType = pou::LoadType_Now;
 
-    auto terrainSeed = pou::RNGesus::rand();
-    m_terrainGenerator.loadFromFile("../data/grasslands/grasslandsTerrainGenerationXML.txt");
-    m_terrainGenerator.generatesOnNode(m_worldGrid, terrainSeed, &m_syncComponent);
+    auto worldSeed = pou::RNGesus::rand();
+    m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent);
 
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
 
     /** generate tree using terrain grid ! **/
 
-    for(auto x = -10 ; x < 10 ; x++)
+    /*for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
-    //for(auto x = -1 ; x < 0 ; x++)
-    //for(auto y = -1 ; y < 0 ; y++)
     {
         glm::vec3 p = glm::vec3(pou::RNGesus::uniformFloat(-640.0f,640.0f),
                                 pou::RNGesus::uniformFloat(-640.0f,640.0f),
@@ -92,7 +90,7 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(tree);
 
         m_syncComponent.syncElement(tree);
-    }
+    }*/
 
     auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt",loadType);
     m_syncComponent.syncElement(lanternModel);
@@ -219,8 +217,8 @@ void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldIni
     //worldInitMsg->localTime = m_curLocalTime;
     worldInitMsg->dayTime = (int)m_dayTime;
 
-    worldInitMsg->terrainGeneratorModel = m_terrainGenerator.getFilePath();
-    worldInitMsg->terrainGeneratorSeed  = m_terrainGenerator.getGeneratingSeed();
+    worldInitMsg->worldGeneratorModel = m_worldGenerator.getFilePath();
+    worldInitMsg->worldGeneratorSeed  = m_worldGenerator.getGeneratingSeed();
 
     //worldInitMsg->worldGrid_nodeId = (int)m_syncNodes.findId(m_worldGrid);
     m_syncComponent.createWorldSyncMsg(worldInitMsg, worldInitMsg->player_id, -1);
@@ -241,8 +239,8 @@ void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldI
 {
     m_dayTime = worldInitMsg->dayTime;
 
-    m_terrainGenerator.loadFromFile(worldInitMsg->terrainGeneratorModel);
-    m_terrainGenerator.generatesOnNode(m_worldGrid, worldInitMsg->terrainGeneratorSeed, &m_syncComponent);
+    m_worldGenerator.loadFromFile(worldInitMsg->worldGeneratorModel);
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldInitMsg->worldGeneratorSeed, &m_syncComponent);
 
     m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0,useLockStepMode);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();

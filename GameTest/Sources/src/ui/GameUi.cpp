@@ -4,6 +4,7 @@
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/TextureAsset.h"
 #include "PouEngine/assets/FontAsset.h"
+#include "PouEngine/core/Config.h"
 
 #include "logic/GameMessageTypes.h"
 
@@ -122,11 +123,16 @@ void GameUi::updatePlayerList()
     {
         auto otherPlayerPos = p.player->getGlobalXYPosition();
 
+        auto screenSize = glm::vec2(pou::Config::getInt("window","width"),
+                                    pou::Config::getInt("window","height"));
 
+        auto screenpos = glm::round(otherPlayerPos - playerPos
+                                      + screenSize*0.5f - glm::vec2(0,64));
+
+        screenpos = glm::clamp(screenpos, glm::vec2(0), screenSize);
 
         p.playerNameText->setText(p.player->getPlayerName());
-        p.playerNameText->setPosition(glm::round(otherPlayerPos - playerPos
-                                      + glm::vec2(1024,768)*0.5f - glm::vec2(0,64))); ///I should probably replace this by some kind of world->convertCoord
+        p.playerNameText->setPosition(screenpos); ///I should probably replace this by some kind of world->convertCoord
     }
 }
 

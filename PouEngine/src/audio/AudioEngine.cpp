@@ -21,6 +21,7 @@ bool AudioEngine::init(std::unique_ptr<AbstractAudioImpl> impl)
     this->cleanup();
 
     m_impl = std::move(impl);
+    this->updateMasterVolumes();
 
     return (true);
 }
@@ -158,5 +159,10 @@ bool AudioEngine::setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos)
     return instance()->m_impl->setEvent3DPosition(id, pos);
 }
 
+void AudioEngine::updateMasterVolumes()
+{
+    if(instance()->m_impl)
+        instance()->m_impl->updateMasterVolumes();
+}
 
 }

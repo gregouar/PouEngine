@@ -83,7 +83,7 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         for(auto &sound : *(skeletonModel.second.assetsModel.getSounds()))
         {
             //targetCharacter->addSound(&sound);
-            skeleton->attachSound(targetCharacter->addSound(&sound), sound.name);
+            skeleton->attachSound(targetCharacter->addSound(&sound), sound.getName());
         }
 
 
@@ -620,7 +620,11 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
     {
         auto soundElement = soundChild->ToElement();
 
-        auto nameAtt    = soundElement->Attribute("name");
+        SoundModel soundModel;
+        if(soundModel.loadFromXML(soundElement))
+            m_sounds.push_back(soundModel);
+
+        /*auto nameAtt    = soundElement->Attribute("name");
         auto pathAtt    = soundElement->Attribute("path");
         auto typeAtt    = soundElement->Attribute("type");
 
@@ -634,7 +638,7 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
                 m_sounds.back().isEvent = false;
             else
                 m_sounds.back().isEvent = true;
-        }
+        }*/
 
         soundChild = soundChild->NextSiblingElement("sound");
     }

@@ -35,6 +35,8 @@ class AbstractAudioImpl
         virtual bool playEvent(SoundTypeId id) = 0;
         virtual bool setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos) = 0;
 
+        virtual void updateMasterVolumes() = 0;
+
     protected:
         SoundTypeId m_curSoundId;
         SoundTypeId m_curBankId;

@@ -2,6 +2,7 @@
 
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Parser.h"
+#include "PouEngine/core/Config.h"
 
 namespace pou
 {
@@ -48,6 +49,8 @@ bool FMODAudioImpl::init()
         return (false);
     }
 
+    ///FMOD_Studio_System_GetBus(m_studioSystem,"bus:/",&m_masterBus);
+
     m_inUseListeners.resize(1, false);
 
     m_channels.resize(m_nbrChannels, nullptr);
@@ -77,6 +80,8 @@ void FMODAudioImpl::update()
 {
     if(m_studioSystem == nullptr || m_system == nullptr)
         return;
+
+    this->updateMasterVolumes();
 
     FMOD_Studio_System_Update(m_studioSystem);
 }
@@ -373,6 +378,18 @@ FMOD_VECTOR FMODAudioImpl::vectorToFmod(const glm::vec3& v)
     return FMOD_VECTOR{v.x,v.y,v.z};
 }
 
+void FMODAudioImpl::updateMasterVolumes()
+{
+    FMOD_STUDIO_BUS *bus;
+
+    auto masterVolume = Config::getFloat("sound","masterVolume");
+    FMOD_Studio_System_GetBus(m_studioSystem,"bus:/",&bus);
+    FMOD_Studio_Bus_SetVolume(bus, masterVolume/100.0f);
+
+    auto musicVolume = Config::getFloat("sound","musicVolume");
+    FMOD_Studio_System_GetBus(m_studioSystem,"bus:/Music",&bus);
+    FMOD_Studio_Bus_SetVolume(bus, musicVolume/100.0f);
+}
 
 }
 

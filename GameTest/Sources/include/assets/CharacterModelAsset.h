@@ -12,6 +12,7 @@
 
 #include "Types.h"
 #include "character/Hitbox.h"
+#include "audio/SoundModel.h"
 
 #include <vector>
 #include <list>
@@ -28,14 +29,14 @@ struct LimbModel
     const pou::LightModel *lightModel;
 };
 
-struct SoundModel
+/*struct SoundModel
 {
     SoundModel() : isEvent(true){}
 
     std::string name;
     std::string path;
     bool isEvent;
-};
+};*/
 
 class AssetsForSkeletonModel
 {

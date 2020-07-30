@@ -28,19 +28,17 @@ class TerrainGenerator
         TerrainGenerator();
         virtual ~TerrainGenerator();
 
-        ///Add Load From XML, etc
+        //bool loadFromFile(const std::string &filePath);
+        bool loadFromXML(TiXmlHandle *hdl, const std::string &fileDirectory);
 
-        bool loadFromFile(const std::string &filePath);
-
-        void generatesOnNode(std::shared_ptr<WorldNode> targetNode, int seed, GameWorld_Sync *syncComponent = nullptr);
+        void generatesOnNode(WorldNode *targetNode, pou::RNGenerator *rng);
 
         const std::string &getFilePath();
         int getGeneratingSeed();
 
     protected:
-        bool loadFromXML(TiXmlHandle *hdl);
         bool loadParameters(TiXmlElement *element);
-        bool loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer);
+        bool loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer, const std::string &fileDirectory);
 
         TerrainGenerator_GroundLayer* getGridValue(int x, int y);
         size_t getGridDepth(int x, int y);
@@ -55,18 +53,19 @@ class TerrainGenerator
         void spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer);
 
         void generateSprites(int x, int y,
-                             std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent);
+                             WorldNode *targetNode);
         //void generateSprite(std::list<TerrainGenerator_LayerModelElement> *listModel,
         //                    std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent);
 
 
     private:
-        pou::RNGenerator m_rng;
+        //pou::RNGenerator m_rng;
+        pou::RNGenerator *m_rng;
 
-        std::string m_filePath;
-        std::string m_fileDirectory;
+        //std::string m_filePath;
+        //std::string m_fileDirectory;
 
-        int m_generatingSeed;
+        //int m_generatingSeed;
 
         glm::vec2 m_tileSize;
         glm::vec2 m_terrainSize;

@@ -18,17 +18,26 @@ class Config : public Singleton<Config>
 
         bool load(const std::string&);
 
-        static bool                 getBool(const std::string& s, const std::string& n, const std::string& d=0);
-        static int                  getInt(const std::string& s, const std::string& n, const std::string& d=0);
-        static float                getFloat(const std::string& s, const std::string& n, const std::string& d=0);
-        static const std::string&   getString(const std::string& s, const std::string& n, const std::string& d=0);
+        static void                 addValue(const std::string& s, const std::string& n, const std::string& v);
+        static void                 addDefaultValue(const std::string& s, const std::string& n, const std::string& v);
+
+        static bool                 getBool(const std::string& s, const std::string& n);
+        static int                  getInt(const std::string& s, const std::string& n);
+        static float                getFloat(const std::string& s, const std::string& n);
+        static const std::string&   getString(const std::string& s, const std::string& n, bool useDefaultValue = false);
 
     protected:
         Config();
         virtual ~Config();
 
+        bool loadSection(std::ifstream &file);
+        std::string readSectionName(std::ifstream &file);
+
     private:
         std::map<std::string, ConfigSection> m_sections;
+        std::map<std::string, ConfigSection> m_defaultSections;
+
+        std::string m_dummy;
 };
 
 }

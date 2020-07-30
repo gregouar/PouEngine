@@ -46,8 +46,8 @@ void PlayerServerTestingState::entered()
     inGameState->setClientId(localClientNbr);
 
     m_manager->pushState(inGameState);
-    auto [clientInfos, world]  = m_gameServer->getClientInfosAndWorld(localClientNbr);
-    inGameState->changeWorld(world, clientInfos->player_id);
+    ///auto [clientInfos, world]  = m_gameServer->getClientInfosAndWorld(localClientNbr);
+    ///inGameState->changeWorld(world, clientInfos->player_id);
 }
 
 void PlayerServerTestingState::leaving()

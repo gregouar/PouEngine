@@ -39,7 +39,6 @@ const char *VApp::DEFAULT_WINDOW_HEIGHT = "768";
 const char *VApp::DEFAULT_VSYNC = "true";
 const char *VApp::DEFAULT_ANISOTROPIC = "16";
 
-
 const bool VApp::ENABLE_PROFILER = false;
 const bool VApp::ENABLE_RANDOMNESS = true;
 
@@ -50,7 +49,15 @@ VApp::VApp(const VAppCreateInfos &infos) :
     m_createInfos(infos),
     m_sceenshotNbr(1)
 {
+    Config::addDefaultValue("window","fullscreen",DEFAULT_WINDOW_FULLSCREEN);
+    Config::addDefaultValue("window","width",DEFAULT_WINDOW_WIDTH);
+    Config::addDefaultValue("window","height",DEFAULT_WINDOW_HEIGHT);
 
+    Config::addDefaultValue("graphics","vsync",DEFAULT_VSYNC);
+    Config::addDefaultValue("graphics","anisotropicFiltering",DEFAULT_ANISOTROPIC);
+
+    Config::addDefaultValue("sound","masterVolume","100");
+    Config::addDefaultValue("sound","musicVolume","50");
 }
 
 VApp::~VApp()
@@ -131,7 +138,6 @@ bool VApp::init()
     if(!AudioEngine::instance()->init(std::make_unique<FMODAudioImpl> ()))
         throw std::runtime_error("Cannot initialize audio engine");
 
-
     Profiler::pushClock("Init net engine");
     if(!NetEngine::init(std::make_unique<UdpNetImpl> ()))
         throw std::runtime_error("Cannot initialize net engine");
@@ -144,9 +150,9 @@ bool VApp::init()
 
 bool VApp::createWindow()
 {
-    int w = Config::getInt("window","width",DEFAULT_WINDOW_WIDTH);
-    int h = Config::getInt("window","height",DEFAULT_WINDOW_HEIGHT);
-    bool fullscreen = Config::getBool("window","fullscreen",DEFAULT_WINDOW_FULLSCREEN);
+    int w = Config::getInt("window","width");
+    int h = Config::getInt("window","height");
+    bool fullscreen = Config::getBool("window","fullscreen");
     size_t framesCount = MAX_FRAMES_IN_FLIGHT;
 
     return m_renderWindow.create(w,h,m_createInfos.name,fullscreen, framesCount);
@@ -172,7 +178,7 @@ void VApp::loop()
 {
     Clock clock;
 
-    bool useHardVSync   = Config::getBool("video","vsync",DEFAULT_VSYNC);
+    bool useHardVSync   = Config::getBool("graphics","vsync");
     Time vSyncDelay     = Time(1.0f/60);
 
     clock.restart();

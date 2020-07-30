@@ -41,6 +41,8 @@ class AudioEngine : public Singleton<AudioEngine>
         static bool playEvent(SoundTypeId id);
         static bool setEvent3DPosition(SoundTypeId id, const glm::vec3 &pos);
 
+        static void updateMasterVolumes();
+
     protected:
         AudioEngine();
         virtual ~AudioEngine();

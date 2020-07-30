@@ -14,7 +14,8 @@
 ///TerrainGenerator
 ///
 
-TerrainGenerator::TerrainGenerator()
+TerrainGenerator::TerrainGenerator() :
+    m_rng(nullptr)
 {
 }
 
@@ -23,7 +24,7 @@ TerrainGenerator::~TerrainGenerator()
     //dtor
 }
 
-bool TerrainGenerator::loadFromFile(const std::string &filePath)
+/*bool TerrainGenerator::loadFromFile(const std::string &filePath)
 {
     TiXmlDocument file(filePath.c_str());
 
@@ -43,12 +44,34 @@ bool TerrainGenerator::loadFromFile(const std::string &filePath)
     m_fileDirectory = pou::Parser::findFileDirectory(m_filePath);
 
     return this->loadFromXML(&hdl);
+}*/
+
+bool TerrainGenerator::loadFromXML(TiXmlHandle *hdl, const std::string &fileDirectory)
+{
+    bool loaded = true;
+
+    if(hdl == nullptr)
+        return (false);
+
+    TiXmlElement* element;
+
+    element = hdl->FirstChildElement("parameters").Element();
+    if(!element)
+        return (false);
+    this->loadParameters(element);
+
+
+    element = hdl->FirstChildElement("groundLayer").Element();
+    if(!element)
+        return (false);
+    this->loadGroundLayer(element, nullptr, fileDirectory);
+
+    return loaded;
 }
 
-void TerrainGenerator::generatesOnNode(std::shared_ptr<WorldNode> targetNode, int seed, GameWorld_Sync *syncComponent)
+void TerrainGenerator::generatesOnNode(WorldNode *targetNode, pou::RNGenerator *rng)
 {
-    m_generatingSeed = seed;
-    m_rng.seed(seed);
+    m_rng = rng;
 
     this->generateGrid();
     //this->printGrid();
@@ -71,7 +94,7 @@ void TerrainGenerator::generatesOnNode(std::shared_ptr<WorldNode> targetNode, in
         auto tileNode = std::make_shared<WorldNode>();
         tileNode->setPosition(x * m_tileSize.x, y * m_tileSize.y);
         tileNode->move(-centeringShift);
-        this->generateSprites(x, y, tileNode, syncComponent);
+        this->generateSprites(x, y, tileNode.get());
 
         //if(syncComponent)
           //  syncComponent->syncElement(tileNode);
@@ -80,7 +103,7 @@ void TerrainGenerator::generatesOnNode(std::shared_ptr<WorldNode> targetNode, in
     }
 }
 
-const std::string &TerrainGenerator::getFilePath()
+/*const std::string &TerrainGenerator::getFilePath()
 {
     return m_filePath;
 }
@@ -88,34 +111,11 @@ const std::string &TerrainGenerator::getFilePath()
 int TerrainGenerator::getGeneratingSeed()
 {
     return m_generatingSeed;
-}
+}*/
 
 ///
 ///Protected
 ///
-bool TerrainGenerator::loadFromXML(TiXmlHandle *hdl)
-{
-    bool loaded = true;
-
-    if(hdl == nullptr)
-        return (false);
-
-    TiXmlElement* element;
-
-    element = hdl->FirstChildElement("parameters").Element();
-    if(!element)
-        return (false);
-    this->loadParameters(element);
-
-
-    element = hdl->FirstChildElement("groundLayer").Element();
-    if(!element)
-        return (false);
-    this->loadGroundLayer(element, nullptr);
-
-    return loaded;
-
-}
 
 bool TerrainGenerator::loadParameters(TiXmlElement *element)
 {
@@ -143,7 +143,7 @@ bool TerrainGenerator::loadParameters(TiXmlElement *element)
 }
 
 
-bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer)
+bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer, const std::string &fileDirectory)
 {
     bool r = true;
 
@@ -151,7 +151,7 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     if(pathAtt == nullptr)
         return (false);
 
-    auto layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile(m_fileDirectory+std::string(pathAtt));
+    auto layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile(fileDirectory+std::string(pathAtt));
     if(!layerModel)
         return (false);
 
@@ -201,7 +201,7 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     TiXmlElement* childElement = child->ToElement();
     while(childElement != nullptr)
     {
-        if(!this->loadGroundLayer(childElement, groundLayer))
+        if(!this->loadGroundLayer(childElement, groundLayer, fileDirectory))
             r = false;
 
         childElement = childElement->NextSiblingElement("groundLayer");
@@ -385,7 +385,7 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
         if(m_generatingGrid[pos.y * m_gridSize.x + pos.x] !=  groundLayer->parentLayer)
             continue;
 
-        float spawnRandValue = pou::RNGesus::uniformFloat(0,1,&m_rng);
+        float spawnRandValue = pou::RNGesus::uniformFloat(0,1,m_rng);
         if(spawnRandValue > spawnProbability)
             continue;
 
@@ -435,7 +435,7 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
     }
 }**/
 
-void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent)
+void TerrainGenerator::generateSprites(int x, int y, WorldNode *targetNode)
 {
     for(auto &groundLayer : m_groundLayers)
     {
@@ -504,7 +504,7 @@ void TerrainGenerator::generateSprites(int x, int y, std::shared_ptr<WorldNode> 
         if(!tileModel)
             continue;
 
-        auto sprite = tileModel->generateSprite(x+y, &m_rng);//groundLayer.layerModel->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
+        auto sprite = tileModel->generateSprite(x+y, m_rng);//groundLayer.layerModel->generateSprite((TerrainGenerator_BorderType)boolGridValue, &m_rng);
         if(sprite)
         {
             targetNode->attachObject(sprite);

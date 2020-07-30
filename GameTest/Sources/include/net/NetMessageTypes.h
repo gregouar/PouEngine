@@ -126,8 +126,8 @@ struct NetMessage_WorldInit : public NetMessage_WorldSync
     int player_id;
     int dayTime;
 
-    std::string terrainGeneratorModel;
-    int terrainGeneratorSeed;
+    std::string worldGeneratorModel;
+    int worldGeneratorSeed;
 
 
     ///int worldGrid_nodeId;

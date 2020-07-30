@@ -12,7 +12,7 @@
 #include "net/NetMessageTypes.h"
 #include "world/WorldGrid.h"
 #include "world/GameWorld_Sync.h"
-#include "generators/TerrainGenerator.h"
+#include "generators/WorldGenerator.h"
 
 #include <thread>
 
@@ -74,7 +74,8 @@ class GameWorld : public pou::NotificationListener
         std::thread m_generatingThread;
         //std::mutex  m_serverMutex;
 
-        TerrainGenerator m_terrainGenerator;
+        //TerrainGenerator m_terrainGenerator;
+        WorldGenerator m_worldGenerator;
 
         pou::Scene *m_scene;
         std::shared_ptr<WorldNode> m_worldRootNode;
