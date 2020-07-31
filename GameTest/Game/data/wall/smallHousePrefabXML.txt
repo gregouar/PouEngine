@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<node name="root">
+		<node x=-128 y=0>
+			<rotate z=90 />
+			<prefab path="wallWithCollisionPrefabXML.txt" />
+		</node>
+		<node x=128>
+			<rotate z=90 />
+			<prefab path="wallWithCollisionPrefabXML.txt" />
+		</node>
+		<node x=0 y=-128>
+			<prefab path="wallWithCollisionPrefabXML.txt" />
+		</node>
+		<node x=0 y=128>
+			<prefab path="wallWithCollisionPrefabXML.txt" />
+		</node>
+	</node>
+	
+	<character path="../furnitures/barrel1XML.txt" x=64 y=64 />
+</prefab>

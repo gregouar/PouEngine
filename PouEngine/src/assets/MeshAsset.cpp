@@ -25,8 +25,9 @@ MeshAsset::MeshAsset(const AssetTypeId id) : Asset(id)
     m_materialsLoaded = false;
     m_material        = nullptr;
 
-    m_meshLoaded = false;
-    m_mesh       = nullptr;
+    m_meshLoading = false;
+    m_meshLoaded  = false;
+    m_mesh        = nullptr;
 }
 
 MeshAsset::~MeshAsset()
@@ -94,8 +95,10 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
 
     if(hdl == nullptr) return (false);
 
-    if(!m_meshLoaded)
+    if(!m_meshLoaded && !m_meshLoading)
     {
+        m_meshLoading = true;
+
         if(hdl->FirstChildElement("name").Element() != nullptr)
             m_name = hdl->FirstChildElement("name").Element()->GetText();
 
@@ -452,6 +455,7 @@ bool MeshAsset::generateModel(  std::vector<MeshVertex> &vertexList,
     m_mesh = new VMesh();
 
     CommandPoolName commandPoolName;
+
     if(m_loadType == LoadType_Now)
         commandPoolName = COMMANDPOOL_SHORTLIVED;
     else
@@ -462,6 +466,8 @@ bool MeshAsset::generateModel(  std::vector<MeshVertex> &vertexList,
 
     if(m_meshLoaded && m_materialsLoaded)
         m_loaded = true;
+
+    m_meshLoading = false;
 
     return m_meshLoaded;
 }

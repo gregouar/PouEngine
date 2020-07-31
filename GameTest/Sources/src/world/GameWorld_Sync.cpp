@@ -789,7 +789,7 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
 
         for(auto playerActionIt = m_syncPlayerActions.begin() ;
             playerActionIt !=m_syncPlayerActions.end() ; ++playerActionIt)
-            if(playerActionIt->second.first == player_id)
+            if((int)playerActionIt->second.first == player_id)
                 playerSyncMsg->lastPlayerActions.push_back({playerActionIt->first, playerActionIt->second.second});
 
         return;
@@ -849,7 +849,7 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
 void GameWorld_Sync::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> worldSyncMsg, size_t clientPlayerId, float RTT)
 {
     auto lastPlayerSyncTimeIt = m_lastPlayerSyncTime.lower_bound(clientPlayerId);
-    if(lastPlayerSyncTimeIt == m_lastPlayerSyncTime.end() || lastPlayerSyncTimeIt->first != clientPlayerId)
+    if(lastPlayerSyncTimeIt == m_lastPlayerSyncTime.end() || lastPlayerSyncTimeIt->first != (int)clientPlayerId)
         lastPlayerSyncTimeIt = m_lastPlayerSyncTime.insert(lastPlayerSyncTimeIt, {clientPlayerId,-1});
     auto &lastPlayerSyncTime = (lastPlayerSyncTimeIt->second);
 

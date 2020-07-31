@@ -132,6 +132,13 @@ bool SpriteSheetAsset::loadFromXML(TiXmlHandle *hdl)
                     spriteModel->setShadowCastingType(ShadowCasting_None);
             }
 
+            auto revealableElement = spriteElement->Attribute("revealable");
+            if(revealableElement != nullptr)
+            {
+                bool revealable = Parser::parseBool(revealableElement);
+                spriteModel->setRevealable(revealable);
+            }
+
             auto sizeElement = spriteElement->FirstChildElement("size");
             if(sizeElement != nullptr)
             {

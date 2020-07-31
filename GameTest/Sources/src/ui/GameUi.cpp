@@ -51,7 +51,7 @@ bool GameUi::init()
     m_playerHud->addChildNode(m_charNameText);
 
     m_RTTText = std::make_shared<pou::UiText>(this);
-    m_RTTText->setPosition(1024,0,0);
+    m_RTTText->setPosition(pou::Config::getInt("window","width"),0,0);
     m_RTTText->setFont(m_font);
     m_RTTText->setFontSize(16);
     //m_RTTText->setText("Poupou is da Pou");
@@ -126,13 +126,14 @@ void GameUi::updatePlayerList()
         auto screenSize = glm::vec2(pou::Config::getInt("window","width"),
                                     pou::Config::getInt("window","height"));
 
-        auto screenpos = glm::round(otherPlayerPos - playerPos
-                                      + screenSize*0.5f - glm::vec2(0,64));
-
-        screenpos = glm::clamp(screenpos, glm::vec2(0), screenSize);
+        auto screenpos = otherPlayerPos - playerPos + screenSize*0.5f - glm::vec2(0,64);
 
         p.playerNameText->setText(p.player->getPlayerName());
-        p.playerNameText->setPosition(screenpos); ///I should probably replace this by some kind of world->convertCoord
+
+        auto textWidth = p.playerNameText->computeTextSize()+p.playerNameText->getFontSize();
+        screenpos = glm::clamp(screenpos, glm::vec2(textWidth/2,0), screenSize-glm::vec2(textWidth/2,p.playerNameText->getFontSize()*1.5));
+
+        p.playerNameText->setPosition(glm::round(screenpos)); ///I should probably replace this by some kind of world->convertCoord
     }
 }
 

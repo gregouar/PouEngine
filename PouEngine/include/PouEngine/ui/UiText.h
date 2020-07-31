@@ -30,6 +30,8 @@ class UiText : public UiElement
         const std::string &getText() const;
         float getFontSize() const;
 
+        int computeTextSize();
+
     protected:
         void generatedGlyphes();
         int computeWordSize(size_t charPos);

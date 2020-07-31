@@ -20,4 +20,20 @@
 			</groundLayer>
 		</groundLayer>
 	</terrain>
+	
+	<!-- could add stuff like spawn groups -->
+	<characters>
+		<character path="treeXML.txt" groundLayer="grass" spawnProbability=.01>
+			<modifier type="position" rng="uniform" x=32 y=32 />
+			<modifier type="rotation" rng="uniform" z=180 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x=1 y=1 />
+		</character>
+		<character path="treeXML.txt" groundLayer="grass2" spawnProbability=.05>
+			<modifier type="position" rng="uniform" x=32 y=32 />
+			<modifier type="rotation" rng="uniform" z=180 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x=1 y=1 />
+		</character>
+	</characters>
 </biome>

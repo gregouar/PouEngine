@@ -120,7 +120,7 @@ bool SimpleNode::containsChildNode(std::shared_ptr<SimpleNode> childNode)
     return (false);
 }
 
-void SimpleNode::copyFrom(const SimpleNode* srcNode)
+void SimpleNode::copyFrom(const SimpleNode* srcNode, bool dontCopyChilds)
 {
     if(srcNode == nullptr)
         return;
@@ -130,6 +130,9 @@ void SimpleNode::copyFrom(const SimpleNode* srcNode)
     this->setScale(srcNode->getScale());
     this->setName(srcNode->getName());
     this->setRigidity(srcNode->getRigidity());
+
+    if(dontCopyChilds)
+        return;
 
     for(auto child : srcNode->m_childs)
     {

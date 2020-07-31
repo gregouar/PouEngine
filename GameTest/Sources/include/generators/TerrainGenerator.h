@@ -14,6 +14,8 @@ struct TerrainGenerator_GroundLayer
     TerrainGenerator_GroundLayer *parentLayer;
     TerrainLayerModelAsset *layerModel;
 
+    std::string name;
+
     bool    occulting;
     size_t  depth;
 
@@ -33,14 +35,20 @@ class TerrainGenerator
 
         void generatesOnNode(WorldNode *targetNode, pou::RNGenerator *rng);
 
-        const std::string &getFilePath();
-        int getGeneratingSeed();
+        //const std::string &getFilePath();
+        //int getGeneratingSeed();
+
+        glm::vec2 getGridSize();
+        glm::vec2 getTileSize();
+        const TerrainGenerator_GroundLayer *getGroundLayer(const std::string &name);
+
+        glm::vec2 getGridPosition(int x, int y);
+        TerrainGenerator_GroundLayer* getGridValue(int x, int y);
 
     protected:
         bool loadParameters(TiXmlElement *element);
         bool loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer, const std::string &fileDirectory);
 
-        TerrainGenerator_GroundLayer* getGridValue(int x, int y);
         size_t getGridDepth(int x, int y);
         //bool lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer);
         std::pair<bool, bool> lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer); //First is non occluded, second is potentially occluded

@@ -87,6 +87,7 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void setNextSprite(int spriteId, float delay);
 
         void setShadowCastingType(ShadowCastingType type);
+        void setRevealable(bool revealable);
 
 
         void setColor(Color color);
@@ -108,6 +109,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
 
         float           getNextSpriteDelay();
         SpriteModel*    getNextSpriteModel();
+
+        bool    isRevealable();
 
         SpriteSheetAsset* getSpriteSheet();
         size_t getSpriteId();
@@ -145,6 +148,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
 
         float   m_nextSpriteDelay;
         int     m_nextSprite;
+
+        bool    m_isRevealable;
 
         glm::vec4 m_color;
         glm::vec3 m_rme;

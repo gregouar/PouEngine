@@ -57,6 +57,7 @@ class MeshAsset : public Asset, public NotificationListener
         std::atomic<bool> m_materialsLoaded;
         MaterialAsset  *m_material; //Could be vector
 
+        bool    m_meshLoading;
         bool    m_meshLoaded;
         VMesh  *m_mesh;
 

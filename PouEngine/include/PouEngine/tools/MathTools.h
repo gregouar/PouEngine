@@ -17,6 +17,8 @@ bool detectSegmentCollision(glm::vec2 seg1, glm::vec2 seg2);
 bool detectBoxCollision(const Box &box1, const Box &box2,
                         const SimpleNode *node1 = nullptr, const SimpleNode *node2 = nullptr);
 
+bool isInBox(glm::vec2 position, const Box &box, const SimpleNode *boxNode = nullptr);
+
 std::pair<bool, float> computeRayToLineSegmentIntersection(glm::vec2 startRay, glm::vec2 directionRay,
                                                         glm::vec2 startLineSegment, glm::vec2 directionLineSegment);
 

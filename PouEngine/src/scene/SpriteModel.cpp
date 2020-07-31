@@ -82,6 +82,7 @@ SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_shadowCastingType(ShadowCasting_None),
     m_nextSpriteDelay(-1),
     m_nextSprite(-1),
+    m_isRevealable(false),
     m_color(1.0),
     m_rme(1.0,0.0,0.0),
     m_isReady(true),
@@ -220,6 +221,11 @@ void SpriteModel::setRme(glm::vec3 rme)
 void SpriteModel::setShadowCastingType(ShadowCastingType type)
 {
     m_shadowCastingType = type;
+}
+
+void SpriteModel::setRevealable(bool revealable)
+{
+    m_isRevealable = revealable;
 }
 
 bool SpriteModel::isUsingMaterial()
@@ -369,6 +375,11 @@ SpriteModel* SpriteModel::getNextSpriteModel()
         return (nullptr);
 
     return m_spriteSheet->getSpriteModel(m_nextSprite);
+}
+
+bool SpriteModel::isRevealable()
+{
+    return m_isRevealable;
 }
 
 

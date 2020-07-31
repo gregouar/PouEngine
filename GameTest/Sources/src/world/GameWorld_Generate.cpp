@@ -59,8 +59,29 @@ void GameWorld::generateImpl()
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent);
 
+
+    auto airBalloonModel = CharacterModelsHandler::loadAssetFromFile("../data/airBalloon/airBalloonXML.txt",loadType);
+    m_syncComponent.syncElement(airBalloonModel);
+    {
+        auto airBalloon = std::make_shared<Character>();
+        airBalloon->createFromModel(airBalloonModel);
+        //airBalloon->pou::SceneNode::setPosition(0);
+        //airBalloon->rotate(glm::vec3(0,0,pou::RNGesus::uniformInt(-2,2)*90),false);
+        m_worldGrid->addChildNode(airBalloon);
+        m_syncComponent.syncElement(airBalloon);
+    }
+
+
+
+
+
+
+
     auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
+
+
+
 
     /** generate tree using terrain grid ! **/
 
@@ -161,7 +182,17 @@ void GameWorld::generateImpl()
         m_syncComponent.syncElement(croco);
     }
 
-    auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
+
+    auto prefabHouseModel = PrefabsHandler::loadAssetFromFile("../data/wall/smallHousePrefabXML.txt");
+    m_syncComponent.syncElement(prefabHouseModel);
+    {
+        auto houseNode = prefabHouseModel->generate();
+        houseNode->move(512,512);
+        m_worldGrid->addChildNode(houseNode);
+        m_syncComponent.syncElement(houseNode);
+    }
+
+    /**auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
     m_syncComponent.syncElement(barrelModel);
     {
         glm::vec3 p(100,0,60);
@@ -181,13 +212,6 @@ void GameWorld::generateImpl()
     m_worldGrid->addChildNode(wallNode);
     m_syncComponent.syncElement(wallNode);
 
-    ///
-    /*wallNode = prefabWall->generate();
-    wallNode->move(0,128);
-    m_worldGrid->addChildNode(wallNode);
-    m_syncComponent.syncElement(wallNode);*/
-    ///
-
     wallNode = prefabWall->generate();
     wallNode->move(128,0);
     m_worldGrid->addChildNode(wallNode);
@@ -204,7 +228,7 @@ void GameWorld::generateImpl()
     m_worldGrid->addChildNode(wallNode);
     wallNode->rotate(glm::vec3(0,0,90),false);
     wallNode->move(128,64);
-    m_syncComponent.syncElement(wallNode);
+    m_syncComponent.syncElement(wallNode);**/
 
     m_scene->update(pou::Time(0));
     m_worldReady = true;
@@ -240,7 +264,7 @@ void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldI
     m_dayTime = worldInitMsg->dayTime;
 
     m_worldGenerator.loadFromFile(worldInitMsg->worldGeneratorModel);
-    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldInitMsg->worldGeneratorSeed, &m_syncComponent);
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldInitMsg->worldGeneratorSeed, &m_syncComponent, false);
 
     m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0,useLockStepMode);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();

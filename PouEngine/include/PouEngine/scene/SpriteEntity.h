@@ -87,10 +87,7 @@ class SpriteEntity : public ShadowCaster
 
         SpriteModel* getSpriteModel();
 
-        ///uint32_t getLastModelUptateTime();
-
         SpriteDatum getSpriteDatum();
-        //virtual void draw(SceneRenderer *renderer);
         virtual void generateRenderingData(SceneRenderingInstance *renderingInstance) override;
         virtual glm::vec2 castShadow(SceneRenderer *renderer, LightEntity* light) override;
 
@@ -99,12 +96,14 @@ class SpriteEntity : public ShadowCaster
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
 
-        ///virtual bool syncFrom(SpriteEntity* srcEntity);
-
     protected:
         void cleanup();
         void updateDatum();
         glm::vec2 generateShadowDatum(glm::vec3 direction);
+
+
+        void updateSpriteAnimation(const Time &elapsedTime);
+        void updateRevealingAnimation(const Time &elapsedTime);
 
         void copyTo(SpriteEntity *target);
 
@@ -113,7 +112,6 @@ class SpriteEntity : public ShadowCaster
         //SpriteShadowDatum    m_shadowDatum;
 
         SpriteModel *m_spriteModel;
-        ///uint32_t m_lastModelUpdateTime;
 
     private:
         float       m_rotation;
@@ -124,6 +122,8 @@ class SpriteEntity : public ShadowCaster
         bool            m_inheritRotation; ///Rename this to inheritsTransformations
 
         float   m_nextSpriteElapsedTime;
+
+        float   m_revealedAmount;
 };
 
 }

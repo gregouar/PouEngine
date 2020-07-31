@@ -185,7 +185,7 @@ void SceneNode::detachAllObjects()
 
 void SceneNode::copyFrom(const SceneNode* srcNode)
 {
-    SimpleNode::copyFrom(srcNode);
+    SimpleNode::copyFrom(srcNode, true);
 
     this->setColor(srcNode->getColor());
 
@@ -202,6 +202,13 @@ void SceneNode::copyFrom(const SceneNode* srcNode)
     {
         auto newObject = sound.second->createSoundCopy();
         this->attachSound(newObject, sound.first);
+    }
+
+    for(auto child : srcNode->m_childs)
+    {
+        std::shared_ptr<SceneNode> newNode = this->createChildNode();
+        if(newNode != nullptr)
+            newNode->copyFrom(dynamic_cast<SceneNode*>(child.get()));
     }
 }
 

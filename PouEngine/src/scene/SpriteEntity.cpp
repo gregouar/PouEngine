@@ -6,6 +6,7 @@
 #include "PouEngine/renderers/SceneRenderer.h"
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/LightEntity.h"
+#include "PouEngine/tools/MathTools.h"
 
 namespace pou
 {
@@ -198,7 +199,8 @@ SpriteEntity::SpriteEntity() :
     m_rme(1.0,1.0,1.0),
     m_ordering(NOT_ORDERED),
     m_inheritRotation(true),
-    m_nextSpriteElapsedTime(0)
+    m_nextSpriteElapsedTime(0),
+    m_revealedAmount(0)
 {
     this->updateDatum();
 }
@@ -420,24 +422,8 @@ void SpriteEntity::update(const Time &elapsedTime, uint32_t localTime)
 {
     ShadowCaster::update(elapsedTime, localTime);
 
-    m_nextSpriteElapsedTime += elapsedTime.count();
-
-    if(!m_spriteModel)
-        return;
-
-    float nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
-
-    while(nextSpriteDelay != -1 && m_spriteModel->getNextSpriteModel() != nullptr
-       && m_nextSpriteElapsedTime >= nextSpriteDelay)
-    {
-        m_nextSpriteElapsedTime -= nextSpriteDelay;
-        this->setSpriteModel(m_spriteModel->getNextSpriteModel());
-
-        if(m_spriteModel == nullptr)
-            break;
-
-        nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
-    }
+    this->updateSpriteAnimation(elapsedTime);
+    this->updateRevealingAnimation(elapsedTime);
 }
 
 void SpriteEntity::notify(NotificationSender *sender, int notificationType,
@@ -492,7 +478,7 @@ void SpriteEntity::updateDatum()
 
     //float heightFactor = 1.0;
 
-    m_datum.albedo_color = m_color * m_parentNode->getFinalColor();
+    m_datum.albedo_color = m_color * m_parentNode->getFinalColor() * glm::vec4(1,1,1,1.0f-m_revealedAmount);
     m_datum.rme_color = m_rme;
 
     m_datum.albedo_texId = {0,0};
@@ -567,6 +553,76 @@ void SpriteEntity::copyTo(SpriteEntity *target)
     target->setInheritRotation(m_inheritRotation);
     target->setSpriteModel(m_spriteModel);
     target->setShadowCastingType(m_shadowCastingType);
+}
+
+void SpriteEntity::updateSpriteAnimation(const Time &elapsedTime)
+{
+    m_nextSpriteElapsedTime += elapsedTime.count();
+
+    if(!m_spriteModel)
+        return;
+
+    float nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
+
+    while(nextSpriteDelay != -1 && m_spriteModel->getNextSpriteModel() != nullptr
+       && m_nextSpriteElapsedTime >= nextSpriteDelay)
+    {
+        m_nextSpriteElapsedTime -= nextSpriteDelay;
+        this->setSpriteModel(m_spriteModel->getNextSpriteModel());
+
+        if(m_spriteModel == nullptr)
+            break;
+
+        nextSpriteDelay = m_spriteModel->getNextSpriteDelay();
+    }
+}
+
+void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
+{
+    if(!m_spriteModel || !m_spriteModel->isRevealable())
+        return;
+
+    MathTools::Box box;
+    box.size = m_spriteModel->getSize();
+    box.center = m_spriteModel->getCenter();
+
+    bool shouldBeRevealed = false;
+
+    if(!m_parentNode)
+        return;
+
+    auto scene = m_parentNode->getScene();
+
+    if(!scene)
+        return;
+
+    auto revealingProbes = scene->getRevealingProbes();
+    for(auto probe : revealingProbes)
+    {
+        if(MathTools::isInBox(probe->getGlobalXYPosition(), box, m_parentNode))
+        {
+            shouldBeRevealed = true;
+            break;
+        }
+    }
+
+    if(shouldBeRevealed)
+    {
+        if(m_revealedAmount != 0.5)
+        {
+            m_revealedAmount += elapsedTime.count();
+            if(m_revealedAmount > 0.5)
+                m_revealedAmount = 0.5;
+            this->updateDatum();
+        }
+    }
+    else if(m_revealedAmount != 0.0)
+    {
+        m_revealedAmount -= elapsedTime.count();
+        if(m_revealedAmount < 0.0)
+            m_revealedAmount = 0.0;
+        this->updateDatum();
+    }
 }
 
 

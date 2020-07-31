@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>AirBalloonMaterial</name>
+	<texture type="albedo">airballoon.png</texture>
+	<texture type="normal">airballoon_n.png</texture>
+	<roughness>.8</roughness>
+	<metalness>0</metalness>
+	<emissivity>0.0</emissivity>
+</material>

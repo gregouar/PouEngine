@@ -108,6 +108,11 @@ float UiText::getFontSize() const
     return m_fontSize;
 }
 
+int UiText::computeTextSize()
+{
+    return this->computeTextSize(0, m_text.length());
+}
+
 ///
 ///Protected
 ///

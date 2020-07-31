@@ -38,7 +38,7 @@ class SimpleNode : public NotificationSender, public NotificationListener
 
         virtual bool containsChildNode(std::shared_ptr<SimpleNode> childNode);
 
-        virtual void copyFrom(const SimpleNode* srcNode); //Also copy childs
+        virtual void copyFrom(const SimpleNode* srcNode, bool dontCopyChilds = false);
 
         void move(float, float);
         void move(float, float, float);

@@ -3,6 +3,23 @@
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/tools/Logger.h"
 
+#include "PouEngine/assets/AssetHandler.h"
+#include "assets/CharacterModelAsset.h"
+
+
+WorldGenerator_CharacterModel_Modifier::WorldGenerator_CharacterModel_Modifier()
+{
+    randomType = WorldGenerator_RandomType_None;
+    minValue = glm::vec4(0);
+    maxValue = glm::vec4(0);
+    for(int i = 0 ; i < 4 ; ++i)
+        usePrecedingValue[i] = -1;
+}
+
+
+///
+///WorldGenerator
+///
 
 WorldGenerator::WorldGenerator()
 {
@@ -37,19 +54,20 @@ bool WorldGenerator::loadFromFile(const std::string &filePath)
 }
 
 
-void WorldGenerator::generatesOnNode(WorldNode *targetNode, int seed, GameWorld_Sync *syncComponent)
+void WorldGenerator::generatesOnNode(WorldNode *targetNode, int seed, GameWorld_Sync *syncComponent,
+                                     bool generateCharacters)
 {
     m_generatingSeed = seed;
     m_rng.seed(seed);
 
     m_terrainGenerator.generatesOnNode(targetNode, &m_rng);
+
+    if(generateCharacters)
+        this->generateCharacters(targetNode, syncComponent);
 }
 
 void WorldGenerator::playWorldMusic()
 {
-    std::cout<<"PLAY WORLD MUSIC"<<std::endl;
-    std::cout<<m_parameters.musicModel.isEvent()<<std::endl;
-    std::cout<<m_parameters.musicModel.getPath()<<std::endl;
     if(m_parameters.musicModel.isEvent())
     {
         auto musicEvent = pou::AudioEngine::createEvent(m_parameters.musicModel.getPath());
@@ -90,6 +108,10 @@ bool WorldGenerator::loadFromXML(TiXmlHandle *hdl)
         return (false);
     m_terrainGenerator.loadFromXML(&terrainHdl, m_fileDirectory);
 
+    element = hdl->FirstChildElement("characters").Element();
+    if(element)
+        this->loadCharacters(element);
+
     return loaded;
 }
 
@@ -101,3 +123,219 @@ bool WorldGenerator::loadParameters(TiXmlElement *element)
 
     return (true);
 }
+
+bool WorldGenerator::loadCharacters(TiXmlElement *element)
+{
+    bool loaded = true;
+
+    auto characterChild = element->FirstChildElement("character");
+    while(characterChild != nullptr)
+    {
+        auto characterElement = characterChild->ToElement();
+        this->loadCharacter(characterElement);
+        characterChild = characterChild->NextSiblingElement("character");
+    }
+
+    return loaded;
+}
+
+bool WorldGenerator::loadCharacter(TiXmlElement *characterElement)
+{
+    auto pathAtt = characterElement->Attribute("path");
+    auto groundLayerAtt = characterElement->Attribute("groundLayer");
+    auto spawnProbabilityAtt = characterElement->Attribute("spawnProbability");
+
+    if(!pathAtt)
+        return (false);
+
+    auto modelAsset = CharacterModelsHandler::loadAssetFromFile(m_fileDirectory+pathAtt);
+    if(!modelAsset)
+        return (false);
+
+    m_characterModels.push_back({});
+    auto &characterModel = m_characterModels.back();
+
+    characterModel.modelAsset = modelAsset;
+
+    if(groundLayerAtt)
+        characterModel.groundLayer = m_terrainGenerator.getGroundLayer(groundLayerAtt);
+
+    if(spawnProbabilityAtt)
+        characterModel.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+
+    auto modifierChild = characterElement->FirstChildElement("modifier");
+    while(modifierChild != nullptr)
+    {
+        auto modifierElement = modifierChild->ToElement();
+
+        auto typeAtt = modifierElement->Attribute("type");
+        if(typeAtt)
+        {
+            int type = 0;
+            if(std::string(typeAtt) == "position")
+                type = WorldGenerator_CharacterModel_ModifierType_Position;
+            else if(std::string(typeAtt) == "rotation")
+                type = WorldGenerator_CharacterModel_ModifierType_Rotation;
+            else if(std::string(typeAtt) == "flip")
+                type = WorldGenerator_CharacterModel_ModifierType_Flip;
+            else if(std::string(typeAtt) == "color")
+                type = WorldGenerator_CharacterModel_ModifierType_Color;
+
+            auto &randomModifier = characterModel.randomModifiers[type];
+
+            auto rngAtt = modifierElement->Attribute("rng");
+            if(rngAtt)
+            {
+                if(std::string(rngAtt) == "uniform")
+                    randomModifier.randomType = WorldGenerator_RandomType_Uniform;
+                else if(std::string(rngAtt) == "gaussian")
+                    randomModifier.randomType = WorldGenerator_RandomType_Gaussian;
+            }
+
+            for(int i = 0 ; i < 4 ; ++i)
+                this->loadRandomModifierValue(modifierElement, i, randomModifier);
+
+            /*auto valueAtt = modifierElement->Attribute("x");
+            if(!valueAtt) valueAtt = modifierElement->Attribute("r");
+            if(valueAtt)
+            {
+                if()
+            }*/
+        }
+
+        modifierChild = modifierChild->NextSiblingElement("modifier");
+    }
+
+    return (true);
+}
+
+void WorldGenerator::loadRandomModifierValue(TiXmlElement *element, int i, WorldGenerator_CharacterModel_Modifier &modifier)
+{
+    const char *valueAtt(nullptr);
+
+    if(i == 0)
+    {
+        valueAtt = element->Attribute("x");
+        if(!valueAtt)
+            valueAtt = element->Attribute("r");
+    } else if(i == 1) {
+        valueAtt = element->Attribute("y");
+        if(!valueAtt)
+            valueAtt = element->Attribute("g");
+    } else if(i == 2) {
+        valueAtt = element->Attribute("z");
+        if(!valueAtt)
+            valueAtt = element->Attribute("b");
+    } else if(i == 3) {
+        valueAtt = element->Attribute("w");
+        if(!valueAtt)
+            valueAtt = element->Attribute("a");
+    }
+
+    if(!valueAtt)
+        return;
+
+    auto valueString = std::string(valueAtt);
+
+    if(pou::Parser::isFloat(valueString))
+    {
+        modifier.maxValue[i] = pou::Parser::parseFloat(valueString);
+        modifier.minValue[i] = -modifier.maxValue[i];
+    }
+    else {
+        if(valueString == "x" || valueString == "r")
+            modifier.usePrecedingValue[i] = 0;
+        else if(valueString == "y" || valueString == "g")
+            modifier.usePrecedingValue[i] = 1;
+        else if(valueString == "z" || valueString == "b")
+            modifier.usePrecedingValue[i] = 2;
+        else if(valueString == "w" || valueString == "a")
+            modifier.usePrecedingValue[i] = 3;
+        else if(valueString.length() > 1 && valueString[0] == '[')
+        {
+            auto middleDelimiter = valueString.find(',', 1);
+            if(middleDelimiter == std::string::npos)
+                return;
+
+            auto rightDelimiter = valueString.find(']', middleDelimiter+1);
+            auto leftStr = valueString.substr(1, middleDelimiter-1);
+            auto rightStr = valueString.substr(middleDelimiter+1, rightDelimiter-middleDelimiter-1);
+
+            modifier.minValue[i] = pou::Parser::parseFloat(leftStr);
+            modifier.maxValue[i] = pou::Parser::parseFloat(rightStr);
+        }
+    }
+}
+
+void WorldGenerator::generateCharacters(WorldNode *targetNode, GameWorld_Sync *syncComponent)
+{
+    for(int y = 0 ; y < m_terrainGenerator.getGridSize().y ; y++)
+    for(int x = 0 ; x < m_terrainGenerator.getGridSize().x ; x++)
+    {
+        for(auto &characterModel : m_characterModels)
+        if(characterModel.groundLayer == m_terrainGenerator.getGridValue(x,y))
+        {
+            float randValue = pou::RNGesus::uniformFloat(0,1,&m_rng);
+            if(randValue <= characterModel.spawnProbability)
+                this->generateCharacter(x, y, characterModel, targetNode, syncComponent);
+        }
+    }
+}
+
+void WorldGenerator::generateCharacter(int x, int y, WorldGenerator_CharacterModel &characterModel,
+                                       WorldNode *targetNode, GameWorld_Sync *syncComponent)
+{
+    auto character = std::make_shared<Character>();
+    character->createFromModel(characterModel.modelAsset);
+
+    glm::vec2 pos = m_terrainGenerator.getGridPosition(x,y);
+    if(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Position].randomType != WorldGenerator_RandomType_None)
+    {
+        auto v = this->generateRandomValue(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Position]);
+        pos += glm::vec2(v);
+    }
+    character->setPosition(pos);
+
+    if(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Rotation].randomType != WorldGenerator_RandomType_None)
+    {
+        auto v = this->generateRandomValue(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Rotation]);
+        character->setRotation(v,false);
+    }
+
+    if(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Flip].randomType != WorldGenerator_RandomType_None)
+    {
+        auto v = this->generateRandomValue(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Flip]);
+        auto scale = glm::vec3(v.x >= 0 ? 1 : -1, v.y >= 0 ? 1 : -1, 1);
+        character->scale(scale);
+    }
+
+    if(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Color].randomType != WorldGenerator_RandomType_None)
+    {
+        auto v = this->generateRandomValue(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Color]);
+        character->colorize(v);
+    }
+
+    targetNode->addChildNode(character);
+    syncComponent->syncElement(character);
+}
+
+glm::vec4 WorldGenerator::generateRandomValue(WorldGenerator_CharacterModel_Modifier &modifier)
+{
+    glm::vec4 randomValue(0);
+
+    for(int i = 0 ; i < 4 ; ++i)
+    {
+        if(modifier.usePrecedingValue[i] != -1)
+        {
+            randomValue[i] = randomValue[modifier.usePrecedingValue[i]];
+            continue;
+        }
+
+        if(modifier.randomType == WorldGenerator_RandomType_Uniform)
+            randomValue[i] = pou::RNGesus::uniformFloat(modifier.minValue[i], modifier.maxValue[i], &m_rng);
+    }
+
+    return randomValue;
+}
+
+

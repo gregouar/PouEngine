@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<skeleton>
+	<node name="root"> 
+		<node name="basket" z=30 />
+		<node name="balloon" z=300 x=50 y=-50 />
+	</node>
+	
+	
+	<animation name="stand" loop=1>
+		<frame frameTime=".01">
+			<!--<command type="colorTo" node="balloon" a=-.25 />-->
+			<command type="moveTo" node="balloon" y=0 x=25 />
+			<!--<reset />-->
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=12.5 x=21.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=17.5 x=17.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=21.5 x=12.5 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=25 x=0 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=21.5 x=-12.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=17.5 x=-17.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=12.5 x=-21.5 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=0 x=-25 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=-12.5 x=-21.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=-17.5 x=-17.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=-21.5 x=-12.5 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=-25 x=0 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=-21.5 x=12.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=-17.5 x=17.5 />
+		</frame>
+		<frame frameTime="1">
+			<command type="moveTo" node="balloon" y=-12.5 x=21.5 />
+		</frame>
+		<frame frameTime="2">
+			<command type="moveTo" node="balloon" y=0 x=25 />
+		</frame>
+	</animation>
+</skeleton>
+
+

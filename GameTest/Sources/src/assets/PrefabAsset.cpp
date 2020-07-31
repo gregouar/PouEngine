@@ -375,7 +375,7 @@ bool PrefabAsset::loadPrefab(WorldNode *node, TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
-    auto prefabModel= PrefabsHandler::loadAssetFromFile(m_fileDirectory + std::string(pathAtt));
+    auto prefabModel = PrefabsHandler::loadAssetFromFile(m_fileDirectory + std::string(pathAtt));
 
     auto newNode = prefabModel->generate();
     node->addChildNode(newNode);

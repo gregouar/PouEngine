@@ -81,6 +81,25 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
 }
 
 
+bool isInBox(glm::vec2 position, const Box &box, const SimpleNode *boxNode)
+{
+    if(boxNode)
+    {
+        auto mat = boxNode->getInvModelMatrix();
+        glm::vec4 vec4Pos = glm::vec4(position,0,1);
+        vec4Pos = mat*vec4Pos;
+        vec4Pos /= vec4Pos.w;
+        position = glm::vec2(vec4Pos);
+    }
+
+    if(position.x >= -box.center.x && position.y >= -box.center.y
+    && position.x <= -box.center.x + box.size.x
+    && position.y <= -box.center.y + box.size.y )
+        return (true);
+    return (false);
+}
+
+
 std::pair<bool, float> computeRayToLineSegmentIntersection(glm::vec2 u0, glm::vec2 v0,
                                                             glm::vec2 u1, glm::vec2 v1)
 {

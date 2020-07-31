@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<spritesheet name="mainSpriteSheet" path="airBalloonSpritesheet.txt" />
+	
+	<skeleton name="mainSkeleton" path="airBalloonSkeletonXML.txt">
+		<limb node="basket" 	sprite="basket" 	spritesheet="mainSpriteSheet" />
+		<limb node="balloon" 	sprite="balloon" 	spritesheet="mainSpriteSheet" />
+	</skeleton>
+	
+	<collisions>
+		<box>
+			<size 		x=228 	y=228 	/>
+			<center 	x=114 	y=114 	/>
+			<mass>-1</mass>
+		</box>
+	</collisions>
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>1</life>
+	</attributes>
+</character>

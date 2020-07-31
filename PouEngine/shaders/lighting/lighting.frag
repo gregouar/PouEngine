@@ -372,7 +372,7 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
     if(attenuation > 0)
     {
         vec3 radiance = attenuation*lightColor.rgb;
-        vec3 viewDirection = normalize(/*pc.camPosAndZoom.xyz +*/ vec3(0.0,0.0,500.0) - fragPos);
+        vec3 viewDirection = normalize(/*pc.camPosAndZoom.xyz +*/ vec3(0.0,0.0,1000.0) - fragPos);
         vec3 surfaceReflection0 = vec3(0.04);
         surfaceReflection0 = mix(surfaceReflection0, fragAlbedo.rgb, fragRme.g);
 

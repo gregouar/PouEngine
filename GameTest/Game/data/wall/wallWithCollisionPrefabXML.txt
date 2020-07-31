@@ -15,5 +15,5 @@
 		<sprite sprite="body_1" spritesheet="mainSpriteSheet"  />-->
 	</node>
 	
-	<character path="../duck/duckXML.txt" x=100 />
+	<!--<character path="../duck/duckXML.txt" x=100 />-->
 </prefab>

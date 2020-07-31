@@ -10,6 +10,8 @@
 
 #include "PouEngine/renderers/UiRenderer.h"
 
+#include "PouEngine/core/Config.h"
+
 #include "PouEngine/ui/UiText.h"
 #include "PouEngine/ui/UiTextInput.h"
 
@@ -45,7 +47,7 @@ void MainMenuState::init()
     title->setText("ProjectW");
     title->setFontSize(64);
     title->setFont(font);
-    title->setPosition(1024/2,100);
+    title->setPosition(pou::Config::getInt("window","width")/2,100);
     title->setTextAlign(pou::TextAlignType_Center);
     m_ui.addRootElement(title);
 

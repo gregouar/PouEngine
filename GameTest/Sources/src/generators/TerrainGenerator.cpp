@@ -113,6 +113,42 @@ int TerrainGenerator::getGeneratingSeed()
     return m_generatingSeed;
 }*/
 
+glm::vec2 TerrainGenerator::getGridSize()
+{
+    return m_gridSize;
+}
+
+glm::vec2 TerrainGenerator::getTileSize()
+{
+    return m_tileSize;
+}
+
+const TerrainGenerator_GroundLayer *TerrainGenerator::getGroundLayer(const std::string &name)
+{
+    for(auto it = m_groundLayers.begin() ; it != m_groundLayers.end() ; ++it)
+    {
+        if(it->name == name)
+            return &(*it);
+    }
+    return (nullptr);
+}
+
+
+glm::vec2 TerrainGenerator::getGridPosition(int x, int y)
+{
+    return glm::vec2(x,y) * m_tileSize - (m_gridSize) * m_tileSize * 0.5f;
+}
+
+TerrainGenerator_GroundLayer* TerrainGenerator::getGridValue(int x, int y)
+{
+    return m_generatingGrid[y * m_gridSize.x + x];
+}
+
+size_t TerrainGenerator::getGridDepth(int x, int y)
+{
+    return m_generatingGrid[y * m_gridSize.x + x]->depth;
+}
+
 ///
 ///Protected
 ///
@@ -160,6 +196,10 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     groundLayer->parentLayer = parentLayer;
     groundLayer->layerModel  = layerModel;
 
+
+    auto nameAtt = element->Attribute("name");
+    if(nameAtt)
+        groundLayer->name = std::string(nameAtt);
 
     bool occulting = true;
 
@@ -210,15 +250,6 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     return r;
 }
 
-TerrainGenerator_GroundLayer* TerrainGenerator::getGridValue(int x, int y)
-{
-    return m_generatingGrid[y * m_gridSize.x + x];
-}
-
-size_t TerrainGenerator::getGridDepth(int x, int y)
-{
-    return m_generatingGrid[y * m_gridSize.x + x]->depth;
-}
 
 
 std::pair<bool, bool> TerrainGenerator::lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer)
@@ -439,7 +470,7 @@ void TerrainGenerator::generateSprites(int x, int y, WorldNode *targetNode)
 {
     for(auto &groundLayer : m_groundLayers)
     {
-        auto layerDepth = groundLayer.depth;
+        //auto layerDepth = groundLayer.depth;
 
         /*if(this->getGridDepth(x,    y)      < layerDepth
         && this->getGridDepth(x+1,  y)      < layerDepth

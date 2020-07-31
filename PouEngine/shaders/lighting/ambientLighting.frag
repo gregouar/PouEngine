@@ -123,7 +123,7 @@ vec4 computeAmbientLighting(vec4 fragAlbedo, vec3 fragPos, vec4 fragNormal, vec3
 {
     vec3 ambientLighting = ubo.ambientLight.rgb * ubo.ambientLight.a;
 
-    vec3 viewDirection = normalize(vec3(0.0,0.0,500.0) - fragPos);
+    vec3 viewDirection = normalize(vec3(0.0,0.0,1000.0) - fragPos);
     float NdotV = max(dot(fragNormal.xyz, viewDirection), 0.0);
 
     vec3 surfaceReflection0 = vec3(0.04);
