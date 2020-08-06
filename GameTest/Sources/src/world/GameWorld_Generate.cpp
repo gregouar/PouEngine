@@ -74,18 +74,10 @@ void GameWorld::generateImpl()
 
 
 
-
-
-
-    auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
+    /*auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
 
-
-
-
-    /** generate tree using terrain grid ! **/
-
-    /*for(auto x = -10 ; x < 10 ; x++)
+    for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     {
         glm::vec3 p = glm::vec3(pou::RNGesus::uniformFloat(-640.0f,640.0f),
@@ -113,7 +105,7 @@ void GameWorld::generateImpl()
         m_syncComponent.syncElement(tree);
     }*/
 
-    auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt",loadType);
+    /**auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt",loadType);
     m_syncComponent.syncElement(lanternModel);
 
     for(auto x = -10 ; x < 10 ; x++)
@@ -133,9 +125,9 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(lantern);
 
         m_syncComponent.syncElement(lantern);
-    }
+    }*/
 
-    auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt",loadType);
+    /**auto duckModel = CharacterModelsHandler::loadAssetFromFile("../data/duck/duckXML.txt",loadType);
     m_syncComponent.syncElement(duckModel);
 
     for(auto x = -10 ; x < 10 ; x++)
@@ -190,7 +182,7 @@ void GameWorld::generateImpl()
         houseNode->move(512,512);
         m_worldGrid->addChildNode(houseNode);
         m_syncComponent.syncElement(houseNode);
-    }
+    }**/
 
     /**auto barrelModel = CharacterModelsHandler::loadAssetFromFile("../data/furnitures/barrel1XML.txt",loadType);
     m_syncComponent.syncElement(barrelModel);

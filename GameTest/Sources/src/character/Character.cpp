@@ -841,6 +841,11 @@ CharacterInput *Character::getInput()
     return m_input.get();
 }
 
+AiComponent *Character::getAi()
+{
+    return m_aiComponent.get();
+}
+
 const CharacterAttributes &Character::getAttributes() const
 {
     return m_attributes.getValue();

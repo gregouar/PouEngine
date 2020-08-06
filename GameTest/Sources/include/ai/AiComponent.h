@@ -26,6 +26,9 @@ class AiComponent : public pou::NotificationListener
 
         //uint32_t getLastUpdateTime();
 
+        void setTarget(Character *target);
+        Character *getTarget();
+
         pou::SyncComponent *getSyncComponent();
 
     protected:

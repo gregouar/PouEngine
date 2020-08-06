@@ -35,5 +35,24 @@
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
 			<modifier type="flip" rng="uniform" x=1 y=1 />
 		</character>
+		
+		<character path="../poleWithLantern/poleWithLanternXML.txt" groundLayer="dirt" spawnProbability=.01>
+			<modifier type="position" rng="uniform" x=32 y=32 />
+			<modifier type="rotation" rng="uniform" z=180 />
+		</character>
+		<character path="../poleWithLantern/poleWithLanternXML.txt" groundLayer="grass" spawnProbability=.01>
+			<modifier type="position" rng="uniform" x=32 y=32 />
+			<modifier type="rotation" rng="uniform" z=180 />
+		</character>
+		
+		<character path="../duck/duckXML.txt" groundLayer="grass" spawnProbability=.01/>
+		<character path="../duck/duckXML.txt" groundLayer="grass2" spawnProbability=.01/>
+		
+		<spawnGroup>
+			<character path="../duck/duckXML.txt" spawnProbability=1 number="[2,5]" />
+		</spawnGroup>
 	</characters>
+	
 </biome>
+
+

@@ -42,6 +42,31 @@ std::list<glm::vec2> &AiComponent::getPlannedPath()
     return m_pathfinder.getPath();
 }
 
+
+void AiComponent::setTarget(Character *target)
+{
+    if(m_target == target)
+        return;
+
+    if(m_target)
+        this->stopListeningTo(m_target, pou::NotificationType_SenderDestroyed);
+
+    m_target = target;
+
+    if(m_target)
+    {
+        this->startListeningTo(m_target, pou::NotificationType_SenderDestroyed);
+        m_targetId.setValue(m_target->getCharacterSyncId());
+    } else
+        m_targetId.setValue(0);
+}
+
+Character *AiComponent::getTarget()
+{
+    return m_target;
+}
+
+
 pou::SyncComponent *AiComponent::getSyncComponent()
 {
     return &m_syncComponent;
@@ -67,9 +92,13 @@ void AiComponent::serialize(pou::Stream *stream, uint32_t clientTime)
 ///Protected
 ///
 
-void AiComponent::notify(pou::NotificationSender*, int notificationType, void* data)
+void AiComponent::notify(pou::NotificationSender* sender, int notificationType, void* data)
 {
-
+    if(notificationType == pou::NotificationType_SenderDestroyed)
+    {
+        if(sender == m_target)
+            this->setTarget(nullptr);
+    }
 }
 
 void AiComponent::avoidCollisionsTo(glm::vec2 destination)

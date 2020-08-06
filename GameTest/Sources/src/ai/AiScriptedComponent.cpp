@@ -46,17 +46,9 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
         float distance = glm::dot(direction,direction);
 
         if(distance > 1000.0f * 1000.0f)
-        {
-            m_target = nullptr;
-            this->stopListeningTo(m_target,pou::NotificationType_SenderDestroyed);
-            m_targetId.setValue(0);
-        }
+            this->setTarget(nullptr);
         else if(distance > 70.0f*70.0f)
-        {
             this->avoidCollisionsTo(m_target->getGlobalXYPosition());
-            //input->setWalkingDirection(direction);
-            //input->setLookingDirection(direction);
-        }
         else
             input->setAttacking(true, direction);
 
@@ -70,12 +62,6 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
 void AiScriptedComponent::notify(pou::NotificationSender* sender, int notificationType, void* data)
 {
     AiComponent::notify(sender, notificationType, data);
-
-    if(notificationType == pou::NotificationType_SenderDestroyed)
-    {
-        if(sender == m_target)
-            m_target = nullptr;
-    }
 }
 
 
@@ -83,33 +69,48 @@ void AiScriptedComponent::notify(pou::NotificationSender* sender, int notificati
 void AiScriptedComponent::lookForTarget(float maxDistance)
 {
     Character *closestEnemy = nullptr;
-    float closestDistance = -1;
+    float closestEnemyDistance = -1;
+
+    Character *closestFriendWithTarget = nullptr;
+    float closestFriendDistance = -1;
 
     auto nearbyCharacters = m_character->getNearbyCharacters();
     if(!nearbyCharacters)
         return;
 
-    for(auto enemy : *nearbyCharacters)
+    for(auto otherCharacter : *nearbyCharacters)
     {
-        if(!enemy->isAlive())
-            continue;
-        if(enemy->getTeam() == m_character->getTeam())
+        if(!otherCharacter->isAlive())
             continue;
 
-        float distance = glm::dot(enemy/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition(),
-                                  enemy/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition());
-        if(closestDistance == -1 || closestDistance > distance)
+        float distance = glm::dot(otherCharacter/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition(),
+                                  otherCharacter/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition());
+
+        if(otherCharacter->getTeam() == m_character->getTeam())
         {
-            closestEnemy = enemy;
-            closestDistance = distance;
+            auto otherCharAi = otherCharacter->getAi();
+            if(otherCharAi && otherCharAi->getTarget())
+            if(closestFriendDistance == -1 || closestFriendDistance > distance)
+            {
+                closestFriendWithTarget = otherCharacter;
+                closestFriendDistance = distance;
+            }
+            continue;
+        }
+
+        if(closestEnemyDistance == -1 || closestEnemyDistance > distance)
+        {
+            closestEnemy = otherCharacter;
+            closestEnemyDistance = distance;
         }
     }
 
-    if(closestDistance != -1 && closestDistance < maxDistance*maxDistance)
+    if(closestEnemyDistance != -1 && closestEnemyDistance < maxDistance*maxDistance)
+        this->setTarget(closestEnemy);
+    else if(closestFriendDistance != -1 && closestFriendDistance < maxDistance*maxDistance)
     {
-        m_target = closestEnemy;
-        this->startListeningTo(m_target,pou::NotificationType_SenderDestroyed);
-        m_targetId.setValue(m_target->getCharacterSyncId());
+        auto otherCharAi = closestFriendWithTarget->getAi();
+        this->setTarget(otherCharAi->getTarget());
     }
 }
 

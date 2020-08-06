@@ -174,6 +174,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         CharacterModelAsset *getModel() const;
         CharacterSkeleton   *getSkeleton(const std::string &skeletonName);
         CharacterInput      *getInput();
+        AiComponent         *getAi();
 
         const CharacterAttributes       &getAttributes() const;
         const CharacterModelAttributes  &getModelAttributes() const;

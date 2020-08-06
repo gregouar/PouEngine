@@ -316,7 +316,9 @@ void WorldGenerator::generateCharacter(int x, int y, WorldGenerator_CharacterMod
     }
 
     targetNode->addChildNode(character);
+
     syncComponent->syncElement(character);
+    syncComponent->syncElement(characterModel.modelAsset);
 }
 
 glm::vec4 WorldGenerator::generateRandomValue(WorldGenerator_CharacterModel_Modifier &modifier)
