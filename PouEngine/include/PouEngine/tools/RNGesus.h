@@ -2,6 +2,7 @@
 #define RNGESUS_H
 
 #include "PouEngine/core/Singleton.h"
+#include "PouEngine/Types.h"
 
 #include <random>
 
@@ -34,6 +35,8 @@ class RNGesus : public Singleton<RNGesus>
         static int rand(RNGenerator *generator = nullptr);
         static int uniformInt(int min, int max, RNGenerator *generator = nullptr);
         static float uniformFloat(float min, float max, RNGenerator *generator = nullptr);
+        static glm::vec2 uniformVec2(glm::vec2 min, glm::vec2 max, RNGenerator *generator = nullptr);
+        static glm::vec2 uniformVec2InAnnulus(float minRadius, float maxRadius, RNGenerator *generator = nullptr);
 
     protected:
         RNGesus();

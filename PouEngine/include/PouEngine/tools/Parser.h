@@ -23,6 +23,10 @@ class Parser : public Singleton<Parser>
         static int   parseInt(const std::string&);
         static float parseFloat(const std::string&);
 
+        static void parseSegment(const std::string&, std::string &lhs, std::string &rhs);
+        static std::pair<float, float> parseFloatSegment(const std::string&);
+        static std::pair<int, int> parseIntSegment(const std::string&);
+
         static std::string findFileDirectory(const std::string&);
         static std::string findFileExtension(const std::string&);
         static std::string removeFileExtension(const std::string&);
@@ -30,6 +34,7 @@ class Parser : public Singleton<Parser>
     protected:
         Parser();
         virtual ~Parser();
+
 
     private:
 };

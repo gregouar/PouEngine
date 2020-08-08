@@ -123,6 +123,12 @@ glm::vec2 TerrainGenerator::getTileSize()
     return m_tileSize;
 }
 
+
+glm::vec2 TerrainGenerator::getExtent()
+{
+    return this->getGridSize() * this->getTileSize();
+}
+
 const TerrainGenerator_GroundLayer *TerrainGenerator::getGroundLayer(const std::string &name)
 {
     for(auto it = m_groundLayers.begin() ; it != m_groundLayers.end() ; ++it)
@@ -134,9 +140,15 @@ const TerrainGenerator_GroundLayer *TerrainGenerator::getGroundLayer(const std::
 }
 
 
-glm::vec2 TerrainGenerator::getGridPosition(int x, int y)
+glm::vec2 TerrainGenerator::gridToWorldPosition(int x, int y)
 {
-    return glm::vec2(x,y) * m_tileSize - (m_gridSize) * m_tileSize * 0.5f;
+    return glm::vec2(x,y) * m_tileSize - m_gridSize * m_tileSize * 0.5f;
+}
+
+glm::ivec2 TerrainGenerator::worldToGridPosition(glm::vec2 worldPos)
+{
+    worldPos += m_gridSize * m_tileSize * 0.5f;
+    return glm::floor(worldPos/m_tileSize);
 }
 
 TerrainGenerator_GroundLayer* TerrainGenerator::getGridValue(int x, int y)

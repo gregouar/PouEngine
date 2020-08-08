@@ -73,6 +73,50 @@ float Parser::parseFloat(const std::string& data)
     return value;
 }
 
+void Parser::parseSegment(const std::string& data, std::string &lhs, std::string &rhs)
+{
+    if(data.length() > 1 && data[0] == '[')
+    {
+        auto middleDelimiter = data.find(',', 1);
+        if(middleDelimiter == std::string::npos)
+            return;
+
+        auto rightDelimiter = data.find(']', middleDelimiter+1);
+        lhs = data.substr(1, middleDelimiter-1);
+        rhs = data.substr(middleDelimiter+1, rightDelimiter-middleDelimiter-1);
+    }
+}
+
+std::pair<float, float> Parser::parseFloatSegment(const std::string& data)
+{
+    if(Parser::isFloat(data))
+    {
+        auto v = Parser::parseFloat(data);
+        return {v,v};
+    }
+
+    std::string lhs, rhs;
+    Parser::parseSegment(data, lhs, rhs);
+
+    return {Parser::parseFloat(lhs),
+            Parser::parseFloat(rhs)};
+}
+
+std::pair<int, int> Parser::parseIntSegment(const std::string& data)
+{
+    if(Parser::isInt(data))
+    {
+        auto v = Parser::parseInt(data);
+        return {v,v};
+    }
+
+    std::string lhs, rhs;
+    Parser::parseSegment(data, lhs, rhs);
+
+    return {Parser::parseInt(lhs),
+            Parser::parseInt(rhs)};
+}
+
 std::string Parser::findFileDirectory(const std::string &filePath)
 {
     std::size_t p = filePath.find_last_of("/\\");

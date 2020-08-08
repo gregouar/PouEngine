@@ -511,6 +511,13 @@ void PhysicsEngine::resolveDiskToDiskCollision(RigidBody *body1, RigidBody *body
     if(sumRadii*sumRadii > deltaSquared)
     {
         float lengthDelta = sqrt(deltaSquared);
+
+        if(lengthDelta == 0)
+        {
+            delta = glm::vec2(1,0);
+            lengthDelta = 1;
+        }
+
         auto ratio = this->computeMassRatio(body1->mass, body2->mass);
         auto translationVector = delta * (float)(sumRadii - lengthDelta)/lengthDelta;
         node2->move(translationVector * ratio * 1.0f);

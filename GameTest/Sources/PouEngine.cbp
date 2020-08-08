@@ -727,9 +727,12 @@
 		<Unit filename="include/character/Hitbox.h" />
 		<Unit filename="include/character/Player.h" />
 		<Unit filename="include/character/PlayerSave.h" />
+		<Unit filename="include/generators/PoissonDiskSampler.h" />
 		<Unit filename="include/generators/TerrainGenerator.h" />
 		<Unit filename="include/generators/TerrainGenerator_TileModels.h" />
 		<Unit filename="include/generators/WorldGenerator.h" />
+		<Unit filename="include/generators/WorldGenerator_Distribution.h" />
+		<Unit filename="include/generators/WorldGenerator_SpawnPoint.h" />
 		<Unit filename="include/logic/GameData.h" />
 		<Unit filename="include/logic/GameMessageTypes.h" />
 		<Unit filename="include/net/GameClient.h" />
@@ -765,9 +768,12 @@
 		<Unit filename="src/character/Hitbox.cpp" />
 		<Unit filename="src/character/Player.cpp" />
 		<Unit filename="src/character/PlayerSave.cpp" />
+		<Unit filename="src/generators/PoissonDiskSampler.cpp" />
 		<Unit filename="src/generators/TerrainGenerator.cpp" />
 		<Unit filename="src/generators/TerrainGenerator_TileModels.cpp" />
 		<Unit filename="src/generators/WorldGenerator.cpp" />
+		<Unit filename="src/generators/WorldGenerator_Distribution.cpp" />
+		<Unit filename="src/generators/WorldGenerator_SpawnPoint.cpp" />
 		<Unit filename="src/logic/GameData.cpp" />
 		<Unit filename="src/net/GameClient.cpp" />
 		<Unit filename="src/net/GameServer.cpp" />

@@ -9,6 +9,7 @@
 //For tests
 #include "PouEngine/system/Clock.h"
 #include "PouEngine/scene/CollisionObject.h"
+#include "generators/PoissonDiskSampler.h"
 
 #include "net/GameServer.h"
 #include "net/GameClient.h"
@@ -73,7 +74,6 @@ void GameWorld::generateImpl()
 
 
 
-
     /*auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
 
@@ -108,7 +108,23 @@ void GameWorld::generateImpl()
     /**auto lanternModel = CharacterModelsHandler::loadAssetFromFile("../data/poleWithLantern/poleWithLanternXML.txt",loadType);
     m_syncComponent.syncElement(lanternModel);
 
-    for(auto x = -10 ; x < 10 ; x++)
+    PoissonDiskSampler sampler;
+    auto pointDistribution = sampler.generateDistribution(glm::vec2(10000,10000), 64);
+    std::cout<<"NBR LANTERNS:"<<pointDistribution.size()<<std::endl;
+    for(auto pointIt : pointDistribution)
+    {
+        glm::vec2 p = pointIt;
+
+        auto lantern = std::make_shared<Character>();
+        lantern->createFromModel(lanternModel);
+        lantern->pou::SceneNode::setPosition(p);
+        //lantern->rotate(glm::vec3(0,0,pou::RNGesus::uniformFloat(-180,180)));
+        m_worldGrid->addChildNode(lantern);
+
+        m_syncComponent.syncElement(lantern);
+    }**/
+
+    /*for(auto x = -10 ; x < 10 ; x++)
     for(auto y = -10 ; y < 10 ; y++)
     //for(auto x = -1 ; x < 0 ; x++)
     //for(auto y = -1 ; y < 0 ; y++)

@@ -1418,7 +1418,8 @@ bool SceneRenderer::createDeferredMeshesPipeline()
 
     m_deferredMeshesPipeline.setDepthTest(true, true, VK_COMPARE_OP_GREATER);
 
-    m_deferredMeshesPipeline.setCullMode(VK_CULL_MODE_BACK_BIT);
+    //m_deferredMeshesPipeline.setCullMode(VK_CULL_MODE_BACK_BIT);
+    m_deferredMeshesPipeline.setCullMode(VK_CULL_MODE_NONE);
 
     return m_deferredMeshesPipeline.init(m_renderGraph.getRenderPass(m_deferredPass));
 }

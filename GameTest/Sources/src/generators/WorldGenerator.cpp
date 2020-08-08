@@ -3,23 +3,6 @@
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/tools/Logger.h"
 
-#include "PouEngine/assets/AssetHandler.h"
-#include "assets/CharacterModelAsset.h"
-
-
-WorldGenerator_CharacterModel_Modifier::WorldGenerator_CharacterModel_Modifier()
-{
-    randomType = WorldGenerator_RandomType_None;
-    minValue = glm::vec4(0);
-    maxValue = glm::vec4(0);
-    for(int i = 0 ; i < 4 ; ++i)
-        usePrecedingValue[i] = -1;
-}
-
-
-///
-///WorldGenerator
-///
 
 WorldGenerator::WorldGenerator()
 {
@@ -62,8 +45,8 @@ void WorldGenerator::generatesOnNode(WorldNode *targetNode, int seed, GameWorld_
 
     m_terrainGenerator.generatesOnNode(targetNode, &m_rng);
 
-    if(generateCharacters)
-        this->generateCharacters(targetNode, syncComponent);
+    for(auto &distribution : m_distributions)
+        distribution.generatesOnNode(targetNode, syncComponent, generateCharacters, &m_rng);
 }
 
 void WorldGenerator::playWorldMusic()
@@ -108,9 +91,19 @@ bool WorldGenerator::loadFromXML(TiXmlHandle *hdl)
         return (false);
     m_terrainGenerator.loadFromXML(&terrainHdl, m_fileDirectory);
 
-    element = hdl->FirstChildElement("characters").Element();
-    if(element)
-        this->loadCharacters(element);
+    auto distributionChild = hdl->FirstChildElement("distribution");
+    while(distributionChild.Element() != nullptr)
+    {
+        auto distributionElement = distributionChild.Element();
+        if(distributionElement)
+        {
+            m_distributions.push_back({});
+            if(!m_distributions.back().loadFromXML(m_fileDirectory, distributionElement, &m_terrainGenerator))
+                m_distributions.pop_back();
+        }
+        distributionChild = distributionChild.Element()->NextSiblingElement("distribution");
+    }
+
 
     return loaded;
 }
@@ -124,7 +117,7 @@ bool WorldGenerator::loadParameters(TiXmlElement *element)
     return (true);
 }
 
-bool WorldGenerator::loadCharacters(TiXmlElement *element)
+/*bool WorldGenerator::loadCharacters(TiXmlElement *element)
 {
     bool loaded = true;
 
@@ -137,9 +130,24 @@ bool WorldGenerator::loadCharacters(TiXmlElement *element)
     }
 
     return loaded;
-}
+}*/
 
-bool WorldGenerator::loadCharacter(TiXmlElement *characterElement)
+/*bool WorldGenerator::loadDistribution(TiXmlElement *element)
+{
+    bool loaded = true;
+
+    auto characterChild = element->FirstChildElement("character");
+    while(characterChild != nullptr)
+    {
+        auto characterElement = characterChild->ToElement();
+        this->loadCharacter(characterElement);
+        characterChild = characterChild->NextSiblingElement("character");
+    }
+
+    return loaded;
+}*/
+
+/*bool WorldGenerator::loadCharacter(TiXmlElement *characterElement)
 {
     auto pathAtt = characterElement->Attribute("path");
     auto groundLayerAtt = characterElement->Attribute("groundLayer");
@@ -194,13 +202,6 @@ bool WorldGenerator::loadCharacter(TiXmlElement *characterElement)
 
             for(int i = 0 ; i < 4 ; ++i)
                 this->loadRandomModifierValue(modifierElement, i, randomModifier);
-
-            /*auto valueAtt = modifierElement->Attribute("x");
-            if(!valueAtt) valueAtt = modifierElement->Attribute("r");
-            if(valueAtt)
-            {
-                if()
-            }*/
         }
 
         modifierChild = modifierChild->NextSiblingElement("modifier");
@@ -288,7 +289,7 @@ void WorldGenerator::generateCharacter(int x, int y, WorldGenerator_CharacterMod
     auto character = std::make_shared<Character>();
     character->createFromModel(characterModel.modelAsset);
 
-    glm::vec2 pos = m_terrainGenerator.getGridPosition(x,y);
+    glm::vec2 pos = m_terrainGenerator.gridToWorldPosition(x,y);
     if(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Position].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(characterModel.randomModifiers[WorldGenerator_CharacterModel_ModifierType_Position]);
@@ -338,6 +339,6 @@ glm::vec4 WorldGenerator::generateRandomValue(WorldGenerator_CharacterModel_Modi
     }
 
     return randomValue;
-}
+}*/
 
 

@@ -8,8 +8,8 @@ namespace pou
 {
 
 SimpleNode::SimpleNode() :
-    m_globalPosition(glm::vec3(0)),
     m_lastGlobalPosition(0),
+    m_globalPosition(glm::vec3(0)),
     m_position(glm::vec3(0)),
     m_eulerRotations(glm::vec3(0)),
     m_scale(glm::vec3(1.0)),

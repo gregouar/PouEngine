@@ -78,5 +78,18 @@ float RNGesus::uniformFloat(float min, float max, RNGenerator *generator)
     return distrib(*rng);
 }
 
+glm::vec2 RNGesus::uniformVec2(glm::vec2 min, glm::vec2 max, RNGenerator *generator)
+{
+    return {RNGesus::uniformFloat(min.x, max.x, generator),
+            RNGesus::uniformFloat(min.y, max.y, generator)};
+}
+
+glm::vec2 RNGesus::uniformVec2InAnnulus(float minRadius, float maxRadius, RNGenerator *generator)
+{
+    float angle = RNGesus::uniformFloat(0, glm::pi<float>()*2.0f, generator);
+    float squaredRadius = RNGesus::uniformFloat(minRadius*minRadius, maxRadius*maxRadius, generator);
+    return (float)sqrt(squaredRadius)*glm::vec2(cos(angle), sin(angle));
+}
+
 
 }

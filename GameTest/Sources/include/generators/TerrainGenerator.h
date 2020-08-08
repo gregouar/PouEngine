@@ -40,9 +40,11 @@ class TerrainGenerator
 
         glm::vec2 getGridSize();
         glm::vec2 getTileSize();
+        glm::vec2 getExtent();
         const TerrainGenerator_GroundLayer *getGroundLayer(const std::string &name);
 
-        glm::vec2 getGridPosition(int x, int y);
+        glm::vec2 gridToWorldPosition(int x, int y);
+        glm::ivec2 worldToGridPosition(glm::vec2 worldPos);
         TerrainGenerator_GroundLayer* getGridValue(int x, int y);
 
     protected:
