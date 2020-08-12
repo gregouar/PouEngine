@@ -6,14 +6,16 @@
 namespace pou
 {
 
-Asset::Asset()
+Asset::Asset() :
+    m_allowLoadFromFile(false),
+    m_allowLoadFromMemory(false),
+    m_loadData(nullptr),
+    m_loadSource(LoadSource_None),
+    m_loadType(LoadType_Now),
+    m_loaded(false),
+    m_id(0)
 {
-    m_allowLoadFromFile = false;
-    m_allowLoadFromMemory = false;
    /// m_allowLoadFromStream = false;
-    m_loadSource = LoadSource_None;
-    m_loaded = false;
-    m_loadType = LoadType_Now;
 }
 
 Asset::Asset(const AssetTypeId id) : Asset()

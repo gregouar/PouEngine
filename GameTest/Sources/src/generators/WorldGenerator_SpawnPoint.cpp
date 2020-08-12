@@ -18,10 +18,27 @@ WorldGenerator_SpawnPoint_Modifier::WorldGenerator_SpawnPoint_Modifier()
 
 
 ///
+///WorldGenerator_SpawnPoint_Parameters
+///
+
+WorldGenerator_SpawnPoint_Parameters::WorldGenerator_SpawnPoint_Parameters() :
+    spawnProbability(0.0f),
+    //reventOtherSpawns(false),
+    groundLayer(nullptr),
+    changeSpawnTypeTo(false),
+    newSpawnType(TerrainGenerator_SpawnType_None),
+    changeGroundLayerTo(false),
+    newGroundLayer(nullptr)
+{
+
+}
+
+///
 ///WorldGenerator_SpawnPoint
 ///
 
-WorldGenerator_SpawnPoint::WorldGenerator_SpawnPoint() :  m_spawnProbability(0), m_groundLayer(nullptr)
+WorldGenerator_SpawnPoint::WorldGenerator_SpawnPoint() :
+    m_gridSize(1)
 {
     //ctor
 }
@@ -33,14 +50,25 @@ WorldGenerator_SpawnPoint::~WorldGenerator_SpawnPoint()
 
 bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator)
 {
-    auto groundLayerAtt = element->Attribute("groundLayer");
-    auto spawnProbabilityAtt = element->Attribute("spawnProbability");
+    bool r = true;
 
-    if(groundLayerAtt)
-        m_groundLayer = terrainGenerator->getGroundLayer(groundLayerAtt);
+    m_terrain = terrainGenerator;
 
-    if(spawnProbabilityAtt)
-        m_spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+    if(!this->loadParameters(element, m_parameters))
+        r = false;
+
+    auto sizeChild = element->FirstChildElement("size");
+    if(sizeChild)
+    {
+        auto sizeElement = sizeChild->ToElement();
+        if(sizeElement != nullptr)
+        {
+            if(sizeElement->Attribute("x") != nullptr)
+                m_gridSize.x = pou::Parser::parseInt(std::string(sizeElement->Attribute("x")));
+            if(sizeElement->Attribute("y") != nullptr)
+                m_gridSize.y = pou::Parser::parseInt(std::string(sizeElement->Attribute("y")));
+        }
+    }
 
     auto modifierChild = element->FirstChildElement("modifier");
     while(modifierChild != nullptr)
@@ -107,34 +135,143 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
         }
     }
 
-    return (true);
+    auto spriteChild = element->FirstChildElement("sprite");
+    while(spriteChild != nullptr)
+    {
+        auto characterElement = spriteChild->ToElement();
+        spriteChild = spriteChild->NextSiblingElement("sprite");
+
+        auto spriteSheetAtt = characterElement->Attribute("spritesheet");
+        auto spriteAtt = characterElement->Attribute("sprite");
+
+        if(!spriteSheetAtt || !spriteAtt)
+            continue;
+
+        auto spriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile(fileDirectory+spriteSheetAtt);
+        if(!spriteSheet)
+            continue;
+
+        auto spriteModel = spriteSheet->getSpriteModel(spriteAtt);
+        if(!spriteModel)
+            continue;
+
+        m_spriteModelAssets.push_back(spriteModel);
+    }
+
+
+    auto prefabChild = element->FirstChildElement("prefab");
+    while(prefabChild != nullptr)
+    {
+        auto prefabElement = prefabChild->ToElement();
+        prefabChild = prefabChild->NextSiblingElement("prefab");
+
+        auto pathAtt = prefabElement->Attribute("path");
+
+        if(!pathAtt)
+            continue;
+
+        auto modelAsset = PrefabsHandler::loadAssetFromFile(fileDirectory+pathAtt);
+        if(!modelAsset)
+            continue;
+
+        m_prefabAssets.push_back(modelAsset);
+    }
+
+    return r;
 }
 
 void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, WorldNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
-    if(generateCharacters)
-        for(auto characterSpawnModel : m_characterSpawnModels)
+    //if(generateCharacters)
+    for(auto characterSpawnModel : m_characterSpawnModels)
+    {
+        int amount = pou::RNGesus::uniformInt(characterSpawnModel.minAmount,
+                                              characterSpawnModel.maxAmount);
+
+        for(int i = 0 ; i < amount ; ++i)
+            this->spawnCharacter(characterSpawnModel.modelAsset, worldPos, targetNode, syncComponent, generateCharacters, rng);
+    }
+
+    for(auto spriteModel : m_spriteModelAssets)
+        this->spawnSprite(spriteModel, worldPos, targetNode, rng);
+
+    for(auto prefabModel : m_prefabAssets)
+        this->spawnPrefab(prefabModel, worldPos, targetNode, rng);
+
+    if(m_parameters.changeSpawnTypeTo || m_parameters.changeGroundLayerTo)
+    {
+        for(auto y = 0 ; y < m_gridSize.y ; ++y)
+        for(auto x = 0 ; x < m_gridSize.x ; ++x)
         {
-            int amount = pou::RNGesus::uniformInt(characterSpawnModel.minAmount,
-                                                  characterSpawnModel.maxAmount);
+            auto gridElementPos = worldPos + (glm::vec2(x,y) - glm::vec2(m_gridSize)*0.5f) * m_terrain->getTileSize() ;
 
-            for(int i = 0 ; i < amount ; ++i)
-                this->spawnCharacter(characterSpawnModel.modelAsset, worldPos, targetNode, syncComponent, rng);
+            if(m_parameters.changeSpawnTypeTo)
+                m_terrain->setSpawnType(gridElementPos, m_parameters.newSpawnType);
+            if(m_parameters.changeGroundLayerTo)
+                m_terrain->setGroundLayer(gridElementPos, m_parameters.newGroundLayer);
         }
+    }
 }
 
-float WorldGenerator_SpawnPoint::getSpawnProbability(glm::vec2 worldPos, TerrainGenerator *terrain)
+float WorldGenerator_SpawnPoint::getSpawnProbability(glm::vec2 worldPos)
 {
-    auto gridPos = terrain->worldToGridPosition(worldPos);
-    if(m_groundLayer && terrain->getGridValue(gridPos.x, gridPos.y) != m_groundLayer)
+    auto gridPos = m_terrain->worldToGridPosition(worldPos);
+    if(m_parameters.groundLayer && m_terrain->getGridGroundLayer(gridPos.x, gridPos.y) != m_parameters.groundLayer)
         return (0);
-    return m_spawnProbability;
+    return m_parameters.spawnProbability;
 }
+
+/*bool WorldGenerator_SpawnPoint::preventOtherSpawns()
+{
+    return m_parameters.preventOtherSpawns;
+}*/
 
 ///
 ///Protected
 ///
+
+
+bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGenerator_SpawnPoint_Parameters &parameters)
+{
+    auto groundLayerAtt = element->Attribute("groundLayer");
+    auto spawnProbabilityAtt = element->Attribute("spawnProbability");
+    //auto preventSpawnsAtt = element->Attribute("preventOtherSpawns");
+    auto changeSpawnTypeAtt = element->Attribute("changeSpawnTypeTo");
+    auto changeGroundLayerAtt = element->Attribute("changeGroundLayerTo");
+
+    if(groundLayerAtt)
+        parameters.groundLayer = m_terrain->getGroundLayer(groundLayerAtt);
+
+    if(spawnProbabilityAtt)
+        parameters.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+
+    //if(preventSpawnsAtt)
+      //  parameters.preventOtherSpawns = pou::Parser::parseBool(preventSpawnsAtt);
+
+    if(changeSpawnTypeAtt)
+    {
+        parameters.changeSpawnTypeTo = true;
+        auto changeSpawnTypeStr = std::string(changeSpawnTypeAtt);
+        if(changeSpawnTypeStr == "all")
+            parameters.newSpawnType = TerrainGenerator_SpawnType_All;
+        else if(changeSpawnTypeStr == "safe")
+            parameters.newSpawnType = TerrainGenerator_SpawnType_Safe;
+        else if(changeSpawnTypeStr == "none")
+            parameters.newSpawnType = TerrainGenerator_SpawnType_None;
+        else
+            parameters.changeSpawnTypeTo = false;
+    }
+
+
+    if(changeGroundLayerAtt)
+    {
+        parameters.changeGroundLayerTo = true;
+        parameters.newGroundLayer = m_terrain->getGroundLayer(changeGroundLayerAtt);
+    }
+
+    return (true);
+}
 
 void WorldGenerator_SpawnPoint::loadRandomModifierValue(TiXmlElement *element, int i, WorldGenerator_SpawnPoint_Modifier &modifier)
 {
@@ -175,54 +312,50 @@ void WorldGenerator_SpawnPoint::loadRandomModifierValue(TiXmlElement *element, i
     else
     {
         auto [minV, maxV] = pou::Parser::parseFloatSegment(valueString);
-        if(minV == maxV)
-            minV = -maxV;
+        /**if(minV == maxV)
+            minV = -maxV;**/
         modifier.minValue[i] = minV;
         modifier.maxValue[i] = maxV;
     }
-
-    /*if(pou::Parser::isFloat(valueString))
-    {
-        modifier.maxValue[i] = pou::Parser::parseFloat(valueString);
-        modifier.minValue[i] = -modifier.maxValue[i];
-    }
-    else {
-        if(valueString == "x" || valueString == "r")
-            modifier.usePrecedingValue[i] = 0;
-        else if(valueString == "y" || valueString == "g")
-            modifier.usePrecedingValue[i] = 1;
-        else if(valueString == "z" || valueString == "b")
-            modifier.usePrecedingValue[i] = 2;
-        else if(valueString == "w" || valueString == "a")
-            modifier.usePrecedingValue[i] = 3;
-        else if(valueString.length() > 1 && valueString[0] == '[')
-        {
-            auto middleDelimiter = valueString.find(',', 1);
-            if(middleDelimiter == std::string::npos)
-                return;
-
-            auto rightDelimiter = valueString.find(']', middleDelimiter+1);
-            auto leftStr = valueString.substr(1, middleDelimiter-1);
-            auto rightStr = valueString.substr(middleDelimiter+1, rightDelimiter-middleDelimiter-1);
-
-            modifier.minValue[i] = pou::Parser::parseFloat(leftStr);
-            modifier.maxValue[i] = pou::Parser::parseFloat(rightStr);
-        }
-    }*/
 }
 
 void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos,
                                                 WorldNode *targetNode, GameWorld_Sync *syncComponent,
-                                                pou::RNGenerator *rng)
+                                                bool generateCharacters, pou::RNGenerator *rng)
 {
     auto character = std::make_shared<Character>();
     character->createFromModel(characterModel);
     character->setPosition(worldPos);
     this->applyRandomModifiers(character.get(), rng);
 
-    targetNode->addChildNode(character);
-    syncComponent->syncElement(character);
-    syncComponent->syncElement(characterModel);
+    if(generateCharacters)
+    {
+        targetNode->addChildNode(character);
+        syncComponent->syncElement(character);
+        syncComponent->syncElement(characterModel);
+    }
+}
+
+void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos,
+                                            WorldNode *targetNode, pou::RNGenerator *rng)
+{
+    auto spriteNode = targetNode->createChildNode();
+    spriteNode->setPosition(worldPos);
+    this->applyRandomModifiers(spriteNode.get(), rng);
+
+    auto sprite = std::make_shared<WorldSprite>();
+    sprite->setSpriteModel(spriteModel);
+    spriteNode->attachObject(sprite);
+    //targetNode->addChildNode(spriteNode);
+}
+
+void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
+                                            WorldNode *targetNode, pou::RNGenerator *rng)
+{
+    auto prefabNode = prefabAsset->generate();
+    prefabNode->setPosition(worldPos);
+    this->applyRandomModifiers(prefabNode.get(), rng);
+    targetNode->addChildNode(prefabNode);
 }
 
 glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng)

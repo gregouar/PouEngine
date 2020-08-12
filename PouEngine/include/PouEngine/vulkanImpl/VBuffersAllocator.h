@@ -14,7 +14,7 @@ namespace pou
 
 struct VBuffer
 {
-    VBuffer() : buffer(VK_NULL_HANDLE) {}
+    VBuffer() : buffer(VK_NULL_HANDLE), bufferMemory(VK_NULL_HANDLE) {}
 
     VkBuffer                buffer;
     VkDeviceMemory          bufferMemory;

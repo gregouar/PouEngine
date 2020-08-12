@@ -21,6 +21,30 @@
 		</groundLayer>
 	</terrain>
 	
+	<!--<pois amount="[1,2]" >
+		<poi spawnType="none" groundType="dirt" spawnProbability=1 >
+			<size x=4 y=4 />
+			<prefab path="../wall/smallHousePrefabXML.txt" />
+		</poi>
+		<poi spawnType="none" groundType="dirt" spawnProbability=1 >
+			<size x=6 y=6 />
+			<prefab path="../wall/smallHousePrefabXML.txt" />
+		</poi>
+	</pois>-->
+	
+	
+	<pois type="poisson" distance=2000 useGridPosition=1 startInCenter=1 >
+		<spawnPoint  spawnProbability=.4 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+			<prefab path="../wall/smallHousePrefabXML.txt" />
+			<size x=6 y=6 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+			<prefab path="../wall/smallHousePrefabXML.txt" />
+			<size x=6 y=6 />
+		</spawnPoint>
+	</pois>
+	
+	
 	<!--<distribution type="uniform"  distance=1>
 		<spawnPoint groundLayer="grass2" spawnProbability=1>
 			<character path="treeXML.txt"/>
@@ -31,56 +55,68 @@
 		</spawnPoint>
 	</distribution>-->
 	
+	<distribution type="poisson" distance=500 sectionSize=5000 spawnType="unsafe">
+		<spawnPoint  spawnProbability=.35>
+			<character path="../duck/duckXML.txt" amount="[1,3]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-100,100]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.15>
+			<character path="../duck/duckXML.txt" amount="[3,5]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-100,100]" />
+		</spawnPoint>
+	</distribution>
+	
+	
 	<distribution type="poisson" distance=200 sectionSize=2000>
-		<spawnPoint  groundLayer="grass"  spawnProbability=.05>
+		<spawnPoint  groundLayer="grass"  spawnProbability=.025 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
-			<modifier type="rotation" rng="uniform" z=180 />
+			<modifier type="rotation" rng="uniform" z="[-180,180]" />
 		</spawnPoint>
 		
-		<spawnPoint groundLayer="grass" spawnProbability=.05>
+		<spawnPoint groundLayer="grass" spawnProbability=.1 changeSpawnTypeTo="none">
 			<character path="treeXML.txt"/>
-			<modifier type="position" rng="uniform" x=32 y=32 />
-			<modifier type="rotation" rng="uniform" z=180 />
+			<modifier type="position" rng="uniform" x="[-32,32]" y="[-32,32]" />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
-			<modifier type="flip" rng="uniform" x=1 y=1 />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
 		</spawnPoint>
 		
-		<spawnPoint groundLayer="grass2" spawnProbability=.25>
+		<spawnPoint groundLayer="grass2" spawnProbability=.25 changeSpawnTypeTo="none">
 			<character path="treeXML.txt"/>
-			<modifier type="position" rng="uniform" x=32 y=32 />
-			<modifier type="rotation" rng="uniform" z=180 />
+			<modifier type="position" rng="uniform" x="[-32,32]" y="[-32,32]" />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
-			<modifier type="flip" rng="uniform" x=1 y=1 />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
 		</spawnPoint>
 	</distribution>
 	
-	<distribution type="poisson" distance=500 sectionSize=5000>
-		<spawnPoint  spawnProbability=.5>
-			<character path="../duck/duckXML.txt" amount="[2,5]" />
-			<modifier type="rotation" rng="uniform" z=180 />
-			<modifier type="position" rng="uniform" x=100 y=100 />
+	<distribution type="poisson" distance=50 sectionSize=500>
+		<spawnPoint  groundLayer="grass"  spawnProbability=.01>
+			<sprite sprite="plant1" spritesheet="grassSpritesheetXML.txt" />
+			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  groundLayer="grass2"  spawnProbability=.5>
+			<sprite sprite="plant1" spritesheet="grassSpritesheetXML.txt" />
+			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  groundLayer="grass"  spawnProbability=.01>
+			<prefab path="rock1Prefab.txt" />
+			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  groundLayer="dirt"  spawnProbability=.1>
+			<prefab path="rock1Prefab.txt" />
+			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
 		</spawnPoint>
 	</distribution>
 	
-	<!-- could add stuff like spawn groups -->
-	<!--<characters>
-		<character path="treeXML.txt" groundLayer="grass" spawnProbability=.01>
-			<modifier type="position" rng="uniform" x=32 y=32 />
-			<modifier type="rotation" rng="uniform" z=180 />
-			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
-			<modifier type="flip" rng="uniform" x=1 y=1 />
-		</character>
-		<character path="treeXML.txt" groundLayer="grass2" spawnProbability=.05>
-			<modifier type="position" rng="uniform" x=32 y=32 />
-			<modifier type="rotation" rng="uniform" z=180 />
-			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
-			<modifier type="flip" rng="uniform" x=1 y=1 />
-		</character>
-		
-		<spawnGroup>
-			<character path="../duck/duckXML.txt" spawnProbability=1 number="[2,5]" />
-		</spawnGroup>
-	</characters>-->
 	
 </biome>
 

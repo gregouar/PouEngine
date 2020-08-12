@@ -15,7 +15,7 @@ namespace pou
 
 struct VMemory
 {
-    VMemory() : vkMemory(VK_NULL_HANDLE){}
+    VMemory() : vkMemory(VK_NULL_HANDLE), offset(0){}
 
     VkDeviceMemory          vkMemory;
     VkDeviceSize            offset;

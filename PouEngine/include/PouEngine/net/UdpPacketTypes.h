@@ -64,6 +64,7 @@ struct UdpPacket
     std::vector< std::shared_ptr<NetMessage> > netMessages;
 
     UdpPacket() : nbrNetMessages(0){}
+    virtual ~UdpPacket(){}
 
     virtual bool serializeImpl(Stream *stream){return (true);}
 

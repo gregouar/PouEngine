@@ -3,6 +3,7 @@
 	<name>GrassMaterial</name>
 	<height>0</height>
 	<texture type="albedo">grasslands_ground.png</texture>
+	<texture type="normal">grasslands_ground_n.png</texture>
 	<roughness>0.9</roughness>
 	<metalness>0</metalness>
 	<emissivity>0</emissivity>

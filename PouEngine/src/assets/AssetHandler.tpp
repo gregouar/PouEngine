@@ -5,12 +5,14 @@ namespace pou
 {
 
 template<typename AssetType>
-AssetHandler<AssetType>::AssetHandler()
+AssetHandler<AssetType>::AssetHandler() :
+    m_assetLoadingInThread(nullptr),
+    m_curNewId(1),
+    m_enableDummyAsset(false),
+    m_dummyAsset()
 {
     ///m_loadThread = new sf::Thread(&AssetHandler<AssetType>::LoadInThread, this);
     ///m_loadThread = new std::thread(&AssetHandler<AssetType>::LoadInThread, this);
-    m_curNewId = 1;
-    m_assetLoadingInThread = nullptr;
 }
 
 

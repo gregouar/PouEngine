@@ -12,7 +12,7 @@ namespace pou
 
 struct ClientInfos
 {
-    ClientInfos() : address(), status(ConnectionStatus_Disconnected){};
+    ClientInfos() : address(), status(ConnectionStatus_Disconnected), isLocalClient(false){};
 
     NetAddress          address;
     ConnectionStatus    status;

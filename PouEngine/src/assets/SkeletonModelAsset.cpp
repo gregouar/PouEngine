@@ -411,10 +411,11 @@ bool SkeletalAnimationModel::isLooping()
 /**                              **/
 
 SkeletalAnimationFrameModel::SkeletalAnimationFrameModel(SkeletonModelAsset *skeletonModel) :
-    m_skeletonModel(skeletonModel), m_nextFrame(nullptr)
+    m_skeletonModel(skeletonModel),
+    m_nextFrame(nullptr),
+    m_speedFactor(1.0f),
+    m_frameTime(0.0f)
 {
-    m_frameTime   = 0.0f;
-    m_speedFactor = 1.0f;
 }
 
 SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
@@ -578,14 +579,15 @@ SkeletalAnimationCommandModel::SkeletalAnimationCommandModel(SkeletalAnimationFr
     m_frameModel(frameModel),
     m_type(type),
     m_amount(0),
+    m_enabledDirection(type != Unknown_Command),
     m_rate(0),
     m_nodeId(nodeId)
     //m_node(node)
 {
-    if(type != Unknown_Command)
+    /*if(type != Unknown_Command)
         m_enabledDirection = glm::vec4(true);
     else
-        m_enabledDirection = glm::vec4(false);
+        m_enabledDirection = glm::vec4(false);*/
 }
 
 SkeletalAnimationCommandModel::~SkeletalAnimationCommandModel()

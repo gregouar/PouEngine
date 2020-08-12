@@ -23,6 +23,7 @@ class WorldGenerator
                              bool generateCharacters = true);
 
         void playWorldMusic();
+        void stopWorldMusic();
 
         const std::string &getFilePath();
         int getGeneratingSeed();
@@ -53,7 +54,10 @@ class WorldGenerator
         TerrainGenerator m_terrainGenerator;
 
         //std::vector<WorldGenerator_CharacterModel> m_characterModels;
+        WorldGenerator_Distribution m_pointsOfInterest;
         std::list<WorldGenerator_Distribution> m_distributions;
+
+        pou::SoundTypeId m_musicEvent;
 };
 
 #endif // WORLDGENERATOR_H

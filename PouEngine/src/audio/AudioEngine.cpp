@@ -133,7 +133,11 @@ SoundTypeId AudioEngine::createEvent(const std::string &eventName)
 
     auto r =  instance()->m_impl->createEvent(eventName);
     if(r == 0)
-        Logger::error("Could not load sound event: "+eventName);
+    {
+        auto [it, notAlreadyErrored] = instance()->m_erroredEvents.insert(eventName);
+        if(notAlreadyErrored)
+            Logger::error("Could not load sound event: "+eventName);
+    }
 
     return r;
 }

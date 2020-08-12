@@ -171,6 +171,16 @@
 	</sprite>
 	
 	
+	<sprite name="plant1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=0 y=224 />
+	</sprite>
+
+	
+	<sprite name="rock1" castShadow=1>
+		<size x=32 y=32 />
+		<position x=0 y=256 />
+	</sprite>
 
 	
 </spritesheet>

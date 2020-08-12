@@ -11,7 +11,16 @@ PoissonDiskSampler::~PoissonDiskSampler()
     //dtor
 }
 
+
+
 const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2 rectSize, float minDist, int rejectionThresold)
+{
+    glm::vec2 firstPoint = pou::RNGesus::uniformVec2(glm::vec2(0), glm::vec2(rectSize), m_rng);
+    return this->generateDistributionFrom(firstPoint, rectSize, minDist, rejectionThresold);
+}
+
+const std::vector<glm::vec2> &PoissonDiskSampler::generateDistributionFrom(glm::vec2 firstPoint, glm::vec2 rectSize,
+                                                                           float minDist, int rejectionThresold)
 {
     m_pointDistribution = std::vector<glm::vec2>();
 
@@ -21,7 +30,9 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2
     m_activeList.clear();
     m_pointDistribution.reserve(m_backgroundGridSize.x * m_backgroundGridSize.y);
 
-    glm::vec2 firstPoint = pou::RNGesus::uniformVec2(glm::vec2(0), glm::vec2(rectSize));
+    float halfMinDist = minDist * 0.5;
+
+    //glm::vec2 firstPoint = pou::RNGesus::uniformVec2(glm::vec2(0), glm::vec2(rectSize), m_rng);
     this->addPoint(firstPoint);
 
     while(!m_activeList.empty())
@@ -30,7 +41,6 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2
 
         auto startingPointIt = std::next(m_activeList.begin(), randIndex);
         auto startingPointPos = m_pointDistribution[*startingPointIt];
-        //auto startingPointGridPos = glm::floor(startingPointPos/m_cellSize);
 
         for(int i = 0 ; i < rejectionThresold ; ++i)
         {
@@ -41,7 +51,8 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2
             if(this->getBackgroundGridValue(newPointPos) != -1)
                 reject = true;
 
-            if(newPointPos.x < 0 || newPointPos.y < 0 || newPointPos.x > rectSize.x || newPointPos.y > rectSize.y)
+            if(newPointPos.x < halfMinDist || newPointPos.y < halfMinDist
+            || newPointPos.x > rectSize.x || newPointPos.y > rectSize.y)
                 reject = true;
 
             auto newPointGridPos = glm::floor(newPointPos/m_cellSize);
@@ -82,6 +93,7 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2
 
     return m_pointDistribution;
 }
+
 
 void PoissonDiskSampler::setRng(pou::RNGenerator *rng)
 {

@@ -49,6 +49,8 @@ class AudioEngine : public Singleton<AudioEngine>
 
     private:
         std::unique_ptr<AbstractAudioImpl> m_impl;
+
+        std::set<std::string> m_erroredEvents;
 };
 
 }

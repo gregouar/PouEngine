@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<spritesheet name="mainSpriteSheet" path="grassSpritesheetXML.txt" />
+	
+	<node name="root">
+		<collision type="disk">
+			<mass>1000</mass>
+			<radius>24</radius>
+		</collision>
+
+		<sprite sprite="rock1" spritesheet="mainSpriteSheet"  />
+	</node>
+	
+</prefab>

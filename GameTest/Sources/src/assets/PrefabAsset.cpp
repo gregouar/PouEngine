@@ -182,9 +182,30 @@ bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             rotation.z = pou::Parser::parseFloat(att);
 
-
         rootNode->rotate(rotation,false);
     }
+
+    auto scaleElement = element->FirstChildElement("scale");
+    if(scaleElement != nullptr)
+    {
+        glm::vec3 scale = glm::vec3(1);
+        auto att = scaleElement->Attribute("x");
+        if(att != nullptr)
+            scale.x = pou::Parser::parseFloat(att);
+
+        att = scaleElement->Attribute("y");
+        if(att != nullptr)
+            scale.y = pou::Parser::parseFloat(att);
+
+        att = scaleElement->Attribute("z");
+        if(att != nullptr)
+            scale.z = pou::Parser::parseFloat(att);
+
+        rootNode->scale(scale);
+        std::cout<<"SCALE PREFAB:"<<scale.x<<std::endl;
+    }
+
+
     auto collisionElement = element->FirstChildElement("collision");
     while(collisionElement)
     {

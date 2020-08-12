@@ -105,8 +105,9 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
 {
     auto charPos = m_character->getGlobalXYPosition();
 
+    ///Change 500 by some parameter depending on monster type (big monsters should avoid less obstacles)
     auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(charPos, destination - 20.0f * glm::normalize(destination - charPos),
-                                                                         20.0f, -1);
+                                                                         20.0f, 500);
 
     if(collisionImpact.detectImpact)
     {

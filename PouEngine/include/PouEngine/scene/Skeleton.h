@@ -30,6 +30,7 @@ class SkeletalAnimationCommand
     public:
         SkeletalAnimationCommand(const SkeletalAnimationCommandModel *model, SceneNode *node, SkeletalNodeState *nodeState,
                                  float startingFrameTime = 0);
+        virtual ~SkeletalAnimationCommand();
 
         virtual bool update(const Time &elapsedTime, uint32_t localTime);
         ///void rewind(uint32_t time);

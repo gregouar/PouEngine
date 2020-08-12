@@ -46,6 +46,7 @@ const bool VApp::ENABLE_RANDOMNESS = true;
 const size_t VApp::MAX_FRAMES_IN_FLIGHT = 2;
 
 VApp::VApp(const VAppCreateInfos &infos) :
+    m_running(false),
     m_createInfos(infos),
     m_sceenshotNbr(1)
 {

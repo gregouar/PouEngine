@@ -54,7 +54,7 @@ void Scene::render(SceneRenderer *renderer, CameraObject *camera)
 
     if(camera != nullptr)
     {
-        glm::vec3 camPos          = camera->getParentNode()->getGlobalPosition();
+        glm::vec3 camPos          = glm::round(camera->getParentNode()->getGlobalPosition());
         glm::mat4 camTranslate    = glm::translate(glm::mat4(1.0), -camPos);
         glm::mat4 camTranslateInv = glm::translate(glm::mat4(1.0), camPos);
 

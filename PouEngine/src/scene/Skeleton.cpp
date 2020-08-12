@@ -549,6 +549,11 @@ SkeletalAnimationCommand::SkeletalAnimationCommand(const SkeletalAnimationComman
     this->computeAmount();
 }
 
+SkeletalAnimationCommand::~SkeletalAnimationCommand()
+{
+
+}
+
 
 void SkeletalAnimationCommand::computeAmount()
 {

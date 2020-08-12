@@ -53,6 +53,22 @@ struct CharacterSpawn
     int maxAmount;
 };
 
+struct WorldGenerator_SpawnPoint_Parameters
+{
+    WorldGenerator_SpawnPoint_Parameters();
+
+    float   spawnProbability;
+    //bool    preventOtherSpawns;
+
+    const TerrainGenerator_GroundLayer *groundLayer; ///I should remove this and change by a list of probability
+
+    bool changeSpawnTypeTo;
+    TerrainGenerator_SpawnType newSpawnType;
+
+    bool changeGroundLayerTo;
+    const TerrainGenerator_GroundLayer *newGroundLayer;
+};
+
 class WorldGenerator_SpawnPoint
 {
     public:
@@ -64,29 +80,40 @@ class WorldGenerator_SpawnPoint
         void generatesOnNode(glm::vec2 worldPos, WorldNode *targetNode, GameWorld_Sync *syncComponent,
                              bool generateCharacters, pou::RNGenerator *rng);
 
-        float getSpawnProbability(glm::vec2 worldPos, TerrainGenerator *terrain);
+        float getSpawnProbability(glm::vec2 worldPos);
+
+        //bool    preventOtherSpawns();
 
     protected:
+        bool loadParameters(TiXmlElement *element, WorldGenerator_SpawnPoint_Parameters &parameters);
         void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_SpawnPoint_Modifier &modifier);
 
         glm::vec4 generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng);
 
         void spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos,
                             WorldNode *targetNode, GameWorld_Sync *syncComponent,
-                            pou::RNGenerator *rng);
+                            bool generateCharacters, pou::RNGenerator *rng);
+
+        void spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos,
+                         WorldNode *targetNode, pou::RNGenerator *rng);
+
+        void spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
+                         WorldNode *targetNode, pou::RNGenerator *rng);
 
         void applyRandomModifiers(WorldNode *targetNode, pou::RNGenerator *rng);
 
 
     private:
-        ///ADD:
+        TerrainGenerator *m_terrain;
+
         std::vector<CharacterSpawn>         m_characterSpawnModels;
         std::vector<pou::SpriteModel*>      m_spriteModelAssets;
         std::vector<PrefabAsset*>           m_prefabAssets;
 
-        float m_spawnProbability;
-        const TerrainGenerator_GroundLayer *m_groundLayer;
+        WorldGenerator_SpawnPoint_Parameters m_parameters;
         WorldGenerator_SpawnPoint_Modifier m_randomModifiers[NBR_WorldGenerator_SpawnPoint_ModifierTypes];
+
+        glm::ivec2 m_gridSize;
 };
 
 #endif // WORLDGENERATOR_CHARACTERSPAWN_H

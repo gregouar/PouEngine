@@ -74,17 +74,8 @@ void TerrainGenerator::generatesOnNode(WorldNode *targetNode, pou::RNGenerator *
     m_rng = rng;
 
     this->generateGrid();
-    //this->printGrid();
     this->decreasesGridNoise();
     this->decreasesGridNoise();
-    //this->decreasesGridNoise();
-    //this->printGrid();
-    /*this->decreasesGridNoise();
-    this->printGrid();*/
-
-    /**if(syncComponent)
-    for(auto &layerModel : m_layerModels)
-        syncComponent->syncElement(layerModel.spriteSheet);**/
 
     auto centeringShift = m_terrainSize * m_tileSize * 0.5f;
 
@@ -96,11 +87,13 @@ void TerrainGenerator::generatesOnNode(WorldNode *targetNode, pou::RNGenerator *
         tileNode->move(-centeringShift);
         this->generateSprites(x, y, tileNode.get());
 
-        //if(syncComponent)
-          //  syncComponent->syncElement(tileNode);
-
         targetNode->addChildNode(tileNode);
     }
+}
+
+void TerrainGenerator::addSpawnOnlyZone(const TerrainGenerator_SpawnOnlyZone &zone)
+{
+    m_spawnOnlyZones.push_back(zone);
 }
 
 /*const std::string &TerrainGenerator::getFilePath()
@@ -139,6 +132,44 @@ const TerrainGenerator_GroundLayer *TerrainGenerator::getGroundLayer(const std::
     return (nullptr);
 }
 
+TerrainGenerator_SpawnType TerrainGenerator::getSpawnType(glm::vec2 worldPos)
+{
+    auto gridPos = this->worldToGridPosition(worldPos);
+    return this->getSpawnType(gridPos.x, gridPos.y);
+}
+
+TerrainGenerator_SpawnType TerrainGenerator::getSpawnType(int x, int y)
+{
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return (TerrainGenerator_SpawnType_None);
+    return m_generatingGrid[y * m_gridSize.x + x].spawnType;
+}
+
+void TerrainGenerator::setSpawnType(glm::vec2 worldPos, TerrainGenerator_SpawnType spawnType)
+{
+    auto gridPos = this->worldToGridPosition(worldPos);
+    this->setSpawnType(gridPos.x, gridPos.y, spawnType);
+}
+
+void TerrainGenerator::setSpawnType(int x, int y, TerrainGenerator_SpawnType spawnType)
+{
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return;
+    m_generatingGrid[y * m_gridSize.x + x].spawnType = spawnType;
+}
+
+void TerrainGenerator::setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer)
+{
+    auto gridPos = this->worldToGridPosition(worldPos);
+    this->setGroundLayer(gridPos.x, gridPos.y, groundLayer);
+}
+void TerrainGenerator::setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer)
+{
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return;
+    m_generatingGrid[y * m_gridSize.x + x].groundLayer = groundLayer;
+    m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning = true;
+}
 
 glm::vec2 TerrainGenerator::gridToWorldPosition(int x, int y)
 {
@@ -147,18 +178,24 @@ glm::vec2 TerrainGenerator::gridToWorldPosition(int x, int y)
 
 glm::ivec2 TerrainGenerator::worldToGridPosition(glm::vec2 worldPos)
 {
-    worldPos += m_gridSize * m_tileSize * 0.5f;
+    worldPos += (m_gridSize + glm::vec2(1)) * m_tileSize * 0.5f;
     return glm::floor(worldPos/m_tileSize);
 }
 
-TerrainGenerator_GroundLayer* TerrainGenerator::getGridValue(int x, int y)
+const TerrainGenerator_GroundLayer* TerrainGenerator::getGridGroundLayer(int x, int y)
 {
-    return m_generatingGrid[y * m_gridSize.x + x];
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return (nullptr);
+    return m_generatingGrid[y * m_gridSize.x + x].groundLayer;
 }
 
 size_t TerrainGenerator::getGridDepth(int x, int y)
 {
-    return m_generatingGrid[y * m_gridSize.x + x]->depth;
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return (0);
+    if(!m_generatingGrid[y * m_gridSize.x + x].groundLayer)
+        return (0);
+    return m_generatingGrid[y * m_gridSize.x + x].groundLayer->depth;
 }
 
 ///
@@ -266,7 +303,7 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
 
 std::pair<bool, bool> TerrainGenerator::lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer)
 {
-    auto gridValue = this->getGridValue(x,y);
+    auto gridValue = this->getGridGroundLayer(x,y);
    // if(gridValue == lookedLayer)
      //   return {true, true};
 
@@ -301,7 +338,7 @@ std::pair<bool, bool> TerrainGenerator::lookForParentLayer(int x, int y, Terrain
 }*/
 
 
-void TerrainGenerator::printGrid()
+/*void TerrainGenerator::printGrid()
 {
     for(auto y = 0 ; y < m_gridSize.y ; ++y)
     {
@@ -315,15 +352,43 @@ void TerrainGenerator::printGrid()
         std::cout<<std::endl;
     }
     std::cout<<std::endl;
-}
+}*/
 
-void TerrainGenerator::generateGrid()
+void TerrainGenerator::resetGrid()
 {
     assert(!m_groundLayers.empty());
 
     auto *bottomLayer = &m_groundLayers.front();
-    m_generatingGrid.resize(m_gridSize.x * m_gridSize.y, bottomLayer);
+    m_generatingGrid.resize(m_gridSize.x * m_gridSize.y, TerrainGenerator_GridCell(bottomLayer));
 
+    for(auto spawnOnlyZone : m_spawnOnlyZones)
+    {
+        const TerrainGenerator_GroundLayer *groundType = nullptr;
+        if(!spawnOnlyZone.forceGroundType.empty())
+            groundType = this->getGroundLayer(spawnOnlyZone.forceGroundType);
+
+        for(int y = 0 ; y < spawnOnlyZone.gridExtent.y ; ++y)
+        for(int x = 0 ; x < spawnOnlyZone.gridExtent.x ; ++x)
+        {
+            auto yp = y + spawnOnlyZone.gridPosition.y;
+            auto xp = x + spawnOnlyZone.gridPosition.x;
+
+            if(xp < 0 || yp < 0 || xp >= m_gridSize.x || yp >= m_gridSize.y)
+                continue;
+
+            auto &gridElement = m_generatingGrid[yp * m_gridSize.x + xp];
+            gridElement.spawnType = std::min(gridElement.spawnType, spawnOnlyZone.spawnType);
+            if(groundType)
+            {
+                gridElement.groundLayer = groundType;
+                gridElement.preventGroundSpawning = true;
+            }
+        }
+    }
+}
+
+void TerrainGenerator::generateGrid()
+{
     if(m_groundLayers.size() <= 1)
         return;
 
@@ -336,36 +401,32 @@ void TerrainGenerator::generateGrid()
         for(auto x = 0 ; x < m_gridSize.x ; x += spawnSparsity)
             this->spawnLayerElement(x,y,&(*layerIt));
     }
-
-    /**if(m_layerModels.size() <= 1)
-        return;
-
-    //for(size_t l = 1 ; l < m_layerModels.size() ; ++l)
-    size_t l = 1;
-    for(auto layerIt = std::next(m_layerModels.begin()) ; layerIt != m_layerModels.end() ; ++layerIt, ++l)
-    {
-        float spawnSparsity = (*layerIt)->getSpawnPointSparsity();
-        for(auto y = 0 ; y < m_gridSize.y ; y += spawnSparsity)
-        for(auto x = 0 ; x < m_gridSize.x ; x += spawnSparsity)
-            this->spawnLayerElement(x,y,l,(*layerIt)->getSpawnProbability(), (*layerIt)->getExpandProbability());
-    }**/
 }
 
 void TerrainGenerator::decreasesGridNoise()
 {
-    std::vector<TerrainGenerator_GroundLayer*> newGrid;
-    newGrid.resize(m_generatingGrid.size(), nullptr);
+    std::vector<TerrainGenerator_GridCell> newGrid;
+    newGrid.resize(m_generatingGrid.size());
 
     ///NEED TO OPTIMIZE
     for(auto y = 1 ; y < m_gridSize.y-1 ; ++y)
     for(auto x = 1 ; x < m_gridSize.x-1 ; ++x)
     {
-        std::map<TerrainGenerator_GroundLayer*, int> layerTypes;
+        std::map<const TerrainGenerator_GroundLayer*, int> layerTypes;
+
+        newGrid[y * m_gridSize.x + x].spawnType = m_generatingGrid[y * m_gridSize.x + x].spawnType;
+        newGrid[y * m_gridSize.x + x].preventGroundSpawning = m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning;
+
+        if(newGrid[y * m_gridSize.x + x].preventGroundSpawning)
+        {
+            newGrid[y * m_gridSize.x + x].groundLayer = m_generatingGrid[y * m_gridSize.x + x].groundLayer;
+            continue;
+        }
 
         for(auto xp = x - 1 ; xp <= x + 1 ; ++xp)
         for(auto yp = y - 1 ; yp <= y + 1 ; ++yp)
         {
-            auto oldGridValue = m_generatingGrid[yp * m_gridSize.x + xp];
+            auto oldGridValue = m_generatingGrid[yp * m_gridSize.x + xp].groundLayer;
 
             while(oldGridValue)
             {
@@ -381,7 +442,7 @@ void TerrainGenerator::decreasesGridNoise()
 
         //int maxAmout = 0;
         size_t maxDepth = 0;
-        TerrainGenerator_GroundLayer* maxGroundLayer = nullptr;
+        const TerrainGenerator_GroundLayer* maxGroundLayer = nullptr;
 
         for(auto it : layerTypes)
         {
@@ -399,7 +460,7 @@ void TerrainGenerator::decreasesGridNoise()
             }*/
         }
 
-        newGrid[y * m_gridSize.x + x] = maxGroundLayer;
+        newGrid[y * m_gridSize.x + x].groundLayer = maxGroundLayer;
     }
 
 
@@ -425,7 +486,12 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
         if(pos.x < 0 || pos.y < 0 || pos.x >= m_gridSize.x || pos.y >= m_gridSize.y)
             continue;
 
-        if(m_generatingGrid[pos.y * m_gridSize.x + pos.x] !=  groundLayer->parentLayer)
+        auto &gridElement = m_generatingGrid[pos.y * m_gridSize.x + pos.x];
+
+        if(gridElement.preventGroundSpawning)
+            continue;
+
+        if(gridElement.groundLayer !=  groundLayer->parentLayer)
             continue;
 
         float spawnRandValue = pou::RNGesus::uniformFloat(0,1,m_rng);
@@ -434,7 +500,7 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
 
         spawnProbability = groundLayer->expandProbability; //After first try, we want to use expandProbability
 
-        m_generatingGrid[pos.y * m_gridSize.x + pos.x] = groundLayer;
+        gridElement.groundLayer = groundLayer;
 
         newSpawningList.push({pos.x-1, pos.y});
         newSpawningList.push({pos.x+1, pos.y});

@@ -582,6 +582,9 @@ void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
     if(!m_spriteModel || !m_spriteModel->isRevealable())
         return;
 
+    if(this->getOrdering() != ORDERED_BY_Z)
+        this->setOrdering(ORDERED_BY_Z);
+
     MathTools::Box box;
     box.size = m_spriteModel->getSize();
     box.center = m_spriteModel->getCenter();
@@ -608,11 +611,11 @@ void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
 
     if(shouldBeRevealed)
     {
-        if(m_revealedAmount != 0.5)
+        if(m_revealedAmount != .9)
         {
             m_revealedAmount += elapsedTime.count();
-            if(m_revealedAmount > 0.5)
-                m_revealedAmount = 0.5;
+            if(m_revealedAmount > .9)
+                m_revealedAmount = .9;
             this->updateDatum();
         }
     }

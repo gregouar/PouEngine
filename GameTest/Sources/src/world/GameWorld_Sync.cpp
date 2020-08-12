@@ -553,7 +553,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             characterPtr = std::make_shared<Character>();
             this->syncElement(characterPtr, characterId);
 
-            //characterPtr->disableInputSync();
+            characterPtr->disableInputSync(!useLockStepMode);
         }
 
         characterPtr->syncFromCharacter(characterSync.character);
@@ -570,12 +570,10 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         {
             characterPtr->setReconciliationDelay(0,m_deltaRTT*1);
             characterPtr->disableInputSync();
-            //characterPtr->disableDamageReceiving(false);
-            //characterPtr->disableAI(false);
+            //characterPtr->disableStateSync();
         }
 
         characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
-
 
         if(characterSync.characterModelId != 0)
         {

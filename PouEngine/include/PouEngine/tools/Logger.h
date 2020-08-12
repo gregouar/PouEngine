@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <mutex>
+#include <memory>
 
 #include "PouEngine/core/Singleton.h"
 
@@ -35,7 +36,7 @@ class Logger : public Singleton<Logger>
         std::mutex m_loggerMutex;
 
     private:
-        std::ofstream *m_fileStream;
+        std::unique_ptr<std::ofstream> m_fileStream;
         bool m_enableConsoleWriting;
         bool m_enableWarnings;
 

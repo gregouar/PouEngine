@@ -912,7 +912,7 @@ void Character::disableDeath(bool disable)
 void Character::disableSync(bool disable)
 {
     m_characterSyncComponent.disableSync(disable);
-    m_input->getSyncComponent()->disableSync(disable);
+   // m_input->getSyncComponent()->disableSync(disable);
     m_aiComponent->getSyncComponent()->disableSync(disable);
 
     ///m_node->disableSync(disable);

@@ -10,13 +10,12 @@ namespace pou
 const int FMODAudioImpl::DEFAULT_NBR_CHANNELS = 32;
 
 FMODAudioImpl::FMODAudioImpl() : AbstractAudioImpl(),
-    m_studioSystem(nullptr) , m_system(nullptr)
+    m_studioSystem(nullptr) ,
+    m_system(nullptr) ,
+    m_nbrChannels(DEFAULT_NBR_CHANNELS),
+    m_listenerSoundTypeId(0),
+    m_distanceFactor(1.0f)
 {
-    m_nbrChannels = DEFAULT_NBR_CHANNELS;
-    m_distanceFactor = 1.0f;
-
-    m_listenerSoundTypeId = 0;
-
     this->init();
 }
 

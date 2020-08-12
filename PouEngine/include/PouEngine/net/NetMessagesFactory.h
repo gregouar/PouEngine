@@ -14,6 +14,7 @@ struct NetMessage
 {
     NetMessage();
     NetMessage(int t);
+    virtual ~NetMessage(){};
 
     int type;
     bool isReliable;

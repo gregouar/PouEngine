@@ -18,17 +18,15 @@ SpriteSheetAsset::SpriteSheetAsset() : SpriteSheetAsset(-1)
 
 }
 
-SpriteSheetAsset::SpriteSheetAsset(const AssetTypeId id) : Asset(id)
+SpriteSheetAsset::SpriteSheetAsset(const AssetTypeId id) : Asset(id),
+    m_texture(nullptr),
+    m_material(nullptr),
+    m_useMaterial(false),
+    m_textureScale(1.0f),
+    m_waitingForTextureLoading(false)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
-
-    m_texture   = nullptr;
-    m_material  = nullptr;
-    m_useMaterial = false;
-    m_textureScale = glm::vec2(1.0f,1.0f);
-
-    m_waitingForTextureLoading = false;
 }
 
 SpriteSheetAsset::~SpriteSheetAsset()

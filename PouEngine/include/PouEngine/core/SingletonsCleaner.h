@@ -25,7 +25,7 @@ class SingletonsCleaner
 
     protected:
 
-        SingletonsCleaner(){}
+        SingletonsCleaner() : m_singletonsList(){}
         virtual ~SingletonsCleaner(){cleanAll();}
 
         std::list<KillableSingleton*> m_singletonsList;

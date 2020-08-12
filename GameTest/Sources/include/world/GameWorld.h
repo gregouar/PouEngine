@@ -94,7 +94,7 @@ class GameWorld : public pou::NotificationListener
         std::vector< std::pair<size_t, PlayerAction> > m_playerActions;
         ///std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
 
-        pou::SoundTypeId m_musicEvent;
+        //pou::SoundTypeId m_musicEvent;
 
     public:
         static const int        MAX_NBR_PLAYERS;

@@ -33,7 +33,7 @@ struct VFramebufferAttachmentType
 
 struct VFramebufferAttachment
 {
-    VFramebufferAttachment() : view(VK_NULL_HANDLE){extent = {0,0};}
+    VFramebufferAttachment() : view(VK_NULL_HANDLE), extent({0,0}){}
 
     VImage                      image;
     VkImageView                 view; //View with all mips (use only for uniform or with mipsCount = 1)

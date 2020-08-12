@@ -107,8 +107,22 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
 
         if(hdl->FirstChildElement("model").Element() != nullptr)
         {
-            std::string modelPath = hdl->FirstChildElement("model").Element()->GetText();
-            this->loadModelFromObj(m_fileDirectory+modelPath);
+            auto modelElement = hdl->FirstChildElement("model").Element();
+            if(!modelElement)
+            {
+                Logger::warning("Missing model path in "+m_filePath);
+                return (false);
+            }
+
+            bool flipUV = false;
+
+            auto flipUVAtt = modelElement->Attribute("flipUV");
+            if(flipUVAtt)
+                flipUV = pou::Parser::parseBool(flipUVAtt);
+
+            std::string modelPath = modelElement->GetText();
+            this->loadModelFromObj(m_fileDirectory+modelPath, flipUV);
+
         }
     }
 
@@ -138,7 +152,7 @@ bool MeshAsset::loadFromXML(TiXmlHandle *hdl)
     return (loaded);
 }
 
-bool MeshAsset::loadModelFromObj(const std::string &filePath)
+bool MeshAsset::loadModelFromObj(const std::string &filePath, bool flipUV)
 {
     std::ifstream file(filePath.c_str(), std::ios::in);
 
@@ -165,6 +179,8 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath)
             } else if(buf == "vt") {
                 uvList.push_back({});
                 file>>uvList.back().x>>uvList.back().y;
+                if(flipUV)
+                    uvList.back().y = 1.0f - uvList.back().y;
                 //uvList.back().y = 1.0-uvList.back().y;
             } else if(buf == "vn") {
                 normalList.push_back({});

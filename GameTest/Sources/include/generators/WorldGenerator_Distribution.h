@@ -10,7 +10,19 @@ enum WorldGenerator_DistributionType
     WorldGenerator_DistributionType_Poisson,
 };
 
+struct WorldGenerator_Distribution_Parameters
+{
+    WorldGenerator_Distribution_Parameters();
 
+    glm::vec2 sectionSize;
+
+    WorldGenerator_DistributionType type;
+    TerrainGenerator_SpawnType      spawnType;
+    float distance;
+
+    bool startInCenter;
+    bool useGridPosition;
+};
 
 class WorldGenerator_Distribution
 {
@@ -24,19 +36,12 @@ class WorldGenerator_Distribution
                              bool generateCharacters, pou::RNGenerator *rng);
 
     protected:
-        const std::vector<glm::vec2> &generatePointsDistribution();
-        //bool loadCharacter(TiXmlElement *element);
-        //void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_CharacterModel_Modifier &modifier);
+        const std::vector<glm::vec2> &generatePointsDistribution(pou::RNGenerator *rng);
 
-        /*void generateCharacters(WorldNode *targetNode, GameWorld_Sync *syncComponent);
-        void generateCharacter(int x, int y, WorldGenerator_CharacterModel &characterModel,
-                               WorldNode *targetNode, GameWorld_Sync *syncComponent);
-        glm::vec4 generateRandomValue(WorldGenerator_CharacterModel_Modifier &modifier);*/
+        bool loadParameters(TiXmlElement *element, WorldGenerator_Distribution_Parameters &parameters);
 
     private:
-        WorldGenerator_DistributionType m_type;
-        float m_distance;
-        glm::vec2 m_sectionSize;
+        WorldGenerator_Distribution_Parameters m_parameters;
 
         TerrainGenerator *m_terrain;
 
@@ -44,6 +49,7 @@ class WorldGenerator_Distribution
 
         std::vector<glm::vec2> m_dummyUniformSampler;
         PoissonDiskSampler m_poissonDiskSampler;
+
 };
 
 #endif // WORLDGENERATOR_DISTRIBUTION_H

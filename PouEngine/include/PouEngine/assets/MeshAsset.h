@@ -41,7 +41,7 @@ class MeshAsset : public Asset, public NotificationListener
 
     protected:
         bool loadFromXML(TiXmlHandle *);
-        bool loadModelFromObj(const std::string &filePath);
+        bool loadModelFromObj(const std::string &filePath, bool flipUV);
 
 
         bool generateModel(const std::vector<glm::vec3> &vertexList,

@@ -15,18 +15,16 @@ MaterialAsset::MaterialAsset() : MaterialAsset(-1)
 {
 }
 
-MaterialAsset::MaterialAsset(const AssetTypeId id) : Asset(id)
+MaterialAsset::MaterialAsset(const AssetTypeId id) : Asset(id),
+    m_albedoMap(nullptr),
+    m_normalMap(nullptr),
+    m_heightMap(nullptr),
+    m_rmeMap(nullptr),
+    m_heightFactor(1),
+    m_rmeFactor(1.0,0.0,0.0)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
-
-    m_heightFactor  = 1;
-    m_rmeFactor     = glm::vec3(1.0,0.0,0.0);
-
-    m_albedoMap = nullptr;
-    m_normalMap = nullptr;
-    m_heightMap = nullptr;
-    m_rmeMap    = nullptr;
 }
 
 MaterialAsset::~MaterialAsset()

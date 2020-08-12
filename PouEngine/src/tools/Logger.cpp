@@ -10,14 +10,14 @@ Logger::Logger()
 {
     m_enableConsoleWriting = true;
     m_enableWarnings = true;
-    m_fileStream = new std::ofstream();
+    m_fileStream = std::make_unique<std::ofstream>();
     m_fileStream->open(DEFAULT_LOG_PATH, std::ios::out | std::ios::trunc );
 }
 
 Logger::~Logger()
 {
     m_fileStream->close();
-    delete m_fileStream;
+   // delete m_fileStream;
 }
 
 void Logger::write(const std::ostringstream& s)

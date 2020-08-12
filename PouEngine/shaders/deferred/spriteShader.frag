@@ -55,8 +55,11 @@ void main()
     if(outAlbedo.a <= 0.001)
         discard;
 
+    float materialAlpha = (outAlbedo.a - .5)/.5;
+    materialAlpha = clamp(materialAlpha, 0.0, 1.0);
+
     outPosition = originWorldPos + xBasisVect * discretize(localPos.x, inTexRes.x) + yBasisVect * discretize(localPos.y, inTexRes.y);
-    outPosition.a = outAlbedo.a;
+    outPosition.a = materialAlpha;
     //outPosition = originWorldPos + xBasisVect * localPos.x + yBasisVect * localPos.y;
 
     //outPosition = vec4(relWorldPos.xyz/relWorldPos.w, 0.0);
@@ -72,8 +75,8 @@ void main()
     normal = fragTBN*normal;
 
     //normal = vec4(vec4(normal,0.0)*viewUbo.view).xyz;
-    outNormal = vec4(normalize(normal),outAlbedo.a);
+    outNormal = vec4(normalize(normal), materialAlpha);
     outRme    = vec4(texture(sampler2DArray(textures[fragRmeTexId.x], samp),
-                             vec3(fragTexCoord,fragRmeTexId.y)).xyz  * fragRme, outAlbedo.a);
+                             vec3(fragTexCoord,fragRmeTexId.y)).xyz  * fragRme, materialAlpha);
 }
 

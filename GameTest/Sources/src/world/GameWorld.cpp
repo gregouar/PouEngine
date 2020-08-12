@@ -22,8 +22,8 @@ GameWorld::GameWorld(bool renderable) :
     m_isRenderable(renderable),
     ///m_curLocalTime(0),
     ///m_lastSyncTime(-1),
-    m_camera(nullptr),
-    m_musicEvent(0)
+    m_camera(nullptr)
+    //m_musicEvent(0)
    /// m_wantedRewind(-1)
 {
     pou::MessageBus::addListener(this, GameMessageType_World_NewPlayer);
@@ -52,8 +52,10 @@ void GameWorld::destroy()
 
     m_syncComponent.clear();
 
-    if(m_musicEvent)
-        pou::AudioEngine::destroyEvent(m_musicEvent);
+    m_worldGenerator.stopWorldMusic();
+
+    //if(m_musicEvent)
+      //  pou::AudioEngine::destroyEvent(m_musicEvent);
 }
 
 

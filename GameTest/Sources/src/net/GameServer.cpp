@@ -353,6 +353,9 @@ void GameServer::updateClientSync(int clientId, std::shared_ptr<NetMessage_Playe
 {
     auto [clientInfos, world] = this->getClientInfosAndWorld(clientId);
 
+    if(!clientInfos)
+        return;
+
     clientInfos->useLockStepMode = msg->useLockStepMode;
 
     if(msg->lastSyncTime == (uint32_t)(-1))
