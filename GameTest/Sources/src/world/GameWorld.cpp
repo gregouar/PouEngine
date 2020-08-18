@@ -302,10 +302,12 @@ void GameWorld::createPlayerCamera(Player *player)
         listeningCamera -> setListening(true);
         auto cameraNode = player/*->node()*/->createChildNode();
         cameraNode->attachObject(m_camera);
-        cameraNode = cameraNode->createChildNode(0,0,250);
+        cameraNode = cameraNode->createChildNode();
+        cameraNode->transform()->move(0,0,250);
         cameraNode->attachObject(listeningCamera);
 
-        m_worldGrid->setRenderProbe(cameraNode.get(),2048);
+        //m_worldGrid->setRenderProbe(cameraNode.get(),2048);
+        m_worldGrid->setRenderProbe(cameraNode.get(),1500);
         m_scene->addRevealingProbe(cameraNode.get());
 
         ///This should be moved somewhere else

@@ -8,7 +8,7 @@ namespace pou
 
 const float UiTextInput::DEFAULT_CURSOR_BLINK_DELAY = 0.5f;
 
-UiTextInput::UiTextInput(UserInterface *interface) : UiText(interface),
+UiTextInput::UiTextInput(/*UserInterface *interface*/) : UiText(/*interface*/),
     m_curState(UiTextInputState_Rest),
     m_cursorPosition(0),
     m_startingCursorPosition(0),
@@ -18,13 +18,13 @@ UiTextInput::UiTextInput(UserInterface *interface) : UiText(interface),
 {
     m_canHaveFocus = true;
 
-    m_cursorPicture = std::make_shared<UiPicture>(m_interface);
+    m_cursorPicture = std::make_unique<UiPicture>(/*m_interface*/);
     m_cursorPicture->setSize(1,this->getFontSize());
-    this->addChildNode(m_cursorPicture);
+    this->addChildElement(m_cursorPicture);
 
-    m_textSelectPicture = std::make_shared<UiPicture>(m_interface);
+    m_textSelectPicture = std::make_unique<UiPicture>(/*m_interface*/);
     m_textSelectPicture->setSize(1,this->getFontSize());
-    this->addChildNode(m_textSelectPicture);
+    this->addChildElement(m_textSelectPicture);
 
     m_cursorPicture->hide();
     m_textSelectPicture->hide();
@@ -53,7 +53,7 @@ void UiTextInput::handleEvents(const EventsManager *eventsManager)
     this->handleTextEdit(eventsManager);
 }
 
-void UiTextInput::update(const Time &elapsedTime, uint32_t localTime)
+void UiTextInput::update(const Time &elapsedTime)
 {
     if(m_curState == UiTextInputState_Edit)
     {
@@ -69,7 +69,7 @@ void UiTextInput::update(const Time &elapsedTime, uint32_t localTime)
         }
     }
 
-    UiText::update(elapsedTime, localTime);
+    UiText::update(elapsedTime);
 }
 
 void UiTextInput::setText(const std::string &text)
@@ -198,10 +198,10 @@ void UiTextInput::updateCursorPositionAndSize()
     m_cursorPicture->setSize(1, this->getFontSize());
 
     auto x = this->computeTextSize(0, m_cursorPosition);
-    m_cursorPicture->setPosition(x, 0);
+    m_cursorPicture->transform()->setPosition(x, 0);
 
     auto startSelectX = this->computeTextSize(0, m_startingCursorPosition);
-    m_textSelectPicture->setPosition(startSelectX, 0);
+    m_textSelectPicture->transform()->setPosition(startSelectX, 0);
     m_textSelectPicture->setSize(x - startSelectX, this->getFontSize());
 
     m_needToUpdateCursor = false;
@@ -224,7 +224,7 @@ void UiTextInput::handleCursor(const EventsManager *eventsManager)
     //if(this->isMouseHover())
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
     {
-        auto relPos = eventsManager->mousePosition() - this->getGlobalXYPosition();
+        auto relPos = eventsManager->mousePosition() - this->transform()->getGlobalXYPosition();
         this->setCursorPosition(this->computeCharPos(relPos), false);
 
         if(eventsManager->mouseButtonPressed(GLFW_MOUSE_BUTTON_1))

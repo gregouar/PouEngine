@@ -472,7 +472,7 @@ void Skeleton::copyFromModel(SkeletonModelAsset *model)
     m_nodesById.clear();
     for(auto it : nodeNames)
     {
-        auto *node = dynamic_cast<SceneNode*>(it.second);
+        auto *node = /*dynamic_cast<SceneNode*>*/(it.second);
         m_nodesByName.insert({it.first, node});
         m_nodesById.insert({model->getNodeId(it.first), node});
     }
@@ -670,17 +670,17 @@ bool SkeletalAnimationCommand::update(const Time &elapsedTime, uint32_t curTime)
 
     if(m_model->getType() == Move_To)
     {
-        m_node->move(finalAmount.x,finalAmount.y,finalAmount.z);
+        m_node->transform()->move(finalAmount.x,finalAmount.y,finalAmount.z);
         m_nodeState->posisiton += finalAmount;
     }
     else if(m_model->getType() == Rotate_To)
     {
-        m_node->rotate(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z), false);
+        m_node->transform()->rotateInDegrees(glm::vec3(finalAmount.x,finalAmount.y,finalAmount.z));
         m_nodeState->rotation = glm::mod(m_nodeState->rotation + finalAmount,360.0f);
     }
     else if(m_model->getType() == Scale_To)
     {
-        m_node->linearScale(finalAmount.x,finalAmount.y,finalAmount.z);
+        m_node->transform()->linearScale(finalAmount.x,finalAmount.y,finalAmount.z);
         m_nodeState->scale += finalAmount;
     }
     else if(m_model->getType() == Color_To)

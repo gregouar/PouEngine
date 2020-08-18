@@ -145,12 +145,12 @@ void PhysicsEngine::addBoxBodyImpl(const BoxBody &box)
 {
     float maxRadius = std::max(glm::abs(box.box.center.x), glm::abs(box.box.size.x - box.box.center.x))
                     + std::max(glm::abs(box.box.center.y), glm::abs(box.box.size.y - box.box.center.y)); ///I could do something finer, or even compute precise bounds
-    float estimatedLeftMost = box.node->getGlobalXYPosition().x - maxRadius;
+    float estimatedLeftMost = box.transform->getGlobalXYPosition().x - maxRadius;
 
     RigidBody body;
     body.isBox = true;
     body.isDisk = false;
-    body.node = box.node;
+    body.transform = box.transform;
     body.mass = box.mass;
     body.box = box.box;
     body.estimatedRightMost = estimatedLeftMost + maxRadius + maxRadius;
@@ -165,12 +165,12 @@ void PhysicsEngine::addBoxBodyImpl(const BoxBody &box)
 
 void PhysicsEngine::addDiskBodyImpl(const DiskBody &disk)
 {
-    float estimatedLeftMost = disk.node->getGlobalXYPosition().x - disk.radius;
+    float estimatedLeftMost = disk.transform->getGlobalXYPosition().x - disk.radius;
 
     RigidBody body;
     body.isBox = false;
     body.isDisk = true;
-    body.node = disk.node;
+    body.transform = disk.transform;
     body.mass = disk.mass;
     body.radius = disk.radius;
     body.estimatedRightMost = estimatedLeftMost + disk.radius + disk.radius;
@@ -198,40 +198,40 @@ float PhysicsEngine::computeMassRatio(float mass1, float mass2)
 }
 
 void PhysicsEngine::resolveBoxMinkowskiDiff(const glm::vec2 &closestPoint,
-                                        SimpleNode *node1, SimpleNode *node2,
+                                        TransformComponent *transform1, TransformComponent *transform2,
                                         float mass1, float mass2)
 {
-    auto minimalTranslationVector = node1->getModelMatrix() * glm::vec4(closestPoint.x, closestPoint.y,0,1) ;
+    auto minimalTranslationVector = transform1->getModelMatrix() * glm::vec4(closestPoint.x, closestPoint.y,0,1) ;
     minimalTranslationVector /= minimalTranslationVector.w;
 
     auto ratio = this->computeMassRatio(mass1, mass2);
 
-    auto translationVector = glm::vec2(minimalTranslationVector) - glm::vec2(node1->getGlobalXYPosition());
+    auto translationVector = glm::vec2(minimalTranslationVector) - glm::vec2(transform1->getGlobalXYPosition());
 
-    node2->move(translationVector * ratio * 1.0f);
-    node1->move(-translationVector * (1.0f-ratio) * 1.0f);
-    node1->update();
-    node2->update();
+    transform2->move(translationVector * ratio * 1.0f);
+    transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+    transform1->update();
+    transform2->update();
 }
 
 //void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
 void PhysicsEngine::resolveBoxToBoxCollision(RigidBody *body1, RigidBody *body2)
 {
-    auto &node1 = body1->node;
-    auto &node2 = body2->node;
+    auto &transform1 = body1->transform;
+    auto &transform2 = body2->transform;
     auto &box1 = body1->box;
     auto &box2 = body2->box;
 
     if(body1->mass == -1 && body2->mass == -1)
         return;
 
-    if(node1 == node2)
+    if(transform1 == transform2)
         return;
 
     ///We convert to local coord wrt body1
     glm::mat4 mat = glm::mat4(1);
-    mat = node2->getModelMatrix();
-    mat = node1->getInvModelMatrix()*mat;
+    mat = transform2->getModelMatrix();
+    mat = transform1->getInvModelMatrix()*mat;
 
     glm::vec4 p1 = glm::vec4(-box2.center.x, -box2.center.y,0,1);
     glm::vec4 p2 = glm::vec4(box2.size.x-box2.center.x, -box2.center.y,0,1);
@@ -305,7 +305,7 @@ void PhysicsEngine::resolveBoxToBoxCollision(RigidBody *body1, RigidBody *body2)
     sign = 0;
 
     if(!outside && closestSquaredDistance > 1)
-        this->resolveBoxMinkowskiDiff(closestPoint, node1, node2, body1->mass, body2->mass);
+        this->resolveBoxMinkowskiDiff(closestPoint, transform1, transform2, body1->mass, body2->mass);
 
 }
 
@@ -384,7 +384,7 @@ void PhysicsEngine::computeMinkowskiDiff(const glm::vec2 &originBoxSize,
 }
 
 void PhysicsEngine::resolveDiskMinkowskiDiff(const glm::vec2 &diskCenter, float diskRadius,
-                                             SimpleNode *node1, SimpleNode *node2,
+                                             TransformComponent *transform1, TransformComponent *transform2,
                                              float mass1, float mass2)
 {
     float deltaSquared = glm::dot(diskCenter,diskCenter);
@@ -395,34 +395,34 @@ void PhysicsEngine::resolveDiskMinkowskiDiff(const glm::vec2 &diskCenter, float 
     auto ratio = this->computeMassRatio(mass1, mass2);
     auto translationVector = -diskCenter * (float)(diskRadius - lengthDelta)/lengthDelta;
 
-    const glm::mat4 &mat = node1->getModelMatrix();
+    const glm::mat4 &mat = transform1->getModelMatrix();
     translationVector = glm::vec2(mat * glm::vec4(translationVector.x, translationVector.y, 0, 1));
-    translationVector -= glm::vec2(node1->getGlobalXYPosition());
+    translationVector -= glm::vec2(transform1->getGlobalXYPosition());
 
-    node2->move(translationVector * ratio * 1.0f);
-    node1->move(-translationVector * (1.0f-ratio) * 1.0f);
-    node1->update();
-    node2->update();
+    transform2->move(translationVector * ratio * 1.0f);
+    transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+    transform1->update();
+    transform2->update();
 }
 
 //void PhysicsEngine::resolveBoxToDiskCollision(BoxBody *boxBody, DiskBody *diskBody)
 void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *diskBody)
 {
-    auto &node1 = boxBody->node;
-    auto &node2 = diskBody->node;
+    auto &transform1 = boxBody->transform;
+    auto &transform2 = diskBody->transform;
     auto &box = boxBody->box;
-    auto diskCenter = node2->getGlobalXYPosition();
+    auto diskCenter = transform2->getGlobalXYPosition();
     auto diskRadius = diskBody->radius;
 
     if(boxBody->mass == -1 && diskBody->mass == -1)
         return;
 
-    if(node1 == node2)
+    if(transform1 == transform2)
         return;
 
     ///We convert to local coord wrt boxBody
     glm::mat4 mat = glm::mat4(1);
-    mat = node1->getInvModelMatrix();
+    mat = transform1->getInvModelMatrix();
 
     glm::vec4 p = glm::vec4(diskCenter.x, diskCenter.y,0,1);
     p = mat*p;
@@ -442,7 +442,7 @@ void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *dis
     if(0 < outerSquare_ul.x + diskRadius && 0 < outerSquare_ul.y + diskRadius)
     {
         this->resolveDiskMinkowskiDiff(outerSquare_ul + glm::vec2(diskRadius), diskRadius,
-                                       node1, node2, boxBody->mass, diskBody->mass);
+                                       transform1, transform2, boxBody->mass, diskBody->mass);
         return;
     }
 
@@ -450,7 +450,7 @@ void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *dis
     if(0 < outerSquare_ul.x + diskRadius && 0 > outerSquare_dr.y - diskRadius)
     {
         this->resolveDiskMinkowskiDiff(glm::vec2(outerSquare_ul.x + diskRadius, outerSquare_dr.y - diskRadius), diskRadius,
-                                       node1, node2, boxBody->mass, diskBody->mass);
+                                       transform1, transform2, boxBody->mass, diskBody->mass);
         return;
     }
 
@@ -458,7 +458,7 @@ void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *dis
     if(0 > outerSquare_dr.x - diskRadius && 0 > outerSquare_dr.y - diskRadius)
     {
         this->resolveDiskMinkowskiDiff(outerSquare_dr - glm::vec2(diskRadius), diskRadius,
-                                       node1, node2, boxBody->mass, diskBody->mass);
+                                       transform1, transform2, boxBody->mass, diskBody->mass);
         return;
     }
 
@@ -466,7 +466,7 @@ void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *dis
     if(0 > outerSquare_dr.x - diskRadius && 0 < outerSquare_ul.y + diskRadius)
     {
         this->resolveDiskMinkowskiDiff(glm::vec2(outerSquare_dr.x - diskRadius,  outerSquare_ul.y + diskRadius), diskRadius,
-                                       node1, node2, boxBody->mass, diskBody->mass);
+                                       transform1, transform2, boxBody->mass, diskBody->mass);
         return;
     }
 
@@ -484,24 +484,24 @@ void PhysicsEngine::resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *dis
     else
         closestPoint = glm::vec2(0,outerSquare_dr.y);
 
-    this->resolveBoxMinkowskiDiff(closestPoint, node1, node2, boxBody->mass, diskBody->mass);
+    this->resolveBoxMinkowskiDiff(closestPoint, transform1, transform2, boxBody->mass, diskBody->mass);
 }
 
 
 //void PhysicsEngine::resolveDiskToDiskCollision(DiskBody *body1, DiskBody *body2)
 void PhysicsEngine::resolveDiskToDiskCollision(RigidBody *body1, RigidBody *body2)
 {
-    auto &node1 = body1->node;
-    auto &node2 = body2->node;
+    auto &transform1 = body1->transform;
+    auto &transform2 = body2->transform;
 
     if(body1->mass == -1 && body2->mass == -1)
         return;
 
-    if(node1 == node2)
+    if(transform1 == transform2)
         return;
 
-    auto pos1 = node1->getGlobalXYPosition();
-    auto pos2 = node2->getGlobalXYPosition();
+    auto pos1 = transform1->getGlobalXYPosition();
+    auto pos2 = transform2->getGlobalXYPosition();
 
     auto delta = pos2 - pos1;
     auto deltaSquared = glm::dot(delta, delta);
@@ -520,10 +520,10 @@ void PhysicsEngine::resolveDiskToDiskCollision(RigidBody *body1, RigidBody *body
 
         auto ratio = this->computeMassRatio(body1->mass, body2->mass);
         auto translationVector = delta * (float)(sumRadii - lengthDelta)/lengthDelta;
-        node2->move(translationVector * ratio * 1.0f);
-        node1->move(-translationVector * (1.0f-ratio) * 1.0f);
-        node1->update();
-        node2->update();
+        transform2->move(translationVector * ratio * 1.0f);
+        transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+        transform1->update();
+        transform2->update();
     }
 }
 
@@ -580,7 +580,7 @@ CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRayImpl(glm::vec2 
         ///Need to compute left and right corner exploration nodes
         if(closestBody->isBox)
         {
-            auto mat = closestBody->node->getModelMatrix();
+            auto mat = closestBody->transform->getModelMatrix();
 
             rayThickness += 10;
 
@@ -656,7 +656,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
 
     if(body->isDisk)
     {
-        auto bodyCenterPos = body->node->getGlobalXYPosition();
+        auto bodyCenterPos = body->transform->getGlobalXYPosition();
         auto relBodyCenterPos = bodyCenterPos - startPoint;
 
         //We project body center on ray vector
@@ -679,7 +679,7 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
         augmentedBox.size += glm::vec2((rayThickness) * 2);
         augmentedBox.center += glm::vec2(rayThickness);
 
-        auto invMat = body->node->getInvModelMatrix();
+        auto invMat = body->transform->getInvModelMatrix();
 
         auto relStartPoint = invMat * glm::vec4(startPoint.x, startPoint.y, 0, 1);
         relStartPoint /= relStartPoint.w;

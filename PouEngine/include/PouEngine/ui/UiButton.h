@@ -23,10 +23,10 @@ enum UiButtonState
 class UiButton : public UiElement
 {
     public:
-        UiButton(UserInterface *interface);
+        UiButton(/*UserInterface *interface*/);
         virtual ~UiButton();
 
-        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1) override;
+        virtual void update(const Time &elapsedTime = Time(0)) override;
 
         virtual void handleEvents(const EventsManager *eventsManager) override;
 
@@ -41,7 +41,7 @@ class UiButton : public UiElement
         void setToggable(bool toggable = true, bool disableUntoggle = false);
         void setToggled(bool toggled = true);
 
-        std::shared_ptr<UiText> getLabel();
+        UiText *getLabel();
 
         void activate();
         bool isClicked();

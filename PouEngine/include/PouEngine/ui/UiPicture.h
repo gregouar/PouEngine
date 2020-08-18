@@ -11,7 +11,7 @@ namespace pou
 class UiPicture : public RenderableUiElement
 {
     public:
-        UiPicture(/**const NodeTypeId,**/ UserInterface *interface);
+        UiPicture(/*UserInterface *interface*/);
         virtual ~UiPicture();
 
         void setTexture(TextureAsset *texture);

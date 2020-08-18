@@ -10,9 +10,10 @@ namespace pou
 class UiToggleButtonsGroup : public UiElement
 {
     public:
-        UiToggleButtonsGroup(UserInterface *interface);
+        UiToggleButtonsGroup(/*UserInterface *interface*/);
         virtual ~UiToggleButtonsGroup();
 
+        //void addButton(UiButton *button, int value);
         void addButton(std::shared_ptr<UiButton> button, int value);
 
         void toggleButton(UiButton *button, bool activate = true);
@@ -23,7 +24,7 @@ class UiToggleButtonsGroup : public UiElement
                             void* data);
 
     private:
-        std::list< std::pair<std::shared_ptr<UiButton>, int> > m_toggleButtons;
+        std::list< std::pair<UiButton*, int> > m_toggleButtons;
 };
 
 }

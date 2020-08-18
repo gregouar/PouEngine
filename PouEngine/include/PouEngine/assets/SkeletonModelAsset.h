@@ -2,7 +2,7 @@
 #define SkeletonModelAsset_H
 
 #include "PouEngine/assets/Asset.h"
-#include "PouEngine/system/SimpleNode.h"
+#include "PouEngine/scene/SceneNode.h"
 
 #include "tinyxml/tinyxml.h"
 
@@ -119,9 +119,9 @@ class SkeletonModelAsset : public Asset
 
         bool loadFromFile(const std::string &filePath);
 
-        const SimpleNode *getRootNode() const;
-        std::map<std::string, SimpleNode*> getNodesByName();
-        const std::map<int, SimpleNode*> *getNodesById();
+        const SceneNode *getRootNode() const;
+        std::map<std::string, SceneNode*> getNodesByName();
+        const std::map<int, SceneNode*> *getNodesById();
         const std::list<std::pair<int,int> > *getInitialStates() const;
 
         SkeletalAnimationModel* findAnimation(int id);
@@ -139,16 +139,16 @@ class SkeletonModelAsset : public Asset
 
     protected:
         bool loadFromXML(TiXmlHandle *);
-        void loadNode(SimpleNode* rootNode, TiXmlElement *element);
+        void loadNode(SceneNode* rootNode, TiXmlElement *element);
         void loadAnimation(TiXmlElement *element);
 
         int generateId(const std::string &name, std::map<std::string, int> &namesMap);
         int getId(const std::string &name, const std::map<std::string, int> &namesMap) const;
 
     private:
-        SimpleNode m_rootNode;
-        std::map<std::string, SimpleNode*> m_nodesByName;
-        std::map<int, SimpleNode*> m_nodesById;
+        SceneNode m_rootNode;
+        std::map<std::string, SceneNode*> m_nodesByName;
+        std::map<int, SceneNode*> m_nodesById;
 
         std::list<std::pair<int,int> > m_initialStates;
 

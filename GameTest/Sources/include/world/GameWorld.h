@@ -3,6 +3,7 @@
 
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/SceneNode.h"
+#include "PouEngine/scene/SceneGrid.h"
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/renderers/RenderWindow.h"
 
@@ -10,7 +11,6 @@
 #include "character/Player.h"
 #include "character/PlayerSave.h"
 #include "net/NetMessageTypes.h"
-#include "world/WorldGrid.h"
 #include "world/GameWorld_Sync.h"
 #include "generators/WorldGenerator.h"
 
@@ -78,8 +78,8 @@ class GameWorld : public pou::NotificationListener
         WorldGenerator m_worldGenerator;
 
         pou::Scene *m_scene;
-        std::shared_ptr<WorldNode> m_worldRootNode;
-        std::shared_ptr<WorldGrid> m_worldGrid;
+        std::shared_ptr<pou::SceneNode> m_worldRootNode;
+        std::shared_ptr<pou::SceneGrid> m_worldGrid;
         bool m_isRenderable;
 
         std::shared_ptr<pou::CameraObject> m_camera;

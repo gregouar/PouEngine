@@ -69,7 +69,7 @@ bool TerrainGenerator::loadFromXML(TiXmlHandle *hdl, const std::string &fileDire
     return loaded;
 }
 
-void TerrainGenerator::generatesOnNode(WorldNode *targetNode, pou::RNGenerator *rng)
+void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     m_rng = rng;
 
@@ -82,9 +82,9 @@ void TerrainGenerator::generatesOnNode(WorldNode *targetNode, pou::RNGenerator *
     for(auto x = 0 ; x < m_terrainSize.x ; x++)
     for(auto y = 0 ; y < m_terrainSize.y ; y++)
     {
-        auto tileNode = std::make_shared<WorldNode>();
-        tileNode->setPosition(x * m_tileSize.x, y * m_tileSize.y);
-        tileNode->move(-centeringShift);
+        auto tileNode = std::make_shared<pou::SceneNode>();
+        tileNode->transform()->setPosition(x * m_tileSize.x, y * m_tileSize.y);
+        tileNode->transform()->move(-centeringShift);
         this->generateSprites(x, y, tileNode.get());
 
         targetNode->addChildNode(tileNode);
@@ -544,7 +544,7 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
     }
 }**/
 
-void TerrainGenerator::generateSprites(int x, int y, WorldNode *targetNode)
+void TerrainGenerator::generateSprites(int x, int y, pou::SceneNode *targetNode)
 {
     for(auto &groundLayer : m_groundLayers)
     {

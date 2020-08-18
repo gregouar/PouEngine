@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "PouEngine/Types.h"
+#include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/scene/SpriteModel.h"
 #include "PouEngine/scene/SpriteEntity.h"
 #include "PouEngine/scene/SoundObject.h"
@@ -12,7 +13,7 @@
 
 #include "assets/CharacterModelAsset.h"
 #include "character/CharacterState.h"
-#include "world/WorldNode.h"
+#include "sync/NodeSyncer.h"
 
 #include "PouEngine/sync/SyncElements.h"
 
@@ -117,7 +118,7 @@ class HurtNode
 };
 
 class Character : //public pou::SceneObject, public pou::NotificationSender
-    public WorldNode
+    public pou::SceneNode
 {
     friend class CharacterModelAsset;
     friend class CharacterState;
@@ -156,7 +157,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         void startAnimation(const std::string &name, bool forceStart = true);
 
-        virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance, bool propagateToChilds = true);
+        //virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance);
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -189,6 +190,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual void    setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
         uint32_t        getLastModelUpdateTime();
         uint32_t        getLastCharacterUpdateTime();
+
+        std::shared_ptr<NodeSyncer> getNodeSyncer();
 
         ///pou::SyncComponent *getCharacterSyncComponent();
 
@@ -259,6 +262,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent
 
         pou::SyncComponent m_characterSyncComponent;
+        //NodeSyncer *m_nodeSyncer;
+        std::shared_ptr<NodeSyncer> m_nodeSyncer;
 
     public:
 };

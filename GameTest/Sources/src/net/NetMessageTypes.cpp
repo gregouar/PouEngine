@@ -4,9 +4,10 @@
 
 #include "world/GameWorld.h"
 #include "world/WorldMesh.h"
+#include "world/PrefabInstance.h"
 #include "character/Character.h"
 #include "character/Player.h"
-#include "world/PrefabInstance.h"
+#include "sync/NodeSyncer.h"
 
 void initializeNetMessages()
 {
@@ -66,11 +67,11 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     stream->serializeUint32(localTime); //This is the server time
     stream->serializeUint32(clientTime); //This is the last known client  time
 
-    int nbr_nodes = nodes.size();
+    int nbr_nodes = nodeSyncers.size();
     stream->serializeBits(nbr_nodes, GameWorld_Sync::NODEID_BITS);
-    nodes.resize(nbr_nodes);
+    nodeSyncers.resize(nbr_nodes);
     for(int i = 0 ; i < nbr_nodes ; ++i)
-        this->serializeNode(stream, nodes[i]);
+        this->serializeNode(stream, nodeSyncers[i]);
     //std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
 
     int nbr_spriteSheets = spriteSheets.size();
@@ -161,30 +162,42 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
 
 }
 
-void NetMessage_WorldSync::serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node)
+void NetMessage_WorldSync::serializeNode(pou::Stream *stream, NodeSyncer *(&nodeSyncerPtr))
 {
-    auto& [ nodeId, nodeSync ] = node;
-    stream->serializeBits(nodeId, GameWorld_Sync::NODEID_BITS);
-
-    auto &nodePtr = nodeSync.node;
     if(stream->isReading())
     {
-        auto node =  std::make_shared<WorldNode>();
-        nodesBuffer.push_back(node);
-        nodePtr = node.get();
-        nodePtr->update(pou::Time(0),localTime);
+        auto nodeSyncer =  std::make_shared<NodeSyncer>();
+        nodesBuffer.push_back(nodeSyncer);
+        nodeSyncerPtr = nodeSyncer.get();
+        nodeSyncerPtr->update(pou::Time(0),localTime);
+    }
+
+    /*auto nodeId = (int)nodeSyncerPtr->getNodeSyncId();
+    stream->serializeBits(nodeId, GameWorld_Sync::NODEID_BITS);
+
+    if(stream->isReading())
+    {
+        auto nodeSyncer =  std::make_shared<NodeSyncer>();
+        nodesBuffer.push_back(nodeSyncer);
+        nodeSyncerPtr = nodeSyncer.get();
+        nodeSyncerPtr->update(pou::Time(0),localTime);
     }
 
     bool newParent = false;
-    if(!stream->isReading() && uint32less(lastSyncTime,nodePtr->getLastParentUpdateTime()))
+    if(!stream->isReading() && uint32less(lastSyncTime,nodeSyncerPtr->getLastParentUpdateTime()))
         newParent = true;
     stream->serializeBool(newParent);
     if(newParent)
-        stream->serializeBits(nodeSync.parentNodeId, GameWorld_Sync::NODEID_BITS);
+    {
+        auto parentNodeId = (int)nodeSyncerPtr->getParentNodeSyncId();
+        stream->serializeBits(nodeSyncerPtr->getParentNodeSyncId(), GameWorld_Sync::NODEID_BITS);
+        if(stream->isReading())
+            nodeSyncerPtr->setParentNodeSyncId(parentNodeId);
+    }
     else
-        nodeSync.parentNodeId = 0;
+        nodeSync.setParentNodeSyncId(0);*/
 
-    nodePtr->serialize(stream, lastSyncTime);
+    nodeSyncerPtr->serialize(stream, lastSyncTime);
 }
 
 void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
@@ -479,14 +492,14 @@ void NetMessage_PlayerSync::serializeImpl(pou::Stream *stream)
     }
 
     {
-        auto &nodePtr = nodeSync.node;
+        auto &nodeSyncerPtr = nodeSyncer;
         if(stream->isReading())
         {
-            nodeBuffer = std::make_shared<WorldNode>();
-            nodePtr = nodeBuffer.get();
-            nodePtr->update(pou::Time(0),localTime);
+            nodeBuffer = std::make_shared<NodeSyncer>();
+            nodeSyncerPtr = nodeBuffer.get();
+            nodeSyncerPtr->update(pou::Time(0),localTime);
         }
-        nodePtr->serialize(stream, lastSyncTime);
+        nodeSyncerPtr->serialize(stream, lastSyncTime);
     }
 
     {

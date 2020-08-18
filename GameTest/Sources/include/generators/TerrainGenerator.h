@@ -1,7 +1,7 @@
 #ifndef TERRAINGENERATOR_H
 #define TERRAINGENERATOR_H
 
-#include "world/WorldNode.h"
+#include "PouEngine/scene/SceneNode.h"
 #include "world/GameWorld_Sync.h"
 #include "assets/TerrainLayerModelAsset.h"
 
@@ -63,7 +63,7 @@ class TerrainGenerator
         bool loadFromXML(TiXmlHandle *hdl, const std::string &fileDirectory);
 
         void resetGrid();
-        void generatesOnNode(WorldNode *targetNode, pou::RNGenerator *rng);
+        void generatesOnNode(pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
         void addSpawnOnlyZone(const TerrainGenerator_SpawnOnlyZone &zone);
         /**void addSpawnOnlyZone(TerrainGenerator_SpawnType spawnType,
@@ -107,9 +107,9 @@ class TerrainGenerator
         void spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer);
 
         void generateSprites(int x, int y,
-                             WorldNode *targetNode);
+                             pou::SceneNode *targetNode);
         //void generateSprite(std::list<TerrainGenerator_LayerModelElement> *listModel,
-        //                    std::shared_ptr<WorldNode> targetNode, GameWorld_Sync *syncComponent);
+        //                    std::shared_ptr<pou::SceneNode> targetNode, GameWorld_Sync *syncComponent);
 
 
     private:

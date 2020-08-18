@@ -38,7 +38,7 @@ bool WorldGenerator::loadFromFile(const std::string &filePath)
 }
 
 
-void WorldGenerator::generatesOnNode(WorldNode *targetNode, int seed, GameWorld_Sync *syncComponent,
+void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameWorld_Sync *syncComponent,
                                      bool generateCharacters)
 {
     m_generatingSeed = seed;

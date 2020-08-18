@@ -5,17 +5,17 @@
 
 class Character;
 class Player;
-class WorldNode;
+class NodeSyncer;
 class WorldSprite;
 class WorldMesh;
 class PrefabInstance;
 
-struct NodeSync
+/*struct NodeSync
 {
     int parentNodeId;
-    ///std::shared_ptr<WorldNode> node;
-    WorldNode *node;
-};
+    //pou::SceneNode *node;
+    NodeSyncer *nodeSyncer;
+};*/
 
 struct SpriteEntitySync
 {
@@ -23,7 +23,6 @@ struct SpriteEntitySync
     int spriteId; //Inside spritesheet
     int nodeId;
 
-    ///std::shared_ptr<WorldSprite> spriteEntity;
     WorldSprite *spriteEntity;
 };
 
@@ -33,7 +32,6 @@ struct MeshEntitySync
     int meshModelId;
     int nodeId;
 
-    ///std::shared_ptr<WorldSprite> spriteEntity;
     WorldMesh *meshEntity;
 };
 
@@ -42,7 +40,6 @@ struct CharacterSync
     int characterModelId;
     int nodeId;
 
-    ///std::shared_ptr<Character> character;
     Character *character;
 };
 

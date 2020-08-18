@@ -4,6 +4,7 @@ namespace pou
 {
 
 SceneGrid::SceneGrid() :
+    SceneNode(),
     m_quadSize(1),
     m_minPos(0),
     m_gridSize(0)
@@ -13,13 +14,23 @@ SceneGrid::SceneGrid() :
 
 SceneGrid::~SceneGrid()
 {
-    //dtor
 }
 
 
-void SceneGrid::addChildNode(std::shared_ptr<SimpleNode> childNode)
+void SceneGrid::addChildNode(std::shared_ptr<SceneNode> childNode)
 {
-    auto childPos = childNode->getGlobalXYPosition();
+    ///This allows to force compute current global position
+    childNode->update();
+
+    this->addChildNodeToGrid(childNode);
+
+    this->setAsParentTo(this, childNode.get());
+    this->startListeningTo(childNode.get());
+}
+
+void SceneGrid::addChildNodeToGrid(std::shared_ptr<SceneNode> childNode)
+{
+    auto childPos = childNode->transform()->getGlobalXYPosition();
     this->enlargeForPosition(childPos);
 
     auto gridPos = this->getGridPos(childPos);
@@ -28,18 +39,16 @@ void SceneGrid::addChildNode(std::shared_ptr<SimpleNode> childNode)
         return;
 
     m_grid[gridPos.y][gridPos.x].push_back(childNode);
-    childNode->setParent(this);
-    this->startListeningTo(childNode.get());
 }
 
-bool SceneGrid::removeChildNode(SimpleNode *childNode)
+bool SceneGrid::removeChildNode(SceneNode *childNode)
 {
-    auto childPos = childNode->getGlobalXYPosition();
+    auto childPos = childNode->transform()->getGlobalXYPosition();
     auto gridPos = this->getGridPos(childPos);
     return this->removeChildNode(childNode, gridPos);
 }
 
-bool SceneGrid::removeChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
+bool SceneGrid::removeChildNode(SceneNode *childNode, glm::ivec2 gridPos)
 {
     if(gridPos.x < 0 || gridPos.y < 0 || gridPos.x >= m_gridSize.x || gridPos.y >= m_gridSize.y)
         return (false);
@@ -49,7 +58,7 @@ bool SceneGrid::removeChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
     {
         if(childIt->get() == childNode)
         {
-            childNode->setParent(nullptr);
+            this->setAsParentTo(nullptr, childNode);
             this->stopListeningTo(childNode);
             m_grid[gridPos.y][gridPos.x].erase(childIt);
             return (true);
@@ -60,10 +69,11 @@ bool SceneGrid::removeChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
 
 void SceneGrid::removeAllChilds()
 {
-    /* do something */
+    m_grid.clear();
+    m_gridSize = glm::vec2(0);
 }
 
-bool SceneGrid::containsChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
+bool SceneGrid::containsChildNode(SceneNode *childNode, glm::ivec2 gridPos)
 {
     if(gridPos.x < 0 || gridPos.y < 0 || gridPos.x >= m_gridSize.x || gridPos.y >= m_gridSize.y)
         return (false);
@@ -77,13 +87,13 @@ bool SceneGrid::containsChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
     return (false);
 }
 
-std::shared_ptr<SimpleNode> SceneGrid::extractChildNode(SimpleNode *childNode)
+std::shared_ptr<SceneNode> SceneGrid::extractChildNode(SceneNode *childNode)
 {
-    auto gridPos = this->getGridPos(childNode->getGlobalXYPosition());
+    auto gridPos = this->getGridPos(childNode->transform()->getGlobalXYPosition());
     return this->extractChildNode(childNode, gridPos);
 }
 
-std::shared_ptr<SimpleNode> SceneGrid::extractChildNode(SimpleNode *childNode, glm::ivec2 gridPos)
+std::shared_ptr<SceneNode> SceneGrid::extractChildNode(SceneNode *childNode, glm::ivec2 gridPos)
 {
     if(gridPos.x < 0 || gridPos.y < 0 || gridPos.x >= m_gridSize.x || gridPos.y >= m_gridSize.y)
         return (nullptr);
@@ -93,9 +103,10 @@ std::shared_ptr<SimpleNode> SceneGrid::extractChildNode(SimpleNode *childNode, g
     {
         if(childIt->get() == childNode)
         {
-            std::shared_ptr<SimpleNode> rNode;
+            std::shared_ptr<SceneNode> rNode;
             rNode = *childIt;
-            rNode->setParent(nullptr);
+            this->setAsParentTo(nullptr, rNode.get());
+            //rNode->setParent(nullptr);
             this->stopListeningTo(rNode.get());
             m_grid[gridPos.y][gridPos.x].erase(childIt);
             return (rNode);
@@ -104,6 +115,27 @@ std::shared_ptr<SimpleNode> SceneGrid::extractChildNode(SimpleNode *childNode, g
     return (nullptr);
 }
 
+void SceneGrid::moveChildNode(SceneNode *childNode, glm::ivec2 oldGridPos)
+{
+    if(oldGridPos.x < 0 || oldGridPos.y < 0 || oldGridPos.x >= m_gridSize.x || oldGridPos.y >= m_gridSize.y)
+        return;
+
+    std::shared_ptr<SceneNode> rNode;
+
+    for(auto childIt = m_grid[oldGridPos.y][oldGridPos.x].begin() ;
+        childIt != m_grid[oldGridPos.y][oldGridPos.x].end() ; ++childIt)
+    {
+        if(childIt->get() == childNode)
+        {
+            rNode = *childIt;
+            m_grid[oldGridPos.y][oldGridPos.x].erase(childIt);
+            break;
+        }
+    }
+
+    if(rNode)
+        this->addChildNodeToGrid(rNode);
+}
 
 void SceneGrid::setQuadSize(float s)
 {
@@ -115,7 +147,7 @@ void SceneGrid::setQuadSize(float s)
 
 void SceneGrid::resizeQuad(glm::ivec2 minPos, glm::ivec2 gridSize)
 {
-    std::vector< std::vector< std::vector< std::shared_ptr<SimpleNode> > > >
+    std::vector< std::vector< std::vector< std::shared_ptr<SceneNode> > > >
             newGrid;
 
     newGrid.resize(gridSize.y);
@@ -145,27 +177,29 @@ void SceneGrid::enlargeForPosition(glm::vec2 pos)
     auto gridSize = m_gridSize;
     bool enlarge = false;
 
-    if(pos.x < m_minPos.x * m_quadSize)
+    auto requiredGridPos = this->getGridPos(pos);
+
+    if(requiredGridPos.x < 0)
     {
-        minPos.x = glm::floor(pos.x/m_quadSize);
+        minPos.x += requiredGridPos.x;
         enlarge = true;
     }
 
-    if(pos.y < m_minPos.y * m_quadSize )
+    if(requiredGridPos.y < 0)
     {
-        minPos.y = glm::floor(pos.y/m_quadSize);
+        minPos.y += requiredGridPos.x;
         enlarge = true;
     }
 
-    if(pos.x >= m_quadSize * (m_minPos.x + m_gridSize.x))
+    if(requiredGridPos.x >= m_gridSize.x)
     {
-        gridSize.x = glm::ceil((m_minPos.x * m_quadSize + pos.x)/m_quadSize);
+        m_gridSize.x = requiredGridPos.x + 1;
         enlarge = true;
     }
 
-    if(pos.y >= m_quadSize * (m_minPos.y + m_gridSize.y))
+    if(requiredGridPos.y >= m_gridSize.y)
     {
-        gridSize.y = glm::ceil((m_minPos.y * m_quadSize + pos.y)/m_quadSize);
+        m_gridSize.y = requiredGridPos.y + 1;
         enlarge = true;
     }
 
@@ -173,100 +207,96 @@ void SceneGrid::enlargeForPosition(glm::vec2 pos)
         this->resizeQuad(minPos, gridSize);
 }
 
-void SceneGrid::addUpdateProbe(std::shared_ptr<SimpleNode> node, float radius)
+void SceneGrid::addUpdateProbe(SceneNode *node, float radius)
 {
+    if(!node)
+        return;
+
     GridProbe probe;
     probe.node = node;
     probe.radius = radius;
     m_updateProbes.push_back(probe);
+
+    this->startListeningTo(node);
 }
 
-void SceneGrid::removeUpdateProbe(SimpleNode *node)
+void SceneGrid::removeUpdateProbe(SceneNode *node)
 {
     for(auto it = m_updateProbes.begin() ; it != m_updateProbes.end() ; ++it)
-        if(it->node.get() == node)
+        if(it->node == node)
         {
             m_updateProbes.erase(it);
             return;
         }
 }
 
-void SceneGrid::setRenderProbe(std::shared_ptr<SimpleNode> node, float radius)
+void SceneGrid::setRenderProbe(SceneNode *node, float radius)
 {
     m_renderProbe.node      = node;
     m_renderProbe.radius    = radius;
+    if(node)
+        this->startListeningTo(node);
 }
 
-void SceneGrid::probesZones(std::set< std::vector<std::shared_ptr<SimpleNode> > *> &zonesToUpdate, GridProbe &probe)
+void SceneGrid::probesZones(std::set< std::vector<std::shared_ptr<SceneNode> > *> &zonesToUpdate, GridProbe &probe)
 {
-    auto probeGridPos = this->getGridPos(probe.node->getGlobalXYPosition()-probe.radius*glm::vec2(1));
+    auto probeGridPos_Min =  this->getGridPos(probe.node->transform()->getGlobalXYPosition()-probe.radius*glm::vec2(1));
+    auto probeGridPos_Max =  this->getGridPos(probe.node->transform()->getGlobalXYPosition()+probe.radius*glm::vec2(1));
+
+    for(auto y = probeGridPos_Min.y ; y <= probeGridPos_Max.y ; ++y)
+    for(auto x = probeGridPos_Min.x ; x <= probeGridPos_Max.x; ++x)
+    if(y >= 0 && x >= 0
+    && y < m_gridSize.y && x < m_gridSize.x)
+        zonesToUpdate.insert(&m_grid[y][x]);
+
+    /*auto probeGridPos = this->getGridPos(probe.node->transform()->getGlobalXYPosition()-probe.radius*glm::vec2(1));
     auto probeGridSize = glm::ceil(probe.radius*2/m_quadSize);
 
     for(auto y = 0 ; y < (int)probeGridSize ; ++y)
     for(auto x = 0 ; x < (int)probeGridSize ; ++x)
     if(probeGridPos.y + y >= 0 && probeGridPos.x + x >= 0
     && probeGridPos.y + y < m_gridSize.y && probeGridPos.x + x < m_gridSize.x)
-        zonesToUpdate.insert(&m_grid[probeGridPos.y + y][probeGridPos.x + x]);
+        zonesToUpdate.insert(&m_grid[probeGridPos.y + y][probeGridPos.x + x]);*/
 }
 
-
-/*void SceneGrid::probesZones(std::set< std::shared_ptr<SimpleNode> > &nodesToUpdate, GridProbe &probe)
-{
-    auto probeGridPos = this->getGridPos(probe.node->getGlobalXYPosition()-probe.radius*glm::vec2(1));
-    auto probeGridSize = glm::ceil(probe.radius*2/m_quadSize);
-
-    //std::cout<<probeGridPos.x<<" "<<probeGridPos.y<<std::endl;
-    //std::cout<<probeGridSize<<std::endl;
-
-    for(auto y = 0 ; y < (int)probeGridSize ; ++y)
-    for(auto x = 0 ; x < (int)probeGridSize ; ++x)
-    if(probeGridPos.y + y >= 0 && probeGridPos.x + x >= 0
-    && probeGridPos.y + y < m_gridSize.y && probeGridPos.x + x < m_gridSize.x)
-        nodesToUpdate.insert(m_grid[probeGridPos.y + y][probeGridPos.x + x].begin(),
-                             m_grid[probeGridPos.y + y][probeGridPos.x + x].end());
-}*/
-
-void SceneGrid::update(const Time &elapsedTime, uint32_t localTime)
+void SceneGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
-    std::set< std::vector<std::shared_ptr<SimpleNode> > *> zonesToUpdate;
-    //std::set< std::shared_ptr<SimpleNode> > nodesToUpdate;
+    std::set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
 
     for(auto &probe : m_updateProbes)
         this->probesZones(zonesToUpdate, probe);
-       // this->probesZones(nodesToUpdate, probe);
 
+    int nbrUpdatedNodes = 0;
+
+       size_t i = 0;
     for(auto* zone : zonesToUpdate)
     for(auto node : *zone)
-    //for(auto node : nodesToUpdate)
-        node->update(elapsedTime, localTime);
+    {
+        node->update(elapsedTime, localTime), ++i;
+       nbrUpdatedNodes++;
+    }
 
     for(auto &nodeToMove : m_nodesToMove)
-    {
-        auto ptrNode = this->extractChildNode(nodeToMove.second, nodeToMove.first);
-        this->addChildNode(ptrNode);
-    }
+        this->moveChildNode(nodeToMove.second, nodeToMove.first);
 
     m_nodesToMove.clear();
 }
 
-void SceneGrid::generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds)
+void SceneGrid::generateRenderingData(pou::SceneRenderingInstance *renderingInstance)
 {
-    SceneNode::generateRenderingData(renderingInstance, false);
+    SceneNode::generateRenderingDataWithoutPropagating(renderingInstance);
 
-    if(!propagateToChilds)
+    if(!m_renderProbe.node)
         return;
 
-    std::set< std::vector<std::shared_ptr<SimpleNode> > *> zonesToUpdate;
-    //std::set< std::shared_ptr<SimpleNode> > nodesToUpdate;
+    std::set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
     this->probesZones(zonesToUpdate, m_renderProbe);
-    //this->probesZones(nodesToUpdate, m_renderProbe);
 
     for(auto* zone : zonesToUpdate)
     for(auto node : *zone)
-    //for(auto node : nodesToUpdate)
-        std::dynamic_pointer_cast<SceneNode>(node)->generateRenderingData(renderingInstance, propagateToChilds);
+        node->generateRenderingData(renderingInstance);
 }
 
 glm::ivec2 SceneGrid::getGridPos(glm::vec2 worldPos)
@@ -274,29 +304,31 @@ glm::ivec2 SceneGrid::getGridPos(glm::vec2 worldPos)
     return glm::floor((worldPos - glm::vec2(m_minPos) * m_quadSize)/m_quadSize);
 }
 
-void SceneGrid::notify(NotificationSender* sender, int notificationType, void* data)
+void SceneGrid::notify(pou::NotificationSender* sender, int notificationType, void* data)
 {
     SceneNode::notify(sender, notificationType, data);
 
-    if(notificationType == NotificationType_NodeMoved)
+    if(notificationType == pou::NotificationType_NodeMoved && data != nullptr)
     {
         auto node = static_cast<SceneNode*>(sender);
         auto oldPos = *((glm::vec3*)data);
 
         auto oldGridPos = this->getGridPos(glm::vec2(oldPos));
-        auto newGridPos = this->getGridPos(node->getGlobalXYPosition());
+        auto newGridPos = this->getGridPos(node->transform()->getGlobalXYPosition());
 
         if(oldGridPos != newGridPos)
         if(this->containsChildNode(node, oldGridPos))
-        {
             m_nodesToMove.push_back({oldGridPos, node});
-            //auto ptrNode = this->extractChildNode(node, oldGridPos);
-            //this->addChildNode(ptrNode);
-        }
     }
 
-    if(notificationType == NotificationType_SenderDestroyed)
-        this->removeUpdateProbe((pou::SimpleNode*)sender);
+    if(notificationType == pou::NotificationType_SenderDestroyed)
+    {
+        this->removeUpdateProbe((SceneNode*)sender);
+        if(sender == m_renderProbe.node)
+            m_renderProbe.node = nullptr;
+    }
 }
 
 }
+
+

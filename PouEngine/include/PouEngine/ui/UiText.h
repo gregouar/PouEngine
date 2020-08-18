@@ -10,12 +10,12 @@ namespace pou
 class UiText : public UiElement
 {
     public:
-        UiText(UserInterface *interface);
+        UiText(/*UserInterface *interface*/);
         virtual ~UiText();
 
         virtual void render(UiRenderer *renderer);
 
-        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1) override;
+        virtual void update(const Time &elapsedTime = Time(0)) override;
 
         using UiElement::setSize;
         virtual void setSize(glm::vec2 s);

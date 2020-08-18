@@ -77,7 +77,7 @@ class WorldGenerator_SpawnPoint
 
         bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator);
 
-        void generatesOnNode(glm::vec2 worldPos, WorldNode *targetNode, GameWorld_Sync *syncComponent,
+        void generatesOnNode(glm::vec2 worldPos, pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                              bool generateCharacters, pou::RNGenerator *rng);
 
         float getSpawnProbability(glm::vec2 worldPos);
@@ -91,16 +91,16 @@ class WorldGenerator_SpawnPoint
         glm::vec4 generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng);
 
         void spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos,
-                            WorldNode *targetNode, GameWorld_Sync *syncComponent,
+                            pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                             bool generateCharacters, pou::RNGenerator *rng);
 
         void spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos,
-                         WorldNode *targetNode, pou::RNGenerator *rng);
+                         pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
         void spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
-                         WorldNode *targetNode, pou::RNGenerator *rng);
+                         pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
-        void applyRandomModifiers(WorldNode *targetNode, pou::RNGenerator *rng);
+        void applyRandomModifiers(pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
 
     private:

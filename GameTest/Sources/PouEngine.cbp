@@ -41,6 +41,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -77,6 +78,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -118,6 +120,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -156,6 +159,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -196,6 +200,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -236,6 +241,7 @@
 					<Add directory="PouEngine/include/PouEngine/physics" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -271,6 +277,7 @@
 					<Add directory="GameTest/Sources/include/ai" />
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
+					<Add directory="GameTest/Sources/include/sync" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -328,6 +335,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/math/TransformComponent.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractNetImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractServer.h" />
@@ -620,6 +628,7 @@
 		<Unit filename="../../PouEngine/src/core/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
+		<Unit filename="../../PouEngine/src/math/TransformComponent.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractServer.cpp" />
 		<Unit filename="../../PouEngine/src/net/NetAddress.cpp" />
@@ -744,13 +753,12 @@
 		<Unit filename="include/states/MainMenuState.h" />
 		<Unit filename="include/states/PlayerServerTestingState.h" />
 		<Unit filename="include/states/ServerTestingState.h" />
+		<Unit filename="include/sync/NodeSyncer.h" />
 		<Unit filename="include/ui/GameUi.h" />
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
 		<Unit filename="include/world/PrefabInstance.h" />
-		<Unit filename="include/world/WorldGrid.h" />
 		<Unit filename="include/world/WorldMesh.h" />
-		<Unit filename="include/world/WorldNode.h" />
 		<Unit filename="include/world/WorldSprite.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
@@ -783,14 +791,13 @@
 		<Unit filename="src/states/MainMenuState.cpp" />
 		<Unit filename="src/states/PlayerServerTestingState.cpp" />
 		<Unit filename="src/states/ServerTestingState.cpp" />
+		<Unit filename="src/sync/NodeSyncer.cpp" />
 		<Unit filename="src/ui/GameUi.cpp" />
 		<Unit filename="src/world/GameWorld.cpp" />
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Unit filename="src/world/PrefabInstance.cpp" />
-		<Unit filename="src/world/WorldGrid.cpp" />
 		<Unit filename="src/world/WorldMesh.cpp" />
-		<Unit filename="src/world/WorldNode.cpp" />
 		<Unit filename="src/world/WorldSprite.cpp" />
 		<Extensions />
 	</Project>

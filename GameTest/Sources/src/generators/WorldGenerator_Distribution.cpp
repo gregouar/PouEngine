@@ -53,11 +53,10 @@ bool WorldGenerator_Distribution::loadFromXML(const std::string &fileDirectory, 
 }
 
 
-void WorldGenerator_Distribution::generatesOnNode(WorldNode *targetNode, GameWorld_Sync *syncComponent,
+void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                   bool generateCharacters, pou::RNGenerator *rng)
 {
     auto pointsDistribution = this->generatePointsDistribution(rng);
-
     glm::ivec2 nbrSections = glm::ceil(m_terrain->getExtent()/m_parameters.sectionSize);
 
     for(float y = 0 ; y < nbrSections.y ; ++y)
@@ -104,7 +103,8 @@ void WorldGenerator_Distribution::generatesOnNode(WorldNode *targetNode, GameWor
             continue;**/
 
         auto spawnPointIt = spawnPointsWithProb.lower_bound(probValue);
-        spawnPointIt->second->generatesOnNode(pointWorldPos, targetNode, syncComponent, generateCharacters, rng);
+        if(spawnPointIt != spawnPointsWithProb.end())
+            spawnPointIt->second->generatesOnNode(pointWorldPos, targetNode, syncComponent, generateCharacters, rng);
 
         /*if(spawnPointIt->second->preventOtherSpawns())
             m_terrain->setSpawnType(pointWorldPos, TerrainGenerator_SpawnType_None);*/

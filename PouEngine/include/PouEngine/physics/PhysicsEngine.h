@@ -3,27 +3,30 @@
 
 #include "PouEngine/core/Singleton.h"
 #include "PouEngine/tools/MathTools.h"
+#include "PouEngine/math/TransformComponent.h"
+
+#include <vector>
 
 namespace pou
 {
 
 struct BoxBody
 {
-    SimpleNode *node;
+    TransformComponent *transform;
     float mass;
     MathTools::Box box;
 };
 
 struct DiskBody
 {
-    SimpleNode *node;
+    TransformComponent *transform;
     float mass;
     float radius;
 };
 
 struct RigidBody
 {
-    SimpleNode *node;
+    TransformComponent *transform;
     float mass;
 
     bool isBox;
@@ -78,8 +81,8 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
         void addDiskBodyImpl(const DiskBody &disk);
 
         void resolveBoxMinkowskiDiff(const glm::vec2 &closestPoint,
-                                        SimpleNode *node1, SimpleNode *node2,
-                                        float mass1, float mass2);
+                                    TransformComponent *transform1, TransformComponent *transform2,
+                                    float mass1, float mass2);
        // void resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2);
         void resolveBoxToBoxCollision(RigidBody *body1, RigidBody *body2);
         void computeMinkowskiDiff(const glm::vec2 &originBoxSize,
@@ -87,8 +90,8 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
                                   std::vector<glm::vec2> &minkowskiDiff);
 
         void resolveDiskMinkowskiDiff(const glm::vec2 &diskCenter, float diskRadius,
-                                        SimpleNode *node1, SimpleNode *node2,
-                                        float mass1, float mass2);
+                                    TransformComponent *transform1, TransformComponent *transform2,
+                                    float mass1, float mass2);
         //void resolveBoxToDiskCollision(BoxBody *boxBody, DiskBody *diskBody);
         void resolveBoxToDiskCollision(RigidBody *boxBody, RigidBody *diskBody);
         /*void computeMinkowskiDiff(const glm::vec2 &originBoxSize,

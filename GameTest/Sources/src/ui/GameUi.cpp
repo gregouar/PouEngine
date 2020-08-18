@@ -22,43 +22,39 @@ GameUi::~GameUi()
 
 bool GameUi::init()
 {
-    m_playerHud = std::make_shared<pou::UiElement>(this);
-    this->addRootElement(m_playerHud);
+    m_playerHud = std::make_shared<pou::UiElement>();
+    this->addUiElement(m_playerHud);
 
-    m_lifeBar =std::make_shared<pou::UiProgressBar>(this);
-    m_lifeBar->setPosition(17,30);
+    m_lifeBar =std::make_unique<pou::UiProgressBar>();
+    m_lifeBar->transform()->setPosition(17,30);
     m_lifeBar->setSize({288-34,32});
     m_lifeBar->setTextureRect({17,0},{288-34,32},false);
     m_lifeBar->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar.png"));
-    m_playerHud->addChildNode(m_lifeBar);
+    m_playerHud->addChildElement(m_lifeBar);
 
-    auto lifeBarBackground = std::make_shared<pou::UiPicture>(this);
-    lifeBarBackground->setPosition(-17,0,-1);
+    auto lifeBarBackground = std::make_shared<pou::UiPicture>();
+    lifeBarBackground->transform()->setPosition(-17,0,-1);
     lifeBarBackground->setSize(288,32);
     lifeBarBackground->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/Life_bar_blank.png"));
-    m_lifeBar->addChildNode(lifeBarBackground);
+    m_lifeBar->addChildElement(lifeBarBackground);
 
     m_font = pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF");
     m_font_pixel = pou::FontsHandler::loadAssetFromFile("../data/mago1.TTF");
 
-    m_charNameText = std::make_shared<pou::UiText>(this);
-    m_charNameText->setPosition(0,0,0);
+    m_charNameText = std::make_shared<pou::UiText>();
+    m_charNameText->transform()->setPosition(0,0,0);
     m_charNameText->setFont(m_font);
-    //m_testText->setText("Poupou is da Pou");
     m_charNameText->setFontSize(24);
     m_charNameText->setSize(288, 0);
     m_charNameText->setTextAlign(pou::TextAlignType_Center);
-    m_playerHud->addChildNode(m_charNameText);
+    m_playerHud->addChildElement(m_charNameText);
 
-    m_RTTText = std::make_shared<pou::UiText>(this);
-    m_RTTText->setPosition(pou::Config::getInt("window","width"),0,0);
+    m_RTTText = std::make_shared<pou::UiText>();
+    m_RTTText->transform()->setPosition(pou::Config::getInt("window","width"),0,0);
     m_RTTText->setFont(m_font);
     m_RTTText->setFontSize(16);
-    //m_RTTText->setText("Poupou is da Pou");
-    //m_charNameText->setSize(0, 0);
     m_RTTText->setTextAlign(pou::TextAlignType_Right);
-    this->addRootElement(m_RTTText);
-
+    this->addUiElement(m_RTTText);
 
     return (true);
 }
@@ -116,12 +112,12 @@ void GameUi::updatePlayerList()
     if(!m_player)
         return;
 
-    auto playerPos = m_player->getGlobalXYPosition();
+    auto playerPos = m_player->transform()->getGlobalXYPosition();
 
     for(auto &p : m_playerList)
     if(p.player != m_player)
     {
-        auto otherPlayerPos = p.player->getGlobalXYPosition();
+        auto otherPlayerPos = p.player->transform()->getGlobalXYPosition();
 
         auto screenSize = glm::vec2(pou::Config::getInt("window","width"),
                                     pou::Config::getInt("window","height"));
@@ -133,7 +129,7 @@ void GameUi::updatePlayerList()
         auto textWidth = p.playerNameText->computeTextSize()+p.playerNameText->getFontSize();
         screenpos = glm::clamp(screenpos, glm::vec2(textWidth/2,0), screenSize-glm::vec2(textWidth/2,p.playerNameText->getFontSize()*1.5));
 
-        p.playerNameText->setPosition(glm::round(screenpos)); ///I should probably replace this by some kind of world->convertCoord
+        p.playerNameText->transform()->setPosition(glm::round(screenpos)); ///I should probably replace this by some kind of world->convertCoord
     }
 }
 
@@ -143,12 +139,12 @@ void GameUi::addPlayer(Player *player)
         if(p.player == player)
             return;*/
 
-    auto playerNameText = std::make_shared<pou::UiText>(this);
+    auto playerNameText = std::make_shared<pou::UiText>(/*this*/);
     playerNameText->setFont(m_font_pixel);
     playerNameText->setFontSize(20);
     playerNameText->setTextAlign(pou::TextAlignType_Center);
     //playerNameText->setText("Player");
-    m_playerHud->addChildNode(playerNameText);
+    m_playerHud->addChildElement(playerNameText);
 
     OtherPlayerUi playerUi;
     playerUi.player = player;

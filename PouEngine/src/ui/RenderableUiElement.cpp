@@ -75,8 +75,8 @@ std::array<VkVertexInputAttributeDescription, 8> RenderableUiDatum::getAttribute
 }
 
 
-RenderableUiElement::RenderableUiElement(/**const NodeTypeId id,**/ UserInterface *interface):
-    UiElement(/**id,**/ interface),
+RenderableUiElement::RenderableUiElement(/*UserInterface *interface*/):
+    UiElement(/*interface*/),
     m_color(1.0f)
 {
     //ctor
@@ -129,7 +129,7 @@ void RenderableUiElement::updateDatum()
         m_datum.albedo_texId = {0,0};
     }
 
-    glm::mat4 modelMat = m_modelMatrix;
+    glm::mat4 modelMat = this->transform()->getModelMatrix();
     /*glm::mat4 modelMat(1.0);
 
     if(m_parentNode != nullptr)

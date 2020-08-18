@@ -6,7 +6,7 @@
 #include "character/CharacterInput.h"
 
 class GameWorld;
-class WorldNode;
+class NodeSyncer;
 class WorldSprite;
 class WorldMesh;
 class Character;
@@ -17,7 +17,8 @@ enum GameMessageType
     GameMessageType_First = pou::NotificationType_Custom,
     GameMessageType_World_NewPlayer,
     GameMessageType_World_PlayerAction,
-    GameMessageType_World_NodeUpdated,
+    //GameMessageType_World_NodeUpdated,
+    GameMessageType_World_NodeSyncerUpdated,
     GameMessageType_World_SpriteUpdated,
     GameMessageType_World_MeshUpdated,
     GameMessageType_World_CharacterUpdated,
@@ -39,9 +40,14 @@ struct GameMessage_World_PlayerAction
     PlayerAction   playerAction;
 };
 
-struct GameMessage_World_NodeUpdated
+/*struct GameMessage_World_NodeUpdated
 {
     WorldNode   *node;
+};*/
+
+struct GameMessage_World_NodeSyncerUpdated
+{
+    NodeSyncer  *nodeSyncer;
 };
 
 struct GameMessage_World_SpriteUpdated

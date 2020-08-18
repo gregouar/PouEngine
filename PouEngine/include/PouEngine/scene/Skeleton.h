@@ -90,7 +90,7 @@ class Skeleton : public SceneNode
 
         int getNodeState(int nodeId);
 
-        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
+        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
 
     protected:

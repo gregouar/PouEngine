@@ -88,7 +88,7 @@ void CameraObject::updateListeningPosition()
         //glm::vec4 forwrd = m_parentNode.getModelMatrix() * glm::vec4(0.0,0.0,0.0,1.0);
         //glm::vec3 up(0.0,0.0,1.0);
         //glm::vec3 forwrd(0.0,1.0,0.0);
-        AudioEngine::set3DListenerPosition(m_3DListener, m_parentNode->getGlobalPosition());
+        AudioEngine::set3DListenerPosition(m_3DListener, m_parentNode->transform()->getGlobalPosition());
     }
 }
 

@@ -115,7 +115,7 @@ bool PrefabAsset::loadSpriteSheet(TiXmlElement *element)
 }
 
 
-bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
+bool PrefabAsset::loadNode(pou::SceneNode* rootNode, TiXmlElement *element)
 {
     std::string nodeName;
     glm::vec3 nodePos(0,0,0);
@@ -164,7 +164,7 @@ bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
         rootNode->setRigidity(rigidity);
     }*/
 
-    rootNode->setPosition(nodePos);
+    rootNode->transform()->setPosition(nodePos);
 
     auto rotElement = element->FirstChildElement("rotate");
     if(rotElement != nullptr)
@@ -182,7 +182,7 @@ bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             rotation.z = pou::Parser::parseFloat(att);
 
-        rootNode->rotate(rotation,false);
+        rootNode->transform()->rotateInDegrees(rotation);
     }
 
     auto scaleElement = element->FirstChildElement("scale");
@@ -201,8 +201,7 @@ bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             scale.z = pou::Parser::parseFloat(att);
 
-        rootNode->scale(scale);
-        std::cout<<"SCALE PREFAB:"<<scale.x<<std::endl;
+        rootNode->transform()->scale(scale);
     }
 
 
@@ -264,7 +263,7 @@ bool PrefabAsset::loadNode(WorldNode* rootNode, TiXmlElement *element)
     return (true);
 }
 
-bool PrefabAsset::loadCollision(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadCollision(pou::SceneNode *node, TiXmlElement *element)
 {
     auto typeAtt = element->Attribute("type");
     if(typeAtt == nullptr)
@@ -322,7 +321,7 @@ bool PrefabAsset::loadCollision(WorldNode *node, TiXmlElement *element)
     return (true);
 }
 
-bool PrefabAsset::loadLight(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadLight(pou::SceneNode *node, TiXmlElement *element)
 {
     pou::LightModel lightModel;
     lightModel.loadFromXML(element);
@@ -335,7 +334,7 @@ bool PrefabAsset::loadLight(WorldNode *node, TiXmlElement *element)
 }
 
 
-bool PrefabAsset::loadMesh(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadMesh(pou::SceneNode *node, TiXmlElement *element)
 {
     auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)
@@ -352,13 +351,13 @@ bool PrefabAsset::loadMesh(WorldNode *node, TiXmlElement *element)
 }
 
 
-bool PrefabAsset::loadSound(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadSound(pou::SceneNode *node, TiXmlElement *element)
 {
     return (true);
 }
 
 
-bool PrefabAsset::loadSprite(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadSprite(pou::SceneNode *node, TiXmlElement *element)
 {
     auto spriteAtt      = element->Attribute("sprite");
     auto spriteSheetAtt = element->Attribute("spritesheet");
@@ -390,7 +389,7 @@ bool PrefabAsset::loadSprite(WorldNode *node, TiXmlElement *element)
 }
 
 
-bool PrefabAsset::loadPrefab(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadPrefab(pou::SceneNode *node, TiXmlElement *element)
 {
     auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)
@@ -405,7 +404,7 @@ bool PrefabAsset::loadPrefab(WorldNode *node, TiXmlElement *element)
 }
 
 
-bool PrefabAsset::loadCharacter(WorldNode *node, TiXmlElement *element)
+bool PrefabAsset::loadCharacter(pou::SceneNode *node, TiXmlElement *element)
 {
     auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)

@@ -355,7 +355,6 @@ void SpriteEntity::generateRenderingData(SceneRenderingInstance *renderingInstan
         if(m_ordering == ORDERED_BY_Z)
             renderingInstance->addToSpritesOrdered(this->getSpriteDatum(),
                                                     this->getSpriteDatum().modelMat3[2]);
-                                                    //this->getSpriteDatum().position.z);*
     }
 }
 
@@ -388,9 +387,7 @@ glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 {
     if(m_parentNode == nullptr || m_parentNode->getScene() == nullptr)
-    {
         return (glm::vec2(0.0));
-    }
 
 	glm::vec3 lightDirection = normalize(direction);
 
@@ -398,7 +395,7 @@ glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 
 	glm::vec4 v = glm::vec4(lightDirectionXY / -lightDirection.z, 0.0, 0.0);
 
-	glm::vec2 viewLightDirectionXY = v*m_parentNode->getGlobalPosition().z;
+	glm::vec2 viewLightDirectionXY = v*m_parentNode->transform()->getGlobalPosition().z;
 
 	/*
 	glm::vec4 r = m_parentNode->getScene()->getViewMatrix() * v;
@@ -513,9 +510,9 @@ void SpriteEntity::updateDatum()
     glm::mat4 modelMat(1.0);
 
     if(m_inheritRotation)
-        modelMat = m_parentNode->getModelMatrix() * modelMat;
+        modelMat = m_parentNode->transform()->getModelMatrix() * modelMat;
     else
-        modelMat = glm::translate(modelMat, m_parentNode->getGlobalPosition());
+        modelMat = glm::translate(modelMat, m_parentNode->transform()->getGlobalPosition());
 
     modelMat = glm::rotate(modelMat, m_rotation, glm::vec3(0.0,0.0,1.0));
     modelMat = glm::scale(modelMat, {(m_flipX ? -1 : 1),
@@ -602,7 +599,8 @@ void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
     auto revealingProbes = scene->getRevealingProbes();
     for(auto probe : revealingProbes)
     {
-        if(MathTools::isInBox(probe->getGlobalXYPosition(), box, m_parentNode))
+        if(MathTools::isInBox(probe->transform()->getGlobalXYPosition(), box,
+                              m_parentNode->transform()))
         {
             shouldBeRevealed = true;
             break;

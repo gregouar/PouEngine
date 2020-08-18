@@ -180,10 +180,9 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
     return r;
 }
 
-void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, WorldNode *targetNode, GameWorld_Sync *syncComponent,
+void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
-    //if(generateCharacters)
     for(auto characterSpawnModel : m_characterSpawnModels)
     {
         int amount = pou::RNGesus::uniformInt(characterSpawnModel.minAmount,
@@ -320,12 +319,12 @@ void WorldGenerator_SpawnPoint::loadRandomModifierValue(TiXmlElement *element, i
 }
 
 void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos,
-                                                WorldNode *targetNode, GameWorld_Sync *syncComponent,
+                                                pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
     auto character = std::make_shared<Character>();
     character->createFromModel(characterModel);
-    character->setPosition(worldPos);
+    character->transform()->setPosition(worldPos);
     this->applyRandomModifiers(character.get(), rng);
 
     if(generateCharacters)
@@ -337,10 +336,10 @@ void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterMod
 }
 
 void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos,
-                                            WorldNode *targetNode, pou::RNGenerator *rng)
+                                            pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     auto spriteNode = targetNode->createChildNode();
-    spriteNode->setPosition(worldPos);
+    spriteNode->transform()->setPosition(worldPos);
     this->applyRandomModifiers(spriteNode.get(), rng);
 
     auto sprite = std::make_shared<WorldSprite>();
@@ -350,10 +349,10 @@ void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::
 }
 
 void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
-                                            WorldNode *targetNode, pou::RNGenerator *rng)
+                                            pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     auto prefabNode = prefabAsset->generate();
-    prefabNode->setPosition(worldPos);
+    prefabNode->transform()->setPosition(worldPos);
     this->applyRandomModifiers(prefabNode.get(), rng);
     targetNode->addChildNode(prefabNode);
 }
@@ -377,25 +376,25 @@ glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoi
     return randomValue;
 }
 
-void WorldGenerator_SpawnPoint::applyRandomModifiers(WorldNode *targetNode, pou::RNGenerator *rng)
+void WorldGenerator_SpawnPoint::applyRandomModifiers(pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Position].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Position], rng);
-        targetNode->move(glm::vec3(v));
+        targetNode->transform()->move(glm::vec3(v));
     }
 
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Rotation].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Rotation], rng);
-        targetNode->setRotation(v,false);
+        targetNode->transform()->setRotationInDegrees(v);
     }
 
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Flip].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Flip], rng);
         auto scale = glm::vec3(v.x >= 0 ? 1 : -1, v.y >= 0 ? 1 : -1, 1);
-        targetNode->scale(scale);
+        targetNode->transform()->scale(scale);
     }
 
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Color].randomType != WorldGenerator_RandomType_None)

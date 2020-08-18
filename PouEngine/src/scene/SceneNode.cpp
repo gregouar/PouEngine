@@ -8,58 +8,72 @@
 namespace pou
 {
 
-SceneNode::SceneNode(/**const NodeTypeId id**/) :
-    SimpleNode(),
-    ///SimpleNode(id),
-    m_color(glm::vec4(1.0f)),
-    m_finalColor(1.0f),
-    m_disableCollisions(false)
-    //m_lastColorUpdateTime(-1)
+SceneNode::SceneNode() :
+    //SimpleNode(),
+    m_nodeId(0),
+    m_parentNode(nullptr),
+    m_disableCollisions(false),
+    m_color(1.0f),
+    m_finalColor(1.0f)
 {
     m_scene = nullptr;
-
-    /**m_color.setMinMaxAndPrecision(glm::vec4(0), glm::vec4(10,10,10,1), glm::uvec4(2));
-    m_syncComponent.addSyncElement(&m_color);**/
-
+    //m_transformComponent = new TransformComponent();
+    this->startListeningTo(&m_transformComponent, NotificationType_TransformChanged);
 }
 
-SceneNode::SceneNode(/**const NodeTypeId id,**/ Scene* scene) :
-    SceneNode(/**id**/)
+SceneNode::SceneNode(Scene* scene) :
+    SceneNode()
 {
     this->setScene(scene);
 }
 
 SceneNode::~SceneNode()
 {
+    //delete m_transformComponent;
     //this->removeAndDestroyAllChilds();
 }
 
-
 std::shared_ptr<SceneNode> SceneNode::createChildNode()
 {
-    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode());
+    auto childNode = std::make_shared<SceneNode>();
+    this->addChildNode(childNode);
+    return childNode;
 }
 
-std::shared_ptr<SceneNode> SceneNode::createChildNode(float x, float y)
+void SceneNode::addChildNode(std::shared_ptr<SceneNode> childNode)
 {
-    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(x,y));
+    if(containsChildNode(childNode.get()))
+        return;
+
+    childNode->setParentNode(this);
+    m_childNodes.push_back(childNode);
 }
 
-std::shared_ptr<SceneNode> SceneNode::createChildNode(float x, float y, float z)
+bool SceneNode::containsChildNode(SceneNode *childNode)
 {
-    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(x,y,z));
+    for(auto it = m_childNodes.begin() ; it != m_childNodes.end() ; ++it)
+        if(it->get() == childNode)
+            return (true);
+    return (false);
 }
 
-std::shared_ptr<SceneNode> SceneNode::createChildNode(glm::vec2 p)
+bool SceneNode::removeChildNode(SceneNode *childNode)
 {
-    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(p));
+    for(auto it = m_childNodes.begin() ; it != m_childNodes.end() ; ++it)
+        if(it->get() == childNode)
+        {
+            m_childNodes.erase(it);
+            (*it)->setParentNode(nullptr);
+            return (true);
+        }
+    return (false);
 }
 
-std::shared_ptr<SceneNode> SceneNode::createChildNode(glm::vec3 p)
+void SceneNode::removeFromParent()
 {
-    return std::dynamic_pointer_cast<SceneNode>(SimpleNode::createChildNode(p));
+    if(m_parentNode)
+        m_parentNode->removeChildNode(this);
 }
-
 
 void SceneNode::attachObject(std::shared_ptr<SceneObject> e)
 {
@@ -185,9 +199,13 @@ void SceneNode::detachAllObjects()
 
 void SceneNode::copyFrom(const SceneNode* srcNode)
 {
-    SimpleNode::copyFrom(srcNode, true);
+    if(srcNode == nullptr)
+        return;
+
+    m_transformComponent.copyFrom(srcNode->const_transform());
 
     this->setColor(srcNode->getColor());
+    this->setName(srcNode->getName());
 
     for(auto object : srcNode->m_attachedObjects)
     {
@@ -204,17 +222,22 @@ void SceneNode::copyFrom(const SceneNode* srcNode)
         this->attachSound(newObject, sound.first);
     }
 
-    for(auto child : srcNode->m_childs)
+    for(auto child : srcNode->m_childNodes)
     {
         std::shared_ptr<SceneNode> newNode = this->createChildNode();
         if(newNode != nullptr)
-            newNode->copyFrom(dynamic_cast<SceneNode*>(child.get()));
+            newNode->copyFrom(child.get());
     }
 }
 
 Scene* SceneNode::getScene()
 {
     return m_scene;
+}
+
+SceneNode* SceneNode::getParentNode()
+{
+    return m_parentNode;
 }
 
 const glm::vec4 &SceneNode::getColor() const
@@ -234,27 +257,13 @@ void SceneNode::colorize(const glm::vec4 &c)
 
 void SceneNode::setColor(const glm::vec4 &c)
 {
+    if(m_color == c)
+        return;
+
     m_color = c;
-    this->askForUpdateModelMatrix();
+    this->updateFinalColor();
 }
 
-void SceneNode::setScene(Scene *scene)
-{
-    m_scene = scene;
-
-    for(auto node : m_childs)
-        std::dynamic_pointer_cast<SceneNode>(node)->setScene(scene);
-}
-
-bool SceneNode::setParent(SimpleNode *p)
-{
-    bool r = SimpleNode::setParent(p);
-
-    if(this->getParent() != nullptr)
-        this->setScene(dynamic_cast<SceneNode*>(m_parent)->getScene());
-
-    return r;
-}
 
 void SceneNode::disableCollisions(bool disable)
 {
@@ -266,18 +275,15 @@ bool SceneNode::areCollisionsDisabled()
     return m_disableCollisions;
 }
 
-
-/**void SceneNode::syncFromNode(SceneNode* srcNode)
+void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance)
 {
-    m_color.syncFrom(&srcNode->m_color);
-   // if(m_lastSyncTime < srcNode->m_lastColorUpdateTime)
-        //&& srcNode->m_lastColorUpdateTime != -1)
-       // this->setColor(srcNode->getColor());
+    this->generateRenderingDataWithoutPropagating(renderingInstance);
 
-    SimpleNode::syncFromNode((SimpleNode*) srcNode);
-}**/
+    for(auto child : m_childNodes)
+        child->generateRenderingData(renderingInstance);
+}
 
-void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds)
+void SceneNode::generateRenderingDataWithoutPropagating(SceneRenderingInstance *renderingInstance)
 {
     for(auto entity : m_attachedEntities)
         if(entity->isVisible())
@@ -290,10 +296,6 @@ void SceneNode::generateRenderingData(SceneRenderingInstance *renderingInstance,
     for(auto shadowCaster : m_attachedShadowCasters)
         if(shadowCaster->isVisible())
             renderingInstance->addToShadowCastersList(shadowCaster.get());
-
-    if(propagateToChilds)
-    for(auto node : m_childs)
-        std::dynamic_pointer_cast<SceneNode>(node)->generateRenderingData(renderingInstance, propagateToChilds);
 }
 
 bool SceneNode::playSound(int id)
@@ -315,50 +317,134 @@ bool SceneNode::playSound(int id)
 
 void SceneNode::update(const Time &elapsedTime, uint32_t localTime)
 {
-    SimpleNode::update(elapsedTime, localTime);
+    m_transformComponent.update(elapsedTime);
+
+    for(auto child : m_childNodes)
+        child->update(elapsedTime,localTime);
 
     for(auto &object : m_attachedObjects)
         object->update(elapsedTime);
 }
 
-
-///Protected
-
-void SceneNode::updateGlobalPosition()
+TransformComponent *SceneNode::transform()
 {
-    glm::vec4 parentColor(1.0f);
-    if(m_parent != nullptr)
-        parentColor = dynamic_cast<SceneNode*>(m_parent)->getFinalColor();
-    m_finalColor = this->getColor() * parentColor;
-
-    SimpleNode::updateGlobalPosition();
+    return &m_transformComponent;
 }
 
-std::shared_ptr<SimpleNode> SceneNode::nodeAllocator(/**NodeTypeId id**/)
+const TransformComponent *SceneNode::const_transform() const
 {
-    return std::make_shared<SceneNode>(/**id**/);
+    return &m_transformComponent;
 }
 
-
-/**void SceneNode::serializeNode(Stream *stream, uint32_t clientTime)
+void SceneNode::setName(const std::string &name)
 {
-    SimpleNode::serializeNode(stream, clientTime);
+    m_name = name;
+}
 
-    bool hasColor = false;
-    if(!stream->isReading() && uint32less(clientTime,m_color.getLastUpdateTime()))
-        hasColor = true;
-    stream->serializeBool(hasColor);
-    if(hasColor)
+const std::string &SceneNode::getName() const
+{
+    return m_name;
+}
+
+void SceneNode::getNodesByName(std::map<std::string, SceneNode*> &namesAndResMap)
+{
+    if(!m_name.empty())
     {
-        glm::vec4 color = this->getColor();
-        stream->serializeFloat(color.r, 0, 10, 2);
-        stream->serializeFloat(color.g, 0, 10, 2);
-        stream->serializeFloat(color.b, 0, 10, 2);
-        stream->serializeFloat(color.a, 0, 1, 2);
-
-        if(stream->isReading())
-            this->setColor(color);
+        auto res = namesAndResMap.find(m_name);
+        if(res != namesAndResMap.end())
+            namesAndResMap.insert_or_assign(res, m_name, this);
     }
-}**/
+
+    for(auto child : m_childNodes)
+        child->getNodesByName(namesAndResMap);
+}
+
+void SceneNode::setNodeId(uint32_t id)
+{
+    m_nodeId = id;
+}
+
+uint32_t SceneNode::getNodeId() const
+{
+    return m_nodeId;
+}
+
+///
+///Protected
+///
+
+
+void SceneNode::notify(NotificationSender *sender, int notificationType, void* data)
+{
+    if(sender == &m_transformComponent)
+    {
+        //if(notificationType == NotificationType_SenderDestroyed)
+          //  m_transformComponent = nullptr;
+
+        if(notificationType == NotificationType_TransformChanged)
+            this->sendNotification(NotificationType_NodeMoved, data);
+    }
+
+    if(sender == m_parentNode)
+    {
+        if(notificationType == NotificationType_SenderDestroyed)
+            this->setParentNode(nullptr);
+
+        /*if(notificationType == NotificationType_NodeMoved)
+            this->sendNotification(NotificationType_NodeMoved);*/
+    }
+}
+
+void SceneNode::setScene(Scene *scene)
+{
+    m_scene = scene;
+
+    for(auto child : m_childNodes)
+        child->setScene(scene);
+}
+
+bool SceneNode::setParentNode(SceneNode *parent)
+{
+    if(m_parentNode == parent)
+        return (false);
+
+    if(m_parentNode && parent)
+        m_parentNode->removeChildNode(this);
+
+    if(parent)
+    {
+        this->setScene(parent->getScene());
+        m_transformComponent.setParent(parent->transform());
+    }
+    else
+    {
+        this->setScene(nullptr);
+        m_transformComponent.setParent(nullptr);
+    }
+
+    m_parentNode = parent;
+
+    this->sendNotification(NotificationType_NodeParentChanged);
+
+    return (true);
+}
+
+bool SceneNode::setAsParentTo(SceneNode *parentNode, SceneNode *childNode)
+{
+    return childNode->setParentNode(parentNode);
+}
+
+void SceneNode::updateFinalColor()
+{
+    if(m_parentNode)
+        m_finalColor = m_color * m_parentNode->getFinalColor();
+    else
+        m_finalColor = m_color;
+
+    for(auto child : m_childNodes)
+        child->updateFinalColor();
+
+    this->sendNotification(NotificationType_NodeMoved);
+}
 
 }

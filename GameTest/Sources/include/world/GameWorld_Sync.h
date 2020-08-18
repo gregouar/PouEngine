@@ -3,6 +3,7 @@
 
 #include "PouEngine/scene/Scene.h"
 #include "PouEngine/scene/SceneNode.h"
+#include "PouEngine/scene/SceneGrid.h"
 #include "PouEngine/tools/IdAllocator.h"
 #include "PouEngine/tools/IdPtrAllocator.h"
 #include "PouEngine/renderers/RenderWindow.h"
@@ -10,7 +11,6 @@
 #include "character/Character.h"
 #include "character/Player.h"
 #include "net/NetMessageTypes.h"
-#include "world/WorldGrid.h"
 #include "world/WorldSprite.h"
 
 class GameWorld_Sync : public pou::NotificationListener
@@ -38,7 +38,8 @@ class GameWorld_Sync : public pou::NotificationListener
         void addPlayerAction(uint32_t player_id, PlayerAction &playerAction, uint32_t actionTime);
         void syncPlayerAction(uint32_t player_id, PlayerAction &playerAction);
 
-        size_t syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId = 0);
+        std::shared_ptr<NodeSyncer> syncElement(std::shared_ptr<pou::SceneNode> node, uint32_t forceId = 0);
+        size_t syncElement(std::shared_ptr<pou::SceneNode> node, std::shared_ptr<NodeSyncer> nodeSyncer, uint32_t forceId = 0);
         size_t syncElement(pou::SpriteSheetAsset *spriteSheet, uint32_t forceId = 0);
         size_t syncElement(std::shared_ptr<WorldSprite> spriteEntity, uint32_t forceId = 0);
         size_t syncElement(pou::MeshAsset *meshModel, uint32_t forceId = 0);
@@ -50,7 +51,7 @@ class GameWorld_Sync : public pou::NotificationListener
         size_t syncElement(PrefabAsset *prefabAsset, uint32_t forceId = 0);
         size_t syncElement(std::shared_ptr<PrefabInstance> prefab, uint32_t forceId = 0);
 
-        void desyncElement(WorldNode* node, bool noDesyncInsert = false);
+        void desyncElement(NodeSyncer* nodeSyncer, bool noDesyncInsert = false);
         void desyncElement(Character *character, bool noDesyncInsert = false);
         void desyncElement(Player *player, bool noDesyncInsert = false);
 
@@ -65,7 +66,7 @@ class GameWorld_Sync : public pou::NotificationListener
         virtual void notify(pou::NotificationSender*, int notificationType,
                             void* data) override;
 
-        void createWorldSyncMsg_Node(WorldNode *node, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+        void createWorldSyncMsg_Node(NodeSyncer *nodeSyncer, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
         void createWorldSyncMsg_Sprite(WorldSprite *sprite, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                                     int player_id, uint32_t lastSyncTime);
@@ -88,13 +89,14 @@ class GameWorld_Sync : public pou::NotificationListener
         std::map<int, uint32_t> m_lastPlayerSyncTime;
         uint32_t m_deltaRTT;
 
-        std::vector<WorldNode*>     m_updatedNodes;
+        std::vector<NodeSyncer*>    m_updatedNodeSyncers;
         std::vector<WorldSprite*>   m_updatedSprites;
         std::vector<WorldMesh*>     m_updatedMeshes;
         bool m_updatedCharactersBuffer;
         std::vector<Character*>     m_updatedCharacters[2];
 
-        pou::IdPtrAllocator<WorldNode>              m_syncNodes;
+        pou::IdPtrAllocator<pou::SceneNode>         m_syncNodes;
+        pou::IdPtrAllocator<NodeSyncer>             m_nodeSyncers;
 
         pou::IdAllocator<pou::SpriteSheetAsset*>    m_syncSpriteSheets;
         pou::IdPtrAllocator<WorldSprite>            m_syncSpriteEntities;

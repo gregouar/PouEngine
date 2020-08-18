@@ -23,12 +23,12 @@ void GameWorld::init()
     this->destroy();
     this->createScene();
 
-    m_worldRootNode = std::make_shared<WorldNode>();
+    m_worldRootNode = std::make_shared<pou::SceneNode>();
     m_scene->getRootNode()->addChildNode(m_worldRootNode);
     m_syncComponent.syncElement(m_worldRootNode);
 
-    m_worldGrid = std::make_shared<WorldGrid>();
-    m_worldGrid->setQuadSize(1024);
+    m_worldGrid = std::make_shared<pou::SceneGrid>();
+    m_worldGrid->setQuadSize(512);
     m_worldGrid->resizeQuad(glm::ivec2(-100), glm::ivec2(200));
     m_scene->getRootNode()->addChildNode(m_worldGrid);
     m_syncComponent.syncElement(m_worldGrid);
@@ -60,7 +60,6 @@ void GameWorld::generateImpl()
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent);
 
-
     auto airBalloonModel = CharacterModelsHandler::loadAssetFromFile("../data/airBalloon/airBalloonXML.txt",loadType);
     m_syncComponent.syncElement(airBalloonModel);
     {
@@ -71,8 +70,6 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(airBalloon);
         m_syncComponent.syncElement(airBalloon);
     }
-
-
 
     /*auto treeModel = CharacterModelsHandler::loadAssetFromFile("../data/grasslands/treeXML.txt",loadType);
     m_syncComponent.syncElement(treeModel);
@@ -300,7 +297,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
     ///player->update(pou::Time(0), 0);
 
     glm::vec2 pos(pou::RNGesus::uniformFloat(-200,200), pou::RNGesus::uniformFloat(-200,200));
-    player->pou::SceneNode::setPosition(pos);
+    player->transform()->setPosition(pos);
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 

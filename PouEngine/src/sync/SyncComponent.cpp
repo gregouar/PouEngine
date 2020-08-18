@@ -32,7 +32,7 @@ bool SyncComponent::update(const Time &elapsedTime, uint32_t localTime)
     if(r)
         this->setLastUpdateTime(localTime);
 
-    return (r);
+    return (r & !m_disableSync);
 }
 
 void SyncComponent::syncFrom(const SyncComponent &syncComponent)

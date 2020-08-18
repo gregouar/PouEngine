@@ -6,7 +6,7 @@
 namespace pou
 {
 
-UiText::UiText(UserInterface *interface) : UiElement(interface),
+UiText::UiText(/*UserInterface *interface*/) : UiElement(/*interface*/),
     m_font(nullptr),
     m_fontSize(12),
     m_color(glm::vec4(1)),
@@ -22,12 +22,12 @@ UiText::~UiText()
     //dtor
 }
 
-void UiText::update(const Time &elapsedTime, uint32_t localTime)
+void UiText::update(const Time &elapsedTime)
 {
     if(m_needToUpdateGlyphes)
         this->generatedGlyphes();
 
-    UiElement::update(elapsedTime, localTime);
+    UiElement::update(elapsedTime);
 }
 
 void UiText::render(UiRenderer *renderer)
@@ -74,7 +74,7 @@ void UiText::setColor(const glm::vec4 &color)
     if(color != m_color)
     {
         m_color = color;
-        for(auto glyph : m_glyphes)
+        for(auto &glyph : m_glyphes)
             glyph->setColor(m_color);
     }
 }
@@ -164,7 +164,7 @@ void UiText::generatedGlyphes()
 
                 int i = 0;
                 for(auto it = m_glyphes.rbegin() ;  it != m_glyphes.rend() && i < charNbr - lastJump ; ++i, ++it)
-                    (*it)->move(delta,0);
+                    (*it)->transform()->move(delta,0);
             }
 
             lastJump = charNbr;
@@ -180,7 +180,7 @@ void UiText::generatedGlyphes()
 
             if(texture)
             {
-                auto glyphElement = std::make_shared<UiPicture>(m_interface);
+                auto glyphElement = std::make_shared<UiPicture>(/*m_interface*/);
 
                 auto relPos = pos;
                 relPos.x += glyph->getLeft();
@@ -194,7 +194,7 @@ void UiText::generatedGlyphes()
                 if(this->getSize().y > 0 && relPos.y + glyphSize.y > this->getSize().y)
                     glyphSize.y = std::max(this->getSize().y - relPos.y ,0.0f);
 
-                glyphElement->setPosition(relPos);
+                glyphElement->transform()->setPosition(relPos);
                 glyphElement->setSize(glyphSize);
                 glyphElement->setColor(m_color);
 
@@ -202,8 +202,8 @@ void UiText::generatedGlyphes()
                 glyphElement->setTextureRect(glyph->getTexturePosition(),
                                              glyphSize, false);
 
-                this->addChildNode(glyphElement);
-                m_glyphes.push_back(glyphElement);
+                this->addChildElement(glyphElement);
+                m_glyphes.push_back(std::move(glyphElement));
                 charNbr++;
             }
 
@@ -221,14 +221,14 @@ void UiText::generatedGlyphes()
 
         int i = 0;
         for(auto it = m_glyphes.rbegin() ;  it != m_glyphes.rend() && i < charNbr - lastJump ; ++i, ++it)
-            (*it)->move(delta,0);
+            (*it)->transform()->move(delta,0);
     }
 
     if(m_verticalAlign)
     {
         int delta = this->getSize().y/2 - verticalSize/2;
         for(auto &glyph : m_glyphes)
-            glyph->move(0,delta);
+            glyph->transform()->move(0,delta);
     }
 
     m_needToUpdateGlyphes = false;

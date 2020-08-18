@@ -16,12 +16,12 @@ enum UiTextInputState
 class UiTextInput : public UiText
 {
     public:
-        UiTextInput(UserInterface *interface);
+        UiTextInput(/*UserInterface *interface*/);
         virtual ~UiTextInput();
 
         virtual void handleEvents(const EventsManager *eventsManager) override;
 
-        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1) override;
+        virtual void update(const Time &elapsedTime = Time(0)) override;
 
         virtual void setText(const std::string &text);
         virtual void setFontSize(int pt);

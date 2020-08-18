@@ -29,7 +29,7 @@ void PrefabInstance::createFromModel(PrefabAsset *prefabModel)
 
 void PrefabInstance::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
-    WorldNode::update(elapsedTime, localTime);
+    pou::SceneNode::update(elapsedTime, localTime);
 
     m_prefabSyncComponent.update(elapsedTime, localTime);
 }

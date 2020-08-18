@@ -216,7 +216,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     m_input(characterInput),
     m_isDead(false),
     m_worldSync(nullptr),
-    m_characterSyncId(0)
+    m_characterSyncId(0),
+    m_nodeSyncer(nullptr)
     ///m_curAnimation(std::string(), 0)
 {
     m_model             = nullptr;
@@ -226,15 +227,13 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     m_isDestinationSet  = false;
     m_destination       = {0,0};
 
-    ///m_lastCharacterSyncTime     = -1;
-    ///m_lastCharacterUpdateTime   = -1;
     m_lastModelUpdateTime       = -1;
 
-    ///m_node->attachObject(this);
-    ///m_node->setSyncReconciliationPrecision(glm::vec3(32));
-    m_syncPosition.setReconciliationPrecision(glm::vec3(4));
+    m_nodeSyncer = std::make_shared<NodeSyncer>(this);
+    ///UPDATE THIS USING NODE SYNCER !!!!
+    /**m_syncPosition.setReconciliationPrecision(glm::vec3(4));
     m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));
+    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));**/
 
    /// m_disableInputSync  = false;
     m_disableDeath      = false;
@@ -312,12 +311,10 @@ bool Character::createFromModel(CharacterModelAsset *model)
     m_attributes.setValue(att);
 
     if(!m_modelAttributes.getValue().immovable)
-        WorldNode::disableRotationSync();
-        ///m_node->disableRotationSync();
+        m_nodeSyncer->disableRotationSync();
 
     m_characterSyncComponent.updateLastUpdateTime();
     m_lastModelUpdateTime = m_characterSyncComponent.getLocalTime();
-    ///this->setLastCharacterUpdateTime(m_curLocalTime);
 
     this->switchState(CharacterStateType_Standing);
 
@@ -659,11 +656,11 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
     }
 }**/
 
-void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInstance, bool propagateToChilds)
+/*void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInstance)
 {
-    WorldNode::generateRenderingData(renderingInstance, propagateToChilds);
+    WorldNode::generateRenderingData(renderingInstance);
 
-    /*auto &path = m_aiComponent->getPlannedPath();
+    auto &path = m_aiComponent->getPlannedPath();
     float i = 0;
     for(auto node : path)
     {
@@ -672,25 +669,19 @@ void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInst
         else
             renderingInstance->drawRectangle({node.x-5,node.y-5,100},{10,10},{i,i,1,1});
         i+=.1f;
-    }*/
+    }
     //if(!path.empty())
     //    std::cout<<"Path Length:"<<path.size()<<std::endl;
 
     //renderingInstance->drawRectangle({this->getGlobalPosition().x-5,this->getGlobalPosition().y-5,101},{10,10},{1,0,0,1});
-}
+}*/
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
     this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
 
-    /**if(m_model && this->isAlive() && elapsedTime.count() > 0)
-    {
-        auto collisionBoxes = m_model->getCollisionboxes();
-        pou::PhysicsEngine::addBoxBodies(this, *collisionBoxes);
-    }**/
-
-    WorldNode::update(elapsedTime,localTime);
+    pou::SceneNode::update(elapsedTime,localTime);
 
     GameMessage_World_CharacterUpdated msg;
     msg.character = this;
@@ -873,8 +864,7 @@ uint32_t Character::getCharacterSyncId() const
 
 void Character::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
-    //m_node->setReconciliationDelay(serverDelay, clientDelay);
-    WorldNode::setReconciliationDelay(serverDelay, clientDelay);
+    m_nodeSyncer->setReconciliationDelay(serverDelay, clientDelay);
     m_characterSyncComponent.setReconciliationDelay(serverDelay, clientDelay);
 
     m_input->getSyncComponent()->setReconciliationDelay(serverDelay, clientDelay);
@@ -899,10 +889,11 @@ uint32_t Character::getLastModelUpdateTime()
     return m_lastModelUpdateTime;
 }
 
-/**pou::SyncComponent *Character::getCharacterSyncComponent()
+std::shared_ptr<NodeSyncer> Character::getNodeSyncer()
 {
-    return &m_syncComponent;
-}**/
+    return m_nodeSyncer;
+}
+
 
 void Character::disableDeath(bool disable)
 {
@@ -915,8 +906,7 @@ void Character::disableSync(bool disable)
    // m_input->getSyncComponent()->disableSync(disable);
     m_aiComponent->getSyncComponent()->disableSync(disable);
 
-    ///m_node->disableSync(disable);
-    WorldNode::disableSync(disable);
+    m_nodeSyncer->disableSync(disable);
 }
 
 void Character::disableInputSync(bool disable)

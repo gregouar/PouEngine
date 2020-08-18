@@ -32,7 +32,7 @@ class WorldGenerator_Distribution
 
         bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator);
 
-        void generatesOnNode(WorldNode *targetNode, GameWorld_Sync *syncComponent,
+        void generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                              bool generateCharacters, pou::RNGenerator *rng);
 
     protected:

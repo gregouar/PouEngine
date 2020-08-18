@@ -76,7 +76,7 @@ bool SkeletonModelAsset::loadFromXML(TiXmlHandle *hdl)
     return (loaded);
 }
 
-void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
+void SkeletonModelAsset::loadNode(SceneNode* rootNode, TiXmlElement *element)
 {
     std::string nodeName, nodeState;
     glm::vec3 nodePos(0,0,0);
@@ -122,10 +122,10 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
     if(attribute != nullptr)
     {
         float rigidity = Parser::parseFloat(std::string(attribute));
-        rootNode->setRigidity(rigidity);
+        rootNode->transform()->setRigidity(rigidity);
     }
 
-    rootNode->setPosition(nodePos);
+    rootNode->transform()->setPosition(nodePos);
 
     auto rotElement = element->FirstChildElement("rotate");
     if(rotElement != nullptr)
@@ -143,8 +143,7 @@ void SkeletonModelAsset::loadNode(SimpleNode* rootNode, TiXmlElement *element)
         if(att != nullptr)
             rotation.z = Parser::parseFloat(att);
 
-
-        rootNode->rotate(rotation,false);
+        rootNode->transform()->rotateInDegrees(rotation);
     }
 
     auto child = element->FirstChildElement("node");
@@ -184,18 +183,18 @@ void SkeletonModelAsset::loadAnimation(TiXmlElement *element)
         Logger::warning("Multiple animations named \""+animationName+"\" in the skeleton : "+m_filePath);
 }
 
-const SimpleNode* SkeletonModelAsset::getRootNode() const
+const SceneNode* SkeletonModelAsset::getRootNode() const
 {
     return &m_rootNode;
 }
 
 
-std::map<std::string, SimpleNode*> SkeletonModelAsset::getNodesByName()
+std::map<std::string, SceneNode*> SkeletonModelAsset::getNodesByName()
 {
     return m_nodesByName;
 }
 
-const std::map<int, SimpleNode*> *SkeletonModelAsset::getNodesById()
+const std::map<int, SceneNode*> *SkeletonModelAsset::getNodesById()
 {
     return &m_nodesById;
 }
@@ -347,7 +346,7 @@ SkeletalAnimationModel::~SkeletalAnimationModel()
 
 }
 
-bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes*/)
+bool SkeletalAnimationModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SceneNode*> *mapOfNodes*/)
 {
     auto loopAtt = element->Attribute("loop");
     if(loopAtt != nullptr)
@@ -423,7 +422,7 @@ SkeletalAnimationFrameModel::~SkeletalAnimationFrameModel()
 
 }
 
-bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SimpleNode*> *mapOfNodes */)
+bool SkeletalAnimationFrameModel::loadFromXml(TiXmlElement *element/*, const std::map<int, SceneNode*> *mapOfNodes */)
 {
     auto *mapOfNodes = m_skeletonModel->getNodesById();
 

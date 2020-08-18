@@ -33,10 +33,14 @@ class UserInterface
         virtual void update(const Time &elapsedTime);
         virtual void render(UiRenderer *renderer);
 
-        virtual void addRootElement(std::shared_ptr<UiElement> element);
+        //void addUiElement(UiElement *uiElement);
+        void addUiElement(std::shared_ptr<UiElement> uiElement);
+        void removeUiElement(UiElement *uiElement);
 
-        std::shared_ptr<UiPicture> createUiPicture(bool addToInterface = false);
-        std::shared_ptr<UiProgressBar> createProgressBar(bool addToInterface = false);
+        //virtual void addRootElement(std::shared_ptr<UiElement> element);
+
+        //std::shared_ptr<UiPicture> createUiPicture(bool addToInterface = false);
+        //std::shared_ptr<UiProgressBar> createProgressBar(bool addToInterface = false);
 
         void setFocus(UiElement *element);
         bool isFocusedOn(UiElement *element);
@@ -47,10 +51,12 @@ class UserInterface
         UiFocusWeight computeFocusWeight(UiElement *element);
 
     private:
-        UiElement m_rootElement;
+        UiElement       m_rootElement;
 
         UiElement      *m_focus;
         UiFocusWeight   m_focusWeight;
+
+        //TransformsAllocator m_transformsAllocator;
 };
 
 }

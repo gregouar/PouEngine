@@ -86,7 +86,6 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
             skeleton->attachSound(targetCharacter->addSound(&sound), sound.getName());
         }
 
-
         targetCharacter/*->node()*/->addChildNode(skeleton);
         targetCharacter->addSkeleton(skeleton, skeletonModel.first);
     }
@@ -331,8 +330,6 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
     auto nameAtt = element->Attribute("name");
     if(nameAtt != nullptr)
         skeletonName = std::string(nameAtt);
-
-
 
     auto skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
     AssetsForSkeletonModel  assetsModel(&m_spriteSheets, &m_lightModels, m_fileDirectory);

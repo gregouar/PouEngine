@@ -1,12 +1,13 @@
 #ifndef PREFABINSTANCE_H
 #define PREFABINSTANCE_H
 
-#include "world/WorldNode.h"
+#include "PouEngine/scene/SceneNode.h"
+#include "PouEngine/sync/SyncElements.h"
 
 class PrefabAsset;
 class GameWorld_Sync;
 
-class PrefabInstance : public WorldNode
+class PrefabInstance : public pou::SceneNode
 {
     friend class PrefabAsset;
     friend class GameWorld_Sync;

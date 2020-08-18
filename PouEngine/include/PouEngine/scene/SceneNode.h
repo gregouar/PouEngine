@@ -6,14 +6,12 @@
 #include <glm/glm.hpp>
 
 #include "PouEngine/Types.h"
-#include "PouEngine/system/SimpleNode.h"
+//#include "PouEngine/system/SimpleNode.h"
 #include "PouEngine/scene/SceneEntity.h"
 #include "PouEngine/scene/LightEntity.h"
 #include "PouEngine/scene/ShadowCaster.h"
 #include "PouEngine/scene/SoundObject.h"
-
-/*#include "PouEngine/core/NotificationListener.h"
-#include "PouEngine/core/NotificationSender.h"*/
+#include "PouEngine/math/TransformComponent.h"
 
 
 namespace pou
@@ -22,19 +20,18 @@ namespace pou
 class Scene;
 class SceneRenderer;
 
-class SceneNode : public SimpleNode //public NotificationSender, public NotificationListener
+class SceneNode :  public NotificationSender, public NotificationListener //: public SimpleNode
 {
     public:
-        SceneNode(/**const NodeTypeId**/);
-        SceneNode(/**const NodeTypeId,**/ Scene* scene);
+        SceneNode();
+        SceneNode(Scene* scene);
         virtual ~SceneNode();
 
         std::shared_ptr<SceneNode> createChildNode();
-        std::shared_ptr<SceneNode> createChildNode(float, float );
-        std::shared_ptr<SceneNode> createChildNode(float, float, float );
-        std::shared_ptr<SceneNode> createChildNode(glm::vec2 );
-        std::shared_ptr<SceneNode> createChildNode(glm::vec3 );
-        ///SceneNode* createChildNode(const NodeTypeId id);
+        virtual void addChildNode(std::shared_ptr<SceneNode> childNode);
+        bool containsChildNode(SceneNode *childNode);
+        virtual bool removeChildNode(SceneNode *childNode);
+        void removeFromParent();
 
         void attachObject(std::shared_ptr<SceneObject>);
         void detachObject(SceneObject*);
@@ -44,8 +41,7 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
 
         void detachAllObjects();
 
-        using SimpleNode::copyFrom;
-        virtual void copyFrom(const SceneNode* srcNode); //Also copy childs and objects
+        void copyFrom(const SceneNode* srcNode); //Also copy childs and objects
 
         void disableCollisions(bool disable = true);
         bool areCollisionsDisabled();
@@ -57,35 +53,60 @@ class SceneNode : public SimpleNode //public NotificationSender, public Notifica
         sf::FloatRect getBounds();**/
 
         Scene*  getScene();
-        virtual const glm::vec4 &getColor() const;
+        SceneNode*  getParentNode();
+        const glm::vec4 &getColor() const;
         const glm::vec4 &getFinalColor() const;
 
-        virtual void generateRenderingData(SceneRenderingInstance *renderingInstance, bool propagateToChilds = true);
+        virtual void generateRenderingData(SceneRenderingInstance *renderingInstance);
+        void generateRenderingDataWithoutPropagating(SceneRenderingInstance *renderingInstance);
         bool playSound(int id);
 
-        virtual void update(const Time &elapsedTime, uint32_t localTime = -1);
+        virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
+
+        TransformComponent *transform();
+        const TransformComponent *const_transform() const;
+
+        ///Need to add StringHasher to tools and use that !!!!
+        void setName(const std::string &name);
+        const std::string &getName() const;
+        void getNodesByName(std::map<std::string, SceneNode*> &namesAndResMap);
+
+        void setNodeId(uint32_t id);
+        uint32_t getNodeId() const;
 
     protected:
-        virtual std::shared_ptr<SimpleNode> nodeAllocator(/**NodeTypeId**/);
+        virtual void notify(NotificationSender *sender, int notificationType, void* data = nullptr) override;
+        //virtual std::shared_ptr<SceneNode> nodeAllocator();
 
-        virtual bool setParent(SimpleNode *parentNode);
+        bool setParentNode(SceneNode *parentNode);
+        bool setAsParentTo(SceneNode *parentNode, SceneNode *childNode);
         void setScene(Scene *);
-        virtual void updateGlobalPosition();
+        void updateFinalColor();
 
     protected:
         Scene* m_scene;
-        glm::vec4 m_color;
-        glm::vec4 m_finalColor;
 
     private:
-        std::vector<std::shared_ptr<SceneObject> >    m_attachedObjects;
-        std::vector<std::shared_ptr<SceneEntity> >    m_attachedEntities;
-        std::vector<std::shared_ptr<LightEntity> >    m_attachedLights;
-        std::vector<std::shared_ptr<ShadowCaster> >   m_attachedShadowCasters;
+        uint32_t m_nodeId;
+
+        SceneNode *m_parentNode;
+        std::vector< std::shared_ptr<SceneNode> >       m_childNodes;
+
+        std::vector< std::shared_ptr<SceneObject> >     m_attachedObjects;
+        std::vector< std::shared_ptr<SceneEntity> >     m_attachedEntities;
+        std::vector< std::shared_ptr<LightEntity> >     m_attachedLights;
+        std::vector< std::shared_ptr<ShadowCaster> >    m_attachedShadowCasters;
 
         std::multimap<int, std::shared_ptr<SoundObject> > m_attachedSounds;
 
         bool m_disableCollisions;
+
+        TransformComponent m_transformComponent;
+        glm::vec4 m_color;
+        glm::vec4 m_finalColor; ///Reimplement this later
+
+        std::string m_name;
+
 };
 
 }

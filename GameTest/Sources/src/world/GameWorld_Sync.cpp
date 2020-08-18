@@ -12,6 +12,7 @@
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
 #include "world/WorldMesh.h"
+#include "sync/NodeSyncer.h"
 
 const int    GameWorld_Sync::NODEID_BITS            = 16;
 const int    GameWorld_Sync::SPRITESHEETID_BITS     = 10;
@@ -29,7 +30,7 @@ GameWorld_Sync::GameWorld_Sync() :
     m_lastWorldSyncTime(-1),
     m_updatedCharactersBuffer(0)
 {
-    m_syncNodes.setMax(pow(2,GameWorld_Sync::NODEID_BITS));
+    m_nodeSyncers.setMax(pow(2,GameWorld_Sync::NODEID_BITS));
     m_syncSpriteSheets.setMax(pow(2,GameWorld_Sync::SPRITESHEETID_BITS));
     m_syncSpriteEntities.setMax(pow(2,GameWorld_Sync::SPRITEENTITYID_BITS));
     m_syncMeshModels.setMax(pow(2,GameWorld_Sync::MESHMODELID_BITS));
@@ -44,7 +45,7 @@ GameWorld_Sync::GameWorld_Sync() :
     m_syncPrefabAssets.setMax(pow(2,GameWorld_Sync::PREFABASSETID_BITS));
     m_syncPrefabInstances.setMax(pow(2,GameWorld_Sync::PREFABINSTANCEID_BITS));
 
-    pou::MessageBus::addListener(this, GameMessageType_World_NodeUpdated);
+    pou::MessageBus::addListener(this, GameMessageType_World_NodeSyncerUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_SpriteUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_MeshUpdated);
     pou::MessageBus::addListener(this, GameMessageType_World_CharacterUpdated);
@@ -63,6 +64,7 @@ void GameWorld_Sync::clear()
     m_curLocalTime = 0;
 
     m_syncNodes.clear();
+    m_nodeSyncers.clear();
     m_syncSpriteSheets.clear();
     m_syncSpriteEntities.clear();
     m_syncMeshModels.clear();
@@ -73,7 +75,7 @@ void GameWorld_Sync::clear()
     m_syncPrefabAssets.clear();
     m_syncPrefabInstances.clear();
 
-    m_updatedNodes.clear();
+    m_updatedNodeSyncers.clear();
     m_updatedSprites.clear();
     m_updatedMeshes.clear();
     m_updatedCharacters[0].clear();
@@ -90,10 +92,13 @@ void GameWorld_Sync::update(const pou::Time &elapsedTime)
 
     m_updatedCharactersBuffer = !m_updatedCharactersBuffer;
 
-    m_updatedNodes.clear();
+    m_updatedNodeSyncers.clear();
     m_updatedSprites.clear();
     m_updatedMeshes.clear();
     m_updatedCharacters[m_updatedCharactersBuffer].clear();
+
+    for(auto nodeSyncer : m_nodeSyncers)
+        nodeSyncer.second->update(elapsedTime, m_curLocalTime);
 
     this->processPlayerEvents();
     this->processPlayerActions();
@@ -105,13 +110,13 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
     worldSyncMsg->lastSyncTime      = lastSyncTime;
     worldSyncMsg->localTime         = m_curLocalTime;
 
-    worldSyncMsg->nodes.clear();
+    worldSyncMsg->nodeSyncers.clear();
     if(lastSyncTime == (uint32_t)(-1))
     {
-        for(auto it = m_syncNodes.begin() ; it != m_syncNodes.end() ; ++it)
+        for(auto it = m_nodeSyncers.begin() ; it != m_nodeSyncers.end() ; ++it)
             this->createWorldSyncMsg_Node(it->second.get(), worldSyncMsg, player_id, lastSyncTime);
     } else {
-        for(auto it = m_updatedNodes.begin() ; it != m_updatedNodes.end() ; ++it)
+        for(auto it = m_updatedNodeSyncers.begin() ; it != m_updatedNodeSyncers.end() ; ++it)
             this->createWorldSyncMsg_Node(*it, worldSyncMsg, player_id, lastSyncTime);
     }
 
@@ -283,26 +288,24 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
     }
 }
 
-void GameWorld_Sync::createWorldSyncMsg_Node(WorldNode *nodePtr, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
+void GameWorld_Sync::createWorldSyncMsg_Node(NodeSyncer *nodeSyncerPtr, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
                             int player_id, uint32_t lastSyncTime)
 {
-    if(uint32leq(nodePtr->getLastUpdateTime(), lastSyncTime))
+    if(uint32leq(nodeSyncerPtr->getLastUpdateTime(), lastSyncTime))
         return;
-    worldSyncMsg->nodes.push_back({nodePtr->getNodeSyncId() /**it->first**/, NodeSync()});
-    auto &nodeSync = worldSyncMsg->nodes.back().second;
+    worldSyncMsg->nodeSyncers.push_back(nodeSyncerPtr);
+    /*auto &nodeSync = worldSyncMsg->nodes.back().second;
 
     nodeSync.parentNodeId = 0;
 
-    if(/*nodePtr->getParent() != m_scene->getRootNode()
-    &&*/ /*uint32less(lastSyncTime, nodePtr->getLastParentUpdateTime())
-    &&*/ nodePtr->getParent()
-    && nodePtr->getNodeSyncId() != 1 && nodePtr->getNodeSyncId() != 2) //ID 1 and 2 are reserved for the rootNode and gridNode, which both have parent a SceneNode and not a WorldNode
+    if(nodeSyncerPtr->node()->getParent()
+    && nodeSyncerPtr->getNodeSyncId() != 1 && nodeSyncerPtr->getNodeSyncId() != 2) //ID 1 and 2 are reserved for the rootNode and gridNode, which both have parent a SceneNode and not a WorldNode
     {
-        auto parentNode = (WorldNode*)nodePtr->getParent();
-        nodeSync.parentNodeId = parentNode->getNodeSyncId();///m_syncNodes.findId((WorldNode*)nodePtr->getParent());
+        auto parentNode = nodeSyncerPtr->node()->getParent();
+        nodeSync.parentNodeId = parentNode->getNodeSyncId();///m_nodeSyncers.findId((WorldNode*)nodePtr->getParent());
     }
 
-    nodeSync.node = nodePtr;
+    nodeSync.node = nodeSyncerPtr;*/
 }
 
 void GameWorld_Sync::createWorldSyncMsg_Sprite(WorldSprite *spriteEntity, std::shared_ptr<NetMessage_WorldSync> worldSyncMsg,
@@ -326,9 +329,9 @@ void GameWorld_Sync::createWorldSyncMsg_Sprite(WorldSprite *spriteEntity, std::s
 
     size_t nodeId = 0;
 
-    auto parentNode = (WorldNode*)spriteEntity->getParentNode();
+    auto parentNode = spriteEntity->getParentNode();
     if(parentNode != nullptr)
-        nodeId = parentNode->getNodeSyncId();///m_syncNodes.findId(parentNode);
+        nodeId = parentNode->getNodeId();///m_nodeSyncers.findId(parentNode);
 
     spriteEntitySync.spriteEntity = spriteEntity;
     spriteEntitySync.spriteSheetId = spriteSheetId;
@@ -353,9 +356,9 @@ void GameWorld_Sync::createWorldSyncMsg_Mesh(WorldMesh *meshEntity, std::shared_
 
     size_t nodeId = 0;
 
-    auto parentNode = (WorldNode*)meshEntity->getParentNode();
+    auto parentNode = meshEntity->getParentNode();
     if(parentNode != nullptr)
-        nodeId = parentNode->getNodeSyncId();///m_syncNodes.findId(parentNode);
+        nodeId = parentNode->getNodeId();///m_nodeSyncers.findId(parentNode);
 
     meshEntitySync.meshEntity = meshEntity;
     meshEntitySync.meshModelId = meshModelId;
@@ -377,7 +380,7 @@ void GameWorld_Sync::createWorldSyncMsg_Character(Character *character, std::sha
         characterModelId = m_syncCharacterModels.findId(characterModel);
 
     size_t nodeId = 0;
-    nodeId = character->getNodeSyncId();///m_syncNodes.findId((WorldNode*)character);
+    nodeId = character->getNodeId();
 
     characterSync.character = character;
     characterSync.characterModelId = characterModelId;
@@ -400,7 +403,7 @@ void GameWorld_Sync::createWorldSyncMsg_Prefab(PrefabInstance *prefab, std::shar
     size_t prefabModelId = m_syncPrefabAssets.findId(prefabModel);
 
     size_t nodeId = 0;
-    nodeId = prefab->getNodeSyncId();
+    nodeId = prefab->getNodeId();
 
     prefabSync.prefab = prefab;
     prefabSync.prefabModelId = prefabModelId;
@@ -495,9 +498,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(prefabSync.nodeId != 0)
         {
-            auto nodePtr = m_syncNodes.findElement(prefabSync.nodeId);
+            auto nodePtr = m_nodeSyncers.findElement(prefabSync.nodeId);
             if(nodePtr == nullptr)
-                this->syncElement((std::shared_ptr<WorldNode>)prefabPtr, prefabSync.nodeId);
+                this->syncElement((std::shared_ptr<pou::SceneNode>)prefabPtr, prefabSync.nodeId);
         }
     }
 
@@ -514,7 +517,6 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
                 if(playerId == (int)clientPlayerId && !useLockStepMode)
                 {
                     player = std::make_shared<Player>();
-                   // m_worldGrid->addUpdateProbe(player, 2048);
                 }
                 else
                 {
@@ -573,7 +575,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             //characterPtr->disableStateSync();
         }
 
-        characterPtr->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
+        characterPtr->getNodeSyncer()->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
 
         if(characterSync.characterModelId != 0)
         {
@@ -584,9 +586,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(characterSync.nodeId != 0)
         {
-            auto nodePtr = m_syncNodes.findElement(characterSync.nodeId);
+            auto nodePtr = m_nodeSyncers.findElement(characterSync.nodeId);
             if(nodePtr == nullptr)
-                this->syncElement((std::shared_ptr<WorldNode>)characterPtr, characterSync.nodeId);
+                this->syncElement((std::shared_ptr<pou::SceneNode>)characterPtr, characterPtr->getNodeSyncer(), characterSync.nodeId);
         }
     }
 
@@ -629,34 +631,40 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
     }
 
     //std::cout<<"Sync nbr nodes:"<<worldSyncMsg->nodes.size()<<std::endl;
-    for(auto &node : worldSyncMsg->nodes)
+    for(auto &nodeSyncer : worldSyncMsg->nodeSyncers)
     {
-        auto& [ nodeId, nodeSync ] = node;
+        //auto& [ nodeId, nodeSync ] = node;
+        auto nodeId = nodeSyncer->getNodeSyncId();
+        auto nodeSyncerPtr = m_nodeSyncers.findElement(nodeId);
 
-        auto nodePtr = m_syncNodes.findElement(nodeId);
-
-        if(nodePtr == nullptr)
+        if(nodeSyncerPtr == nullptr)
         {
-            nodePtr = std::make_shared<WorldNode>();
-            this->syncElement(nodePtr, nodeId);
+            auto nodePtr = std::make_shared<pou::SceneNode>();
+            nodeSyncerPtr = this->syncElement(nodePtr, nodeId);
         }
 
-        nodePtr->syncFrom(nodeSync.node);
+        nodeSyncerPtr->syncFrom(nodeSyncer);
     }
 
-    for(auto &node : worldSyncMsg->nodes)
+    for(auto &nodeSyncer : worldSyncMsg->nodeSyncers)
     {
-        auto& [ nodeId, nodeSync ] = node;
+        //auto& [ nodeId, nodeSync ] = node;
+        auto nodeId = nodeSyncer->getNodeSyncId();
+        auto parentNodeId = nodeSyncer->getParentNodeSyncId();
 
-        if(nodeSync.parentNodeId != 0)
+        if(parentNodeId != 0)
         {
+            /*auto nodeSyncerPtr = m_nodeSyncers.findElement(nodeId);
+            if(!nodeSyncerPtr)
+                continue;*/
+
             auto nodePtr = m_syncNodes.findElement(nodeId);
             if(!nodePtr)
                 continue;
 
-            auto parentptr = m_syncNodes.findElement(nodeSync.parentNodeId);
-            if(parentptr)
-                parentptr->addChildNode(nodePtr);
+            auto parentNodePtr = m_syncNodes.findElement(parentNodeId);
+            if(parentNodePtr)
+                parentNodePtr->addChildNode(nodePtr);
         }
     }
 
@@ -687,9 +695,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(spriteEntitySync.nodeId != 0)
         {
-            auto node = m_syncNodes.findElement(spriteEntitySync.nodeId);
-            if(node != nullptr)
-                node->attachObject(spriteEntity);
+            auto nodeSyncer = m_nodeSyncers.findElement(spriteEntitySync.nodeId);
+            if(nodeSyncer != nullptr)
+                nodeSyncer->node()->attachObject(spriteEntity);
         }
     }
 
@@ -717,9 +725,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(meshEntitySync.nodeId != 0)
         {
-            auto node = m_syncNodes.findElement(meshEntitySync.nodeId);
-            if(node != nullptr)
-                node->attachObject(meshEntity);
+            auto nodeSyncer = m_nodeSyncers.findElement(meshEntitySync.nodeId);
+            if(nodeSyncer != nullptr)
+                nodeSyncer->node()->attachObject(meshEntity);
         }
     }
 
@@ -747,15 +755,13 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
     for(auto desyncNode : worldSyncMsg->desyncNodes)
     {
-        auto nodePtr = m_syncNodes.findElement(desyncNode);
-        if(!nodePtr)
+        auto nodeSyncerPtr = m_nodeSyncers.findElement(desyncNode);
+        if(!nodeSyncerPtr)
             continue;
 
-        this->desyncElement(nodePtr.get());
-        nodePtr->removeFromParent();
+        this->desyncElement(nodeSyncerPtr.get());
+        nodeSyncerPtr->node()->removeFromParent();
     }
-
-
 
     for(auto playerIt = m_syncPlayers.begin() ; playerIt != m_syncPlayers.end() ; ++playerIt)
     {
@@ -825,20 +831,19 @@ void GameWorld_Sync::createPlayerSyncMsg(std::shared_ptr<NetMessage_PlayerSync> 
     CharacterSync characterSync;
     {
         size_t nodeId = 0;
-        nodeId = player->getNodeSyncId();///m_syncNodes.findId(player/*->node()*/);
+        nodeId = player->getNodeId();///m_nodeSyncers.findId(player/*->node()*/);
 
         characterSync.character = player.get();
         characterSync.characterModelId = 0;
         characterSync.nodeId = nodeId;
     }
 
-    NodeSync nodeSync;
+    /*NodeSync nodeSync;
     {
-        nodeSync.node = player.get()/*->node()*/;
-    }
+        nodeSync.node = player.get();
+    }*/
 
-
-    playerSyncMsg->nodeSync         = nodeSync;
+    playerSyncMsg->nodeSyncer       = player->getNodeSyncer().get();
     playerSyncMsg->characterSync    = characterSync;
     playerSyncMsg->playerSync       = playerSync;
 }
@@ -877,7 +882,8 @@ void GameWorld_Sync::syncPlayerFromMsg(std::shared_ptr<NetMessage_PlayerSync> wo
 
     auto player = m_syncPlayers.findElement(clientPlayerId);
 
-    player/*->node()*/->syncFrom(worldSyncMsg->nodeSync.node);
+    ///player/*->node()*/->syncFrom(worldSyncMsg->nodeSync.node);
+    player->getNodeSyncer()->syncFrom(worldSyncMsg->nodeSyncer);
     player->syncFromCharacter(worldSyncMsg->characterSync.character);
     player->syncFromPlayer(worldSyncMsg->playerSync.player.get());
 
@@ -932,13 +938,49 @@ void GameWorld_Sync::syncPlayerAction(uint32_t player_id, PlayerAction &playerAc
 }*/
 
 
-size_t GameWorld_Sync::syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId)
+/*size_t GameWorld_Sync::syncElement(std::shared_ptr<WorldNode> node, uint32_t forceId)
+{
+    if(forceId == 0)
+        forceId = m_nodeSyncers.allocateId(node);
+    else
+        m_nodeSyncers.insert(forceId, node);
+    node->setNodeSyncId(forceId);
+    return forceId;
+}*/
+
+
+std::shared_ptr<NodeSyncer> GameWorld_Sync::syncElement(std::shared_ptr<pou::SceneNode> node, uint32_t forceId)
+{
+    /*if(forceId == 0)
+        forceId = m_syncNodes.allocateId(node);
+    else
+        m_syncNodes.insert(forceId, node);
+
+    node->setNodeId(forceId);
+
+    auto nodeSyncer = std::make_shared<NodeSyncer>(node.get());
+    nodeSyncer->setNodeSyncId(forceId);
+    m_nodeSyncers.insert(forceId, nodeSyncer);*/
+
+
+    auto nodeSyncer = std::make_shared<NodeSyncer>(node.get());
+    this->syncElement(node, nodeSyncer, forceId);
+
+    return nodeSyncer;
+}
+
+size_t GameWorld_Sync::syncElement(std::shared_ptr<pou::SceneNode> node, std::shared_ptr<NodeSyncer> nodeSyncer, uint32_t forceId)
 {
     if(forceId == 0)
         forceId = m_syncNodes.allocateId(node);
     else
         m_syncNodes.insert(forceId, node);
-    node->setNodeSyncId(forceId);
+
+    node->setNodeId(forceId);
+    nodeSyncer->setNodeSyncId(forceId);
+
+    m_nodeSyncers.insert(forceId, nodeSyncer);
+
     return forceId;
 }
 
@@ -997,7 +1039,16 @@ size_t GameWorld_Sync::syncElement(std::shared_ptr<Character> character, uint32_
     if(forceId == 0)
     {
         forceId = m_syncCharacters.allocateId(character);
-        this->syncElement((std::shared_ptr<WorldNode>)character);
+        //this->syncElement(std::shared_ptr<pou::SceneNode> character, character->getNodeSyncer());
+
+        /**auto nodeId = m_syncNodes.allocateId(character);
+        character->setNodeId(nodeId);
+        character->getNodeSyncer()->setNodeSyncId(nodeId);
+        m_nodeSyncers.insert(nodeId, character->getNodeSyncer());**/
+
+        this->syncElement((std::shared_ptr<pou::SceneNode>)character, character->getNodeSyncer());
+
+        ///this->syncElement((std::shared_ptr<WorldNode>)character);
     }
     else
         m_syncCharacters.insert(forceId, character);
@@ -1042,7 +1093,7 @@ size_t GameWorld_Sync::syncElement(std::shared_ptr<PrefabInstance> prefab, uint3
     if(forceId == 0)
     {
         forceId = m_syncPrefabInstances.allocateId(prefab);
-        this->syncElement((std::shared_ptr<WorldNode>)prefab);
+        this->syncElement((std::shared_ptr<pou::SceneNode>)prefab);
     }
     else
         m_syncPrefabInstances.insert(forceId, prefab);
@@ -1051,19 +1102,29 @@ size_t GameWorld_Sync::syncElement(std::shared_ptr<PrefabInstance> prefab, uint3
 }
 
 
-void GameWorld_Sync::desyncElement(WorldNode *node, bool noDesyncInsert)
+/*void GameWorld_Sync::desyncElement(WorldNode *node, bool noDesyncInsert)
 {
     if(!noDesyncInsert)
     {
-        auto id = m_syncNodes.findId(node);
+        auto id = m_nodeSyncers.findId(node);
         m_desyncNodes.insert({m_curLocalTime,id});
     }
-    m_syncNodes.freeElement(node);
+    m_nodeSyncers.freeElement(node);
+}*/
+
+void GameWorld_Sync::desyncElement(NodeSyncer* nodeSyncer, bool noDesyncInsert)
+{
+    auto id = m_nodeSyncers.findId(nodeSyncer);
+    if(!noDesyncInsert)
+        m_desyncNodes.insert({m_curLocalTime,id});
+    m_nodeSyncers.freeElement(nodeSyncer);
+    m_syncNodes.freeId(id);
 }
 
 void GameWorld_Sync::desyncElement(Character *character, bool noDesyncInsert)
 {
-    this->desyncElement((WorldNode*)character, true);
+    ///this->desyncElement((WorldNode*)character, true);
+    this->desyncElement(character->getNodeSyncer().get(), true);
 
     if(!noDesyncInsert)
     {
@@ -1116,10 +1177,10 @@ void GameWorld_Sync::notify(pou::NotificationSender*, int notificationType, void
 {
     ///I should find way to verify these nodes coincides are in the concerned world.
 
-    if(notificationType == GameMessageType_World_NodeUpdated)
+    if(notificationType == GameMessageType_World_NodeSyncerUpdated)
     {
-        auto *gameMsg = static_cast<GameMessage_World_NodeUpdated*>(data);
-        m_updatedNodes.push_back(gameMsg->node);
+        auto *gameMsg = static_cast<GameMessage_World_NodeSyncerUpdated*>(data);
+        m_updatedNodeSyncers.push_back(gameMsg->nodeSyncer);
     }
 
     if(notificationType == GameMessageType_World_SpriteUpdated)

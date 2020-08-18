@@ -92,6 +92,8 @@ enum NotificationType
     NotificationType_SenderDestroyed,
     NotificationType_AssetLoaded,
     NotificationType_NodeMoved,
+    NotificationType_NodeParentChanged,
+    NotificationType_TransformChanged,
     NotificationType_UpdateCmb,
     NotificationType_ModelChanged,
     NotificationType_TextureChanged,

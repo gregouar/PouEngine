@@ -1,6 +1,6 @@
 #include "PouEngine/tools/MathTools.h"
 
-#include "PouEngine/system/SimpleNode.h"
+//#include "PouEngine/system/SimpleNode.h"
 
 
 namespace pou::MathTools
@@ -33,7 +33,7 @@ bool detectSegmentCollision(glm::vec2 seg1, glm::vec2 seg2)
 }
 
 bool detectBoxCollision(const Box &box1, const Box &box2,
-                        const SimpleNode *node1, const SimpleNode *node2)
+                        const TransformComponent *transform1, const TransformComponent *transform2)
 {
    /* glm::vec4 base1 = glm::vec4(-box1.center.x,-box1.center.y,0,1);
     glm::vec4 v1 = glm::vec4(box1.size.x,0,0,1);
@@ -49,10 +49,10 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
         mat2 = node2->getModelMatrix();*/
 
     glm::mat4 mat = glm::mat4(1);
-    if(node2 != nullptr)
-        mat = node2->getModelMatrix();
-    if(node1 != nullptr)
-        mat = node1->getInvModelMatrix()*mat;
+    if(transform2)
+        mat = transform2->getModelMatrix();
+    if(transform1)
+        mat = transform1->getInvModelMatrix()*mat;
 
     glm::vec4 p1 = glm::vec4(-box2.center.x, -box2.center.y,0,1);
     glm::vec4 p2 = glm::vec4(box2.size.x-box2.center.x, -box2.center.y,0,1);
@@ -81,11 +81,11 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
 }
 
 
-bool isInBox(glm::vec2 position, const Box &box, const SimpleNode *boxNode)
+bool isInBox(glm::vec2 position, const Box &box, const TransformComponent *boxTransform)
 {
-    if(boxNode)
+    if(boxTransform)
     {
-        auto mat = boxNode->getInvModelMatrix();
+        auto mat = boxTransform->getInvModelMatrix();
         glm::vec4 vec4Pos = glm::vec4(position,0,1);
         vec4Pos = mat*vec4Pos;
         vec4Pos /= vec4Pos.w;

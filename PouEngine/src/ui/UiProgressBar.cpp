@@ -5,8 +5,8 @@
 namespace pou
 {
 
-UiProgressBar::UiProgressBar(/**const NodeTypeId id,**/ UserInterface *interface) :
-    UiPicture(/**id,**/interface),
+UiProgressBar::UiProgressBar(/*UserInterface *interface*/) :
+    UiPicture(/*interface*/),
     m_value(0.0f),
     m_minValue(0.0f),
     m_maxValue(1.0f),
@@ -119,7 +119,7 @@ void UiProgressBar::setVerticalOrientation(bool b)
 }*/
 
 
-void UiProgressBar::update(const Time &elapsedTime, uint32_t localTime)
+void UiProgressBar::update(const Time &elapsedTime)
 {
     float p = (m_value-m_minValue)/(m_maxValue-m_minValue);
 
@@ -138,7 +138,7 @@ void UiProgressBar::update(const Time &elapsedTime, uint32_t localTime)
         //m_bar->setTextureExtent({m_orBarTextureExtent.x*p, m_orBarTextureExtent.y});
     }
 
-    UiPicture::update(elapsedTime,localTime);
+    UiPicture::update(elapsedTime);
 }
 
 

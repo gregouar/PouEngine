@@ -15,7 +15,7 @@ namespace pou
 Scene::Scene() :
     m_rootNode(this)
 {
-    m_rootNode.setPosition(0,0,0);
+    m_rootNode.transform()->setPosition(glm::vec3(0));
 
     m_projectionFactor  = 1000.0f;
     m_viewAngle         = glm::mat4(1.0);
@@ -54,7 +54,7 @@ void Scene::render(SceneRenderer *renderer, CameraObject *camera)
 
     if(camera != nullptr)
     {
-        glm::vec3 camPos          = glm::round(camera->getParentNode()->getGlobalPosition());
+        glm::vec3 camPos          = glm::round(camera->getParentNode()->transform()->getGlobalPosition());
         glm::mat4 camTranslate    = glm::translate(glm::mat4(1.0), -camPos);
         glm::mat4 camTranslateInv = glm::translate(glm::mat4(1.0), camPos);
 
@@ -104,7 +104,7 @@ glm::vec2 Scene::convertScreenToWorldCoord(glm::vec2 p, CameraObject *cam)
 {
     glm::vec3 camPos = glm::vec3(0.0,0.0,0.0);
     if(cam != nullptr)
-        camPos = cam->getParentNode()->getGlobalPosition();
+        camPos = cam->getParentNode()->transform()->getGlobalPosition();
 
     //glm::vec4 worldPos = m_viewAngleInv*glm::vec4(pos,1.0);
     glm::vec4 worldPos = glm::vec4(p,0.0,1.0);

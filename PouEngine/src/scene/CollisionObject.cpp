@@ -84,8 +84,8 @@ void CollisionObject::setDisk(float radius)
 SceneNode *CollisionObject::setParentNode(SceneNode* parentNode)
 {
     auto node = SceneObject::setParentNode(parentNode);
-    m_boxBody.node = this->getParentNode();
-    m_diskBody.node = this->getParentNode();
+    m_boxBody.transform = this->getParentNode()->transform();
+    m_diskBody.transform = this->getParentNode()->transform();
     return node;
 }
 

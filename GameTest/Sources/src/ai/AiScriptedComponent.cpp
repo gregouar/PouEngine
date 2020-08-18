@@ -41,14 +41,14 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
 
     if(m_target && m_target->isAlive())
     {
-        glm::vec2 direction = m_target/*->node()*/->getGlobalXYPosition() - m_character/*->node()*/->getGlobalXYPosition();
+        glm::vec2 direction = m_target->transform()->getGlobalXYPosition() - m_character->transform()->getGlobalXYPosition();
 
         float distance = glm::dot(direction,direction);
 
         if(distance > 1000.0f * 1000.0f)
             this->setTarget(nullptr);
         else if(distance > 70.0f*70.0f)
-            this->avoidCollisionsTo(m_target->getGlobalXYPosition());
+            this->avoidCollisionsTo(m_target->transform()->getGlobalXYPosition());
         else
             input->setAttacking(true, direction);
 
@@ -83,8 +83,8 @@ void AiScriptedComponent::lookForTarget(float maxDistance)
         if(!otherCharacter->isAlive())
             continue;
 
-        float distance = glm::dot(otherCharacter/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition(),
-                                  otherCharacter/*->node()*/->getGlobalPosition() - m_character/*->node()*/->getGlobalPosition());
+        float distance = glm::dot(otherCharacter->transform()->getGlobalPosition() - m_character->transform()->getGlobalPosition(),
+                                  otherCharacter->transform()->getGlobalPosition() - m_character->transform()->getGlobalPosition());
 
         if(otherCharacter->getTeam() == m_character->getTeam())
         {

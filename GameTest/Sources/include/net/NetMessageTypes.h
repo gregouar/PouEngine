@@ -74,14 +74,15 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     //int player_id;
 
-    std::list<std::shared_ptr<WorldNode> >      nodesBuffer;
+    std::list<std::shared_ptr<NodeSyncer> >     nodesBuffer;
     std::list<std::shared_ptr<WorldSprite> >    spritesBuffer;
     std::list<std::shared_ptr<WorldMesh> >      meshesBuffer;
     std::list<std::shared_ptr<Character> >      charactersBuffer;
     std::list<std::shared_ptr<PrefabInstance> > prefabsBuffer;
 
     //int nbr_nodes;
-    std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
+    //std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
+    std::vector< NodeSyncer* > nodeSyncers;
     std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
     std::vector< std::pair<int, SpriteEntitySync> > spriteEntities;
     std::vector< std::pair<int, std::string > > meshModels; //Id, Path
@@ -99,7 +100,7 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     virtual void serializeImpl(pou::Stream *stream);
 
-    virtual void serializeNode(pou::Stream *stream, std::pair<int, NodeSync> &node);
+    virtual void serializeNode(pou::Stream *stream, NodeSyncer *(&nodeSyncer));
     virtual void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
     virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
     virtual void serializeMeshModel(pou::Stream *stream, std::pair<int, std::string > &meshModel);
@@ -175,10 +176,10 @@ struct NetMessage_PlayerSync : public pou::NetMessage
     std::shared_ptr<PlayerSave> playerSave;
 
     ///For non lockstep mode
-    std::shared_ptr<WorldNode> nodeBuffer;
+    std::shared_ptr<NodeSyncer> nodeBuffer;
     std::shared_ptr<Character> characterBuffer;
 
-    NodeSync        nodeSync;
+    NodeSyncer     *nodeSyncer;
     CharacterSync   characterSync;
     PlayerSync      playerSync;
 

@@ -5,7 +5,7 @@
 
 #include "tinyxml/tinyxml.h"
 
-#include "world/WorldNode.h"
+#include "PouEngine/scene/SceneNode.h"
 #include "world/WorldSprite.h"
 #include "world/WorldMesh.h"
 #include "world/PrefabInstance.h"
@@ -29,19 +29,19 @@ class PrefabAsset : public pou::Asset
 
         bool loadSpriteSheet(TiXmlElement *element);
 
-        bool loadNode(WorldNode *node, TiXmlElement *element);
+        bool loadNode(pou::SceneNode *node, TiXmlElement *element);
 
-        bool loadCollision(WorldNode *node, TiXmlElement *element);
-        bool loadLight(WorldNode *node, TiXmlElement *element);
-        bool loadMesh(WorldNode *node, TiXmlElement *element);
-        bool loadSound(WorldNode *node, TiXmlElement *element);
-        bool loadSprite(WorldNode *node, TiXmlElement *element);
-        bool loadPrefab(WorldNode *node, TiXmlElement *element);
+        bool loadCollision(pou::SceneNode *node, TiXmlElement *element);
+        bool loadLight(pou::SceneNode *node, TiXmlElement *element);
+        bool loadMesh(pou::SceneNode *node, TiXmlElement *element);
+        bool loadSound(pou::SceneNode *node, TiXmlElement *element);
+        bool loadSprite(pou::SceneNode *node, TiXmlElement *element);
+        bool loadPrefab(pou::SceneNode *node, TiXmlElement *element);
 
-        bool loadCharacter(WorldNode *node, TiXmlElement *element); //This could be a lot of troubles
+        bool loadCharacter(pou::SceneNode *node, TiXmlElement *element); //This could be a lot of troubles
 
     private:
-        WorldNode m_rootNode;
+        pou::SceneNode m_rootNode;
 
         std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
 };

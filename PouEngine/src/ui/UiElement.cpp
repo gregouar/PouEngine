@@ -5,34 +5,81 @@
 namespace pou
 {
 
-UiElement::UiElement(UserInterface *interface) :
-    m_interface(interface),
+UiElement::UiElement(/*UserInterface *interface*/) :
+    m_interface(nullptr /*interface*/),
     m_canHaveFocus(false),
+    m_parentElement(nullptr),
     m_size(0.0f),
     m_isVisible(true),
-    m_isMouseHover(false)
+    m_isMouseHover(false)//,
+    //m_parentElement(nullptr)
 {
-    assert(interface);
+    //assert(interface);
+
+    //m_transformComponent = new TransformComponent();
 }
 
 
 UiElement::~UiElement()
 {
-    //dtor
+    if(m_interface)
+        m_interface->removeUiElement(this);
+    //delete m_transformComponent;
+}
+/*
+void UiElement::addChildElement(UiElement *child)
+{
+    child->setParentElement(this);
+    m_interface->addUiElement(child);
+}
+
+void UiElement::addChildElement(std::shared_ptr<UiElement> child)
+{
+    m_interface->addUiElement(child);
+    child->setParentElement(this);
+}
+
+void UiElement::removeFromParent()
+{
+    this->setParentElement(nullptr);
+    this->setInterface(nullptr);
+}*/
+
+void UiElement::addChildElement(std::shared_ptr<UiElement> child)
+{
+    m_childElements.push_back(child);
+    child->setParentElement(this);
+}
+
+void UiElement::removeChildElement(UiElement *child)
+{
+    for(auto it = m_childElements.begin() ; it != m_childElements.end() ; ++it)
+        if(it->get() == child)
+        {
+            m_childElements.erase(it);
+            (*it)->setParentElement(nullptr);
+            return;
+        }
+}
+
+void UiElement::removeFromParent()
+{
+    if(m_parentElement)
+        m_parentElement->removeChildElement(this);
 }
 
 void UiElement::setSize(glm::vec2 s)
 {
     if(s.x < 0)
     {
-        this->move(s.x, 0);
+        m_transformComponent.move(s.x, 0);
         ///this->setScale(-1,0);
         s.x = -s.x;
     }
 
     if(s.y < 0)
     {
-        this->move(s.y, 0);
+        m_transformComponent.move(s.y, 0);
         ///this->scale(0,-1);
         s.y = -s.y;
     }
@@ -51,21 +98,22 @@ const glm::vec2 &UiElement::getSize()
     return m_size;
 }
 
-
-std::shared_ptr<SimpleNode> UiElement::nodeAllocator()
-{
-    return std::make_shared<UiElement>(m_interface);
-}
-
 void UiElement::render(UiRenderer *renderer)
 {
     if(!m_isVisible)
         return;
 
-    for(auto node : m_childs)
-        std::dynamic_pointer_cast<UiElement>(node)->render(renderer);
+    for(auto child : m_childElements)
+        child->render(renderer);
 }
 
+void UiElement::update(const Time &elapsedTime)
+{
+    m_transformComponent.update(elapsedTime);
+
+    for(auto child : m_childElements)
+        child->update(elapsedTime);
+}
 
 void UiElement::handleEvents(const EventsManager *eventsManager)
 {
@@ -75,8 +123,10 @@ void UiElement::handleEvents(const EventsManager *eventsManager)
         return;
 
     auto mousePos = eventsManager->mousePosition();
-    auto &globalPos = this->getGlobalPosition();
+    auto &globalPos = m_transformComponent.getGlobalPosition();
     auto &size      = this->getSize();
+
+    ///I should change mousePos to local coord so that I can rotate...
     if(mousePos.x >= globalPos.x && mousePos.x <= globalPos.x + size.x
     && mousePos.y >= globalPos.y && mousePos.y <= globalPos.y + size.y)
         m_isMouseHover = true;
@@ -85,8 +135,8 @@ void UiElement::handleEvents(const EventsManager *eventsManager)
     && eventsManager->mouseButtonPressed(GLFW_MOUSE_BUTTON_1))
         m_interface->setFocus(this);
 
-    for(auto node : m_childs)
-        std::dynamic_pointer_cast<UiElement>(node)->handleEvents(eventsManager);
+    for(auto child : m_childElements)
+        child->handleEvents(eventsManager);
 }
 
 void UiElement::show()
@@ -115,6 +165,55 @@ bool UiElement::isMouseHover()
 }
 
 
+TransformComponent *UiElement::transform()
+{
+    return &m_transformComponent;
+}
 
+///
+///Protected
+///
+
+
+void UiElement::notify(NotificationSender *sender, int notificationType, void* data)
+{
+    /*if(sender == m_parent)
+    {
+        if(notificationType == NotificationType_SenderDestroyed)
+            m_parentElement = nullptr;
+    }*/
+}
+
+void UiElement::setInterface(UserInterface *interface)
+{
+    if(m_interface == interface)
+        return;
+
+    //if(m_interface)
+      //  m_interface->removeUiElement(this);
+    m_interface = interface;
+
+    for(auto child : m_childElements)
+        child->setInterface(interface);
+}
+
+void UiElement::setParentElement(UiElement *parent)
+{
+    if(m_parentElement == parent)
+        return;
+
+    if(parent)
+    {
+        m_interface = parent->m_interface;
+        m_transformComponent.setParent(parent->transform());
+    }
+    else
+    {
+        m_interface = nullptr;
+        m_transformComponent.setParent(nullptr);
+    }
+
+    m_parentElement = parent;
+}
 
 }

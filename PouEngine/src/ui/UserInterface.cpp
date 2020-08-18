@@ -6,9 +6,10 @@ namespace pou
 {
 
 UserInterface::UserInterface() :
-    m_rootElement(this),
+    //m_rootElement(this),
     m_focus(nullptr)
 {
+    m_rootElement.setInterface(this);
 }
 
 UserInterface::~UserInterface()
@@ -18,7 +19,9 @@ UserInterface::~UserInterface()
 
 void UserInterface::cleanup()
 {
-    m_rootElement.removeAllChilds();
+    //m_sharedUiElements.clear();
+    //m_uiElements.clear();
+    ///m_rootElement.removeAllChilds();
 }
 
 void UserInterface::handleEvents(const EventsManager *eventsManager)
@@ -29,25 +32,60 @@ void UserInterface::handleEvents(const EventsManager *eventsManager)
         m_focus = nullptr;
     }
 
+    //for(auto uiElement : m_uiElements)
+      //  uiElement->handleEvents(eventsManager);
+
     m_rootElement.handleEvents(eventsManager);
 }
 
 void UserInterface::update(const Time &elapsedTime)
 {
+   // for(auto uiElement : m_uiElements)
+     //   uiElement->update(elapsedTime);
     m_rootElement.update(elapsedTime);
 }
 
 void UserInterface::render(UiRenderer *renderer)
 {
+    //for(auto uiElement : m_uiElements)
+      //  uiElement->render(renderer);
     m_rootElement.render(renderer);
 }
 
-void UserInterface::addRootElement(std::shared_ptr<UiElement> element)
+/*void UserInterface::addUiElement(UiElement *uiElement)
 {
-    m_rootElement.addChildNode(element);
+    this->removeUiElement(uiElement);
+    m_uiElements.push_back(uiElement);
+    uiElement->setInterface(this);
 }
 
-std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
+void UserInterface::addUiElement(std::shared_ptr<UiElement> uiElement)
+{
+    this->addUiElement(uiElement.get());
+    m_sharedUiElements.push_back(uiElement);
+}
+
+void UserInterface::removeUiElement(UiElement *uiElement)
+{
+    for(auto it = m_uiElements.begin() ; it != m_uiElements.end() ; ++it)
+    if(*it == uiElement)
+    {
+        m_uiElements.erase(it);
+        return;
+    }
+}*/
+
+void UserInterface::addUiElement(std::shared_ptr<UiElement> element)
+{
+    m_rootElement.addChildElement(element);
+}
+
+void UserInterface::removeUiElement(UiElement *uiElement)
+{
+    m_rootElement.removeChildElement(uiElement);
+}
+
+/*std::shared_ptr<UiPicture> UserInterface::createUiPicture(bool addToInterface)
 {
     auto element = std::make_shared<UiPicture>(this);
     if(addToInterface)
@@ -61,7 +99,7 @@ std::shared_ptr<UiProgressBar> UserInterface::createProgressBar(bool addToInterf
     if(addToInterface)
         m_rootElement.addChildNode(element);
     return element;
-}
+}*/
 
 void UserInterface::setFocus(UiElement *element)
 {
@@ -84,7 +122,8 @@ bool UserInterface::isFocusedOn(UiElement *element)
 
 UiFocusWeight UserInterface::computeFocusWeight(UiElement *element)
 {
-    return {element->getGlobalPosition().z, (float)element->getTreeDepth()};
+    return {element->transform()->getGlobalPosition().z,
+            (float)element->transform()->getTreeDepth()};
 }
 
 }

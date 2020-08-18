@@ -7,7 +7,7 @@
 namespace pou
 {
 
-UiButton::UiButton(UserInterface *interface) : UiElement(interface),
+UiButton::UiButton(/*UserInterface *interface*/) : UiElement(/*interface*/),
     m_curState(UiButtonState_Rest),
     m_lastShowedState(NBR_UIBUTTONSTATES),
     m_lastShowedTextureState(NBR_UIBUTTONSTATES),
@@ -16,6 +16,9 @@ UiButton::UiButton(UserInterface *interface) : UiElement(interface),
     m_disableUntoggle(false)
 {
     m_canHaveFocus = true;
+
+    for(size_t i = 0 ; i < NBR_UIBUTTONSTATES ; ++i)
+        m_stateElements[i] = nullptr;
 }
 
 UiButton::~UiButton()
@@ -23,9 +26,9 @@ UiButton::~UiButton()
     //dtor
 }
 
-void UiButton::update(const Time &elapsedTime, uint32_t localTime)
+void UiButton::update(const Time &elapsedTime)
 {
-    UiElement::update(elapsedTime, localTime);
+    UiElement::update(elapsedTime);
 
     ///Need to update somewhere size of textures
 }
@@ -83,7 +86,12 @@ void UiButton::setTexture(UiButtonState state, TextureAsset *texture,
     if(state == NBR_UIBUTTONSTATES)
         return;
 
-    auto pictureElement = std::make_shared<UiPicture>(m_interface);
+    auto pictureElement = std::make_shared<UiPicture>(/*m_interface*/);
+    this->addChildElement(pictureElement);
+
+    if(m_curState != state)
+        pictureElement->hide();
+
     pictureElement->setSize(this->getSize());
     pictureElement->setTexture(texture);
 
@@ -93,13 +101,10 @@ void UiButton::setTexture(UiButtonState state, TextureAsset *texture,
     pictureElement->setTextureExtent(extent);
     pictureElement->setTexturePosition(pos);
     pictureElement->setTexture(texture);
+
     if(m_stateTextureElements[state])
         m_stateTextureElements[state]->removeFromParent();
     m_stateTextureElements[state] = pictureElement;
-    this->addChildNode(pictureElement);
-
-    if(m_curState != state)
-        pictureElement->hide();
 }
 
 void UiButton::setColor(UiButtonState state, const glm::vec4 &color)
@@ -128,12 +133,12 @@ void UiButton::setLabel(const std::string &label, int fontSize, const glm::vec4 
         if(!font || fontSize == 0)
             return;
 
-        m_textLabel = std::make_shared<UiText>(m_interface);
+        m_textLabel = std::make_shared<UiText>(/*m_interface*/);
         m_textLabel->setSize(this->getSize());
-        m_textLabel->setPosition(0,0,1);
+        m_textLabel->transform()->setPosition(0,0,1);
         m_textLabel->setTextAlign(TextAlignType_Center);
         m_textLabel->setVerticalAlign(true);
-        this->addChildNode(m_textLabel);
+        this->addChildElement(m_textLabel);
     }
 
     if(fontSize != 0)
@@ -171,9 +176,9 @@ void UiButton::setToggled(bool toggled)
 }
 
 
-std::shared_ptr<UiText> UiButton::getLabel()
+UiText *UiButton::getLabel()
 {
-    return m_textLabel;
+    return m_textLabel.get();
 }
 
 void UiButton::activate()

@@ -103,7 +103,7 @@ void AiComponent::notify(pou::NotificationSender* sender, int notificationType, 
 
 void AiComponent::avoidCollisionsTo(glm::vec2 destination)
 {
-    auto charPos = m_character->getGlobalXYPosition();
+    auto charPos = m_character->transform()->getGlobalXYPosition();
 
     ///Change 500 by some parameter depending on monster type (big monsters should avoid less obstacles)
     auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(charPos, destination - 20.0f * glm::normalize(destination - charPos),
@@ -131,7 +131,7 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
         m_pathfinder.getPath().clear();
 
 
-    auto direction = destination - m_character->getGlobalXYPosition();
+    auto direction = destination - m_character->transform()->getGlobalXYPosition();
 
     auto input = m_character->getInput();
 

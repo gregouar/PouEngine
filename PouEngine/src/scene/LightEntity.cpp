@@ -362,7 +362,7 @@ void LightEntity::updateDatum()
     if(m_lightModel.type == LightType_Directional)
         m_datum.position = glm::vec4(m_lightModel.direction,0.0);
     else if(m_parentNode != nullptr)
-        m_datum.position = glm::vec4(m_parentNode->getGlobalPosition(),1.0);
+        m_datum.position = glm::vec4(m_parentNode->transform()->getGlobalPosition(),1.0);
 
     m_datum.color     = m_lightModel.color;
     m_datum.color.a  *= m_lightModel.intensity;

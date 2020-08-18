@@ -501,6 +501,7 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
             m_deferredSpritesPipeline.bind(cmb);
 
             for(auto renderingInstance : m_renderingInstances)
+            if(renderingInstance->getSpritesVboSize() != 0)
             {
                 m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
                 renderingInstance->pushCamPosAndZoom(cmb, m_deferredSpritesPipeline.getLayout(),

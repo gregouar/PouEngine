@@ -288,7 +288,7 @@ void MeshEntity::updateDatum()
     glm::mat4 modelMat(1.0);
 
    // if(m_inheritRotation)
-        modelMat = m_parentNode->getModelMatrix() * modelMat;
+        modelMat = m_parentNode->transform()->getModelMatrix() * modelMat;
    /* else
         modelMat = glm::translate(modelMat, m_parentNode->getGlobalPosition());*/
 

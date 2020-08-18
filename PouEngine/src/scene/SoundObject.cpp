@@ -63,7 +63,7 @@ void SoundObject::updateSoundPosition()
         return;
 
     if(m_isEvent)
-        AudioEngine::setEvent3DPosition(m_soundId, m_parentNode->getGlobalPosition());
+        AudioEngine::setEvent3DPosition(m_soundId, m_parentNode->transform()->getGlobalPosition());
 }
 
 

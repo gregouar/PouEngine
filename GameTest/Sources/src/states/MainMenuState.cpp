@@ -43,124 +43,124 @@ void MainMenuState::init()
 
     auto font = pou::FontsHandler::loadAssetFromFile("../data/UASQUARE.TTF");
 
-    auto title = std::make_shared<pou::UiText>(&m_ui);
+    auto title = std::make_shared<pou::UiText>();
+    m_ui.addUiElement(title);
     title->setText("ProjectW");
     title->setFontSize(64);
     title->setFont(font);
-    title->setPosition(pou::Config::getInt("window","width")/2,100);
+    title->transform()->setPosition(pou::Config::getInt("window","width")/2,100);
     title->setTextAlign(pou::TextAlignType_Center);
-    m_ui.addRootElement(title);
 
-    auto serverAddressTxt = std::make_shared<pou::UiText>(&m_ui);
+    auto serverAddressTxt = std::make_shared<pou::UiText>();
     serverAddressTxt->setText("Server address:");
     serverAddressTxt->setFontSize(24);
     serverAddressTxt->setFont(font);
-    serverAddressTxt->setPosition(200,300);
-    m_ui.addRootElement(serverAddressTxt);
+    serverAddressTxt->transform()->setPosition(200,300);
+    m_ui.addUiElement(serverAddressTxt);
 
-    m_serverAddressInput = std::make_shared<pou::UiTextInput>(&m_ui);
-    m_serverAddressInput->setText("127.0.0.1"/*GameData::serverAddress.getIpAddressString()*/);
+    m_serverAddressInput = std::make_shared<pou::UiTextInput>();
+    m_serverAddressInput->setText("127.0.0.1");
     m_serverAddressInput->setFontSize(24);
     m_serverAddressInput->setFont(font);
-    m_serverAddressInput->setPosition(400,300);
+    m_serverAddressInput->transform()->setPosition(400,300);
     m_serverAddressInput->setSize(160,30);
     m_serverAddressInput->setMaxTextLength(15);
-    m_ui.addRootElement(m_serverAddressInput);
+    m_ui.addUiElement(m_serverAddressInput);
 
-    auto serverAddressInput_background = std::make_shared<pou::UiPicture>(&m_ui);
-    serverAddressInput_background->setPosition(-8,0,-1);
+    auto serverAddressInput_background = std::make_shared<pou::UiPicture>();
+    serverAddressInput_background->transform()->setPosition(-8,0,-1);
     serverAddressInput_background->setSize(176,30);
     serverAddressInput_background->setColor({.25,.25,.25,1});
-    m_serverAddressInput->addChildNode(serverAddressInput_background);
+    m_serverAddressInput->addChildElement(serverAddressInput_background);
 
-    auto serverAddressTxt_col = std::make_shared<pou::UiText>(&m_ui);
+    auto serverAddressTxt_col = std::make_shared<pou::UiText>();
     serverAddressTxt_col->setText(":");
     serverAddressTxt_col->setFontSize(24);
     serverAddressTxt_col->setFont(font);
-    serverAddressTxt_col->setPosition(576,300);
-    m_ui.addRootElement(serverAddressTxt_col);
+    serverAddressTxt_col->transform()->setPosition(576,300);
+    m_ui.addUiElement(serverAddressTxt_col);
 
-    m_serverPortInput = std::make_shared<pou::UiTextInput>(&m_ui);
-    m_serverPortInput->setText("46969"/*GameData::serverAddress.getPortString()*/);
+    m_serverPortInput = std::make_shared<pou::UiTextInput>();
+    m_serverPortInput->setText("46969");
     m_serverPortInput->setFontSize(24);
     m_serverPortInput->setFont(font);
-    m_serverPortInput->setPosition(596,300);
+    m_serverPortInput->transform()->setPosition(596,300);
     m_serverPortInput->setSize(100,30);
     m_serverPortInput->setMaxTextLength(5);
-    m_ui.addRootElement(m_serverPortInput);
+    m_ui.addUiElement(m_serverPortInput);
 
-    auto serverPortInput_background = std::make_shared<pou::UiPicture>(&m_ui);
-    serverPortInput_background->setPosition(-8,0,-1);
+    auto serverPortInput_background = std::make_shared<pou::UiPicture>();
+    serverPortInput_background->transform()->setPosition(-8,0,-1);
     serverPortInput_background->setSize(116,30);
     serverPortInput_background->setColor({.25,.25,.25,1});
-    m_serverPortInput->addChildNode(serverPortInput_background);
+    m_serverPortInput->addChildElement(serverPortInput_background);
 
     ///
     ///Character name choice
     ///
-    auto characterNameText = std::make_shared<pou::UiText>(&m_ui);
+    auto characterNameText = std::make_shared<pou::UiText>();
     characterNameText->setText("Character name:");
     characterNameText->setFontSize(24);
     characterNameText->setFont(font);
-    characterNameText->setPosition(200,350);
-    m_ui.addRootElement(characterNameText);
+    characterNameText->transform()->setPosition(200,350);
+    m_ui.addUiElement(characterNameText);
 
-    m_characterNameInput = std::make_shared<pou::UiTextInput>(&m_ui);
+    m_characterNameInput = std::make_shared<pou::UiTextInput>();
     m_characterNameInput->setText("Poupou");
     m_characterNameInput->setFontSize(24);
     m_characterNameInput->setFont(font);
-    m_characterNameInput->setPosition(400,350);
+    m_characterNameInput->transform()->setPosition(400,350);
     m_characterNameInput->setSize(296,30);
     m_characterNameInput->setMaxTextLength(24);
-    m_ui.addRootElement(m_characterNameInput);
+    m_ui.addUiElement(m_characterNameInput);
 
-    auto characterNameInput_background = std::make_shared<pou::UiPicture>(&m_ui);
-    characterNameInput_background->setPosition(-8,0,-1);
+    auto characterNameInput_background = std::make_shared<pou::UiPicture>();
+    characterNameInput_background->transform()->setPosition(-8,0,-1);
     characterNameInput_background->setSize(m_characterNameInput->getSize().x+16,30);
     characterNameInput_background->setColor({.25,.25,.25,1});
-    m_characterNameInput->addChildNode(characterNameInput_background);
+    m_characterNameInput->addChildElement(characterNameInput_background);
 
     ///
     ///Buttons
     ///
 
-    m_createServerButton = std::make_shared<pou::UiButton>(&m_ui);
-    m_createServerButton->setPosition(200,400);
+    m_createServerButton = std::make_shared<pou::UiButton>();
+    m_ui.addUiElement(m_createServerButton);
+    m_createServerButton->transform()->setPosition(200,400);
     m_createServerButton->setSize(200,50);
     m_createServerButton->setColor(pou::UiButtonState_Rest, {.5,.5,.5,1});
     m_createServerButton->setColor(pou::UiButtonState_Hover, {.75,.75,.75,1});
     m_createServerButton->setColor(pou::UiButtonState_Pressed, {.25,.25,.25,1});
     m_createServerButton->setColor(pou::UiButtonState_Released, {1,0,0,1});
     m_createServerButton->setLabel("Create Server",24,{1,1,1,1},font);
-    m_ui.addRootElement(m_createServerButton);
 
-    m_connectToServerButton = std::make_shared<pou::UiButton>(&m_ui);
-    m_connectToServerButton->setPosition(504,400);
+    m_connectToServerButton = std::make_shared<pou::UiButton>();
+    m_ui.addUiElement(m_connectToServerButton);
+    m_connectToServerButton->transform()->setPosition(504,400);
     m_connectToServerButton->setSize(200,50);
     m_connectToServerButton->setColor(pou::UiButtonState_Rest, {.5,.5,.5,1});
     m_connectToServerButton->setColor(pou::UiButtonState_Hover, {.75,.75,.75,1});
     m_connectToServerButton->setColor(pou::UiButtonState_Pressed, {.25,.25,.25,1});
     m_connectToServerButton->setColor(pou::UiButtonState_Released, {1,0,0,1});
     m_connectToServerButton->setLabel("Connect To Server",24,{1,1,1,1},font);
-    m_ui.addRootElement(m_connectToServerButton);
 
     ///
     ///Choose your character
     ///
-    auto chooseCharacterText = std::make_shared<pou::UiText>(&m_ui);
+    auto chooseCharacterText = std::make_shared<pou::UiText>();
     chooseCharacterText->setText("Choose your character:");
     chooseCharacterText->setFontSize(24);
     chooseCharacterText->setFont(font);
-    chooseCharacterText->setPosition(200,500);
-    m_ui.addRootElement(chooseCharacterText);
+    chooseCharacterText->transform()->setPosition(200,500);
+    m_ui.addUiElement(chooseCharacterText);
 
-    m_charSelectButtons = std::make_shared<pou::UiToggleButtonsGroup>(&m_ui);
-    m_ui.addRootElement(m_charSelectButtons);
+    m_charSelectButtons = std::make_shared<pou::UiToggleButtonsGroup>();
+    m_ui.addUiElement(m_charSelectButtons);
 
     for(int i = 0 ; i < 5 ; ++i)
     {
-        auto charSelectButton = std::make_shared<pou::UiButton>(&m_ui);
-        charSelectButton->setPosition(200+100*i,550);
+        auto charSelectButton = std::make_shared<pou::UiButton>();
+        charSelectButton->transform()->setPosition(200+100*i,550);
         charSelectButton->setSize(80,80);
         charSelectButton->setColor(pou::UiButtonState_Rest, {.5,.5,.5,1});
         charSelectButton->setColor(pou::UiButtonState_Hover, {.75,.75,.75,1});
@@ -169,11 +169,11 @@ void MainMenuState::init()
         m_charSelectButtons->addButton(charSelectButton, i);
         //m_ui.addRootElement(m_charSelectButton[i]);
 
-        auto charSelectButtonPicture = std::make_shared<pou::UiPicture>(&m_ui);
+        auto charSelectButtonPicture = std::make_shared<pou::UiPicture>();
         charSelectButtonPicture->setSize(charSelectButton->getSize());
         charSelectButtonPicture->setTexture(pou::TexturesHandler::loadAssetFromFile("../data/ui/char"+std::to_string(i+1)+".png"));
-        charSelectButtonPicture->setPosition(0,0,1);
-        charSelectButton->addChildNode(charSelectButtonPicture);
+        charSelectButtonPicture->transform()->setPosition(0,0,1);
+        charSelectButton->addChildElement(charSelectButtonPicture);
 
         if(i == 0)
             charSelectButton->setToggled(true);

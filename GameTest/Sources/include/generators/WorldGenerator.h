@@ -19,7 +19,7 @@ class WorldGenerator
 
         bool loadFromFile(const std::string &filePath);
 
-        void generatesOnNode(WorldNode *targetNode, int seed, GameWorld_Sync *syncComponent,
+        void generatesOnNode(pou::SceneNode *targetNode, int seed, GameWorld_Sync *syncComponent,
                              bool generateCharacters = true);
 
         void playWorldMusic();
@@ -37,9 +37,9 @@ class WorldGenerator
         /*bool loadCharacter(TiXmlElement *element);
         void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_CharacterModel_Modifier &modifier);
 
-        void generateCharacters(WorldNode *targetNode, GameWorld_Sync *syncComponent);
+        void generateCharacters(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent);
         void generateCharacter(int x, int y, WorldGenerator_CharacterModel &characterModel,
-                               WorldNode *targetNode, GameWorld_Sync *syncComponent);
+                               pou::SceneNode *targetNode, GameWorld_Sync *syncComponent);
         glm::vec4 generateRandomValue(WorldGenerator_CharacterModel_Modifier &modifier);*/
 
     private:

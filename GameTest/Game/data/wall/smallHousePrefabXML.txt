@@ -96,7 +96,7 @@
 			<rotate z=30 />
 		</node>
 		
-		<node z=192>
+		<node z=128>
 			<sprite sprite="roof1" spritesheet="mainSpriteSheet"  />
 			<rotate z=90 />
 		</node>
