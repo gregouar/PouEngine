@@ -68,7 +68,7 @@
 	
 	
 	<distribution type="poisson" distance=200 sectionSize=2000>
-		<spawnPoint  groundLayer="grass"  spawnProbability=.025 changeSpawnTypeTo="none">
+		<spawnPoint  groundLayer="grass"  spawnProbability=.25 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
 			<modifier type="rotation" rng="uniform" z="[-180,180]" />
 		</spawnPoint>

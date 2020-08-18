@@ -33,7 +33,7 @@ const std::vector<const char*> VInstance::const_deviceExtensions = {
 VInstance::VInstance() :
     m_physicalDevice(VK_NULL_HANDLE),
     m_device(VK_NULL_HANDLE),
-    m_graphicsQueueAccessFence(VK_NULL_HANDLE),
+    ///m_graphicsQueueAccessFence(VK_NULL_HANDLE),
     m_isInit(false)
 {
     if(!this->createVulkanInstance())
@@ -501,22 +501,21 @@ bool VInstance::createSingleTimeCmbs()
 
 bool VInstance::createSemaphoresAndFences()
 {
-    VkFenceCreateInfo fenceInfo = {};
+    /**VkFenceCreateInfo fenceInfo = {};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     if(vkCreateFence(m_device, &fenceInfo, nullptr, &m_graphicsQueueAccessFence) != VK_SUCCESS)
-        return (false);
-
+        return (false);**/
 
     return (true);
 }
 
 void VInstance::cleanup()
 {
-    if(m_graphicsQueueAccessFence != VK_NULL_HANDLE)
+    /**if(m_graphicsQueueAccessFence != VK_NULL_HANDLE)
         vkDestroyFence(m_device, m_graphicsQueueAccessFence, nullptr);
-    m_graphicsQueueAccessFence = VK_NULL_HANDLE;
+    m_graphicsQueueAccessFence = VK_NULL_HANDLE;**/
 
     for (auto commandPool : m_commandPools)
         vkDestroyCommandPool(m_device, commandPool, nullptr);
@@ -600,13 +599,17 @@ void VInstance::endSingleTimeCommands(VkCommandBuffer commandBuffer/*, CommandPo
 
     instance()->m_graphicsQueueAccessLocalMutex.lock();
 
-    vkWaitForFences(device(), 1, &instance()->m_graphicsQueueAccessFence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    vkResetFences(device(), 1, &instance()->m_graphicsQueueAccessFence);
+    ///TEST
+    ///vkWaitForFences(device(), 1, &instance()->m_graphicsQueueAccessFence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    vkQueueWaitIdle(instance()->m_graphicsQueue);
+    ///vkResetFences(device(), 1, &instance()->m_graphicsQueueAccessFence);
 
-        vkQueueSubmit(instance()->m_graphicsQueue, 1, &submitInfo, instance()->m_graphicsQueueAccessFence);
+        vkQueueSubmit(instance()->m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE /**instance()->m_graphicsQueueAccessFence**/);
 
+    ///TEST
+    vkQueueWaitIdle(instance()->m_graphicsQueue);
+    ///vkWaitForFences(device(), 1, &instance()->m_graphicsQueueAccessFence, VK_TRUE, std::numeric_limits<uint64_t>::max());
 
-    vkWaitForFences(device(), 1, &instance()->m_graphicsQueueAccessFence, VK_TRUE, std::numeric_limits<uint64_t>::max());
    // vkFreeCommandBuffers(m_device, this->getCommandPool(commandPoolName), 1, &commandBuffer);
     instance()->m_graphicsQueueAccessLocalMutex.unlock();
 

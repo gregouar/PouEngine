@@ -170,23 +170,6 @@ bool VTexturesManager::allocTextureImpl(VTexture2DArrayFormat format,
 
     if(!format.renderable)
         this->writeTextureImpl(source, cmdPoolName, texture/*, format.renderable, format.renderingSet*/);
-    /*if(source.buffer != VK_NULL_HANDLE)
-    {
-        texture2DArray->mutex.lock();
-
-        VInstance::lockGraphicsQueueAccess();
-
-        VulkanHelpers::transitionImageLayout(texture2DArray->image,chosenLayer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,cmdPoolName);
-            VBuffersAllocator::copyBufferToImage(source, texture2DArray->image.vkImage,
-                                             format.width, format.height,chosenLayer,cmdPoolName);
-        VulkanHelpers::transitionImageLayout(texture2DArray->image,chosenLayer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,cmdPoolName);
-
-        VInstance::unlockGraphicsQueueAccess();
-
-        texture2DArray->mutex.unlock();
-    }*/
 
     return (true);
 }
@@ -284,11 +267,11 @@ bool VTexturesManager::writeTextureImpl(VBuffer source, CommandPoolName cmdPoolN
         VInstance::lockGraphicsQueueAccess();
 
         VulkanHelpers::transitionImageLayout(texture2DArray->image,texture->getTextureLayer(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,cmdPoolName);
+                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmdPoolName);
             VBuffersAllocator::copyBufferToImage(source, texture2DArray->image.vkImage,
-                                             texture->getExtent().width, texture->getExtent().height,texture->getTextureLayer(),cmdPoolName);
+                                             texture->getExtent().width, texture->getExtent().height, texture->getTextureLayer(),cmdPoolName);
         VulkanHelpers::transitionImageLayout(texture2DArray->image,texture->getTextureLayer(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,cmdPoolName);
+                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, cmdPoolName);
 
         VInstance::unlockGraphicsQueueAccess();
 
@@ -308,12 +291,6 @@ void VTexturesManager::freeTexture(VTexture &texture)
 void VTexturesManager::freeTexture(VRenderableTexture &renderableTexture)
 {
     VTexturesManager::instance()->freeTextureImpl(renderableTexture);
-
-    /*if(renderableTexture.attachment.view != VK_NULL_HANDLE)
-        vkDestroyImageView(VInstance::device(), renderableTexture.attachment.view, nullptr);
-    renderableTexture.attachment.view = VK_NULL_HANDLE;
-
-    renderableTexture.renderTarget.destroy();*/
 }
 
 void VTexturesManager::freeTextureImpl(VTexture &texture, bool isRenderable, size_t renderingSet)

@@ -13,6 +13,8 @@ NotificationSender::NotificationSender()
 
 NotificationSender::~NotificationSender()
 {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     for(auto listener : m_listenerToNotifyEverything)
     {
         listener->notify(this, NotificationType_SenderDestroyed);
@@ -31,6 +33,8 @@ NotificationSender::~NotificationSender()
 
 void NotificationSender::addToAllNotificationList(NotificationListener *listener)
 {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     auto ret = m_listenerToNotifyEverything.insert(listener);
     if(ret.second == true)
         listener->addSender(this);
@@ -38,6 +42,8 @@ void NotificationSender::addToAllNotificationList(NotificationListener *listener
 
 void NotificationSender::addToNotificationList(NotificationListener *listener, int notificationType)
 {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     auto ret = m_listenerToNotify[notificationType].insert(listener);
     if(ret.second == true)
         listener->addSender(this);
@@ -50,6 +56,8 @@ void NotificationSender::removeFromNotificationList(NotificationListener *listen
 
 void NotificationSender::removeFromAllNotificationList(NotificationListener *listener)
 {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     m_listenerToNotifyEverything.erase(listener);
 
     for(auto type : m_listenerToNotify)
@@ -59,6 +67,8 @@ void NotificationSender::removeFromAllNotificationList(NotificationListener *lis
 
 void NotificationSender::sendNotification(int notificationType, void* data)
 {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     for(auto listener : m_listenerToNotify[notificationType])
         listener->notify(this, notificationType, data);
 

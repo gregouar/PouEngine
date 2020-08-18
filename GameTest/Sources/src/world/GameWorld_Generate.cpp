@@ -50,7 +50,7 @@ void GameWorld::generate(bool generateInThread)
 
 void GameWorld::generateImpl()
 {
-    pou::Logger::write("Generating world...");
+    pou::Logger::write("Creating new world...");
 
     m_dayTime = pou::RNGesus::uniformInt(0,360);
 

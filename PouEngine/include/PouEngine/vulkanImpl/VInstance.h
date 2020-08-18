@@ -109,7 +109,7 @@ class VInstance : public Singleton<VInstance>
         VkQueue             m_graphicsQueue;
         VkQueue             m_presentQueue;
 
-        VkFence             m_graphicsQueueAccessFence;
+        ///VkFence             m_graphicsQueueAccessFence;
         std::mutex          m_graphicsQueueAccessMutex,
                             m_graphicsQueueAccessLocalMutex;
 

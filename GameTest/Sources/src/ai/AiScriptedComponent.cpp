@@ -24,6 +24,9 @@ void AiScriptedComponent::update(const pou::Time &elapsedTime, uint32_t localTim
     AiComponent::update(elapsedTime, localTime);
     //m_pathfindingTimer.update(elapsedTime);
 
+    if(elapsedTime == pou::Time(0))
+        return;
+
     if(!m_model)
         return;
 

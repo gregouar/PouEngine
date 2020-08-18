@@ -39,7 +39,7 @@ bool VTexture::generateTexture(uint32_t texWidth, uint32_t texHeight, VkFormat f
     VBuffersAllocator::allocBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 stagingBuffer);
 
-    VBuffersAllocator::writeBuffer(stagingBuffer, pixels, static_cast<size_t>(imageSize));
+    VBuffersAllocator::writeBuffer(stagingBuffer, pixels, static_cast<size_t>(imageSize), false);
 
     if(!VTexturesManager::allocTexture({texWidth, texHeight, format}, stagingBuffer,commandPoolName,this))
         return (false);

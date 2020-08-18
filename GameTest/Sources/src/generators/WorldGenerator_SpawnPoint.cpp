@@ -186,7 +186,7 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNo
     for(auto characterSpawnModel : m_characterSpawnModels)
     {
         int amount = pou::RNGesus::uniformInt(characterSpawnModel.minAmount,
-                                              characterSpawnModel.maxAmount);
+                                              characterSpawnModel.maxAmount, rng);
 
         for(int i = 0 ; i < amount ; ++i)
             this->spawnCharacter(characterSpawnModel.modelAsset, worldPos, targetNode, syncComponent, generateCharacters, rng);

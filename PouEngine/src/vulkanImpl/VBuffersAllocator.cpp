@@ -40,7 +40,11 @@ bool VBuffersAllocator::allocBufferImpl(VkDeviceSize size, VkBufferUsageFlags us
 {
     VkDevice device = VInstance::device();
 
-    auto itAllocatedBuffers = m_buffers.find({usage, properties});
+    auto itAllocatedBuffers = m_buffers.end();
+    {
+        std::lock_guard<std::mutex> guard(m_buffersAccesMutex);
+        itAllocatedBuffers = m_buffers.find({usage, properties});
+    }
 
     if(itAllocatedBuffers == m_buffers.end())
     {
@@ -103,23 +107,29 @@ void VBuffersAllocator::writeBufferImpl(VBuffer dstBuffer, const void* data, VkD
     AllocatedBuffer *allocatedBuffer = this->findAllocatingBuffer(dstBuffer);
 
     allocatedBuffer->mutex.lock();
-    vkMapMemory(device, dstBuffer.bufferMemory, dstBuffer.offset, size, 0, &dstData);
-        memcpy(dstData, data, (size_t) size);
-        if(flush)
+
+        if(vkMapMemory(device, dstBuffer.bufferMemory, dstBuffer.offset, size, 0, &dstData) == VK_SUCCESS)
         {
-            VkMappedMemoryRange memoryRange = {};
-            memoryRange.sType   = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-            memoryRange.memory  = dstBuffer.bufferMemory;
-            memoryRange.size    = size;
-            memoryRange.offset  = dstBuffer.offset;
-            vkFlushMappedMemoryRanges(device, 1, &memoryRange);
-        }
-    vkUnmapMemory(device, dstBuffer.bufferMemory);
+            memcpy(dstData, data, (size_t) size);
+            if(flush)
+            {
+                VkMappedMemoryRange memoryRange = {};
+                memoryRange.sType   = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+                memoryRange.memory  = dstBuffer.bufferMemory;
+                memoryRange.size    = size;
+                memoryRange.offset  = dstBuffer.offset;
+                vkFlushMappedMemoryRanges(device, 1, &memoryRange);
+            }
+            vkUnmapMemory(device, dstBuffer.bufferMemory);
+        } else
+            Logger::error("Could not map memory from GPU");
+
     allocatedBuffer->mutex.unlock();
 }
 
 void VBuffersAllocator::copyBuffer(VBuffer srcBuffer, VBuffer dstBuffer, VkDeviceSize size, CommandPoolName commandPoolName)
 {
+    VInstance::waitDeviceIdle();
     VkCommandBuffer commandBuffer = VInstance::instance()->beginSingleTimeCommands(commandPoolName);
 
     VkBufferCopy copyRegion = {};
@@ -129,6 +139,9 @@ void VBuffersAllocator::copyBuffer(VBuffer srcBuffer, VBuffer dstBuffer, VkDevic
     vkCmdCopyBuffer(commandBuffer, srcBuffer.buffer, dstBuffer.buffer, 1, &copyRegion);
 
     VInstance::instance()->endSingleTimeCommands(commandBuffer);
+
+    /*///Test
+    VInstance::waitDeviceIdle();*/
 }
 
 
@@ -170,6 +183,11 @@ bool VBuffersAllocator::freeBufferImpl(VBuffer &vbuffer)
     if(allocatedBuffer == nullptr)
         return (false);
 
+    /*///Test, probably remove
+    VInstance::waitDeviceIdle();*/
+
+    std::lock_guard<std::mutex> guard(allocatedBuffer->mutex);
+
     bool alreadyMerged = false;
     auto lastMerge = allocatedBuffer->emptyRanges.begin();
 
@@ -179,7 +197,6 @@ bool VBuffersAllocator::freeBufferImpl(VBuffer &vbuffer)
     {
         if(it->first < vbuffer.offset)
             ++leftmostRight;
-
 
         if(it->first+it->second == vbuffer.offset)
         {
@@ -212,6 +229,8 @@ bool VBuffersAllocator::freeBufferImpl(VBuffer &vbuffer)
 
 bool VBuffersAllocator::searchForSpace(AllocatedBuffer *allocatedBuffer, VkDeviceSize alignedSize, VkDeviceSize &offset)
 {
+    std::lock_guard<std::mutex> guard(allocatedBuffer->mutex);
+
     for(auto &emptyRange : allocatedBuffer->emptyRanges)
     {
         if(emptyRange.second >= alignedSize)
@@ -244,6 +263,8 @@ bool VBuffersAllocator::createBuffer(VkBufferUsageFlags usage, VkMemoryPropertyF
     allocatedBuffer->bufferSize = BUFFER_SIZE;
     allocatedBuffer->emptyRanges.push_back({0, BUFFER_SIZE});
 
+    std::lock_guard<std::mutex> guard(m_buffersAccesMutex);
+
     m_buffers[{usage, properties}].push_back(allocatedBuffer);
 
     return (true);
@@ -251,6 +272,8 @@ bool VBuffersAllocator::createBuffer(VkBufferUsageFlags usage, VkMemoryPropertyF
 
 AllocatedBuffer *VBuffersAllocator::findAllocatingBuffer(VBuffer &vbuffer)
 {
+    std::lock_guard<std::mutex> guard(m_buffersAccesMutex);
+
     auto itAllocatedBuffers = m_buffers.find({vbuffer.usage, vbuffer.properties});
     if(itAllocatedBuffers == m_buffers.end())
         return nullptr;
@@ -261,6 +284,8 @@ AllocatedBuffer *VBuffersAllocator::findAllocatingBuffer(VBuffer &vbuffer)
 void VBuffersAllocator::cleanAll()
 {
     VkDevice device = VInstance::device();
+
+    std::lock_guard<std::mutex> guard(m_buffersAccesMutex);
 
     for(auto bufferList : m_buffers)
     for(auto buffer : bufferList.second)

@@ -3,6 +3,7 @@
 
 #include <set>
 #include <map>
+#include <mutex>
 
 #include "PouEngine/Types.h"
 
@@ -31,6 +32,8 @@ class NotificationSender
     private:
         std::set<NotificationListener*> m_listenerToNotifyEverything;
         std::map<int, std::set<NotificationListener*> > m_listenerToNotify;
+
+        std::mutex m_mutex;
 };
 
 }

@@ -388,7 +388,6 @@
 		<Unit filename="../../PouEngine/include/PouEngine/sync/Vec4SyncElement.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Clock.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/ReadStream.h" />
-		<Unit filename="../../PouEngine/include/PouEngine/system/SimpleNode.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Stream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/WriteStream.h" />
@@ -678,7 +677,6 @@
 		<Unit filename="../../PouEngine/src/sync/Vec4SyncElement.cpp" />
 		<Unit filename="../../PouEngine/src/system/Clock.cpp" />
 		<Unit filename="../../PouEngine/src/system/ReadStream.cpp" />
-		<Unit filename="../../PouEngine/src/system/SimpleNode.cpp" />
 		<Unit filename="../../PouEngine/src/system/Stream.cpp" />
 		<Unit filename="../../PouEngine/src/system/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/system/WriteStream.cpp" />

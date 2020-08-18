@@ -195,8 +195,8 @@ SpriteEntity::SpriteEntity() :
     m_rotation(0.0f),
     m_flipX(false),
     m_flipY(false),
-    m_color(1.0,1.0,1.0,1.0),
-    m_rme(1.0,1.0,1.0),
+    m_color(1.0),
+    m_rme(1.0),
     m_ordering(NOT_ORDERED),
     m_inheritRotation(true),
     m_nextSpriteElapsedTime(0),
@@ -387,7 +387,9 @@ glm::vec2 SpriteEntity::castShadow(SceneRenderer *renderer, LightEntity* light)
 glm::vec2 SpriteEntity::generateShadowDatum(glm::vec3 direction)
 {
     if(m_parentNode == nullptr || m_parentNode->getScene() == nullptr)
+    {
         return (glm::vec2(0.0));
+    }
 
 	glm::vec3 lightDirection = normalize(direction);
 

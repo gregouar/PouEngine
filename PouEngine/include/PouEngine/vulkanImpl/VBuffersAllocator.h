@@ -70,6 +70,9 @@ class VBuffersAllocator : public Singleton<VBuffersAllocator>
     private:
         std::map<std::pair<VkBufferUsageFlags, VkMemoryPropertyFlags>, std::vector<AllocatedBuffer*> > m_buffers;
 
+
+        std::mutex m_buffersAccesMutex;
+
     public:
         static uint32_t BUFFER_SIZE;
 };

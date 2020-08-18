@@ -41,6 +41,8 @@ bool WorldGenerator::loadFromFile(const std::string &filePath)
 void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameWorld_Sync *syncComponent,
                                      bool generateCharacters)
 {
+    pou::Logger::write("Initialize procedural world generation...");
+
     m_generatingSeed = seed;
     m_rng.seed(seed);
 
@@ -58,9 +60,15 @@ void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameW
 
     m_terrainGenerator.resetGrid();
 
+    pou::Logger::write("Generates point of interests...");
+
     m_pointsOfInterest.generatesOnNode(targetNode, syncComponent, generateCharacters, &m_rng);
 
+    pou::Logger::write("Generates terrain...");
+
     m_terrainGenerator.generatesOnNode(targetNode, &m_rng);
+
+    pou::Logger::write("Generates entities...");
 
     for(auto &distribution : m_distributions)
         distribution.generatesOnNode(targetNode, syncComponent, generateCharacters, &m_rng);
