@@ -62,33 +62,36 @@ class Skeleton : public SceneNode
         Skeleton(SkeletonModelAsset *model);
         virtual ~Skeleton();
 
-        bool attachLimb(const std::string &boneName, const std::string &stateName, std::shared_ptr<SceneObject> object);
-        bool detachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object);
+        bool attachLimb(HashedString boneName, HashedString stateName, std::shared_ptr<SceneObject> object);
+        bool detachLimb(HashedString boneName, HashedString stateName, SceneObject *object);
 
-        void attachLimbsOfState(int nodeId, int stateId);
-        void detachLimbsOfDifferentState(int nodeId, int stateId);
+        /**void attachLimbsOfState(int nodeId, int stateId);
+        void detachLimbsOfDifferentState(int nodeId, int stateId);**/
+        void attachLimbsOfState(HashedString nodeName, HashedString stateName);
+        void detachLimbsOfDifferentState(HashedString nodeName, HashedString stateName);
         /*void attachLimbsOfState(const std::string &boneName, const std::string &stateName);
         void detachLimbsOfDifferentState(const std::string &boneName, const std::string &stateName);*/
         //bool detachAllLimbs(const std::string &boneName);
 
-        bool attachSound(std::shared_ptr<SoundObject> object, const std::string &soundName);
-        bool detachSound(SoundObject *object, const std::string &soundName);
+        bool attachSound(std::shared_ptr<SoundObject> object, HashedString soundName);
+        bool detachSound(SoundObject *object, HashedString soundName);
 
-        bool startAnimation(const std::string &animationName, bool forceStart = false);
-        bool startAnimation(int animationId, bool forceStart = false);
+        bool startAnimation(HashedString animationName, bool forceStart = false);
+        ///bool startAnimation(int animationId, bool forceStart = false);
         //could add pause animation etc
 
         bool isInAnimation();
         bool isNewFrame();
-        bool hasTag(const std::string &tag);
-        std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
-            getTagValues(const std::string &tag);
-        const std::string &getCurrentAnimationName();
+        bool hasTag(HashedString tag);
+        std::pair <std::unordered_multimap<HashedString, FrameTag>::iterator, std::unordered_multimap<HashedString, FrameTag>::iterator>
+            getTagValues(HashedString tag);
+        HashedString getCurrentAnimationName();
 
-        SceneNode* findNode(const std::string &name);
-        SceneNode* findNode(int id);
+        SceneNode* findNode(HashedString name);
+        ///SceneNode* findNode(int id);
 
-        int getNodeState(int nodeId);
+        ///int getNodeState(int nodeId);
+        HashedString getNodeState(HashedString nodeName);
 
         virtual void update(const Time &elapsedTime = Time(0), uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);
@@ -102,12 +105,14 @@ class Skeleton : public SceneNode
 
     protected:
         //SceneNode *m_rootNode;
-        std::map<std::string, SceneNode*> m_nodesByName;
-        std::map<int, SceneNode*> m_nodesById;
-        std::map<SceneNode*, SkeletalNodeState> m_nodeStates; // Could pack this into m_nodesById for better perfs
+        std::unordered_map<HashedString, SceneNode*> m_nodesByName;
+        ///std::unordered_map<int, SceneNode*> m_nodesById;
+        std::unordered_map<SceneNode*, SkeletalNodeState> m_nodeStates; // Could pack this into m_nodesByName for better perfs
 
-        std::multimap<std::pair<int,int>, std::shared_ptr<SceneObject> > m_limbsPerNodeState;
-        std::map<int, int> m_nodesLastState;
+        ///std::multimap<std::pair<int,int>, std::shared_ptr<SceneObject> > m_limbsPerNodeState;
+        std::multimap<std::pair<HashedString,HashedString>, std::shared_ptr<SceneObject> > m_limbsPerNodeState;
+        ///std::unordered_multimap<std::pair<HashedString,HashedString>, std::shared_ptr<SceneObject>, IntPairHash> m_limbsPerNodeState;
+        std::unordered_map<HashedString, HashedString> m_nodesLastState;
 
     private:
         SkeletonModelAsset *m_model;

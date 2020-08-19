@@ -41,7 +41,7 @@ class SceneGrid :  public SceneNode
         void removeUpdateProbe(SceneNode *node);
         void setRenderProbe(SceneNode *node, float radius);
 
-        void probesZones(std::set< std::vector<std::shared_ptr<SceneNode> > *> &zonesToUpdate, GridProbe &probe);
+        void probesZones(std::unordered_set< std::vector<std::shared_ptr<SceneNode> > *> &zonesToUpdate, GridProbe &probe);
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 

@@ -86,7 +86,8 @@ SpriteModel::SpriteModel(SpriteSheetAsset *spriteSheet) :
     m_color(1.0),
     m_rme(1.0,0.0,0.0),
     m_isReady(true),
-    m_spriteId(0)
+    m_spriteName(0)
+    //m_spriteId(0)
    // m_shadowMapExtent(0.0,0.0)
 {
     //ctor
@@ -190,12 +191,12 @@ void SpriteModel::setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelativ
     }
 }
 
-void SpriteModel::setNextSprite(int spriteId, float delay)
+void SpriteModel::setNextSprite(HashedString spriteName, float delay)
 {
     if(delay <= 0 && delay != -1)
         return;
 
-    m_nextSprite        = spriteId;
+    m_nextSprite        = spriteName;
     m_nextSpriteDelay   = delay;
 }
 
@@ -341,17 +342,27 @@ SpriteSheetAsset* SpriteModel::getSpriteSheet()
     return m_spriteSheet;
 }
 
-size_t SpriteModel::getSpriteId()
+/*size_t SpriteModel::getSpriteId()
 {
     return m_spriteId;
+}*/
+
+HashedString SpriteModel::getSpriteName()
+{
+    return m_spriteName;
 }
 
 
 /// Protected ///
 
-void SpriteModel::setSpriteId(size_t id)
+/*void SpriteModel::setSpriteId(size_t id)
 {
     m_spriteId = id;
+}*/
+
+void SpriteModel::setSpriteName(HashedString name)
+{
+    m_spriteName = name;
 }
 
 void SpriteModel::cleanup()

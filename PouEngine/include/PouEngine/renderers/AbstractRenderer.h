@@ -112,7 +112,6 @@ class AbstractRenderer
 
         std::vector<FullRenderPass*> m_finalPasses;
 
-        //std::map<VTextureFormat, VFramebufferAttachment> m_pingPongAttachments;
         std::map<PingPongFormatsList, VRenderTarget*> m_pingPongRenderTargets;
 };
 

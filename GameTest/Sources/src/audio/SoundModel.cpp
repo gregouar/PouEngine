@@ -1,5 +1,7 @@
 #include "audio/SoundModel.h"
 
+#include "PouEngine/tools/Hasher.h"
+
 SoundModel::SoundModel() :
     m_isEvent(false)
 {
@@ -23,7 +25,7 @@ bool SoundModel::loadFromXML(TiXmlElement *element)
     m_path = std::string(pathAtt);
 
     if(nameAtt)
-        m_name = std::string(nameAtt);
+        m_name = pou::Hasher::unique_hash(nameAtt);
 
     if(typeAtt != nullptr && std::string(typeAtt) != "event")
         m_isEvent = false;
@@ -33,7 +35,7 @@ bool SoundModel::loadFromXML(TiXmlElement *element)
     return (true);
 }
 
-const std::string &SoundModel::getName()
+pou::HashedString SoundModel::getName()
 {
     return m_name;
 }

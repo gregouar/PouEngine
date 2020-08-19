@@ -270,7 +270,9 @@ bool CharacterModelAsset::loadSpriteSheet(TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
-    if(!m_spriteSheets.insert({spriteSheetName,
+    auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetName);
+
+    if(!m_spriteSheets.insert({hashedSpriteSheetName,
                               pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
         pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in character model:"+m_filePath);
 
@@ -289,7 +291,9 @@ bool CharacterModelAsset::loadLightModel(TiXmlElement *element)
 
     lightModel.loadFromXML(element);
 
-    if(!m_lightModels.insert({lightName,lightModel}).second)
+    auto hashedLightName = pou::Hasher::unique_hash(lightName);
+
+    if(!m_lightModels.insert({hashedLightName,lightModel}).second)
         pou::Logger::warning("Multiple lights with name \""+lightName+"\" in character model:"+m_filePath);
 
     return (true);
@@ -334,7 +338,9 @@ bool CharacterModelAsset::loadSkeleton(TiXmlElement *element)
     auto skeleton = pou::SkeletonModelsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType);
     AssetsForSkeletonModel  assetsModel(&m_spriteSheets, &m_lightModels, m_fileDirectory);
 
-    auto skelPair = m_skeletonModels.insert({skeletonName, {skeleton, assetsModel}});
+    auto hashedSkeletonName = pou::Hasher::unique_hash(skeletonName);
+
+    auto skelPair = m_skeletonModels.insert({hashedSkeletonName, {skeleton, assetsModel}});
     if(!skelPair.second)
         pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in character model:"+m_filePath);
 
@@ -530,9 +536,9 @@ bool CharacterModelAsset::loadAttributes(TiXmlElement *element)
 /// AssetsForSkeletonModel ///
 
 
-AssetsForSkeletonModel::AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> * spriteSheets,
-                                                const std::map<std::string, pou::LightModel> *lightModels,
-                                               const std::string &fileDirectory) :
+AssetsForSkeletonModel::AssetsForSkeletonModel(const std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*> * spriteSheets,
+                                                const std::unordered_map<pou::HashedString, pou::LightModel> *lightModels,
+                                                const std::string &fileDirectory) :
     m_spriteSheets(spriteSheets),
     m_lightModels(lightModels),
     m_fileDirectory(fileDirectory)
@@ -564,19 +570,25 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
         auto meshAtt        = limbElement->Attribute("mesh");
         auto lightAtt       = limbElement->Attribute("light");
 
-        std::string state;
+        pou::HashedString state(0);
         if(stateAtt != nullptr)
-            state = std::string(stateAtt);
+            state = pou::Hasher::unique_hash(stateAtt);
 
         if(nodeAtt != nullptr)
         {
+            auto hashedNodeName = pou::Hasher::unique_hash(nodeAtt);
+
             if(spriteAtt != nullptr && spriteSheetAtt != nullptr)
             {
-                auto spritesheetIt = m_spriteSheets->find(std::string(spriteSheetAtt));
+                auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetAtt);
+
+                auto spritesheetIt = m_spriteSheets->find(hashedSpriteSheetName);
                 if(spritesheetIt != m_spriteSheets->end())
                 {
-                    auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
-                    m_limbs.push_back({std::string(nodeAtt), state, spriteModel, nullptr, nullptr});
+                    auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);
+
+                    auto spriteModel = spritesheetIt->second->getSpriteModel(hashedSpriteName);
+                    m_limbs.push_back({hashedNodeName, state, spriteModel, nullptr, nullptr});
                     /*if(spriteModel == nullptr)
                         pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
                                         +std::string(spriteSheetAtt)+"\"");*/
@@ -587,11 +599,13 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
             else if(meshAtt != nullptr)
             {
                 auto *meshAsset = pou::MeshAssetsHandler::loadAssetFromFile(m_fileDirectory+std::string(meshAtt), pou::LoadType_InThread);
-                m_limbs.push_back({std::string(nodeAtt), state, nullptr, meshAsset,nullptr});
+                m_limbs.push_back({hashedNodeName, state, nullptr, meshAsset,nullptr});
             }
             else if(lightAtt != nullptr)
             {
-                auto lightIt = m_lightModels->find(std::string(lightAtt));
+                auto hashedLightName = pou::Hasher::unique_hash(lightAtt);
+
+                auto lightIt = m_lightModels->find(hashedLightName);
                 if(lightIt != m_lightModels->end())
                 {
                     /*auto spriteModel = lightIt->second->getSpriteModel(std::string(spriteAtt));
@@ -599,7 +613,7 @@ bool AssetsForSkeletonModel::loadFromXML(TiXmlElement *element)
                     if(spriteModel == nullptr)
                         pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""
                                         +std::string(spriteSheetAtt)+"\"");*/
-                    m_limbs.push_back({std::string(nodeAtt), state, nullptr, nullptr,&lightIt->second});
+                    m_limbs.push_back({hashedNodeName, state, nullptr, nullptr,&lightIt->second});
 
                 } else
                     pou::Logger::warning("Light named \""+std::string(lightAtt)+"\" not found");

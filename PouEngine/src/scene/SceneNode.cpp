@@ -14,7 +14,8 @@ SceneNode::SceneNode() :
     m_parentNode(nullptr),
     m_disableCollisions(false),
     m_color(1.0f),
-    m_finalColor(1.0f)
+    m_finalColor(1.0f),
+    m_name(0)
 {
     m_scene = nullptr;
     //m_transformComponent = new TransformComponent();
@@ -336,19 +337,19 @@ const TransformComponent *SceneNode::const_transform() const
     return &m_transformComponent;
 }
 
-void SceneNode::setName(const std::string &name)
+void SceneNode::setName(HashedString name)
 {
     m_name = name;
 }
 
-const std::string &SceneNode::getName() const
+HashedString SceneNode::getName() const
 {
     return m_name;
 }
 
-void SceneNode::getNodesByName(std::map<std::string, SceneNode*> &namesAndResMap)
+void SceneNode::getNodesByName(std::unordered_map<HashedString, SceneNode*> &namesAndResMap)
 {
-    if(!m_name.empty())
+    if(m_name != 0)
     {
         auto res = namesAndResMap.find(m_name);
         if(res != namesAndResMap.end())

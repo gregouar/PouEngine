@@ -329,7 +329,7 @@ void Character::setAiComponent(std::shared_ptr<AiComponent> aiComponent)
    /// m_syncComponent.addSyncSubComponent(m_aiComponent->getSyncComponent());
 }
 
-bool Character::addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, const std::string &name)
+bool Character::addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, pou::HashedString name)
 {
     return (m_skeletons.insert({name,std::move(skeleton)}).second);
 }
@@ -384,7 +384,7 @@ std::shared_ptr<pou::SoundObject> Character::addSound(SoundModel *soundModel)
     return soundObject;
 }
 
-bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skeletonName)
+bool Character::addLimbToSkeleton(LimbModel *limbModel, pou::HashedString skeletonName)
 {
     auto skeleton = m_skeletons.find(skeletonName);
 
@@ -399,7 +399,7 @@ bool Character::addLimbToSkeleton(LimbModel *limbModel, const std::string &skele
     return (true);
 }
 
-bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeletonName)
+bool Character::removeLimbFromSkeleton(LimbModel *limbModel, pou::HashedString skeletonName)
 {
     if(limbModel == nullptr)
         return (false);
@@ -422,7 +422,7 @@ bool Character::removeLimbFromSkeleton(LimbModel *limbModel, const std::string &
     return (true);
 }
 
-bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &skeletonName)
+bool Character::addSoundToSkeleton(SoundModel *soundModel, pou::HashedString skeletonName)
 {
     auto skeleton = m_skeletons.find(skeletonName);
 
@@ -435,7 +435,7 @@ bool Character::addSoundToSkeleton(SoundModel *soundModel, const std::string &sk
     return (true);
 }
 
-bool Character::removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeletonName)
+bool Character::removeSoundFromSkeleton(SoundModel *soundModel, pou::HashedString skeletonName)
 {
     if(soundModel == nullptr)
         return (false);
@@ -763,7 +763,7 @@ void Character::updateHurtNodes(const pou::Time& elapsedTime)
     //m_alreadyHitCharacters.rewind(time);*/
 /**}**/
 
-void Character::startAnimation(const std::string &name, bool forceStart)
+void Character::startAnimation(pou::HashedString name, bool forceStart)
 {
     for(auto &skeleton : m_skeletons)
         skeleton.second->startAnimation(name, forceStart);
@@ -782,7 +782,7 @@ void Character::removeFromNearbyCharacters(std::shared_ptr<Character> character)
     m_nearbyCharacters.erase(character);
 }
 
-std::set<std::shared_ptr<Character> > &Character::getNearbyCharacters()
+std::unordered_set<std::shared_ptr<Character> > &Character::getNearbyCharacters()
 {
     return m_nearbyCharacters;
 }**/
@@ -819,7 +819,7 @@ CharacterModelAsset *Character::getModel() const
     return m_model;
 }
 
-CharacterSkeleton *Character::getSkeleton(const std::string &skeletonName)
+CharacterSkeleton *Character::getSkeleton(pou::HashedString skeletonName)
 {
     auto skeletonIt = m_skeletons.find(skeletonName);
     if(skeletonIt == m_skeletons.end())

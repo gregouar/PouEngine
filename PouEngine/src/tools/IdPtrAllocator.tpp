@@ -155,13 +155,13 @@ size_t IdPtrAllocator<T>::size()
 
 
 template <class T>
-typename  std::map<size_t, std::shared_ptr<T> >::iterator IdPtrAllocator<T>::begin()
+typename  std::unordered_map<size_t, std::shared_ptr<T> >::iterator IdPtrAllocator<T>::begin()
 {
     return m_mapIdToElement.begin();
 }
 
 template <class T>
-typename  std::map<size_t, std::shared_ptr<T> >::iterator IdPtrAllocator<T>::end()
+typename  std::unordered_map<size_t, std::shared_ptr<T> >::iterator IdPtrAllocator<T>::end()
 {
     return m_mapIdToElement.end();
 }

@@ -44,7 +44,7 @@ Skeleton::~Skeleton()
         delete m_rootNode;*/
 }
 
-bool Skeleton::attachLimb(const std::string &boneName, const std::string &stateName, std::shared_ptr<SceneObject> object)
+bool Skeleton::attachLimb(HashedString boneName, HashedString stateName, std::shared_ptr<SceneObject> object)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -53,20 +53,22 @@ bool Skeleton::attachLimb(const std::string &boneName, const std::string &stateN
         return (false);
     }
 
-    int nodeId      = m_model->getNodeId(boneName);
+    /**int nodeId      = m_model->getNodeId(boneName);
     int stateId     = m_model->getStateId(stateName);
-    int oldStateId  = this->getNodeState(nodeId);
+    int oldStateId  = this->getNodeState(nodeId);**/
 
-    if(stateName == std::string() ||
-       stateId == oldStateId)
+    auto curStateName = this->getNodeState(boneName);
+
+    if(stateName == 0 ||
+       stateName == curStateName)
         bone->second->attachObject(object);
 
-    m_limbsPerNodeState.insert({{nodeId, stateId}, object});
+    m_limbsPerNodeState.insert({{boneName, stateName}, object});
 
     return (true);
 }
 
-bool Skeleton::detachLimb(const std::string &boneName, const std::string &stateName, SceneObject *object)
+bool Skeleton::detachLimb(HashedString boneName, HashedString stateName, SceneObject *object)
 {
     auto bone = m_nodesByName.find(boneName);
     if(bone == m_nodesByName.end())
@@ -78,20 +80,25 @@ bool Skeleton::detachLimb(const std::string &boneName, const std::string &stateN
     if(object == nullptr)
         return (true);
 
-    if(stateName == std::string())
+    if(stateName == 0)
         bone->second->detachObject(object);
     else
     {
-        int nodeId = m_model->getNodeId(boneName);
+        /**int nodeId = m_model->getNodeId(boneName);
         int stateId = this->getNodeState(nodeId);
-        int detachStateId = m_model->getStateId(stateName);
+        int detachStateId = m_model->getStateId(stateName);**/
 
-        if(stateId == detachStateId)
+        auto state = this->getNodeState(boneName);
+
+        ///if(stateId == detachStateId)
+        if(state == stateName)
             bone->second->detachObject(object);
     }
 
-    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({m_model->getNodeId(boneName),
-                                                             m_model->getStateId(stateName)});
+    ///auto limbsPerNodeState = m_limbsPerNodeState.equal_range({m_model->getNodeId(boneName),
+       ///                                                      m_model->getStateId(stateName)});
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({boneName,
+                                                              stateName});
     for(auto it = limbsPerNodeState.first ; it != limbsPerNodeState.second ; ++it)
         if(it->second.get() == object)
         {
@@ -141,35 +148,36 @@ void Skeleton::detachLimbsOfDifferentState(const std::string &boneName, const st
         node->second->detachObject(limbIt->second);
 }*/
 
-void Skeleton::attachLimbsOfState(int nodeId, int stateId)
+void Skeleton::attachLimbsOfState(HashedString nodeName, HashedString stateName)
 {
-    auto node = m_nodesById.find(nodeId);
+    auto node = m_nodesByName.find(nodeName);
 
-    if(node == m_nodesById.end())
+    if(node == m_nodesByName.end())
         return;
 
-    int oldStateId = this->getNodeState(nodeId);
+    ///int oldStateId = this->getNodeState(nodeId);
+    auto oldState = this->getNodeState(nodeName);
     /*-1;
     auto oldState = m_nodesLastState.find(nodeId);
     if(oldState != m_nodesLastState.end())
         oldStateId = oldState->second;*/
 
-    if(oldStateId == stateId)
+    if(oldState == stateName)
         return;
 
-    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, stateId});
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeName, stateName});
     for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
         node->second->attachObject(limbIt->second);
 
-    m_nodesLastState[nodeId] = stateId;
+    m_nodesLastState[nodeName] = stateName;
 }
 
 
-void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
+void Skeleton::detachLimbsOfDifferentState(HashedString nodeName, HashedString stateName)
 {
-    auto node = m_nodesById.find(nodeId);
+    auto node = m_nodesByName.find(nodeName);
 
-    if(node == m_nodesById.end())
+    if(node == m_nodesByName.end())
         return;
 
     /*int oldStateId = -1;
@@ -177,12 +185,12 @@ void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
     if(oldState != m_nodesLastState.end())
         oldStateId = oldState->second;*/
 
-    int oldStateId = this->getNodeState(nodeId);
+    auto oldState = this->getNodeState(nodeName);
 
-    if(oldStateId == -1 || oldStateId == stateId)
+    if(oldState == 0 || oldState == stateName)
         return;
 
-    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeId, oldStateId});
+    auto limbsPerNodeState = m_limbsPerNodeState.equal_range({nodeName, oldState});
     for(auto limbIt = limbsPerNodeState.first ; limbIt != limbsPerNodeState.second ; ++limbIt)
         node->second->detachObject(limbIt->second.get());
 }
@@ -205,25 +213,25 @@ void Skeleton::detachLimbsOfDifferentState(int nodeId, int stateId)
     return (true);
 }*/
 
-bool Skeleton::attachSound(std::shared_ptr<SoundObject> soundObject, const std::string &soundName)
+bool Skeleton::attachSound(std::shared_ptr<SoundObject> soundObject, HashedString soundName)
 {
     if(m_model == nullptr)
         return (false);
 
-    SceneNode::attachSound(soundObject, m_model->getSoundId(soundName));
+    SceneNode::attachSound(soundObject, soundName);
     return (true);
 }
 
-bool Skeleton::detachSound(SoundObject *object, const std::string &soundName)
+bool Skeleton::detachSound(SoundObject *object, HashedString soundName)
 {
     if(m_model == nullptr)
         return (false);
 
-    SceneNode::detachSound(object,m_model->getSoundId(soundName));
+    SceneNode::detachSound(object, soundName);
     return (true);
 }
 
-bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
+bool Skeleton::startAnimation(HashedString animationName, bool forceStart)
 {
     if(m_curAnimation != nullptr && m_curAnimation->getName() == animationName)
         return (false);
@@ -244,7 +252,7 @@ bool Skeleton::startAnimation(const std::string &animationName, bool forceStart)
     return (true);
 }
 
-bool Skeleton::startAnimation(int animationId, bool forceStart)
+/**bool Skeleton::startAnimation(int animationId, bool forceStart)
 {
     if(m_curAnimation != nullptr && m_curAnimation->getId() == animationId)
         return (false);
@@ -263,7 +271,7 @@ bool Skeleton::startAnimation(int animationId, bool forceStart)
     }
 
     return (true);
-}
+}**/
 
 bool Skeleton::isInAnimation()
 {
@@ -275,7 +283,7 @@ bool Skeleton::isInAnimation()
     return m_isNewFrame;
 }*/
 
-bool Skeleton::hasTag(const std::string &tag)
+bool Skeleton::hasTag(HashedString tag)
 {
     if(m_curAnimationFrame == nullptr)
         return (false);
@@ -283,17 +291,18 @@ bool Skeleton::hasTag(const std::string &tag)
     return m_curAnimationFrame->hasTag(tag);
 }
 
-std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>
-    Skeleton::getTagValues(const std::string &tag)
+std::pair <std::unordered_multimap<HashedString, FrameTag>::iterator, std::unordered_multimap<HashedString, FrameTag>::iterator>
+    Skeleton::getTagValues(HashedString tag)
 {
     if(m_curAnimationFrame == nullptr)
-        return std::pair <std::multimap<std::string, FrameTag>::iterator, std::multimap<std::string, FrameTag>::iterator>();
+        return std::pair <std::unordered_multimap<HashedString, FrameTag>::iterator,
+                          std::unordered_multimap<HashedString, FrameTag>::iterator>();
 
     return m_curAnimationFrame->getTagValues(tag);
 }
 
 
-SceneNode* Skeleton::findNode(const std::string &name)
+SceneNode* Skeleton::findNode(HashedString name)
 {
     auto found = m_nodesByName.find(name);
     if(found == m_nodesByName.end())
@@ -301,10 +310,10 @@ SceneNode* Skeleton::findNode(const std::string &name)
     return found->second;
 }
 
-const std::string &Skeleton::getCurrentAnimationName()
+HashedString Skeleton::getCurrentAnimationName()
 {
     if(m_curAnimation == nullptr)
-        return (pou::emptyString);
+        return (0);
     return m_curAnimation->getName();
 }
 
@@ -448,13 +457,13 @@ void Skeleton::update(const Time &elapsedTime, uint32_t localTime)
     m_curFrameTime.setValue(oldFrameTime);
 }**/
 
-int Skeleton::getNodeState(int nodeId)
+HashedString Skeleton::getNodeState(HashedString nodeName)
 {
-    int oldStateId = -1;
-    auto oldState = m_nodesLastState.find(nodeId);
+    HashedString oldStateName(0);
+    auto oldState = m_nodesLastState.find(nodeName);
     if(oldState != m_nodesLastState.end())
-        oldStateId = oldState->second;
-    return oldStateId;
+        oldStateName = oldState->second;
+    return oldStateName;
 }
 
 /// Protected ///
@@ -469,12 +478,11 @@ void Skeleton::copyFromModel(SkeletonModelAsset *model)
     SceneNode::getNodesByName(nodeNames);
 
     m_nodesByName.clear();
-    m_nodesById.clear();
     for(auto it : nodeNames)
     {
         auto *node = /*dynamic_cast<SceneNode*>*/(it.second);
         m_nodesByName.insert({it.first, node});
-        m_nodesById.insert({model->getNodeId(it.first), node});
+        ///m_nodesById.insert({model->getNodeId(it.first), node});
     }
 
     auto initStates = model->getInitialStates();
@@ -509,10 +517,12 @@ void Skeleton::loadAnimationCommands(SkeletalAnimationFrameModel *frame, float c
     for(auto cmd  = commands->begin() ; cmd != commands->end() ; ++cmd)
     {
         //std::string nodeName = cmd->getNode();
-        int nodeId = cmd->getNodeId();
+        //int nodeId = cmd->getNodeId();
+        auto nodeName = cmd->getNodeName();
 
         //auto node = m_nodesByName[nodeName]; ///Need to change this so that I dont use name (but some kind of ID ?)
-        auto node = m_nodesById[nodeId];
+        ///auto node = m_nodesById[nodeId];
+        auto node = m_nodesByName[nodeName];
         if(node != nullptr)
             m_animationCommands.push_back(
                 SkeletalAnimationCommand (&(*cmd), node, &m_nodeStates[node], curFrameTime));

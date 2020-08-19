@@ -146,13 +146,13 @@ size_t IdAllocator<T>::size()
 
 
 template <class T>
-typename  std::map<size_t, T>::iterator IdAllocator<T>::begin()
+typename  std::unordered_map<size_t, T>::iterator IdAllocator<T>::begin()
 {
     return m_mapIdToElement.begin();
 }
 
 template <class T>
-typename  std::map<size_t, T>::iterator IdAllocator<T>::end()
+typename  std::unordered_map<size_t, T>::iterator IdAllocator<T>::end()
 {
     return m_mapIdToElement.end();
 }

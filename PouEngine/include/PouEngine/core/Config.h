@@ -3,12 +3,12 @@
 
 #include <string>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include "PouEngine/core/Singleton.h"
 
 namespace pou{
 
-typedef std::map<std::string, std::string> ConfigSection;
+typedef std::unordered_map<std::string, std::string> ConfigSection;
 
 class Config : public Singleton<Config>
 {
@@ -34,8 +34,8 @@ class Config : public Singleton<Config>
         std::string readSectionName(std::ifstream &file);
 
     private:
-        std::map<std::string, ConfigSection> m_sections;
-        std::map<std::string, ConfigSection> m_defaultSections;
+        std::unordered_map<std::string, ConfigSection> m_sections;
+        std::unordered_map<std::string, ConfigSection> m_defaultSections;
 
         std::string m_dummy;
 };

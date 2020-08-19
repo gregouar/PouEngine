@@ -138,10 +138,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual std::shared_ptr<pou::SceneEntity> addLimb(LimbModel *limbModel); //return nullptr if error
         virtual std::shared_ptr<pou::SoundObject> addSound(SoundModel *soundModel); //return nullptr if error
 
-        virtual bool addLimbToSkeleton(LimbModel *limbModel, const std::string &skeleton);
-        virtual bool removeLimbFromSkeleton(LimbModel *limbModel, const std::string &skeleton);
-        virtual bool addSoundToSkeleton(SoundModel *soundModel, const std::string &skeleton);
-        virtual bool removeSoundFromSkeleton(SoundModel *soundModel, const std::string &skeleton);
+        virtual bool addLimbToSkeleton(LimbModel *limbModel, pou::HashedString skeleton);
+        virtual bool removeLimbFromSkeleton(LimbModel *limbModel, pou::HashedString skeleton);
+        virtual bool addSoundToSkeleton(SoundModel *soundModel, pou::HashedString skeleton);
+        virtual bool removeSoundFromSkeleton(SoundModel *soundModel, pou::HashedString skeleton);
 
         void setSyncData(GameWorld_Sync *worldSync, int id);
         void setTeam(int team);
@@ -155,7 +155,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual bool kill(float amount = 0);
         virtual bool resurrect();
 
-        void startAnimation(const std::string &name, bool forceStart = true);
+        void startAnimation(pou::HashedString name, bool forceStart = true);
 
         //virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance);
 
@@ -167,13 +167,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual const std::vector<Hitbox> *getHitboxes() const;
         virtual const std::vector<Hitbox> *getHurtboxes() const;
 
-        /**void addToNearbyCharacters(std::shared_ptr<Character> character);
-        void removeFromNearbyCharacters(std::shared_ptr<Character> character);
-        std::set< std::shared_ptr<Character> > &getNearbyCharacters();**/
         std::vector<Character*> *getNearbyCharacters();
 
         CharacterModelAsset *getModel() const;
-        CharacterSkeleton   *getSkeleton(const std::string &skeletonName);
+        CharacterSkeleton   *getSkeleton(pou::HashedString skeletonName);
         CharacterInput      *getInput();
         AiComponent         *getAi();
 
@@ -211,7 +208,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual void updateSyncComponent(const pou::Time &elapsedTime, uint32_t localTime);
         virtual void updateHurtNodes(const pou::Time &elapsedTime);
 
-        virtual bool addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, const std::string &name);
+        virtual bool addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, pou::HashedString name);
 
         virtual void switchState(CharacterStateTypes stateType);
 
@@ -230,8 +227,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         SyncCharacterModelAttributes    m_modelAttributes;
         SyncCharacterAttributes         m_attributes;
 
-        std::set<std::shared_ptr<Character> > m_nearbyCharacters;
-        std::map<std::string, std::shared_ptr<CharacterSkeleton> > m_skeletons; /// Replace string by ID
+        std::unordered_set<std::shared_ptr<Character> > m_nearbyCharacters;
+        std::unordered_map<pou::HashedString, std::shared_ptr<CharacterSkeleton> > m_skeletons;
 
         uint32_t m_lastModelUpdateTime;
 
@@ -253,10 +250,10 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         std::shared_ptr<AiComponent> m_aiComponent;
 
-        std::map<LimbModel*, std::shared_ptr<pou::SceneEntity> >    m_limbs;
-        std::map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
+        std::unordered_map<LimbModel*, std::shared_ptr<pou::SceneEntity> >    m_limbs;
+        std::unordered_map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
 
-        std::map<pou::SceneNode*, HurtNode> m_hurtNodes;
+        std::unordered_map<pou::SceneNode*, HurtNode> m_hurtNodes;
 
         bool m_isDestinationSet;
         glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent

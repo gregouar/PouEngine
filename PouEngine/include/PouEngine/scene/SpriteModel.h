@@ -84,7 +84,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         void setSize(glm::vec2 size);
         void setCenter(glm::vec2 pos);
         void setTextureRect(glm::vec2 pos, glm::vec2 extent, bool isRelative = true);
-        void setNextSprite(int spriteId, float delay);
+        ///void setNextSprite(int spriteId, float delay);
+        void setNextSprite(HashedString spriteName, float delay);
 
         void setShadowCastingType(ShadowCastingType type);
         void setRevealable(bool revealable);
@@ -113,7 +114,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         bool    isRevealable();
 
         SpriteSheetAsset* getSpriteSheet();
-        size_t getSpriteId();
+        ///size_t getSpriteId();
+        HashedString getSpriteName();
 
         /*VTexture getDirectionnalShadow(SceneRenderer *renderer, glm::vec3 direction);
         void updateDirectionnalShadow(glm::vec3 oldDirection, glm::vec3 newDirection);
@@ -123,7 +125,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
                             void* data = nullptr) override;
 
     protected:
-        void setSpriteId(size_t id);
+        ///void setSpriteId(size_t id);
+        void setSpriteName(HashedString name);
         void cleanup();
 
         //Add some kind of cleaning ?
@@ -155,7 +158,8 @@ class SpriteModel : public NotificationListener, public NotificationSender
         glm::vec3 m_rme;
 
         bool m_isReady;
-        size_t m_spriteId;
+        ///size_t m_spriteId;
+        HashedString m_spriteName;
 
         /*glm::vec2 m_shadowMapExtent;
         std::map<Direction, std::pair<VRenderableTexture, bool> > m_directionnalShadows;*/

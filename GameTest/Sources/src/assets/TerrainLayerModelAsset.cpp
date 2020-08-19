@@ -45,13 +45,13 @@ bool TerrainLayerModelAsset::loadFromFile(const std::string &filePath)
 }
 
 //pou::SpriteSheetAsset *TerrainLayerModelAsset::getSpriteSheet(const std::string &spriteSheetName)
-pou::SpriteModel *TerrainLayerModelAsset::getSpriteModel(const std::string &spriteSheetName, const std::string &spriteName)
+pou::SpriteModel *TerrainLayerModelAsset::getSpriteModel(pou::HashedString spriteSheetName, pou::HashedString spriteName)
 {
     auto spritesheetIt = m_spriteSheets.find(spriteSheetName);
 
     if(spritesheetIt == m_spriteSheets.end())
     {
-        pou::Logger::warning("Spritesheet named \""+spriteSheetName+"\" not found");
+        pou::Logger::warning("Spritesheet named not found");
         return (nullptr);
     }
 
@@ -117,7 +117,9 @@ bool TerrainLayerModelAsset::loadSpriteSheet(TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
-    if(!m_spriteSheets.insert({spriteSheetName,
+    auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetName);
+
+    if(!m_spriteSheets.insert({hashedSpriteSheetName,
                               pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
         pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in tile models:"+m_filePath);
 

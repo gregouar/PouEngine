@@ -35,7 +35,6 @@ class ItemModelAsset : public pou::Asset
 
         const ItemAttributes &getAttributes() const;
         const std::list<Hitbox> *getHitboxes() const;
-       // const std::map<std::string, std::list<LimbModel> > *getLimbs() const;
 
     protected:
         bool loadFromXML(TiXmlHandle *);
@@ -47,9 +46,9 @@ class ItemModelAsset : public pou::Asset
         bool loadAttributes(TiXmlElement *element);
 
     private:
-        std::map<std::string, pou::SpriteSheetAsset*> m_spriteSheets;
-        std::map<std::string, pou::LightModel>        m_lightModels;
-        std::map<std::string, AssetsForSkeletonModel> m_skeletonAssetsModels;
+        std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*> m_spriteSheets;
+        std::unordered_map<pou::HashedString, pou::LightModel>        m_lightModels;
+        std::unordered_map<pou::HashedString, AssetsForSkeletonModel> m_skeletonAssetsModels;
 
         ItemAttributes m_attributes;
 

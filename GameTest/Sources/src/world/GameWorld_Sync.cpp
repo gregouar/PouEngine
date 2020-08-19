@@ -335,7 +335,7 @@ void GameWorld_Sync::createWorldSyncMsg_Sprite(WorldSprite *spriteEntity, std::s
 
     spriteEntitySync.spriteEntity = spriteEntity;
     spriteEntitySync.spriteSheetId = spriteSheetId;
-    spriteEntitySync.spriteId = spriteModel->getSpriteId();
+    spriteEntitySync.spriteId = spriteModel->getSpriteName(); ///HOPE THIS IS NOT A PROBLEM...
     spriteEntitySync.nodeId = nodeId;
 }
 

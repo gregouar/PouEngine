@@ -125,7 +125,7 @@ void Scene::addRevealingProbe(SceneNode* probe)
         this->startListeningTo(probe, NotificationType_SenderDestroyed);
 }
 
-const std::set<SceneNode*> &Scene::getRevealingProbes()
+const std::unordered_set<SceneNode*> &Scene::getRevealingProbes()
 {
     return m_revealingProbes;
 }

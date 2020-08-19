@@ -4,6 +4,7 @@
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/Asset.h"
 #include "PouEngine/core/Singleton.h"
+#include "PouEngine/tools/Hasher.h"
 
 #include <map>
 #include <vector>
@@ -70,9 +71,9 @@ template<class AssetType> class AssetHandler : public Singleton<AssetHandler<Ass
         void waitForLoadingThread(AssetType *assetToWaitFor);
 
     private:
-        std::map<AssetTypeId, AssetType*> m_assets;
-        std::map<AssetTypeId, int> m_obsolescenceList;
-        std::map<std::string, AssetTypeId> m_filesList;
+        std::unordered_map<AssetTypeId, AssetType*> m_assets;
+        std::unordered_map<AssetTypeId, int> m_obsolescenceList;
+        std::unordered_map<HashedString, AssetTypeId> m_filesList;
 
         std::thread m_loadThread;
         std::mutex m_loadMutex;

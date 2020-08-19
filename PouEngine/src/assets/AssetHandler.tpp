@@ -40,9 +40,7 @@ AssetType* AssetHandler<AssetType>::getAssetImpl(const AssetTypeId assetId)
     if(assetId == 0)
         return this->getDummyAsset();
 
-    typename std::map<AssetTypeId, AssetType*>::iterator assetIter;
-
-    assetIter = m_assets.find(assetId);
+    auto assetIter = m_assets.find(assetId);
 
     if(assetIter == m_assets.end())
     {
@@ -79,8 +77,9 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
     //std::lock_guard<std::mutex> lock(m_assetAccessMutex);
     ///m_assetAccessMutex.lock();
 
-	std::map<std::string, AssetTypeId>::iterator filesIter;
-	filesIter = m_filesList.find(filePath);
+    auto hashedFilePath = Hasher::unique_hash(filePath);
+
+	auto filesIter = m_filesList.find(hashedFilePath);
 	if(filesIter != m_filesList.end())
 	{
         AssetType* foundedAsset = this->getAsset(filesIter->second);
@@ -108,7 +107,7 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
         this->addToLoadingThread(newAsset);
     }
 
-	m_filesList[filePath] = id;
+	m_filesList[hashedFilePath] = id;
 
     return newAsset;
 }
@@ -180,9 +179,8 @@ AssetType* AssetHandler<AssetType>::addAssetImpl(const AssetTypeId assetId, bool
     std::lock_guard<std::mutex> lock(m_loadMutex);
 
     AssetType* newAsset = nullptr;
-    typename std::map<AssetTypeId, AssetType*>::iterator assetIter;
 
-    assetIter = m_assets.find(assetId);
+    auto assetIter = m_assets.find(assetId);
 
     if(assetIter == m_assets.end())
     {
@@ -236,8 +234,7 @@ void AssetHandler<AssetType>::removeFromLoadingThread(AssetType* asset)
 
     if(asset != nullptr && asset != m_assetLoadingInThread)
     {
-        typename std::list<AssetType*>::iterator loadingListIt;
-        loadingListIt = m_assetsToLoadInThread.begin();
+        auto loadingListIt = m_assetsToLoadInThread.begin();
         while(loadingListIt != m_assetsToLoadInThread.end())
         {
             if(*loadingListIt == asset)
@@ -266,8 +263,7 @@ void AssetHandler<AssetType>:: removeFromObsolescenceList(const AssetTypeId asse
 template<typename AssetType>
 void AssetHandler<AssetType>:: descreaseObsolescenceLife()
 {
-    std::map<AssetTypeId, int>::iterator iter;
-    for(iter = m_obsolescenceList.begin() ; iter != m_obsolescenceList.end() ; ++iter)
+    for(auto iter = m_obsolescenceList.begin() ; iter != m_obsolescenceList.end() ; ++iter)
     {
         iter->second--;
         if(iter->second-- <= 0)
@@ -276,7 +272,6 @@ void AssetHandler<AssetType>:: descreaseObsolescenceLife()
             m_obsolescenceList.erase(iter);
         }
     }
-
 }
 
 template<typename AssetType>
@@ -285,9 +280,7 @@ void AssetHandler<AssetType>::deleteAsset(const AssetTypeId assetId)
     ///sf::Lock lockLoadMutex(m_loadMutex);
     std::lock_guard<std::mutex> lock(m_loadMutex);
 
-
-    typename std::map<AssetTypeId, AssetType*>::iterator iter;
-    iter = m_assets.find(assetId);
+    auto iter = m_assets.find(assetId);
 
     if(iter != m_assets.end())
     {
@@ -324,8 +317,7 @@ void AssetHandler<AssetType>::cleanAll()
 
     this->waitForLoadingThread(m_assetLoadingInThread);
 
-    typename std::map<AssetTypeId, AssetType*>::iterator assetIter;
-    for(assetIter = m_assets.begin() ; assetIter != m_assets.end() ; ++assetIter)
+    for(auto assetIter = m_assets.begin() ; assetIter != m_assets.end() ; ++assetIter)
         delete assetIter->second;
 
     m_assets.clear();

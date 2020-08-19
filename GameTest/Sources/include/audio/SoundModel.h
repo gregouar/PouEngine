@@ -2,6 +2,7 @@
 #define SOUNDMODEL_H
 
 #include "tinyxml/tinyxml.h"
+#include "PouEngine/Types.h"
 
 #include <string>
 
@@ -13,14 +14,14 @@ class SoundModel
 
         bool loadFromXML(TiXmlElement *element);
 
-        const std::string &getName();
+        pou::HashedString getName();
         const std::string &getPath();
         bool isEvent();
 
     protected:
 
     private:
-        std::string m_name;
+        pou::HashedString m_name;
         std::string m_path;
         bool m_isEvent;
 };

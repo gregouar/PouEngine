@@ -37,7 +37,7 @@ class Scene : public NotificationListener
         //virtual void setCurrentCamera(CameraObject *);
 
         void addRevealingProbe(SceneNode* probe);
-        const std::set<SceneNode*> &getRevealingProbes();
+        const std::unordered_set<SceneNode*> &getRevealingProbes();
 
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
@@ -56,7 +56,7 @@ class Scene : public NotificationListener
         //TextureAsset           *m_envMapAsset;
         SceneRenderingData      m_renderingData;
 
-        std::set<SceneNode*> m_revealingProbes;
+        std::unordered_set<SceneNode*> m_revealingProbes;
 };
 
 }

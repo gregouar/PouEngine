@@ -151,7 +151,8 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
         if(!spriteSheet)
             continue;
 
-        auto spriteModel = spriteSheet->getSpriteModel(spriteAtt);
+        auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);
+        auto spriteModel = spriteSheet->getSpriteModel(hashedSpriteName);
         if(!spriteModel)
             continue;
 

@@ -238,7 +238,7 @@ bool VInstance::checkDeviceExtensionSupport(const VkPhysicalDevice &device)
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(const_deviceExtensions.begin(), const_deviceExtensions.end());
+    std::unordered_set<std::string> requiredExtensions(const_deviceExtensions.begin(), const_deviceExtensions.end());
 
     for (const auto& extension : availableExtensions)
         requiredExtensions.erase(extension.extensionName);
@@ -394,8 +394,8 @@ bool VInstance::pickPhysicalDevice(VkSurfaceKHR &surface)
 bool VInstance::createLogicalDevice()
 {
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<int> uniqueQueueFamilies = {m_queueFamilyIndices.graphicsFamily,
-                                         m_queueFamilyIndices.presentFamily};
+    std::unordered_set<int> uniqueQueueFamilies = {m_queueFamilyIndices.graphicsFamily,
+                                                   m_queueFamilyIndices.presentFamily};
 
     float queuePriority = 1.0f;
     for (auto queueFamily : uniqueQueueFamilies)

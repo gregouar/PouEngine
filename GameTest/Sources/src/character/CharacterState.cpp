@@ -1,12 +1,28 @@
 #include "character/CharacterState.h"
 
 #include "character/Character.h"
+#include "PouEngine/tools/Hasher.h"
+
+
+/*const pou::HashedString CharacterState::ANIMATION_NAME_STAND       = pou::Hasher::unique_hash("stand");
+const pou::HashedString CharacterState::ANIMATION_NAME_WALK        = pou::Hasher::unique_hash("walk");
+const pou::HashedString CharacterState::ANIMATION_NAME_LATERALWALK = pou::Hasher::unique_hash("lateralWalk");
+const pou::HashedString CharacterState::ANIMATION_NAME_DASH        = pou::Hasher::unique_hash("dash");
+const pou::HashedString CharacterState::ANIMATION_NAME_ATTACK      = pou::Hasher::unique_hash("attack");
+const pou::HashedString CharacterState::ANIMATION_NAME_INTERRUPT   = pou::Hasher::unique_hash("interrupt");
+const pou::HashedString CharacterState::ANIMATION_NAME_DEATH       = pou::Hasher::unique_hash("death");*/
 
 CharacterState::CharacterState(uint16_t type, Character *character) :
     m_type(type),
-    m_character(character)
+    m_character(character),
+    ANIMATION_NAME_STAND       (pou::Hasher::unique_hash("stand")),
+    ANIMATION_NAME_WALK        (pou::Hasher::unique_hash("walk")),
+    ANIMATION_NAME_LATERALWALK (pou::Hasher::unique_hash("lateralWalk")),
+    ANIMATION_NAME_DASH        (pou::Hasher::unique_hash("dash")),
+    ANIMATION_NAME_ATTACK      (pou::Hasher::unique_hash("attack")),
+    ANIMATION_NAME_INTERRUPT   (pou::Hasher::unique_hash("interrupt")),
+    ANIMATION_NAME_DEATH       (pou::Hasher::unique_hash("death"))
 {
-    //ctor
 }
 
 CharacterState::~CharacterState()
@@ -112,7 +128,7 @@ void CharacterState_Standing::update(const pou::Time &elapsedTime, uint32_t loca
 
 void CharacterState_Standing::entered(CharacterInput *input)
 {
-    m_character->startAnimation("stand", false);
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_STAND, false);
 }
 
 
@@ -182,12 +198,12 @@ void CharacterState_Walking::update(const pou::Time &elapsedTime, uint32_t local
 
     if(wantToLateralWalk && !m_isLateralWalking)
     {
-        m_character->startAnimation("lateralWalk", true);
+        m_character->startAnimation(CharacterState::ANIMATION_NAME_LATERALWALK, true);
         m_isLateralWalking = true;
     }
     else if(!wantToLateralWalk && m_isLateralWalking)
     {
-        m_character->startAnimation("walk", true);
+        m_character->startAnimation(CharacterState::ANIMATION_NAME_WALK, true);
         m_isLateralWalking = false;
     }
 }
@@ -196,13 +212,13 @@ void CharacterState_Walking::entered(CharacterInput *input)
 {
     this->handleInput(input);
 
-    m_character->startAnimation("walk");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_WALK);
     m_isLateralWalking = false;
 }
 
 void CharacterState_Walking::leaving(CharacterInput *input)
 {
-    m_character->startAnimation("stand");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_STAND);
 }
 
 
@@ -210,8 +226,11 @@ void CharacterState_Walking::leaving(CharacterInput *input)
 /// CharacterState_Attacking
 ///
 
+//const pou::HashedString CharacterState_Attacking::ATTACK_TAG = pou::Hasher::unique_hash("attack");
+
 CharacterState_Attacking::CharacterState_Attacking(Character *character) :
-    CharacterState(CharacterStateType_Attacking,character)
+    CharacterState(CharacterStateType_Attacking,character),
+    ATTACK_TAG(pou::Hasher::unique_hash("attack"))
 {
 
 }
@@ -243,7 +262,7 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
         if(!hitSkeleton)
             continue;
 
-        if(!hitSkeleton->hasTag("attack")) ///I should find a better way to encode this tag...
+        if(!hitSkeleton->hasTag(CharacterState_Attacking::ATTACK_TAG))
             continue;
 
         auto hitNode = hitSkeleton->findNode(hitBox.getNode());
@@ -307,7 +326,7 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
 
 void CharacterState_Attacking::entered(CharacterInput *input)
 {
-    m_character->startAnimation("attack");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_ATTACK);
     m_attackTimer.reset(m_character->getModelAttributes().attackDelay);
     m_alreadyHitCharacters.clear();
 
@@ -356,7 +375,7 @@ void CharacterState_Dashing::update(const pou::Time &elapsedTime, uint32_t local
 
 void CharacterState_Dashing::entered(CharacterInput *input)
 {
-    m_character->startAnimation("dash");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_DASH);
     m_dashDelayTimer.reset(DEFAULT_DASH_DELAY);
     m_dashTimer.reset(DEFAULT_DASH_TIME);
 
@@ -368,7 +387,7 @@ void CharacterState_Dashing::entered(CharacterInput *input)
 
 void CharacterState_Dashing::leaving(CharacterInput *input)
 {
-    m_character->startAnimation("stand");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_STAND);
 }
 
 
@@ -413,7 +432,7 @@ void CharacterState_Interrupted::update(const pou::Time &elapsedTime, uint32_t l
 
 void CharacterState_Interrupted::entered(CharacterInput *input)
 {
-    m_character->startAnimation("interrupt");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_INTERRUPT);
     m_interruptTimer.reset(DEFAULT_INTERRUPT_DELAY); ///Could be computed from something or something
 
     auto [pushedInput, pushedDirection] = input->getPushedInputs();
@@ -477,7 +496,7 @@ CharacterState_Dead::~CharacterState_Dead()
 
 void CharacterState_Dead::entered(CharacterInput *input)
 {
-    m_character->startAnimation("death");
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_DEATH);
 }
 
 

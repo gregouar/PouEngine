@@ -5,10 +5,8 @@
 
 ///I should maybe switch to functions in a namespace
 
-
 namespace pou
 {
-
 
 class Parser : public Singleton<Parser>
 {

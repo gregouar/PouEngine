@@ -30,8 +30,8 @@ class NotificationSender
         void sendNotification(int notificationType, void* data = nullptr);
 
     private:
-        std::set<NotificationListener*> m_listenerToNotifyEverything;
-        std::map<int, std::set<NotificationListener*> > m_listenerToNotify;
+        std::unordered_set<NotificationListener*> m_listenerToNotifyEverything;
+        std::unordered_map<int, std::unordered_set<NotificationListener*> > m_listenerToNotify;
 
         std::mutex m_mutex;
 };

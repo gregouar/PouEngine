@@ -31,7 +31,6 @@ class TerrainGenerator_TileModels
     protected:
 
     private:
-        //std::map<float, std::shared_ptr<WorldSprite> > m_spriteMap;
         bool m_chosenSpriteMap;
         std::map<float, TerrainGenerator_TileModel > m_spriteMap1;
         float m_totalProbability1;

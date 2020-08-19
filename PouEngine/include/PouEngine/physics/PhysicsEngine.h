@@ -109,12 +109,6 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
 
 
     private:
-        /*std::vector<BoxBody> m_boxBodies;
-        std::vector<DiskBody> m_diskBodies;*/
-
-        /*std::map<float, BoxBody>  m_boxBodies;
-        std::map<float, DiskBody>  m_diskBodies;*/
-
         std::multimap<float, RigidBody> m_oldRigidBodies;
         std::multimap<float, RigidBody> m_rigidBodies;
 

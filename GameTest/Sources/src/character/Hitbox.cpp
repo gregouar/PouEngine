@@ -2,6 +2,7 @@
 
 #include "PouEngine/tools/Logger.h"
 #include "PouEngine/tools/Parser.h"
+#include "PouEngine/tools/Hasher.h"
 
 Hitbox::Hitbox() :
     m_factors(NBR_DAMAGE_TYPES,0.0f),
@@ -33,12 +34,12 @@ float Hitbox::getFactor(int type) const
     return (m_factors[type]);
 }
 
-const std::string &Hitbox::getSkeleton() const
+pou::HashedString Hitbox::getSkeleton() const
 {
     return m_skeleton;
 }
 
-const std::string &Hitbox::getNode() const
+pou::HashedString Hitbox::getNode() const
 {
     return m_node;
 }
@@ -62,8 +63,8 @@ bool Hitbox::loadFromXML(TiXmlElement *boxElement)
     if(skeletonAtt == nullptr || nodeAtt == nullptr)
         return (false);
 
-    m_skeleton = std::string(skeletonAtt);
-    m_node = std::string(nodeAtt);
+    m_skeleton = pou::Hasher::unique_hash(skeletonAtt);
+    m_node = pou::Hasher::unique_hash(nodeAtt);
 
 
     auto factorChild = boxElement->FirstChildElement("factor");
@@ -121,7 +122,6 @@ bool Hitbox::loadFromXML(TiXmlElement *boxElement)
             m_color.b = pou::Parser::parseFloat(std::string(colorElement->Attribute("b")));
         if(colorElement->Attribute("a") != nullptr)
             m_color.a = pou::Parser::parseFloat(std::string(colorElement->Attribute("a")));
-
     }
 
     return (true);

@@ -24,7 +24,8 @@ class FontAsset : public Asset
     private:
         FontTypeId m_fontId;
 
-        std::map< std::pair<uint16_t, int>, std::shared_ptr<Glyph> > m_glyphes;
+        ///std::map< std::pair<uint16_t, int>, std::shared_ptr<Glyph> > m_glyphes;
+        std::unordered_map< std::pair<int, int>, std::shared_ptr<Glyph>, IntPairHash > m_glyphes;
 };
 
 }

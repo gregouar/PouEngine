@@ -60,11 +60,11 @@ class FMODAudioImpl : public AbstractAudioImpl
 
         int                         m_listenerSoundTypeId;
         std::vector<bool>           m_inUseListeners;
-        std::map<SoundTypeId, int>  m_listeners;
+        std::unordered_map<SoundTypeId, int>  m_listeners;
 
-        std::map<SoundTypeId, FMOD_SOUND*>          m_sounds;
-        std::map<SoundTypeId, FMOD_STUDIO_BANK*>    m_banks;
-        std::map<SoundTypeId, FMOD_STUDIO_EVENTINSTANCE*>    m_events;
+        std::unordered_map<SoundTypeId, FMOD_SOUND*>          m_sounds;
+        std::unordered_map<SoundTypeId, FMOD_STUDIO_BANK*>    m_banks;
+        std::unordered_map<SoundTypeId, FMOD_STUDIO_EVENTINSTANCE*>    m_events;
 
         std::vector<FMOD_CHANNEL*>                  m_channels;
 

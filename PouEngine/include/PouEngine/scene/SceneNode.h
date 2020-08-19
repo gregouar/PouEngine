@@ -67,9 +67,9 @@ class SceneNode :  public NotificationSender, public NotificationListener //: pu
         const TransformComponent *const_transform() const;
 
         ///Need to add StringHasher to tools and use that !!!!
-        void setName(const std::string &name);
-        const std::string &getName() const;
-        void getNodesByName(std::map<std::string, SceneNode*> &namesAndResMap);
+        void setName(HashedString name);
+        HashedString getName() const;
+        void getNodesByName(std::unordered_map<HashedString, SceneNode*> &namesAndResMap);
 
         void setNodeId(uint32_t id);
         uint32_t getNodeId() const;
@@ -97,7 +97,7 @@ class SceneNode :  public NotificationSender, public NotificationListener //: pu
         std::vector< std::shared_ptr<LightEntity> >     m_attachedLights;
         std::vector< std::shared_ptr<ShadowCaster> >    m_attachedShadowCasters;
 
-        std::multimap<int, std::shared_ptr<SoundObject> > m_attachedSounds;
+        std::unordered_multimap<HashedString, std::shared_ptr<SoundObject> > m_attachedSounds;
 
         bool m_disableCollisions;
 
@@ -105,7 +105,7 @@ class SceneNode :  public NotificationSender, public NotificationListener //: pu
         glm::vec4 m_color;
         glm::vec4 m_finalColor; ///Reimplement this later
 
-        std::string m_name;
+        HashedString m_name;
 
 };
 

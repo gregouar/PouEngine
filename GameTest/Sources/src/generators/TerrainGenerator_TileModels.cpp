@@ -2,6 +2,7 @@
 
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Hasher.h"
 
 #include "assets/TerrainLayerModelAsset.h"
 
@@ -40,7 +41,10 @@ bool TerrainGenerator_TileModels::loadFromXML(TiXmlElement *element, TerrainLaye
             continue;
         }
 
-        auto spriteModel = parentLayerModel->getSpriteModel(std::string(spriteSheetAtt), std::string(spriteAtt));
+        auto hashedSpriteSheet = pou::Hasher::unique_hash(spriteSheetAtt);
+        auto hashedSprite = pou::Hasher::unique_hash(spriteAtt);
+
+        auto spriteModel = parentLayerModel->getSpriteModel(hashedSpriteSheet, hashedSprite);
         if(!spriteModel)
             continue;
 

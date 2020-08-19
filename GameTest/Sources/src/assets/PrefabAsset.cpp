@@ -107,7 +107,9 @@ bool PrefabAsset::loadSpriteSheet(TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
-    if(!m_spriteSheets.insert({spriteSheetName,
+    auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetName);
+
+    if(!m_spriteSheets.insert({hashedSpriteSheetName,
                               pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
         pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in prefab:"+m_filePath);
 
@@ -124,7 +126,7 @@ bool PrefabAsset::loadNode(pou::SceneNode* rootNode, TiXmlElement *element)
     if(nameAtt != nullptr)
     {
         nodeName = std::string(nameAtt);
-        rootNode->setName(nodeName);
+        rootNode->setName(pou::Hasher::unique_hash(nodeName));
     }
 
     /*int nodeId = -1;
@@ -367,10 +369,13 @@ bool PrefabAsset::loadSprite(pou::SceneNode *node, TiXmlElement *element)
 
     auto sprite = std::make_shared<WorldSprite>();
 
-    auto spritesheetIt = m_spriteSheets.find(std::string(spriteSheetAtt));
+    auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetAtt);
+    auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);
+
+    auto spritesheetIt = m_spriteSheets.find(hashedSpriteSheetName);
     if(spritesheetIt != m_spriteSheets.end())
     {
-        auto spriteModel = spritesheetIt->second->getSpriteModel(std::string(spriteAtt));
+        auto spriteModel = spritesheetIt->second->getSpriteModel(hashedSpriteName);
         if(spriteModel == nullptr)
         {
             pou::Logger::warning("Sprite named \""+std::string(spriteAtt)+"\" not found in spritesheet \""

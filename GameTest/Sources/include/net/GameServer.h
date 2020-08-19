@@ -81,8 +81,8 @@ class GameServer
         std::unique_ptr<pou::AbstractServer> m_server;
 
 
-        std::map<size_t, GameClientInfos> m_clientInfos;
-        std::map<size_t, std::unique_ptr<GameWorld> > m_worlds;
+        std::unordered_map<size_t, GameClientInfos> m_clientInfos;
+        std::unordered_map<size_t, std::unique_ptr<GameWorld> > m_worlds;
         size_t m_curWorldId;
 
         pou::Time m_remainingTime;

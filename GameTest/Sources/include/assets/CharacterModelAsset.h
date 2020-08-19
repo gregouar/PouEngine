@@ -22,8 +22,8 @@ class Character;
 
 struct LimbModel
 {
-    std::string node;
-    std::string state;
+    pou::HashedString node;
+    pou::HashedString state;
     pou::SpriteModel    *spriteModel;
     pou::MeshAsset      *mesh;
     const pou::LightModel *lightModel;
@@ -41,8 +41,8 @@ struct LimbModel
 class AssetsForSkeletonModel
 {
     public:
-        AssetsForSkeletonModel(const std::map<std::string, pou::SpriteSheetAsset*> *spriteSheets,
-                               const std::map<std::string, pou::LightModel> *lightModels,
+        AssetsForSkeletonModel(const std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*> *spriteSheets,
+                               const std::unordered_map<pou::HashedString, pou::LightModel> *lightModels,
                                const std::string &fileDirectory);
 
         bool loadFromXML(TiXmlElement *element);
@@ -54,8 +54,8 @@ class AssetsForSkeletonModel
         std::list<LimbModel>  m_limbs;
         std::list<SoundModel> m_sounds;
 
-        const std::map<std::string, pou::SpriteSheetAsset*> *m_spriteSheets;
-        const std::map<std::string, pou::LightModel> *m_lightModels;
+        const std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*> *m_spriteSheets;
+        const std::unordered_map<pou::HashedString, pou::LightModel> *m_lightModels;
         const std::string &m_fileDirectory;
 };
 
@@ -100,20 +100,11 @@ class CharacterModelAsset : public pou::Asset
 
         bool loadFromFile(const std::string &filePath);
 
-        /*bool generateOnNode(pou::SceneNode *parentNode,
-                            std::list<std::unique_ptr<pou::Skeleton> > *skeletons,
-                            std::list<std::unique_ptr<pou::SpriteEntity> > *limbs);*/
-
         bool generateCharacter(Character *targetCharacter);
 
         const CharacterModelAttributes &getAttributes() const;
         const std::vector<Hitbox> *getHitboxes() const;
         const std::vector<Hitbox> *getHurtboxes() const;
-
-        //Could remove this
-        //const std::vector<pou::BoxBody> *getCollisionboxes() const;
-
-        /** ADD GET SKELETON ID AND GET NODE ID => use them in hitbox etc **/
 
     protected:
         bool loadFromXML(TiXmlHandle *);
@@ -130,9 +121,9 @@ class CharacterModelAsset : public pou::Asset
     private:
         AiScriptModelAsset *m_aiScriptModel;
 
-        std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
-        std::map<std::string, pou::LightModel>          m_lightModels;
-        std::map<std::string, SkeletonModelWithAssets>  m_skeletonModels;
+        std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>   m_spriteSheets;
+        std::unordered_map<pou::HashedString, pou::LightModel>          m_lightModels;
+        std::unordered_map<pou::HashedString, SkeletonModelWithAssets>  m_skeletonModels;
 
         std::vector<Hitbox> m_hitboxes, m_hurtboxes;
         std::vector<pou::BoxBody> m_collisionBoxes;

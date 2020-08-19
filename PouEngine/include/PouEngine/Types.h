@@ -3,6 +3,8 @@
 #include <memory>
 //#include <iostream>
 #include <chrono>
+#include <unordered_set>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -185,6 +187,19 @@ typedef AssetHandler<MeshAsset>         MeshAssetsHandler;
 const std::string emptyString;
 
 
+
+struct IntPairHash {
+  std::size_t operator()(const std::pair<uint32_t, uint32_t> &p) const {
+    assert(sizeof(std::size_t)>=8);  //Ensure that std::size_t, the type of the hash, is large enough
+    //Shift first integer over to make room for the second integer. The two are
+    //then packed side by side.
+    return (((uint64_t)p.first)<<32) | ((uint64_t)p.second);
+  }
+};
+
+typedef size_t HashedString;
+
+typedef std::unordered_set< std::pair<int,int>, IntPairHash > unordered_set_intpair;
 
 }
 

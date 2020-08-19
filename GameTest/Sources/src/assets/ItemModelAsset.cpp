@@ -96,11 +96,6 @@ const std::list<Hitbox> *ItemModelAsset::getHitboxes() const
     return &m_hitboxes;
 }
 
-/*const std::map<std::string, std::list<LimbModel> > *getLimbs() const
-{
-    return &m_limbs;
-}*/
-
 bool ItemModelAsset::loadFromFile(const std::string &filePath)
 {
     TiXmlDocument file(filePath.c_str());
@@ -192,7 +187,9 @@ bool ItemModelAsset::loadSpriteSheet(TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
-    if(!m_spriteSheets.insert({spriteSheetName,
+    auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetName);
+
+    if(!m_spriteSheets.insert({hashedSpriteSheetName,
                               pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+std::string(pathAtt), m_loadType)}).second)
         pou::Logger::warning("Multiple spritesheets with name \""+spriteSheetName+"\" in item model:"+m_filePath);
 
@@ -279,7 +276,9 @@ bool ItemModelAsset::loadLightModel(TiXmlElement *element)
             lightModel.direction.z = pou::Parser::parseFloat(att);
     }
 
-    if(!m_lightModels.insert({lightName,lightModel}).second)
+    auto hashedLightName = pou::Hasher::unique_hash(lightName);
+
+    if(!m_lightModels.insert({hashedLightName,lightModel}).second)
         pou::Logger::warning("Multiple lights with name \""+lightName+"\" in character model:"+m_filePath);
 
     return (true);
@@ -321,7 +320,9 @@ bool ItemModelAsset::loadSkeleton(TiXmlElement *element)
     if(nameAtt != nullptr)
         skeletonName = std::string(nameAtt);
 
-    auto skelPair = m_skeletonAssetsModels.insert({skeletonName, AssetsForSkeletonModel (&m_spriteSheets,&m_lightModels,m_fileDirectory)});
+    auto hashedSkeletonName = pou::Hasher::unique_hash(skeletonName);
+
+    auto skelPair = m_skeletonAssetsModels.insert({hashedSkeletonName, AssetsForSkeletonModel (&m_spriteSheets,&m_lightModels,m_fileDirectory)});
     if(!skelPair.second)
         pou::Logger::warning("Multiple skeletons with name \""+skeletonName+"\" in item model:"+m_filePath);
 

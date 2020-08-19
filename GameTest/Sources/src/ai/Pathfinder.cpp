@@ -80,6 +80,33 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float path
     return (true);
 }
 
+void Pathfinder::addNodeToExplore(float d, PathNode &node)
+{
+    //glm::ivec2 cellPos = glm::round(node.position /*/2.0f*/);
+    //if(m_alreadyVisitedCells.insert({cellPos.x, cellPos.y}).second)
+        m_nodesToExplore.insert({d, node});
+    //else
+      //  this->unlockNodesToExplore(d, node);
+}
+
+void Pathfinder::unlockNodesToExplore(float d, PathNode &node)
+{
+    for(size_t i = 0 ; i < node.nodesToUnlock.size() ; ++i)
+    {
+        PathNode nodeToUnlock;
+        nodeToUnlock.depth = node.depth+1;
+        nodeToUnlock.parentNode = &m_exploredNodes.back();
+        nodeToUnlock.position = node.nodesToUnlock[i];
+
+        if(glm::round(nodeToUnlock.position) != glm::round(m_destination))
+            nodeToUnlock.nodesToUnlock.push_back(m_destination);
+
+        this->addNodeToExplore(d+this->estimateNodeWeight(nodeToUnlock), nodeToUnlock);
+      //  m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(nodeToUnlock),
+        //                        nodeToUnlock});
+    }
+}
+
 //void Pathfinder::exploresNodes(PathNode *startNode)
 void Pathfinder::exploresNodes()
 {
@@ -88,6 +115,11 @@ void Pathfinder::exploresNodes()
 
     float closestDistance = -1;
     PathNode *closestNode(nullptr);
+
+
+    ///std::vector<bool> alreadyVisitedCells;
+    ///std::unordered_set<int, std::unordered_set<int> > m_alreadyVisitedCells;
+    m_alreadyVisitedCells.clear();
 
     auto nodeIt = m_nodesToExplore.begin();
     while(!m_nodesToExplore.empty())
@@ -127,8 +159,9 @@ void Pathfinder::exploresNodes()
             corner1.position = collisionImpact.corner1_1;
             corner1.nodesToUnlock.push_back(collisionImpact.corner1_2);
             //corner1.nodesToUnlock.push_back(m_destination);
-            m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner1),
-                                    corner1});
+            this->addNodeToExplore(nodeIt->first+this->estimateNodeWeight(corner1), corner1);
+            //m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner1),
+            //                        corner1});
 
             PathNode corner2;
             corner2.depth = node.depth+1;
@@ -136,19 +169,11 @@ void Pathfinder::exploresNodes()
             corner2.position = collisionImpact.corner2_1;
             corner2.nodesToUnlock.push_back(collisionImpact.corner2_2);
             //corner2.nodesToUnlock.push_back(m_destination);
-            m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner2),
-                                    corner2});
+            this->addNodeToExplore(nodeIt->first+this->estimateNodeWeight(corner2), corner2);
+            //m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner2),
+            //                        corner2});
         } else {
-            for(size_t i = 0 ; i < node.nodesToUnlock.size() ; ++i)
-            {
-                PathNode nodeToUnlock;
-                nodeToUnlock.depth = node.depth+1;
-                nodeToUnlock.parentNode = &m_exploredNodes.back();
-                nodeToUnlock.position = node.nodesToUnlock[i];
-                nodeToUnlock.nodesToUnlock.push_back(m_destination);
-                m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(nodeToUnlock),
-                                        nodeToUnlock});
-            }
+            this->unlockNodesToExplore(nodeIt->first, node);
         }
 
         //if(destination == m_destination)
@@ -165,6 +190,8 @@ void Pathfinder::exploresNodes()
     //If we did not find the destination, we take the closest solution
     if(!foundDestination)
         m_exploredNodes.push_back(*closestNode);
+    else
+        std::cout<<"FOUND PATH"<<std::endl;
 
     std::cout<<"m_exploredNodes:"<<m_exploredNodes.size()<<std::endl;
 }

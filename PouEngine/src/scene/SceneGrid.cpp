@@ -238,7 +238,7 @@ void SceneGrid::setRenderProbe(SceneNode *node, float radius)
         this->startListeningTo(node);
 }
 
-void SceneGrid::probesZones(std::set< std::vector<std::shared_ptr<SceneNode> > *> &zonesToUpdate, GridProbe &probe)
+void SceneGrid::probesZones(std::unordered_set< std::vector<std::shared_ptr<SceneNode> > *> &zonesToUpdate, GridProbe &probe)
 {
     auto probeGridPos_Min =  this->getGridPos(probe.node->transform()->getGlobalXYPosition()-probe.radius*glm::vec2(1));
     auto probeGridPos_Max =  this->getGridPos(probe.node->transform()->getGlobalXYPosition()+probe.radius*glm::vec2(1));
@@ -263,7 +263,7 @@ void SceneGrid::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
     SceneNode::update(elapsedTime, localTime);
 
-    std::set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
+    std::unordered_set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
 
     for(auto &probe : m_updateProbes)
         this->probesZones(zonesToUpdate, probe);
@@ -291,7 +291,7 @@ void SceneGrid::generateRenderingData(pou::SceneRenderingInstance *renderingInst
     if(!m_renderProbe.node)
         return;
 
-    std::set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
+    std::unordered_set< std::vector<std::shared_ptr<SceneNode> > *> zonesToUpdate;
     this->probesZones(zonesToUpdate, m_renderProbe);
 
     for(auto* zone : zonesToUpdate)

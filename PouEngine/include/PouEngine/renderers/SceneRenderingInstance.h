@@ -50,14 +50,14 @@ class SceneRenderingInstance
 
         size_t      m_spritesVboSize;
         size_t      m_spritesVboOffset;
-        std::map<VMesh*, size_t>    m_meshesVboSize;
-        std::map<VMesh*, size_t>    m_meshesVboOffset;
+        std::unordered_map<VMesh*, size_t>    m_meshesVboSize;
+        std::unordered_map<VMesh*, size_t>    m_meshesVboOffset;
         size_t      m_lightsVboSize;
         size_t      m_lightsVboOffset;
 
         std::multimap<float, SpriteDatum> m_spritesOrdered;
 
-        std::vector<ShadowCaster*>    m_renderedShadowCasters[2]; //Objects that can cast shadows, 0 is omni, 1 is directional
+        std::vector<ShadowCaster*>  m_renderedShadowCasters[2]; //Objects that can cast shadows, 0 is omni, 1 is directional
         std::list<LightEntity*>     m_renderedShadowLights; //Lights than can cast shadows
 };
 

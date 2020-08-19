@@ -30,7 +30,7 @@ class ShadowCaster : public SceneEntity
     protected:
         ShadowCastingType m_shadowCastingType;
 
-       // std::set<Light*> m_lightSources;
+       // std::unordered_set<Light*> m_lightSources;
 };
 
 }

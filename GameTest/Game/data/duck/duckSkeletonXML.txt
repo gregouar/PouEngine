@@ -182,6 +182,11 @@
 			<command type="rotateTo" node="wingR" z="0" rate="200" />
 			<state node="head">quack</state>
 		</frame>
+		
+		<frame>
+			<command type="moveTo" node="head" y="10" rate="125" />
+		</frame>
+		
 		<frame>
 			<tag>attack</tag>
 			<command type="moveTo" node="head" y="-25" rate="125" />

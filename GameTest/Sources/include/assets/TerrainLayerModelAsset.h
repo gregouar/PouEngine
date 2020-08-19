@@ -37,7 +37,7 @@ class TerrainLayerModelAsset : public pou::Asset
 
         bool loadFromFile(const std::string &filePath);
 
-        pou::SpriteModel *getSpriteModel(const std::string &spriteSheetName, const std::string &spriteName);
+        pou::SpriteModel *getSpriteModel(pou::HashedString spriteSheetName, pou::HashedString spriteName);
 
         ///std::shared_ptr<WorldSprite> generateSprite(TerrainGenerator_BorderType borderType, pou::RNGenerator *rng = nullptr);
         TerrainGenerator_TileModels* getTileModels(TerrainGenerator_BorderType borderType);
@@ -52,7 +52,7 @@ class TerrainLayerModelAsset : public pou::Asset
         bool loadTileModels(TiXmlElement *element);
 
     private:
-        std::map<std::string, pou::SpriteSheetAsset*>  m_spriteSheets;
+        std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>  m_spriteSheets;
         TerrainGenerator_TileModels m_tileModels[NBR_BORDER_TYPES];
 
         ///I think this should be move somewhere else

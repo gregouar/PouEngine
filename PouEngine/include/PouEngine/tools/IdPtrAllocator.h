@@ -29,8 +29,8 @@ template<class T> class IdPtrAllocator
 
         size_t size();
 
-        typename std::map<size_t, std::shared_ptr<T> >::iterator begin();
-        typename std::map<size_t, std::shared_ptr<T> >::iterator end();
+        typename std::unordered_map<size_t, std::shared_ptr<T> >::iterator begin();
+        typename std::unordered_map<size_t, std::shared_ptr<T> >::iterator end();
 
     protected:
 
@@ -40,8 +40,8 @@ template<class T> class IdPtrAllocator
         int     m_max;
         bool    m_enableIdReuse;
 
-        std::map<size_t, std::shared_ptr<T> > m_mapIdToElement;
-        std::map<const T*, size_t> m_mapElementToId;
+        std::unordered_map<size_t, std::shared_ptr<T> > m_mapIdToElement;
+        std::unordered_map<const T*, size_t> m_mapElementToId;
 
         std::list<size_t>   m_availableIds;
 };

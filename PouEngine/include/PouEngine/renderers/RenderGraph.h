@@ -75,7 +75,8 @@ class RenderGraph
         VkExtent2D  m_defaultExtent;
         size_t      m_imagesCount, m_framesCount;
 
-        std::set<std::pair<size_t, size_t> > m_connexions; //Second one is waiting for first one
+        ///std::set<std::pair<size_t, size_t> > m_connexions; //Second one is waiting for first one
+        unordered_set_intpair m_connexions; //Second one is waiting for first one
 
         std::vector<FullRenderPass*> m_renderPasses;
         std::list<VkSemaphore>       m_semaphores;

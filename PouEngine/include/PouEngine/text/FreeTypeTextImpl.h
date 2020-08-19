@@ -19,7 +19,7 @@ struct FreeTypeGlyph
 struct FreeTypeFont
 {
     FT_Face face;
-    std::map<uint16_t, FreeTypeGlyph> glyphes;
+    std::unordered_map<uint16_t, FreeTypeGlyph> glyphes;
 };
 
 class FreeTypeTextImpl : public AbstractTextImpl
@@ -42,7 +42,7 @@ class FreeTypeTextImpl : public AbstractTextImpl
     private:
         FT_Library  m_library;
 
-        std::map<FontTypeId, std::shared_ptr<FreeTypeFont> > m_fonts;
+        std::unordered_map<FontTypeId, std::shared_ptr<FreeTypeFont> > m_fonts;
 };
 
 }

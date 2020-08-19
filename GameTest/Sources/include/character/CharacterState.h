@@ -45,6 +45,15 @@ class CharacterState
 
     protected:
         Character  *m_character;
+
+    public:
+        const pou::HashedString ANIMATION_NAME_STAND;
+        const pou::HashedString ANIMATION_NAME_WALK;
+        const pou::HashedString ANIMATION_NAME_LATERALWALK;
+        const pou::HashedString ANIMATION_NAME_DASH;
+        const pou::HashedString ANIMATION_NAME_ATTACK;
+        const pou::HashedString ANIMATION_NAME_INTERRUPT;
+        const pou::HashedString ANIMATION_NAME_DEATH;
 };
 
 class CharacterState_Standing : public CharacterState
@@ -102,8 +111,10 @@ class CharacterState_Attacking : public CharacterState
         pou::Timer  m_attackTimer;
         glm::vec2   m_attackingDirection;
 
-        ///std::set<std::shared_ptr<Character> > m_alreadyHitCharacters;
-        std::set<Character*> m_alreadyHitCharacters;
+        std::unordered_set<Character*> m_alreadyHitCharacters;
+
+    public:
+        const pou::HashedString ATTACK_TAG;
 };
 
 class CharacterState_Dashing : public CharacterState

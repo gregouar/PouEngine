@@ -23,10 +23,10 @@ class SpriteSheetAsset : public Asset, public NotificationListener
         bool loadFromFile(const std::string &filePath);
 
 
-        SpriteModel* getSpriteModel(const std::string &spriteName);
-        SpriteModel* getSpriteModel(int spriteId);
+        SpriteModel* getSpriteModel(HashedString spriteName);
+        ///SpriteModel* getSpriteModel(int spriteId);
 
-        int getSpriteId(const std::string &spriteName) const;
+        ///int getSpriteId(const std::string &spriteName) const;
 
         virtual void notify(NotificationSender* , int notificationType,
                             void* data = nullptr) override;
@@ -35,7 +35,7 @@ class SpriteSheetAsset : public Asset, public NotificationListener
     protected:
         bool loadFromXML(TiXmlHandle *);
 
-        int generateSpriteId(const std::string &spriteName);
+        ///int generateSpriteId(const std::string &spriteName);
 
     private:
         TextureAsset    *m_texture;
@@ -46,9 +46,9 @@ class SpriteSheetAsset : public Asset, public NotificationListener
 
         bool m_waitingForTextureLoading;
 
-        std::map<std::string, int>                      m_spritesIdByName;
-        std::map<int, std::unique_ptr<SpriteModel> >    m_spritesById;
-
+        /**std::unordered_map<HashedString, int>                   m_spritesIdByName;
+        std::unordered_map<int, std::unique_ptr<SpriteModel> >  m_spritesById;**/
+        std::unordered_map<HashedString, std::unique_ptr<SpriteModel> >  m_spritesByName;
 };
 
 }

@@ -59,23 +59,23 @@ struct ChunkSendingBuffer
 {
     ClientAddress address;
     std::vector<uint8_t> buffer;
-    std::set<int> slicesToSend;
+    std::unordered_set<int> slicesToSend;
     int chunk_id;
     int nbr_slices;
     int compressed_buffer_size;
     int uncompressed_buffer_size;
     int chunk_msg_type;
 
-    std::map<int, int> packetSeqToSliceId;
+    std::unordered_map<int, int> packetSeqToSliceId;
     Timer sendingTimer;
 
-    std::set<int>::iterator lastSentSlice;
+    std::unordered_set<int>::iterator lastSentSlice;
 };
 
 struct ChunkReceivingBuffer
 {
     ClientAddress address;
-    std::map<int, std::vector<uint8_t> > sliceBuffers;
+    std::unordered_map<int, std::vector<uint8_t> > sliceBuffers;
     int chunk_id;
     //int chunkSize;
     int nbr_slices;
@@ -97,7 +97,7 @@ struct NetMessagesList
 {
     NetMessagesList() : curId(0), firstAck(true), last_ack(-1), ack_bits(0), avrgRTT(0),nbrPacketReceived(0){}
 
-    std::map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
+    std::unordered_map<int, std::shared_ptr<NetMessage> > reliableMsgMap;
     std::list<std::shared_ptr<NetMessage> > nonReliableMsgList;
     int curId;
 
@@ -110,7 +110,7 @@ struct NetMessagesList
     int nbrPacketReceived;
 
     //std::multimap<int, int> msgPerPacket;
-    std::map<int, SendedPacketContent> sendedPacketContents;
+    std::unordered_map<int, SendedPacketContent> sendedPacketContents;
 };
 
 struct ReliableMessagesBuffer
@@ -118,7 +118,7 @@ struct ReliableMessagesBuffer
     ReliableMessagesBuffer() : last_id(-1){}
 
     int last_id;
-    std::map<int, std::shared_ptr<NetMessage> > msgMap;
+    std::unordered_map<int, std::shared_ptr<NetMessage> > msgMap;
 };
 
 ///Need to add cleaning of old m_fragPacketsBuffer, m_reliableMsgLists, m_reliableMsgBuffers

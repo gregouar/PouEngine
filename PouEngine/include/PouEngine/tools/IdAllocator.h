@@ -26,8 +26,8 @@ template<class T> class IdAllocator
 
         size_t size();
 
-        typename std::map<size_t, T>::iterator begin();
-        typename std::map<size_t, T>::iterator end();
+        typename std::unordered_map<size_t, T>::iterator begin();
+        typename std::unordered_map<size_t, T>::iterator end();
 
     protected:
 
@@ -37,7 +37,7 @@ template<class T> class IdAllocator
         int     m_max;
         bool    m_enableIdReuse;
 
-        std::map<size_t, T> m_mapIdToElement;
+        std::unordered_map<size_t, T> m_mapIdToElement;
         std::map<T, size_t> m_mapElementToId;
 
         std::list<size_t>   m_availableIds;

@@ -43,7 +43,7 @@ class PrefabAsset : public pou::Asset
     private:
         pou::SceneNode m_rootNode;
 
-        std::map<std::string, pou::SpriteSheetAsset*>   m_spriteSheets;
+        std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>   m_spriteSheets;
 };
 
 #endif // PREFABASSET_H

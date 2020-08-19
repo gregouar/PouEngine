@@ -19,16 +19,16 @@ class Hitbox
 
         float getFactor(DamageType type) const;
         float getFactor(int type) const;
-        const std::string &getSkeleton() const;
-        const std::string &getNode() const;
+        pou::HashedString getSkeleton() const;
+        pou::HashedString getNode() const;
         const pou::MathTools::Box &getBox() const;
         const glm::vec4 &getColor() const;
 
     protected:
 
     private:
-        std::string m_skeleton; ///Replace by ID !
-        std::string m_node; ///Replace by ID !
+        pou::HashedString m_skeleton;
+        pou::HashedString m_node;
 
         std::vector<float>  m_factors;
         pou::MathTools::Box m_box;

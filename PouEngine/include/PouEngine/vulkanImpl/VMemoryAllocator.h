@@ -59,7 +59,7 @@ class VMemoryAllocator : public Singleton<VMemoryAllocator>
         void cleanAll();
 
     private:
-        std::map<uint32_t, std::vector<AllocatedMemory*> > m_memories;
+        std::unordered_map<uint32_t, std::vector<AllocatedMemory*> > m_memories;
 
     public:
         static uint32_t MEMORY_SIZE;

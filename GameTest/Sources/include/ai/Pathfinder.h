@@ -4,6 +4,7 @@
 //#include "PouEngine/core/Singleton.h"
 #include "PouEngine/physics/PhysicsEngine.h"
 
+
 struct PathNode
 {
     glm::vec2 position;
@@ -33,14 +34,21 @@ class Pathfinder //: public Singleton<Pathfinder>
         void reset();
         bool findPathImpl(glm::vec2 start, glm::vec2 destination, float radius, float destinationRadius, float minMass, int maxDepth);
         //void exploresNodes(PathNode *startNode);
+
+        void addNodeToExplore(float d, PathNode &node);
+        void unlockNodesToExplore(float d, PathNode &node);
         void exploresNodes();
+
         void simplifyPath();
 
         float estimateNodeWeight(const PathNode &node);
 
     private:
+
+        pou::unordered_set_intpair m_alreadyVisitedCells;
         std::multimap<float, PathNode> m_nodesToExplore;
         std::list<PathNode> m_exploredNodes;
+
         float m_rayThickness;
         float m_destinationRadius;
         float m_minMass;

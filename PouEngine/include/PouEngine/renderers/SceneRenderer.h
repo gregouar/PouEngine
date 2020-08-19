@@ -26,9 +26,7 @@ struct ShadowMapRenderingInstance
     glm::vec2 extent;
     size_t    spritesVboSize;
     size_t    spritesVboOffset;
-    std::map<VMesh*, std::pair<size_t,size_t> > meshesVboSizeAndOffset;
-    //std::map<VMesh*, size_t>    meshesVboSize; //I would gain perf by pairing them
-    //std::map<VMesh*, size_t>    meshesVboOffset;
+    std::unordered_map<VMesh*, std::pair<size_t,size_t> > meshesVboSizeAndOffset;
 
     VRenderableTexture *pingPongTex;
 };
@@ -160,65 +158,22 @@ class SceneRenderer : public AbstractRenderer
                                m_rmeAttachment;
         VFramebufferAttachment m_hdrAttachement;
 
-        size_t  /*m_spriteShadowsPass,
-                //m_spriteShadowsBlurPasses[2],*/
-                m_shadowMapsPass,
-                //m_shadowMapsBlurPasses[2],
+        size_t  m_shadowMapsPass,
                 m_deferredPass,
-                /*m_alphaDetectPass,
-                m_alphaDeferredPass,
-                m_ssgiBNPass,
-                m_ssgiBNBlurPasses[2],*/
                 m_lightingPass,
-                /*m_alphaLightingPass,
-                m_ssgiLightingPass,
-                m_ssgiLigghtingBlurPasses[2],*/
                 m_ambientLightingPass,
                 m_toneMappingPass;
 
 
         ///I should maybe sort by material (?)
-        /*std::vector<DynamicVBO<SpriteShadowGenerationDatum>*>   m_spriteShadowGenerationVbos;
-        std::vector<DynamicVBO<SpriteShadowDatum>*>          m_spriteShadowsVbos;*/
         std::vector<DynamicVBO<SpriteDatum>*>                   m_spritesVbos;
-        std::vector<std::map<VMesh* ,DynamicVBO<MeshDatum>*> >  m_meshesVbos;
+        std::vector<std::unordered_map<VMesh* ,DynamicVBO<MeshDatum>*> >  m_meshesVbos;
         std::vector<DynamicVBO<LightDatum>*>                    m_lightsVbos;
 
         std::list<SceneRenderingInstance*>      m_renderingInstances;
         std::list<ShadowMapRenderingInstance>   m_shadowMapsInstances;
 
         std::map<VTextureFormat, VRenderableTexture> m_shadowMapBlurPingPongs;
-
-        /*static const float SSGI_SIZE_FACTOR;
-
-        static const char *ISOSPRITE_SHADOWGEN_VERTSHADERFILE;
-        static const char *ISOSPRITE_SHADOWGEN_FRAGSHADERFILE;
-        static const char *ISOSPRITE_SHADOWFILT_VERTSHADERFILE;
-        static const char *ISOSPRITE_SHADOWFILT_FRAGSHADERFILE;
-        static const char *ISOSPRITE_SHADOW_VERTSHADERFILE;
-        static const char *ISOSPRITE_SHADOW_FRAGSHADERFILE;
-        static const char *MESH_DIRECTSHADOW_VERTSHADERFILE;
-        static const char *MESH_DIRECTSHADOW_FRAGSHADERFILE;
-        static const char *ISOSPRITE_DEFERRED_VERTSHADERFILE;
-        static const char *ISOSPRITE_DEFERRED_FRAGSHADERFILE;
-        static const char *MESH_DEFERRED_VERTSHADERFILE;
-        static const char *MESH_DEFERRED_FRAGSHADERFILE;
-        static const char *ISOSPRITE_ALPHADETECT_VERTSHADERFILE;
-        static const char *ISOSPRITE_ALPHADETECT_FRAGSHADERFILE;
-        static const char *ISOSPRITE_ALPHADEFERRED_VERTSHADERFILE;
-        static const char *ISOSPRITE_ALPHADEFERRED_FRAGSHADERFILE;
-        static const char *SSGI_BN_VERTSHADERFILE;
-        static const char *SSGI_BN_FRAGSHADERFILE;
-        static const char *LIGHTING_VERTSHADERFILE;
-        static const char *LIGHTING_FRAGSHADERFILE;
-        static const char *SSGI_LIGHTING_VERTSHADERFILE;
-        static const char *SSGI_LIGHTING_FRAGSHADERFILE;
-        static const char *AMBIENTLIGHTING_VERTSHADERFILE;
-        static const char *AMBIENTLIGHTING_FRAGSHADERFILE;
-        static const char *TONEMAPPING_VERTSHADERFILE;
-        static const char *TONEMAPPING_FRAGSHADERFILE;
-        static const char *BLUR_VERTSHADERFILE;
-        static const char *BLUR_FRAGSHADERFILE;*/
 
         static const char *SPRITE_SHADOW_VERTSHADERFILE;
         static const char *SPRITE_SHADOW_FRAGSHADERFILE;
