@@ -23,7 +23,7 @@ class Pathfinder //: public Singleton<Pathfinder>
         virtual ~Pathfinder();
         /*static*/ bool findPath(glm::vec2 start, glm::vec2 destination,
                                  float pathRadius = 0, float destinationRadius = 0,
-                                 float minMassAvoidance = -1, int maxDepth = 16);
+                                 float minMassAvoidance = -1, int maxDepth = 32);
 
         bool pathFounded();
         std::list<glm::vec2> &getPath();
@@ -49,6 +49,9 @@ class Pathfinder //: public Singleton<Pathfinder>
 
         bool m_pathFounded;
         std::list<glm::vec2> m_path;
+
+    public:
+        static const int MAX_PATHFINDING_TESTS;
 };
 
 #endif // PATHFINDER_H

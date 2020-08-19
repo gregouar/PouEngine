@@ -34,6 +34,7 @@ struct AllocatedBuffer
 
     std::mutex              mutex;
 
+    ///Could replace by map
     std::list<std::pair<VkDeviceSize, VkDeviceSize> > emptyRanges; //<offset, size>
 };
 

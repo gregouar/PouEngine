@@ -172,6 +172,10 @@ void VBuffersAllocator::copyBufferToImage(VBuffer buffer, VkImage image, uint32_
 
 bool VBuffersAllocator::freeBuffer(VBuffer &vbuffer)
 {
+    /*///TEST !!!!!!!!!!!!!!!!!!!!!!!!!!
+    return true;
+    ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
     return VBuffersAllocator::instance()->freeBufferImpl(vbuffer);
 }
 
@@ -187,6 +191,12 @@ bool VBuffersAllocator::freeBufferImpl(VBuffer &vbuffer)
     VInstance::waitDeviceIdle();*/
 
     std::lock_guard<std::mutex> guard(allocatedBuffer->mutex);
+
+    /*std::cout<<"Want to free: "<<vbuffer.offset<<" "<<vbuffer.alignedSize<<std::endl;
+    std::cout<<"BUFFER STATE BEFORE:"<<std::endl;
+    for(auto emptyRange : allocatedBuffer->emptyRanges)
+        std::cout<<emptyRange.first<<" "<<emptyRange.second<<std::endl;
+    std::cout<<std::endl;*/
 
     bool alreadyMerged = false;
     auto lastMerge = allocatedBuffer->emptyRanges.begin();
@@ -222,6 +232,11 @@ bool VBuffersAllocator::freeBufferImpl(VBuffer &vbuffer)
     if(!alreadyMerged)
         allocatedBuffer->emptyRanges.insert(leftmostRight,{vbuffer.offset, vbuffer.alignedSize});
 
+    /*std::cout<<"BUFFER STATE AFTER:"<<std::endl;
+    for(auto emptyRange : allocatedBuffer->emptyRanges)
+        std::cout<<emptyRange.first<<" "<<emptyRange.second<<std::endl;
+    std::cout<<std::endl<<std::endl;*/
+
     vbuffer.buffer = VK_NULL_HANDLE;
 
     return (true);
@@ -231,17 +246,20 @@ bool VBuffersAllocator::searchForSpace(AllocatedBuffer *allocatedBuffer, VkDevic
 {
     std::lock_guard<std::mutex> guard(allocatedBuffer->mutex);
 
-    for(auto &emptyRange : allocatedBuffer->emptyRanges)
+    //for(auto &emptyRange : allocatedBuffer->emptyRanges)
+    for(auto emtyRangeIt = allocatedBuffer->emptyRanges.begin() ;
+             emtyRangeIt != allocatedBuffer->emptyRanges.end()  ;
+             ++emtyRangeIt )
     {
-        if(emptyRange.second >= alignedSize)
+        if(emtyRangeIt->second >= alignedSize)
         {
-            offset = emptyRange.first;
+            offset = emtyRangeIt->first;
 
-            emptyRange.first += alignedSize;
-            emptyRange.second -= alignedSize;
+            emtyRangeIt->first += alignedSize;
+            emtyRangeIt->second -= alignedSize;
 
-            if(emptyRange.second == 0)
-                allocatedBuffer->emptyRanges.remove(emptyRange);
+            if(emtyRangeIt->second == 0)
+                allocatedBuffer->emptyRanges.erase(emtyRangeIt);
 
             return (true);
         }

@@ -2,6 +2,8 @@
 
 #include "PouEngine/system/Clock.h"
 
+//#define DISABLE_PHYSICS
+
 namespace pou
 {
 
@@ -18,22 +20,34 @@ PhysicsEngine::~PhysicsEngine()
 
 void PhysicsEngine::resolveCollisions(/*const Time &elapsedTime*/)
 {
+    #ifdef DISABLE_PHYSICS
+        return;
+    #endif // DISABLE_PHYSICS
     instance()->resolveCollisionsImpl();
 }
 
 void PhysicsEngine::addBoxBody(const BoxBody &box)
 {
+    #ifdef DISABLE_PHYSICS
+        return;
+    #endif // DISABLE_PHYSICS
     instance()->addBoxBodyImpl(box);
 }
 
 void PhysicsEngine::addDiskBody(const DiskBody &disk)
 {
+    #ifdef DISABLE_PHYSICS
+        return;
+    #endif // DISABLE_PHYSICS
     instance()->addDiskBodyImpl(disk);
 }
 
 
 CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRay(glm::vec2 startPoint, glm::vec2 endPoint, float rayThickness, float minMass)
 {
+    #ifdef DISABLE_PHYSICS
+        return {false};
+    #endif // DISABLE_PHYSICS
     return instance()->castCollisionDetectionRayImpl(startPoint, endPoint, rayThickness, minMass);
 }
 

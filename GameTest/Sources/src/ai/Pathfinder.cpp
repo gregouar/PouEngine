@@ -1,5 +1,7 @@
 #include "ai/Pathfinder.h"
 
+const int Pathfinder::MAX_PATHFINDING_TESTS = 256;
+
 Pathfinder::Pathfinder()
 {
     this->reset();
@@ -96,7 +98,7 @@ void Pathfinder::exploresNodes()
         if(node.depth >= m_maxDepth)
             break;
 
-        if(nbrTest > 127)
+        if(nbrTest > Pathfinder::MAX_PATHFINDING_TESTS)
             break;
 
         auto start = node.parentNode->position;
@@ -163,6 +165,8 @@ void Pathfinder::exploresNodes()
     //If we did not find the destination, we take the closest solution
     if(!foundDestination)
         m_exploredNodes.push_back(*closestNode);
+
+    std::cout<<"m_exploredNodes:"<<m_exploredNodes.size()<<std::endl;
 }
 
 void Pathfinder::simplifyPath()
@@ -187,7 +191,7 @@ void Pathfinder::simplifyPath()
             }
 
             auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(curNode, *pathIt,
-                                                                                 20.0f, -1);
+                                                                                 20.0f, m_minMass);
             if(!collisionImpact.detectImpact)
             {
                 m_path.push_back(*pathIt);

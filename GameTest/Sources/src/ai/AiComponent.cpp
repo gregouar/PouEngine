@@ -106,14 +106,16 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
     auto charPos = m_character->transform()->getGlobalXYPosition();
 
     ///Change 500 by some parameter depending on monster type (big monsters should avoid less obstacles)
+    float minMass = 500;
+
     auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(charPos, destination - 20.0f * glm::normalize(destination - charPos),
-                                                                         20.0f, 500);
+                                                                         20.0f, minMass);
 
     if(collisionImpact.detectImpact)
     {
         if(!m_pathfindingTimer.isActive())
         {
-            m_pathfinder.findPath(charPos, destination, 20.0f, 20.0f, -1);
+            m_pathfinder.findPath(charPos, destination, 20.0f, 20.0f, minMass);
             m_pathfindingTimer.reset(0.5f);
         }
 
