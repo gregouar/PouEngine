@@ -19,6 +19,11 @@ class TransformComponent : public NotificationSender, public NotificationListene
 
         void copyFrom(const TransformComponent *srcTransform);
 
+        //void combineTransform(TransformComponent *localTransform);
+        glm::vec4 apply(const glm::vec4 &srcPoint);
+        glm::vec3 apply(const glm::vec3 &srcPoint);
+        //void loadFromModelMatrix(const glm::mat4 &model);
+
         void setParent(TransformComponent *parent);
 
         void move(float, float);
@@ -63,6 +68,9 @@ class TransformComponent : public NotificationSender, public NotificationListene
 
         const glm::mat4 &getModelMatrix() const;
         const glm::mat4 &getInvModelMatrix() const;
+
+        //glm::vec3 getLocalXRotationVector() const;
+        //static glm::vec3 convertZRotationVectorToYZRotation(const glm::vec3 &rotationVector);
 
     protected:
         virtual void notify(NotificationSender* , int notificationType,

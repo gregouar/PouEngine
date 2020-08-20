@@ -34,13 +34,28 @@
 	
 	
 	<pois type="poisson" distance=2000 useGridPosition=1 startInCenter=1 >
-		<spawnPoint  spawnProbability=.4 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
+			<modifier type="flip" rng="uniform" x="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+			<prefab path="../wall/smallHousePrefabXML.txt" />
+			<size x=6 y=6 />
+			<modifier type="flip" rng="uniform" x="[-1,1]" />
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.4 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
+			<modifier type="flip" rng="uniform" x="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
+			<prefab path="treeCirclePrefabXML.txt" />
+			<size x=10 y=10 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
+			<prefab path="treeCirclePrefabXML.txt" />
+			<size x=10 y=10 />
 		</spawnPoint>
 	</pois>
 	

@@ -172,10 +172,6 @@ void VBuffersAllocator::copyBufferToImage(VBuffer buffer, VkImage image, uint32_
 
 bool VBuffersAllocator::freeBuffer(VBuffer &vbuffer)
 {
-    /*///TEST !!!!!!!!!!!!!!!!!!!!!!!!!!
-    return true;
-    ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-
     return VBuffersAllocator::instance()->freeBufferImpl(vbuffer);
 }
 

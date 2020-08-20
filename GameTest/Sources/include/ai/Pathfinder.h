@@ -13,7 +13,9 @@ struct PathNode
     //float distanceFromStart;
 
     std::vector<glm::vec2> nodesToUnlock;
+    std::vector<glm::vec2> nodesToUnlockAfter;
 };
+
 
 class Pathfinder //: public Singleton<Pathfinder>
 {
@@ -28,6 +30,7 @@ class Pathfinder //: public Singleton<Pathfinder>
 
         bool pathFounded();
         std::list<glm::vec2> &getPath();
+        std::list<PathNode> &getExploredNodes(); ///For debugging purposes, remove later
 
     protected:
 
@@ -36,7 +39,8 @@ class Pathfinder //: public Singleton<Pathfinder>
         //void exploresNodes(PathNode *startNode);
 
         void addNodeToExplore(float d, PathNode &node);
-        void unlockNodesToExplore(float d, PathNode &node);
+        void unlockNodesToExplore(float d, PathNode &nodeToUnlock, PathNode *parentNode);
+        void addExploredNode(glm::vec2 pos, PathNode *parentNode, int depth);
         void exploresNodes();
 
         void simplifyPath();
@@ -45,7 +49,8 @@ class Pathfinder //: public Singleton<Pathfinder>
 
     private:
 
-        pou::unordered_set_intpair m_alreadyVisitedCells;
+        //pou::unordered_set_intpair m_alreadyVisitedCells;
+        std::unordered_map<std::pair<int, int>, PathNode*, pou::IntPairHash> m_alreadyVisitedCells;
         std::multimap<float, PathNode> m_nodesToExplore;
         std::list<PathNode> m_exploredNodes;
 

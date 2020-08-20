@@ -66,7 +66,6 @@ class SceneNode :  public NotificationSender, public NotificationListener //: pu
         TransformComponent *transform();
         const TransformComponent *const_transform() const;
 
-        ///Need to add StringHasher to tools and use that !!!!
         void setName(HashedString name);
         HashedString getName() const;
         void getNodesByName(std::unordered_map<HashedString, SceneNode*> &namesAndResMap);

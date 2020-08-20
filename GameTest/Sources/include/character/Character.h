@@ -157,7 +157,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         void startAnimation(pou::HashedString name, bool forceStart = true);
 
-        //virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance);
+        virtual void generateRenderingData(pou::SceneRenderingInstance *renderingInstance); ///For debugging purposes, remove later
 
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
         ///virtual void rewind(uint32_t time);

@@ -21,6 +21,7 @@ class PrefabInstance : public pou::SceneNode
         virtual void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);
 
         void createFromModel(PrefabAsset *prefabModel);
+        void spawnCharactersOnParent();
 
         PrefabAsset *getPrefabModel();
         uint32_t getLastPrefabModelUpdateTime();

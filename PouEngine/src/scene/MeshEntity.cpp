@@ -271,20 +271,6 @@ void MeshEntity::updateDatum()
 
     glm::vec3 scale = m_scale * m_mesh->getScale();
 
-    /*glm::mat4 modelMatrix = glm::mat4(1.0);
-
-    modelMatrix = glm::translate(modelMatrix, m_parentNode->getGlobalPosition());
-
-    //I should use quaternion (and also inherits rotations from parents)
-    modelMatrix = glm::rotate(modelMatrix, m_parentNode->getEulerRotation().x, glm::vec3(1.0,0.0,0.0));
-    modelMatrix = glm::rotate(modelMatrix, m_parentNode->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
-    modelMatrix = glm::rotate(modelMatrix, m_parentNode->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
-
-    modelMatrix = glm::scale(modelMatrix, scale);
-    modelMatrix = glm::scale(modelMatrix, m_parentNode->getScale());*/
-
-
-
     glm::mat4 modelMat(1.0);
 
    // if(m_inheritRotation)

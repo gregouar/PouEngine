@@ -41,7 +41,7 @@ bool WorldGenerator_Distribution::loadFromXML(const std::string &fileDirectory, 
         auto spawnPointElement = spawnPointChild->ToElement();
         if(spawnPointElement)
         {
-            m_spawnPoints.push_back({});
+            m_spawnPoints.emplace_back();
             m_spawnPoints.back().loadFromXML(fileDirectory, spawnPointElement, terrainGenerator);
         }
         spawnPointChild = spawnPointChild->NextSiblingElement("spawnPoint");

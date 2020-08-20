@@ -240,7 +240,7 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     if(!layerModel)
         return (false);
 
-    m_groundLayers.push_back({});
+    m_groundLayers.emplace_back();
     auto *groundLayer = &m_groundLayers.back();
     groundLayer->parentLayer = parentLayer;
     groundLayer->layerModel  = layerModel;

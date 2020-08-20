@@ -230,10 +230,9 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     m_lastModelUpdateTime       = -1;
 
     m_nodeSyncer = std::make_shared<NodeSyncer>(this);
-    ///UPDATE THIS USING NODE SYNCER !!!!
-    /**m_syncPosition.setReconciliationPrecision(glm::vec3(4));
-    m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));**/
+    m_nodeSyncer->setReconciliationPrecision(glm::vec3(4),
+                                             glm::vec3(glm::pi<float>()/10.0f),
+                                             glm::vec3(1.0f/NodeSyncer::NODE_SCALE_DECIMALS));
 
    /// m_disableInputSync  = false;
     m_disableDeath      = false;
@@ -656,11 +655,30 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
     }
 }**/
 
-/*void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInstance)
+void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInstance)
 {
-    WorldNode::generateRenderingData(renderingInstance);
+    pou::SceneNode::generateRenderingData(renderingInstance);
 
-    auto &path = m_aiComponent->getPlannedPath();
+    /*auto &path = m_aiComponent->getExploredNodes();
+    for(auto node : path)
+    {
+        glm::vec4 color(0,1,0,1);
+        if(node.depth > 0 && node.depth < 10)
+        {
+            color.b = 0;
+            color.r = (float)node.depth/10.0f;
+        }
+        else
+        {
+            color.b = 0;
+            color.r = 1.0f;
+            color.g = ((float)node.depth-10.0f)/10.0f;
+        }
+
+        renderingInstance->drawRectangle({node.position.x-3,node.position.y-3,100-(float)node.depth/100},{6+node.depth/2,6+node.depth/2},color);
+    }*/
+
+    /*auto &path = m_aiComponent->getPlannedPath();
     float i = 0;
     for(auto node : path)
     {
@@ -669,12 +687,12 @@ void Character::rotateToDestination(const pou::Time& elapsedTime, glm::vec2 dest
         else
             renderingInstance->drawRectangle({node.x-5,node.y-5,100},{10,10},{i,i,1,1});
         i+=.1f;
-    }
+    }*/
     //if(!path.empty())
     //    std::cout<<"Path Length:"<<path.size()<<std::endl;
 
     //renderingInstance->drawRectangle({this->getGlobalPosition().x-5,this->getGlobalPosition().y-5,101},{10,10},{1,0,0,1});
-}*/
+}
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {

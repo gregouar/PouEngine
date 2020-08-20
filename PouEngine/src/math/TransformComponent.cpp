@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
 namespace pou
 {
 
@@ -45,6 +48,71 @@ void TransformComponent::copyFrom(const TransformComponent *srcTransform)
     this->setScale(srcTransform->getScale());
     this->setRigidity(srcTransform->getRigidity());
 }
+
+//void TransformComponent::combineTransform(TransformComponent *localTransform)
+//{
+    /*if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
+
+    if(localTransform->m_needToUpdateModelMat)
+        localTransform->updateModelMatrix();
+
+    auto newModelMatrix = localTransform->getModelMatrix() * this->getModelMatrix();
+    this->loadFromModelMatrix(newModelMatrix);*/
+
+    /*auto newPos = this->apply(localTransform->getPosition());
+
+    auto oldRotVector = localTransform->getLocalRotationVector();
+    auto newRotVector = this->apply(oldRotVector) - this->getGlobalPosition();
+
+    auto newRotation = convertRotationVectorToYZRotation(newRotVector);
+
+    this->setPosition(newPos);
+    this->setRotationInRadians(newRotation);*/
+//}
+
+glm::vec4 TransformComponent::apply(const glm::vec4 &srcPoint)
+{
+    if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
+
+    glm::vec4 v = m_modelMatrix * srcPoint;
+    return v;
+}
+
+glm::vec3 TransformComponent::apply(const glm::vec3 &srcPoint)
+{
+    auto v = this->apply(glm::vec4(srcPoint, 1));
+    v /= v.w;
+    return glm::vec3(v.x, v.y, v.z);
+}
+
+/*void TransformComponent::loadFromModelMatrix(const glm::mat4 &model)
+{
+    glm::vec3 scale;
+    glm::quat orientation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    glm::decompose(model,
+		scale,
+		orientation,
+		translation,
+		skew,
+		perspective
+	);
+
+	orientation = glm::conjugate(orientation);
+
+	glm::vec3 eulerRotation = glm::eulerAngles(orientation);
+
+	std::cout<<translation.x<<" "<<translation.y<<" "<<translation.z<<std::endl;
+
+	this->setPosition(translation);
+	this->setScale(scale);
+	this->setRotationInRadians(eulerRotation);
+}*/
 
 void TransformComponent::setParent(TransformComponent *parent)
 {
@@ -265,6 +333,47 @@ const glm::mat4 &TransformComponent::getInvModelMatrix() const
 }
 
 
+/*glm::vec3 TransformComponent::getLocalXRotationVector() const
+{
+    glm::vec4 localRotationVector(1.0,0.0,0.0,1.0);
+
+    auto localRotationMatrix = glm::mat4(1.0f);
+
+    localRotationMatrix = glm::rotate(localRotationMatrix, this->getEulerRotation().x, glm::vec3(1.0,0.0,0.0));
+    localRotationMatrix = glm::rotate(localRotationMatrix, this->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
+    localRotationMatrix = glm::rotate(localRotationMatrix, this->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
+
+    localRotationVector = localRotationMatrix * localRotationVector;
+    localRotationVector /= localRotationVector.w;
+
+    if(m_scale.x < 1)
+        localRotationVector.x *= -1;
+    if(m_scale.y < 1)
+        localRotationVector.y *= -1;
+    if(m_scale.z < 1)
+        localRotationVector.z *= -1;
+
+    return localRotationVector;
+}
+
+glm::vec3 TransformComponent::convertRotationVectorToYZRotation(const glm::vec3 &rotationVector)
+{
+    glm::vec3 rotation(0.0f);
+
+    rotation.z = glm::atan(rotationVector.x, rotationVector.y);
+
+    auto rotZMat = glm::mat4(1.0f);
+    rotZMat = glm::rotate(rotZMat, -rotation.z, glm::vec3(0.0,0.0,1.0));
+
+    auto newRotVector = glm::vec4(rotationVector, 1.0f);
+    newRotVector = rotZMat * newRotVector;
+    newRotVector /= newRotVector.w;
+
+    rotation.y = glm::atan(newRotVector.x, newRotVector.z);
+
+    return rotation;
+}*/
+
 ///
 ///Protected
 ///
@@ -327,9 +436,9 @@ void TransformComponent::updateModelMatrix()
 
     m_modelMatrix = glm::translate(m_modelMatrix, this->getPosition());
 
-    m_modelMatrix = glm::rotate(m_modelMatrix, this->getEulerRotation().x, glm::vec3(1.0,0.0,0.0));
-    m_modelMatrix = glm::rotate(m_modelMatrix, this->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
     m_modelMatrix = glm::rotate(m_modelMatrix, this->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
+    m_modelMatrix = glm::rotate(m_modelMatrix, this->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
+    m_modelMatrix = glm::rotate(m_modelMatrix, this->getEulerRotation().x, glm::vec3(1.0,0.0,0.0));
 
     m_modelMatrix = glm::scale(m_modelMatrix, this->getScale());
 
@@ -341,9 +450,9 @@ void TransformComponent::updateModelMatrix()
         m_invModelMatrix = glm::mat4(1.0);
 
     m_invModelMatrix = glm::scale(m_invModelMatrix, 1.0f/this->getScale());
-    m_invModelMatrix = glm::rotate(m_invModelMatrix, -this->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
-    m_invModelMatrix = glm::rotate(m_invModelMatrix, -this->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
     m_invModelMatrix = glm::rotate(m_invModelMatrix, -this->getEulerRotation().x, glm::vec3(1.0,0.0,0.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -this->getEulerRotation().y, glm::vec3(0.0,1.0,0.0));
+    m_invModelMatrix = glm::rotate(m_invModelMatrix, -this->getEulerRotation().z, glm::vec3(0.0,0.0,1.0));
     m_invModelMatrix = glm::translate(m_invModelMatrix, -this->getPosition());
 
     if(m_rigidity != 1.0 && m_parent != nullptr)

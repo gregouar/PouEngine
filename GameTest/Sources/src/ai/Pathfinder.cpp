@@ -1,6 +1,6 @@
 #include "ai/Pathfinder.h"
 
-const int Pathfinder::MAX_PATHFINDING_TESTS = 256;
+const int Pathfinder::MAX_PATHFINDING_TESTS = 512;
 
 Pathfinder::Pathfinder()
 {
@@ -31,6 +31,11 @@ std::list<glm::vec2> &Pathfinder::getPath()
     return m_path;
 }
 
+std::list<PathNode> &Pathfinder::getExploredNodes()
+{
+    return m_exploredNodes;
+}
+
 ///
 ///Protected
 ///
@@ -39,6 +44,7 @@ void Pathfinder::reset()
 {
     m_nodesToExplore.clear();
     m_exploredNodes.clear();
+    m_alreadyVisitedCells.clear();
     m_path.clear();
     m_pathFounded = false;
 }
@@ -52,7 +58,8 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float path
     m_destination   = destination;
     m_destinationRadius = destinationRadius;
 
-    m_exploredNodes.push_back({start, nullptr, 0});
+    ///m_exploredNodes.push_back({start, nullptr, 0});
+    this->addExploredNode(start, nullptr, 0);
 
     PathNode destinationNode;
     destinationNode.depth = 1;
@@ -82,29 +89,44 @@ bool Pathfinder::findPathImpl(glm::vec2 start, glm::vec2 destination, float path
 
 void Pathfinder::addNodeToExplore(float d, PathNode &node)
 {
-    //glm::ivec2 cellPos = glm::round(node.position /*/2.0f*/);
-    //if(m_alreadyVisitedCells.insert({cellPos.x, cellPos.y}).second)
+    glm::ivec2 cellPos = glm::round(node.position / 4.0f );
+
+    auto visitedCell = m_alreadyVisitedCells.find({cellPos.x, cellPos.y});
+    if(visitedCell != m_alreadyVisitedCells.end())
+        this->unlockNodesToExplore(d, node, visitedCell->second);
+    else
         m_nodesToExplore.insert({d, node});
-    //else
-      //  this->unlockNodesToExplore(d, node);
 }
 
-void Pathfinder::unlockNodesToExplore(float d, PathNode &node)
+void Pathfinder::unlockNodesToExplore(float d, PathNode &node, PathNode *parentNode)
 {
     for(size_t i = 0 ; i < node.nodesToUnlock.size() ; ++i)
     {
         PathNode nodeToUnlock;
-        nodeToUnlock.depth = node.depth+1;
-        nodeToUnlock.parentNode = &m_exploredNodes.back();
+        nodeToUnlock.depth = parentNode->depth+1;
+        nodeToUnlock.parentNode = parentNode;//&m_exploredNodes.back();
         nodeToUnlock.position = node.nodesToUnlock[i];
 
-        if(glm::round(nodeToUnlock.position) != glm::round(m_destination))
+        if(glm::round(nodeToUnlock.position / 4.0f) != glm::round(m_destination / 4.0f))
+        {
             nodeToUnlock.nodesToUnlock.push_back(m_destination);
+            for(size_t j = 0 ; j < node.nodesToUnlockAfter.size() ; ++j)
+                nodeToUnlock.nodesToUnlock.push_back(node.nodesToUnlockAfter[j]);
+        }
 
         this->addNodeToExplore(d+this->estimateNodeWeight(nodeToUnlock), nodeToUnlock);
       //  m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(nodeToUnlock),
         //                        nodeToUnlock});
     }
+}
+
+void Pathfinder::addExploredNode(glm::vec2 pos, PathNode *parentNode, int depth)
+{
+    m_exploredNodes.push_back({pos, parentNode, depth});
+
+    glm::ivec2 cellPos = glm::round(pos / 4.0f);
+    if(!m_alreadyVisitedCells.insert({{cellPos.x, cellPos.y}, &m_exploredNodes.back()}).second)
+       m_exploredNodes.pop_back();
 }
 
 //void Pathfinder::exploresNodes(PathNode *startNode)
@@ -116,10 +138,8 @@ void Pathfinder::exploresNodes()
     float closestDistance = -1;
     PathNode *closestNode(nullptr);
 
-
     ///std::vector<bool> alreadyVisitedCells;
     ///std::unordered_set<int, std::unordered_set<int> > m_alreadyVisitedCells;
-    m_alreadyVisitedCells.clear();
 
     auto nodeIt = m_nodesToExplore.begin();
     while(!m_nodesToExplore.empty())
@@ -127,8 +147,8 @@ void Pathfinder::exploresNodes()
         ++nbrTest;
         auto &node = nodeIt->second;
 
-        if(node.depth >= m_maxDepth)
-            break;
+        /**if(node.depth >= m_maxDepth)
+            break;**/
 
         if(nbrTest > Pathfinder::MAX_PATHFINDING_TESTS)
             break;
@@ -136,13 +156,26 @@ void Pathfinder::exploresNodes()
         auto start = node.parentNode->position;
         auto destination = node.position;
 
+        ///Test
+        auto cellPos = glm::round(destination / 4.0f);
+        auto visitedCell = m_alreadyVisitedCells.find({cellPos.x, cellPos.y});
+        if(visitedCell != m_alreadyVisitedCells.end())
+            this->unlockNodesToExplore(nodeIt->first, node, visitedCell->second);
+        else
+        {
+        ///
+
         auto collisionImpact = pou::PhysicsEngine::castCollisionDetectionRay(start, destination,
                                                                              m_rayThickness, m_minMass);
 
         if(collisionImpact.detectImpact)
             destination = collisionImpact.collisionImpact;
 
-        m_exploredNodes.push_back({destination, node.parentNode, node.depth});
+        ///m_exploredNodes.push_back({destination, node.parentNode, node.depth});
+        this->addExploredNode(destination, node.parentNode, node.depth);
+
+        //glm::ivec2 cellPos = glm::round(destination / 4.0f);
+        //m_alreadyVisitedCells.insert({{cellPos.x, cellPos.y}, &m_exploredNodes.back()});
 
         float distance = glm::dot(destination - m_destination, destination - m_destination);
         if(distance < closestDistance || closestDistance == -1)
@@ -158,6 +191,7 @@ void Pathfinder::exploresNodes()
             corner1.parentNode = &m_exploredNodes.back();
             corner1.position = collisionImpact.corner1_1;
             corner1.nodesToUnlock.push_back(collisionImpact.corner1_2);
+            corner1.nodesToUnlockAfter.push_back(collisionImpact.corner2_2);
             //corner1.nodesToUnlock.push_back(m_destination);
             this->addNodeToExplore(nodeIt->first+this->estimateNodeWeight(corner1), corner1);
             //m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner1),
@@ -168,12 +202,13 @@ void Pathfinder::exploresNodes()
             corner2.parentNode = &m_exploredNodes.back();
             corner2.position = collisionImpact.corner2_1;
             corner2.nodesToUnlock.push_back(collisionImpact.corner2_2);
+            corner2.nodesToUnlockAfter.push_back(collisionImpact.corner1_2);
             //corner2.nodesToUnlock.push_back(m_destination);
             this->addNodeToExplore(nodeIt->first+this->estimateNodeWeight(corner2), corner2);
             //m_nodesToExplore.insert({nodeIt->first+this->estimateNodeWeight(corner2),
             //                        corner2});
         } else {
-            this->unlockNodesToExplore(nodeIt->first, node);
+            this->unlockNodesToExplore(nodeIt->first, node, &m_exploredNodes.back());
         }
 
         //if(destination == m_destination)
@@ -183,6 +218,10 @@ void Pathfinder::exploresNodes()
             break;
         }
 
+        ///Test
+        }
+        ///
+
         m_nodesToExplore.erase(nodeIt);
         nodeIt = m_nodesToExplore.begin();
     }
@@ -190,10 +229,9 @@ void Pathfinder::exploresNodes()
     //If we did not find the destination, we take the closest solution
     if(!foundDestination)
         m_exploredNodes.push_back(*closestNode);
-    else
-        std::cout<<"FOUND PATH"<<std::endl;
-
-    std::cout<<"m_exploredNodes:"<<m_exploredNodes.size()<<std::endl;
+    /*else
+        std::cout<<"FOUND"<<std::endl;
+    std::cout<<m_exploredNodes.size()<<std::endl;*/
 }
 
 void Pathfinder::simplifyPath()
@@ -202,7 +240,6 @@ void Pathfinder::simplifyPath()
     m_path.swap(oldPath);
 
     m_path.push_back(oldPath.front());
-
 
     while(m_path.back() != m_destination)
     {

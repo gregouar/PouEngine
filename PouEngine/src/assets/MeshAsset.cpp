@@ -174,16 +174,16 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath, bool flipUV)
             {
                 std::getline(file, buf);
             } else if(buf == "v") {
-                vertexList.push_back({});
+                vertexList.emplace_back();
                 file>>vertexList.back().x>>vertexList.back().y>>vertexList.back().z;
             } else if(buf == "vt") {
-                uvList.push_back({});
+                uvList.emplace_back();
                 file>>uvList.back().x>>uvList.back().y;
                 if(flipUV)
                     uvList.back().y = 1.0f - uvList.back().y;
                 //uvList.back().y = 1.0-uvList.back().y;
             } else if(buf == "vn") {
-                normalList.push_back({});
+                normalList.emplace_back();
                 file>>normalList.back().x>>normalList.back().y>>normalList.back().z;
             } else if(buf == "f") {
                 //f.push_back(std::vector<sf::Vector2i> ());
@@ -233,6 +233,7 @@ bool MeshAsset::loadModelFromObj(const std::string &filePath, bool flipUV)
             }
         }
         this->generateModel(vertexList, uvList, normalList, triangleList);
+        Logger::write("Mesh model loaded from file: "+filePath);
         file.close();
     }
     else

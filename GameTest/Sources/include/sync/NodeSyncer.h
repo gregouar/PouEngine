@@ -13,10 +13,11 @@ class NodeSyncer : public pou::NotificationListener
         NodeSyncer(pou::SceneNode* node = nullptr);
         virtual ~NodeSyncer();
 
-        virtual void syncFrom(NodeSyncer* srcNodeSyncer);
+        void syncFrom(NodeSyncer* srcNodeSyncer);
 
-        virtual void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
-        virtual void setMaxRewind(int maxRewind);
+        void setReconciliationPrecision(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
+        void setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay = -1);
+        void setMaxRewind(int maxRewind);
         void disableRotationSync(bool disable = true);
         void disableSync(bool disable = true);
 
@@ -25,9 +26,9 @@ class NodeSyncer : public pou::NotificationListener
         uint32_t getNodeSyncId();
         uint32_t getParentNodeSyncId();
 
-        virtual void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);
+        void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);
 
-        virtual void serialize(pou::Stream *stream, uint32_t localTime = -1);
+        void serialize(pou::Stream *stream, uint32_t localTime = -1);
 
         //std::shared_ptr<pou::SceneNode> node();
         pou::SceneNode* node();

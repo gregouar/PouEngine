@@ -11,6 +11,11 @@
 #include "world/PrefabInstance.h"
 #include "assets/characterModelAsset.h"
 
+struct PrefabCharacter
+{
+    CharacterModelAsset *modelAsset;
+    pou::TransformComponent transform;
+};
 
 class PrefabAsset : public pou::Asset
 {
@@ -20,7 +25,8 @@ class PrefabAsset : public pou::Asset
         virtual ~PrefabAsset();
 
         std::shared_ptr<PrefabInstance> generate();
-        void generateOnNode(PrefabInstance *targetNode);
+        void generatesToNode(PrefabInstance *targetNode);
+        void generateCharacters(pou::SceneNode *targetNode, pou::TransformComponent *transform);
 
         bool loadFromFile(const std::string &filePath);
 
@@ -44,6 +50,7 @@ class PrefabAsset : public pou::Asset
         pou::SceneNode m_rootNode;
 
         std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>   m_spriteSheets;
+        std::list<PrefabCharacter> m_prefabCharacters;
 };
 
 #endif // PREFABASSET_H

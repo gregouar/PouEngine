@@ -17,6 +17,7 @@ class AiComponent : public pou::NotificationListener
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime = -1);
 
         std::list<glm::vec2> &getPlannedPath();
+        std::list<PathNode> &getExploredNodes(); ///For debugging purposes, remove later
 
 
         //virtual void syncFrom(AiComponent *aiComponent);

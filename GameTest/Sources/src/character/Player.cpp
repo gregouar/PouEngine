@@ -11,10 +11,9 @@ Player::Player(bool userControlled) :
     m_lastGearUpdateTime    = -1;
     m_lastInventoryUpdateTime = -1;
 
-    ///MOVE THIS TO GAMEWORLD_SYNC !!!!
-    /**m_syncPosition.setReconciliationPrecision(glm::vec3(16));
-    m_syncRotations.setReconciliationPrecision(glm::vec3(glm::pi<float>()/10.0f));
-    m_syncScale.setReconciliationPrecision(glm::vec3(1.0f/NODE_SCALE_DECIMALS));**/
+    this->getNodeSyncer()->setReconciliationPrecision(glm::vec3(16),
+                                             glm::vec3(glm::pi<float>()/10.0f),
+                                             glm::vec3(1.0f/NodeSyncer::NODE_SCALE_DECIMALS));
 
     m_playerSyncComponent.addSyncElement(&m_playerName);
 }

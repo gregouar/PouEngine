@@ -123,7 +123,7 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
         if(!modelAsset)
             continue;
 
-        m_characterSpawnModels.push_back({});
+        m_characterSpawnModels.emplace_back();
         auto &characterSpawnModel = m_characterSpawnModels.back();
         characterSpawnModel.modelAsset = modelAsset;
 
@@ -356,6 +356,8 @@ void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 
     prefabNode->transform()->setPosition(worldPos);
     this->applyRandomModifiers(prefabNode.get(), rng);
     targetNode->addChildNode(prefabNode);
+
+    prefabNode->spawnCharactersOnParent();
 }
 
 glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng)

@@ -77,7 +77,7 @@ bool VMesh::generateMesh(std::vector<MeshVertex> &vertexList,
 
     for(auto &vertex : vertexList)
     {
-        meshVertexList.push_back({});
+        meshVertexList.emplace_back();
         meshVertexList.back().pos = std::get<0>(vertex);
         meshVertexList.back().uv = std::get<1>(vertex);
         meshVertexList.back().normal = std::get<2>(vertex);*/

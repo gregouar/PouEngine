@@ -27,14 +27,37 @@ PrefabAsset::~PrefabAsset()
 std::shared_ptr<PrefabInstance> PrefabAsset::generate()
 {
     auto newNode = std::make_shared<PrefabInstance>();
-    this->generateOnNode(newNode.get());
+    this->generatesToNode(newNode.get());
     return newNode;
 }
 
-void PrefabAsset::generateOnNode(PrefabInstance *targetNode)
+void PrefabAsset::generatesToNode(PrefabInstance *targetNode)
 {
     targetNode->copyFrom(&m_rootNode);
     targetNode->setPrefabModel(this);
+}
+
+void PrefabAsset::generateCharacters(pou::SceneNode *targetNode, pou::TransformComponent *transform)
+{
+    for(auto &prefabCharacter : m_prefabCharacters)
+    {
+        auto character = std::make_shared<Character>();
+        if(character->createFromModel(prefabCharacter.modelAsset))
+        {
+            /*character->transform()->copyFrom(transform);
+            character->transform()->combineTransform(&prefabCharacter.transform);*/
+
+            character->transform()->copyFrom(&prefabCharacter.transform);
+            character->transform()->rotateInRadians(glm::vec3(0,0, transform->getEulerRotation().z));
+            //character->transform()->scale(transform->getScale());
+
+            auto localPos = prefabCharacter.transform.getPosition();
+            auto globalPos = transform->apply(localPos);
+            character->transform()->setPosition(globalPos);
+
+            targetNode->addChildNode(character);
+        }
+    }
 }
 
 bool PrefabAsset::loadFromFile(const std::string &filePath)
@@ -80,13 +103,12 @@ bool PrefabAsset::loadFromXML(TiXmlHandle *hdl)
             loaded = false;
     }
 
-    /*auto characterElement = element->FirstChildElement("character");
-    while(characterElement)
+    element = hdl->FirstChildElement("character").Element();
+    while(element)
     {
-        this->loadCharacter(rootNode, characterElement);
-        characterElement = characterElement->NextSiblingElement("character");
-    }*/
-
+        this->loadCharacter(&m_rootNode, element);
+        element = element->NextSiblingElement("character");
+    }
 
     if(loaded)
         pou::Logger::write("Prefab model loaded from file: "+m_filePath);
@@ -139,19 +161,6 @@ bool PrefabAsset::loadNode(pou::SceneNode* rootNode, TiXmlElement *element)
         m_nodesById.insert({nodeId, rootNode});
     }*/
 
-    auto attribute = element->Attribute("x");
-    if(attribute != nullptr)
-        nodePos.x = pou::Parser::parseFloat(std::string(attribute));
-
-    attribute = element->Attribute("y");
-    if(attribute != nullptr)
-        nodePos.y = pou::Parser::parseFloat(std::string(attribute));
-
-    attribute = element->Attribute("z");
-    if(attribute != nullptr)
-        nodePos.z = pou::Parser::parseFloat(std::string(attribute));
-
-
     /*attribute = element->Attribute("state");
     if(attribute != nullptr)
     {
@@ -165,6 +174,20 @@ bool PrefabAsset::loadNode(pou::SceneNode* rootNode, TiXmlElement *element)
         float rigidity = Parser::parseFloat(std::string(attribute));
         rootNode->setRigidity(rigidity);
     }*/
+
+
+    auto attribute = element->Attribute("x");
+    if(attribute != nullptr)
+        nodePos.x = pou::Parser::parseFloat(std::string(attribute));
+
+    attribute = element->Attribute("y");
+    if(attribute != nullptr)
+        nodePos.y = pou::Parser::parseFloat(std::string(attribute));
+
+    attribute = element->Attribute("z");
+    if(attribute != nullptr)
+        nodePos.z = pou::Parser::parseFloat(std::string(attribute));
+
 
     rootNode->transform()->setPosition(nodePos);
 
@@ -415,10 +438,72 @@ bool PrefabAsset::loadCharacter(pou::SceneNode *node, TiXmlElement *element)
     if(pathAtt == nullptr)
         return (false);
 
+    m_prefabCharacters.emplace_back();
+    PrefabCharacter &prefabCharacter = m_prefabCharacters.back();
+
+    auto characterModel = CharacterModelsHandler::loadAssetFromFile(m_fileDirectory + std::string(pathAtt));
+    prefabCharacter.modelAsset = characterModel;
+
+    {
+        glm::vec3 pos(0);
+        auto attribute = element->Attribute("x");
+        if(attribute != nullptr)
+            pos.x = pou::Parser::parseFloat(std::string(attribute));
+
+        attribute = element->Attribute("y");
+        if(attribute != nullptr)
+            pos.y = pou::Parser::parseFloat(std::string(attribute));
+
+        attribute = element->Attribute("z");
+        if(attribute != nullptr)
+            pos.z = pou::Parser::parseFloat(std::string(attribute));
+
+        prefabCharacter.transform.setPosition(pos);
+    }
+
+
+    auto rotElement = element->FirstChildElement("rotate");
+    if(rotElement != nullptr)
+    {
+        glm::vec3 rotation = glm::vec3(0);
+        auto att = rotElement->Attribute("x");
+        if(att != nullptr)
+            rotation.x = pou::Parser::parseFloat(att);
+
+        att = rotElement->Attribute("y");
+        if(att != nullptr)
+            rotation.y = pou::Parser::parseFloat(att);
+
+        att = rotElement->Attribute("z");
+        if(att != nullptr)
+            rotation.z = pou::Parser::parseFloat(att);
+
+        prefabCharacter.transform.setRotationInDegrees(rotation);
+    }
+
+    auto scaleElement = element->FirstChildElement("scale");
+    if(scaleElement != nullptr)
+    {
+        glm::vec3 scale = glm::vec3(1);
+        auto att = scaleElement->Attribute("x");
+        if(att != nullptr)
+            scale.x = pou::Parser::parseFloat(att);
+
+        att = scaleElement->Attribute("y");
+        if(att != nullptr)
+            scale.y = pou::Parser::parseFloat(att);
+
+        att = scaleElement->Attribute("z");
+        if(att != nullptr)
+            scale.z = pou::Parser::parseFloat(att);
+
+        prefabCharacter.transform.setScale(scale);
+    }
+
     //auto characterModel = CharacterModelsHandler::loadAssetFromFile(m_fileDirectory + std::string(pathAtt));
-    auto character = std::make_shared<Character>();
+   /* auto character = std::make_shared<Character>();
     if(character->createFromModel(m_fileDirectory + std::string(pathAtt)))
-        node->addChildNode(character);
+        node->addChildNode(character);*/
 
     return (true);
 }

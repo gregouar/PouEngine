@@ -56,6 +56,13 @@ void NodeSyncer::syncFrom(NodeSyncer* srcNodeSyncer)
     m_nodeSyncComponent.syncFrom(srcNodeSyncer->m_nodeSyncComponent);
 }
 
+void NodeSyncer::setReconciliationPrecision(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
+{
+    m_syncPosition.setReconciliationPrecision(position);
+    m_syncRotations.setReconciliationPrecision(rotation);
+    m_syncScale.setReconciliationPrecision(scale);
+}
+
 void NodeSyncer::setReconciliationDelay(uint32_t serverDelay, uint32_t clientDelay)
 {
     m_nodeSyncComponent.setReconciliationDelay(serverDelay, clientDelay);

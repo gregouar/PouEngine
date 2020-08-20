@@ -139,7 +139,7 @@ bool WorldGenerator::loadFromXML(TiXmlHandle *hdl)
         auto distributionElement = distributionChild.Element();
         if(distributionElement)
         {
-            m_distributions.push_back({});
+            m_distributions.emplace_back();
             if(!m_distributions.back().loadFromXML(m_fileDirectory, distributionElement, &m_terrainGenerator))
                 m_distributions.pop_back();
         }

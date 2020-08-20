@@ -42,6 +42,11 @@ std::list<glm::vec2> &AiComponent::getPlannedPath()
     return m_pathfinder.getPath();
 }
 
+std::list<PathNode> &AiComponent::getExploredNodes()
+{
+    return m_pathfinder.getExploredNodes();
+}
+
 
 void AiComponent::setTarget(Character *target)
 {
@@ -116,7 +121,7 @@ void AiComponent::avoidCollisionsTo(glm::vec2 destination)
         if(!m_pathfindingTimer.isActive())
         {
             m_pathfinder.findPath(charPos, destination, 20.0f, 20.0f, minMass);
-            m_pathfindingTimer.reset(0.5f);
+            m_pathfindingTimer.reset(1.0f);
         }
 
         if(m_pathfinder.pathFounded())
