@@ -23,6 +23,7 @@ class Hitbox
         pou::HashedString getNode() const;
         const pou::MathTools::Box &getBox() const;
         const glm::vec4 &getColor() const;
+        bool getBounce() const;
 
     protected:
 
@@ -33,6 +34,7 @@ class Hitbox
         std::vector<float>  m_factors;
         pou::MathTools::Box m_box;
         glm::vec4           m_color; //Use for hit highlight
+        bool                m_bounce;
 };
 
 #endif // HITBOX_H

@@ -52,6 +52,7 @@ class CharacterState
         const pou::HashedString ANIMATION_NAME_LATERALWALK;
         const pou::HashedString ANIMATION_NAME_DASH;
         const pou::HashedString ANIMATION_NAME_ATTACK;
+        const pou::HashedString ANIMATION_NAME_ATTACKBOUNCE;
         const pou::HashedString ANIMATION_NAME_INTERRUPT;
         const pou::HashedString ANIMATION_NAME_DEATH;
 };
@@ -106,12 +107,15 @@ class CharacterState_Attacking : public CharacterState
         virtual void entered(CharacterInput *input);
 
     protected:
+        void bounce();
 
     private:
         pou::Timer  m_attackTimer;
         glm::vec2   m_attackingDirection;
 
-        std::unordered_set<Character*> m_alreadyHitCharacters;
+        std::unordered_set<Character*> m_alreadyHitCharacters; ///Should it be per hitbox ?
+
+        bool m_attackBounce;
 
     public:
         const pou::HashedString ATTACK_TAG;

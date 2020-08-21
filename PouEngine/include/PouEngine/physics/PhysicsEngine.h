@@ -69,6 +69,8 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
         static CollisionDetectionImpact castCollisionDetectionRay(glm::vec2 startPoint, glm::vec2 endPoint,
                                                                   float rayThickness = 0, float minMass = -1);
 
+        static bool detectCollisionWithBox(TransformComponent *transform, const MathTools::Box &box, float minMass = -1);
+
     protected:
         PhysicsEngine();
         virtual ~PhysicsEngine();
@@ -107,6 +109,7 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
         std::pair<int, glm::vec2> testRayCollision(glm::vec2 startPoint, glm::vec2 normalizedRayVect,
                                                     float rayThickness, RigidBody *body);
 
+        bool detectCollisionWithBoxImpl(TransformComponent *transform, const MathTools::Box &box, float minMass);
 
     private:
         std::multimap<float, RigidBody> m_oldRigidBodies;

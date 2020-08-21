@@ -51,6 +51,14 @@ CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRay(glm::vec2 star
     return instance()->castCollisionDetectionRayImpl(startPoint, endPoint, rayThickness, minMass);
 }
 
+bool PhysicsEngine::detectCollisionWithBox(TransformComponent *transform, const MathTools::Box &box, float minMass)
+{
+    #ifdef DISABLE_PHYSICS
+        return {false};
+    #endif // DISABLE_PHYSICS
+    return instance()->detectCollisionWithBoxImpl(transform,box,minMass);
+}
+
 
 ///
 ///Protected
@@ -60,70 +68,6 @@ CollisionDetectionImpact PhysicsEngine::castCollisionDetectionRay(glm::vec2 star
 
 void PhysicsEngine::resolveCollisionsImpl(/*const Time &elapsedTime*/)
 {
-    /*pou::Clock clockTest;
-    clockTest.restart();
-    int nbrTests = 0;*/
-
-    /*for(int k = 0 ; k < 1 ; ++k)
-    {
-        ///Need to find a better way to do this, for example with a map of X coord
-        for(size_t i = 0 ; i < m_boxBodies.size() ; ++i)
-        for(size_t j = i+1 ; j < m_boxBodies.size() ; ++j)
-        {
-            ++nbrTests;
-            this->resolveBoxToBoxCollision(&m_boxBodies[i], &m_boxBodies[j]);
-        }
-
-        for(size_t i = 0 ; i < m_diskBodies.size() ; ++i)
-        for(size_t j = i+1 ; j < m_diskBodies.size() ; ++j)
-        {
-            ++nbrTests;
-            this->resolveDiskToDiskCollision(&m_diskBodies[i], &m_diskBodies[j]);
-        }
-
-        for(size_t i = 0 ; i < m_boxBodies.size() ; ++i)
-        for(size_t j = 0 ; j < m_diskBodies.size() ; ++j)
-        {
-            ++nbrTests;
-            this->resolveBoxToDiskCollision(&m_boxBodies[i], &m_diskBodies[j]);
-        }
-    }*/
-
-    /*for(auto boxIt = m_boxBodies.begin() ; boxIt != m_boxBodies.end() ; ++boxIt)
-    {
-        auto &box1 = boxIt->second;
-
-        for(auto nextBoxIt = std::next(boxIt) ;
-            nextBoxIt != m_boxBodies.end() && nextBoxIt->first <= box1.estimatedRightMost ;
-            ++nextBoxIt)
-        {
-           // ++nbrTests;
-            this->resolveBoxToBoxCollision(&box1, &(nextBoxIt->second));
-        }
-
-        ///Maybe I should have a single map of both box and disk, so that I don't need to do this kind of useless searches
-        for(auto diskIt = m_diskBodies.lower_bound(boxIt->first) ;
-            diskIt != m_diskBodies.end() && diskIt->first <= box1.estimatedRightMost ;
-            ++diskIt)
-        {
-            //++nbrTests;
-            this->resolveBoxToDiskCollision(&box1, &(diskIt->second));
-        }
-    }
-
-    for(auto diskIt = m_diskBodies.begin() ; diskIt != m_diskBodies.end() ; ++diskIt)
-    {
-        auto &disk1 = diskIt->second;
-
-        for(auto nextDiskIt = std::next(diskIt) ;
-            nextDiskIt != m_diskBodies.end() && nextDiskIt->first <= disk1.estimatedRightMost ;
-            ++nextDiskIt)
-        {
-            //++nbrTests;
-            this->resolveDiskToDiskCollision(&disk1, &(nextDiskIt->second));
-        }
-    }*/
-
     for(auto bodyIt = m_rigidBodies.begin() ; bodyIt != m_rigidBodies.end() ; ++bodyIt)
     {
         auto &body1 = bodyIt->second;
@@ -170,11 +114,6 @@ void PhysicsEngine::addBoxBodyImpl(const BoxBody &box)
     body.estimatedRightMost = estimatedLeftMost + maxRadius + maxRadius;
 
     m_rigidBodies.insert({estimatedLeftMost, body});
-
-    /*auto [insertIt, inserted] = m_boxBodies.insert({estimatedLeftMost, box});
-    insertIt->second.estimatedRightMost = estimatedLeftMost + maxRadius + maxRadius;*/
-
-   // m_boxBodies.push_back(box);
 }
 
 void PhysicsEngine::addDiskBodyImpl(const DiskBody &disk)
@@ -190,11 +129,6 @@ void PhysicsEngine::addDiskBodyImpl(const DiskBody &disk)
     body.estimatedRightMost = estimatedLeftMost + disk.radius + disk.radius;
 
     m_rigidBodies.insert({estimatedLeftMost, body});
-
-    /*auto [insertIt, inserted] = m_diskBodies.insert({estimatedLeftMost, disk});
-    insertIt->second.estimatedRightMost = estimatedLeftMost + disk.radius + disk.radius;*/
-
-    //m_diskBodies.push_back(disk);
 }
 
 float PhysicsEngine::computeMassRatio(float mass1, float mass2)
@@ -755,5 +689,41 @@ std::pair<int, glm::vec2> PhysicsEngine::testRayCollision(glm::vec2 startPoint, 
 
     return {collisionSide, collisionPos};
 }
+
+
+bool PhysicsEngine::detectCollisionWithBoxImpl(TransformComponent *transform, const MathTools::Box &box, float minMass)
+{
+    auto globalPos = transform->getGlobalXYPosition();
+    auto maxSize = std::max(box.size.x, box.size.y) * sqrt(2);
+
+    float leftMost = globalPos.x - maxSize;
+    float rightMost= globalPos.x + maxSize;
+
+    for(auto bodyIt = m_oldRigidBodies.begin() ;
+        bodyIt != m_oldRigidBodies.end() && bodyIt->first < rightMost ;
+        ++bodyIt)
+    {
+        auto &body = bodyIt->second;
+        if(body.estimatedRightMost < leftMost)
+            continue;
+        if((minMass == -1 && body.mass != -1) || (minMass > body.mass && body.mass != -1))
+            continue;
+
+        if(body.isBox)
+        {
+           // if(MathTools::detectBoxCollision(box, bodyIt->second.box,
+            //                                 transform, bodyIt->second.transform))
+            if(MathTools::detectBoxCollision(bodyIt->second.box, box,
+                                             bodyIt->second.transform, transform))
+                return (true);
+        } else if(body.isDisk) {
+            /** do something **/
+        }
+    }
+
+    return (false);
+}
+
+
 
 }

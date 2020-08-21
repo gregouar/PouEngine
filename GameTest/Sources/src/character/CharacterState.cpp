@@ -20,6 +20,7 @@ CharacterState::CharacterState(uint16_t type, Character *character) :
     ANIMATION_NAME_LATERALWALK (pou::Hasher::unique_hash("lateralWalk")),
     ANIMATION_NAME_DASH        (pou::Hasher::unique_hash("dash")),
     ANIMATION_NAME_ATTACK      (pou::Hasher::unique_hash("attack")),
+    ANIMATION_NAME_ATTACKBOUNCE(pou::Hasher::unique_hash("attackBounce")),
     ANIMATION_NAME_INTERRUPT   (pou::Hasher::unique_hash("interrupt")),
     ANIMATION_NAME_DEATH       (pou::Hasher::unique_hash("death"))
 {
@@ -230,6 +231,7 @@ void CharacterState_Walking::leaving(CharacterInput *input)
 
 CharacterState_Attacking::CharacterState_Attacking(Character *character) :
     CharacterState(CharacterStateType_Attacking,character),
+    m_attackBounce(false),
     ATTACK_TAG(pou::Hasher::unique_hash("attack"))
 {
 
@@ -246,14 +248,20 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
     {
         //this->popState(); ?
         this->switchState(CharacterStateType_Standing);
+        return;
     }
 
     this->rotateCharacterToward(elapsedTime, m_attackingDirection);
 
+    if(m_attackBounce)
+    {
+        return;
+    }
 
     auto hitboxes   = m_character->getHitboxes();
     if(!hitboxes)
         return;
+
 
     for(const auto hitBox : *hitboxes)
     {
@@ -268,6 +276,13 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
         auto hitNode = hitSkeleton->findNode(hitBox.getNode());
         if(!hitNode)
             continue;
+
+        if(hitBox.getBounce())
+            if(pou::PhysicsEngine::detectCollisionWithBox(hitNode->transform(), hitBox.getBox()))
+            {
+                this->bounce();
+                return;
+            }
 
         for(auto enemy : *m_character->getNearbyCharacters())
         {
@@ -315,6 +330,9 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                         ///hurtSkeleton->setHurtColor(hurtBox.getColor());
                         enemy->setHurtNodeColor(hurtNode, hurtBox.getColor());
 
+                        if(/*hitBox.getBounce() &&*/ hurtBox.getBounce())
+                            this->bounce();
+
                         break;
                     }
                 }
@@ -334,6 +352,14 @@ void CharacterState_Attacking::entered(CharacterInput *input)
     if(attackingDirection == glm::vec2(0))
         attackingDirection = input->getLookingDirectionInput();
     m_attackingDirection = attackingDirection;
+
+    m_attackBounce = false;
+}
+
+void CharacterState_Attacking::bounce()
+{
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_ATTACKBOUNCE);
+    m_attackBounce = true;
 }
 
 

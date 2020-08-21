@@ -7,6 +7,7 @@
 		<limb node="weaponTrail" sprite="swordTrail" state="attack" spritesheet="mainSpriteSheet" />
 		
 		<sound name="attackSound" path="event:/CharacterAttack" type="event" />
+		<sound name="attackBounceSound" path="event:/CharacterAttackBounce" type="event" />
 	</skeleton>
 	
 	<hitboxes>
@@ -14,6 +15,10 @@
 			<size 		x="14" 	y="72" 	/>
 			<center 	x="7" 	y="90" 	/>
 			<factor 	type="cut"> 1 </factor>
+		</box>
+		<box skeleton="mainSkeleton" node="weaponHB" bounce=1 >
+			<size 		x="8" 	y="52" 	/>
+			<center 	x="4" 	y="70" 	/>
 		</box>
 	</hitboxes>
 	

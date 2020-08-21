@@ -66,7 +66,9 @@ void GameWorld::generateImpl()
         auto airBalloon = std::make_shared<Character>();
         airBalloon->createFromModel(airBalloonModel);
         //airBalloon->pou::SceneNode::setPosition(0);
-        //airBalloon->rotate(glm::vec3(0,0,pou::RNGesus::uniformInt(-2,2)*90),false);
+        //airBalloon->transform()->rotateInDegrees(glm::vec3(0,0,pou::RNGesus::uniformInt(-2,2)*90));
+        //airBalloon->transform()->move(glm::vec3(160,0,0));
+        //airBalloon->transform()->rotateInDegrees(glm::vec3(0,0,pou::RNGesus::uniformInt(-180,180)));
         m_worldGrid->addChildNode(airBalloon);
         m_syncComponent.syncElement(airBalloon);
     }

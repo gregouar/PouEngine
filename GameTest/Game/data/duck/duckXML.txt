@@ -28,7 +28,7 @@
 	</skeleton>
 	
 	<hitboxes>
-		<box skeleton="mainSkeleton" node="beakHB" >
+		<box skeleton="mainSkeleton" node="beakHB" bounce=1 >
 			<size 		x="14" 	y="20" 	/>
 			<center 	x="7" 	y="35" 	/>
 			<factor type="pierce">.7</factor>

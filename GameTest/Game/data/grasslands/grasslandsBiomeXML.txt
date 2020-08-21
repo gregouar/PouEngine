@@ -21,6 +21,8 @@
 		</groundLayer>
 	</terrain>
 	
+	<path name="dirtPath" width=1  />
+	
 	<!--<pois amount="[1,2]" >
 		<poi spawnType="none" groundType="dirt" spawnProbability=1 >
 			<size x=4 y=4 />
@@ -34,20 +36,11 @@
 	
 	
 	<pois type="poisson" distance=2000 useGridPosition=1 startInCenter=1 >
-		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+		<spawnPoint  spawnProbability=.6 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
 			<modifier type="flip" rng="uniform" x="[-1,1]" />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
-			<prefab path="../wall/smallHousePrefabXML.txt" />
-			<size x=6 y=6 />
-			<modifier type="flip" rng="uniform" x="[-1,1]" />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.4 unique=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
-			<prefab path="../wall/smallHousePrefabXML.txt" />
-			<size x=6 y=6 />
-			<modifier type="flip" rng="uniform" x="[-1,1]" />
+			<pathConnection path="dirtPath" x=0 y=3 />
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
 			<prefab path="treeCirclePrefabXML.txt" />
@@ -83,7 +76,7 @@
 	
 	
 	<distribution type="poisson" distance=200 sectionSize=2000>
-		<spawnPoint  groundLayer="grass"  spawnProbability=.25 changeSpawnTypeTo="none">
+		<spawnPoint  groundLayer="grass"  spawnProbability=.025 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
 			<modifier type="rotation" rng="uniform" z="[-180,180]" />
 		</spawnPoint>

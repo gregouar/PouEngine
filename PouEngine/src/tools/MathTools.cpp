@@ -9,25 +9,13 @@ namespace pou::MathTools
 bool detectSegmentCollision(glm::vec2 seg1, glm::vec2 seg2)
 {
     if(seg1.x > seg1.y)
-    {
-        float temp = seg1.y;
-        seg1.y = seg1.x;
-        seg1.x = temp;
-    }
+        std::swap(seg1.x, seg1.y);
 
     if(seg2.x > seg2.y)
-    {
-        float temp = seg2.y;
-        seg2.y = seg2.x;
-        seg2.x = temp;
-    }
+        std::swap(seg2.x, seg2.y);
 
     if(seg1.x > seg2.x)
-    {
-        glm::vec2 temp = seg2;
-        seg2 = seg1;
-        seg1 = temp;
-    }
+        std::swap(seg1, seg2);
 
     return (seg1.y >= seg2.x);
 }

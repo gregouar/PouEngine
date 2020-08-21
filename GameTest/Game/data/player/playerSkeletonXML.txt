@@ -210,12 +210,19 @@
 			<command type="rotateTo" node="shoulderR" z="10" />
 			<command type="moveTo" node="head" y="2"  />
 		</frame>
-		<frame frameTime=".2">
-			<!--<tag value="attackSound">playSound</tag>-->
-			<tag>attack</tag>
+		<frame frameTime=".05">
 			<sound>attackSound</sound>
 			<state node="weapon">attack</state>
 			<state node="weaponTrail">attack</state>
+			<command type="rotateTo" node="body" z="0"  />
+			<command type="rotateTo" node="weapon" z="0"  />
+			<command type="rotateTo" node="handR" z="0"  />
+			<command type="moveTo" node="handR" x="0" y="0" />
+			<command type="rotateTo" node="shoulderR" z="0"  />
+			<command type="moveTo" node="head" y="0"  />
+		</frame>
+		<frame frameTime=".15">
+			<tag>attack</tag>
 			<command type="rotateTo" node="body" z="-30"  />
 			<command type="rotateTo" node="weapon" z="-90" />
 			<command type="rotateTo" node="handR" z="-90"/>
@@ -233,31 +240,30 @@
 			<state node="weapon">standing</state>
 			<state node="weaponTrail">standing</state>
 		</frame>
-		<!--<frame speedFactor="1.5" >
-			<command type="rotateTo" node="body" z="10" rate="50" />
-			<command type="rotateTo" node="weapon" z="40" rate="200" />
-			<command type="rotateTo" node="handR" z="40" rate="200" />
-			<command type="moveTo" node="handR" x="0" y="2" rate="10" />
-			<command type="rotateTo" node="shoulderR" z="10" rate="50" />
-			<command type="moveTo" node="head" y="2" rate="10" />
+	</animation>
+	
+	
+	
+	<animation name="attackBounce" loop="0">
+		<frame frameTime=".2">
+			<sound>attackBounceSound</sound>
+			<command type="rotateTo" node="body" z="10"  />
+			<command type="rotateTo" node="weapon" z="40" />
+			<command type="rotateTo" node="handR" z="40"  />
+			<command type="moveTo" node="handR" x="0" y="2" />
+			<command type="rotateTo" node="shoulderR" z="10" />
+			<command type="moveTo" node="head" y="2"  />
+			<state node="weapon">standing</state>
+			<state node="weaponTrail">standing</state>
 		</frame>
-		<frame speedFactor="1.5">
-			<tag>attack</tag>
-			<command type="rotateTo" node="body" z="-30" rate="150" />
-			<command type="rotateTo" node="weapon" z="-90" rate="450" />
-			<command type="rotateTo" node="handR" z="-90" rate="450" />
-			<command type="moveTo" node="handR" x="-8" y="-10" rate="40" />
-			<command type="rotateTo" node="shoulderR" z="-30" rate="150" />
-			<command type="moveTo" node="head" y="-2" rate="20" />
+		<frame frameTime=".2">
+			<command type="rotateTo" node="body" z="0"  />
+			<command type="rotateTo" node="weapon" z="0"  />
+			<command type="rotateTo" node="handR" z="0"  />
+			<command type="moveTo" node="handR" x="0" y="0" />
+			<command type="rotateTo" node="shoulderR" z="0"  />
+			<command type="moveTo" node="head" y="0"  />
 		</frame>
-		<frame>
-			<command type="rotateTo" node="body" z="0" rate="100" />
-			<command type="rotateTo" node="weapon" z="0" rate="300" />
-			<command type="rotateTo" node="handR" z="0" rate="300" />
-			<command type="moveTo" node="handR" x="0" y="0" rate="40" />
-			<command type="rotateTo" node="shoulderR" z="0" rate="300" />
-			<command type="moveTo" node="head" y="0" rate="20" />
-		</frame>-->
 	</animation>
 	
 	<animation name="dash" loop=0>

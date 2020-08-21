@@ -6,7 +6,8 @@
 
 Hitbox::Hitbox() :
     m_factors(NBR_DAMAGE_TYPES,0.0f),
-    m_color(0.0)
+    m_color(0.0),
+    m_bounce(false)
 {
 }
 
@@ -54,11 +55,16 @@ const glm::vec4 &Hitbox::getColor() const
     return m_color;
 }
 
+bool Hitbox::getBounce() const
+{
+    return m_bounce;
+}
 
 bool Hitbox::loadFromXML(TiXmlElement *boxElement)
 {
     auto skeletonAtt= boxElement->Attribute("skeleton");
     auto nodeAtt    = boxElement->Attribute("node");
+    auto bounceAtt  = boxElement->Attribute("bounce");
 
     if(skeletonAtt == nullptr || nodeAtt == nullptr)
         return (false);
@@ -66,6 +72,8 @@ bool Hitbox::loadFromXML(TiXmlElement *boxElement)
     m_skeleton = pou::Hasher::unique_hash(skeletonAtt);
     m_node = pou::Hasher::unique_hash(nodeAtt);
 
+    if(bounceAtt && pou::Parser::isBool(bounceAtt))
+        m_bounce = pou::Parser::parseBool(bounceAtt);
 
     auto factorChild = boxElement->FirstChildElement("factor");
     while(factorChild != nullptr)

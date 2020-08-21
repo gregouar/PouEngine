@@ -463,6 +463,24 @@ void TransformComponent::updateModelMatrix()
 
     m_needToUpdateModelMat = false;
     this->sendNotification(NotificationType_TransformChanged,&oldGlobalPosition);
+
+
+
+    ///TEST
+   /* glm::mat4 testMat = m_modelMatrix * m_invModelMatrix;
+
+    if(testMat != glm::mat4(1.0))
+    {
+        for(int i = 0 ; i < 4 ; ++i)
+
+        {
+        for(int j = 0 ; j < 4 ; ++j)
+            std::cout<<(float)testMat[i][j]<<" ";
+            std::cout<<std::endl;
+        }
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+    }*/
 }
 
 
