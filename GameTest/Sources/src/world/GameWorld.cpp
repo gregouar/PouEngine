@@ -93,7 +93,11 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
     m_scene->update(elapsed_time, localTime);
 
-    pou::PhysicsEngine::resolveCollisions();
+
+    auto worldBounds = m_worldGenerator.getWorldBounds();
+    pou::PhysicsEngine::resolveCollisions(worldBounds.first, worldBounds.second);
+
+    //this->constraintCamera(worldBounds.first, worldBounds.second);
 }
 
 void GameWorld::render(pou::RenderWindow *renderWindow)
@@ -101,11 +105,15 @@ void GameWorld::render(pou::RenderWindow *renderWindow)
     if(!m_isRenderable || !m_scene || !m_worldReady)
         return;
 
+    this->constraintCamera(renderWindow->getSize());
+
     if(renderWindow->getRenderer(pou::Renderer_Scene) != nullptr)
     {
         auto renderer = dynamic_cast<pou::SceneRenderer*>(renderWindow->getRenderer(pou::Renderer_Scene));
         m_scene->render(renderer, m_camera.get());
     }
+
+    ///this->unconstraintCamera();
 }
 
 /**void GameWorld::rewind(uint32_t time, bool simulate)
@@ -374,6 +382,58 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
     m_sunLight->setDiffuseColor(sunColor);
     m_sunLight->setIntensity(sunIntensity);
 }
+
+void GameWorld::constraintCamera(glm::vec2 windowSize /*glm::vec2 minPos, glm::vec2 maxPos*/)
+{
+    if(!m_camera)
+        return;
+
+    auto worldBounds = m_worldGenerator.getWorldBounds();
+
+    auto cameraNode = m_camera->getParentNode();
+    auto cameraTransform = cameraNode->transform();
+
+    cameraTransform->setPosition(0,0,cameraTransform->getPosition().z);
+    cameraTransform->update();
+
+    auto cameraPos = cameraTransform->getGlobalPosition();
+
+    ///m_oldCameraPos = cameraPos;
+    auto oldCameraPos = cameraPos;
+
+    auto minPos = worldBounds.first;
+    auto maxPos = worldBounds.second;
+
+    minPos += windowSize/2.0f;
+    maxPos -= windowSize/2.0f;
+
+    if(cameraPos.x < minPos.x)
+        cameraPos.x = minPos.x;
+    if(cameraPos.y < minPos.y)
+        cameraPos.y = minPos.y;
+    if(cameraPos.x > maxPos.x)
+        cameraPos.x = maxPos.x;
+    if(cameraPos.y > maxPos.y)
+        cameraPos.y = maxPos.y;
+
+    if(cameraPos != oldCameraPos)
+    {
+        cameraTransform->setGlobalPosition(cameraPos);
+        cameraTransform->update();
+    }
+}
+
+/**void GameWorld::unconstraintCamera()
+{
+    if(!m_camera)
+        return;
+
+    auto cameraNode = m_camera->getParentNode();
+    auto cameraTransform = cameraNode->transform();
+    cameraTransform->setGlobalPosition(m_oldCameraPos);
+
+    cameraTransform->update();
+}**/
 
 void GameWorld::processPlayerActions()
 {

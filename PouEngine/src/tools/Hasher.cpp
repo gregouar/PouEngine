@@ -32,11 +32,19 @@ HashedString Hasher::hash(const std::string &s)
     return std::hash<std::string>{}(s);
 }
 
+HashedString Hasher::unique_hash(const char* s)
+{
+    if(s == nullptr)
+        return (0);
+
+    return Hasher::unique_hash(std::string(s));
+}
+
 
 HashedString Hasher::unique_hash(const std::string &s)
 {
     if(s.empty())
-        return 0;
+        return (0);
 
     std::lock_guard<std::mutex> guard(instance()->m_hashedStringMutex);
 

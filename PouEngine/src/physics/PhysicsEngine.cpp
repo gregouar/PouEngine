@@ -7,7 +7,9 @@
 namespace pou
 {
 
-PhysicsEngine::PhysicsEngine()
+PhysicsEngine::PhysicsEngine() //:
+    /*m_minPos(0),
+    m_maxPos(0)*/
 {
     //ctor
 }
@@ -18,12 +20,12 @@ PhysicsEngine::~PhysicsEngine()
 }
 
 
-void PhysicsEngine::resolveCollisions(/*const Time &elapsedTime*/)
+void PhysicsEngine::resolveCollisions(glm::vec2 minPos, glm::vec2 maxPos/*const Time &elapsedTime*/)
 {
     #ifdef DISABLE_PHYSICS
         return;
     #endif // DISABLE_PHYSICS
-    instance()->resolveCollisionsImpl();
+    instance()->resolveCollisionsImpl(minPos, maxPos);
 }
 
 void PhysicsEngine::addBoxBody(const BoxBody &box)
@@ -66,11 +68,24 @@ bool PhysicsEngine::detectCollisionWithBox(TransformComponent *transform, const 
 
 
 
-void PhysicsEngine::resolveCollisionsImpl(/*const Time &elapsedTime*/)
+void PhysicsEngine::resolveCollisionsImpl(glm::vec2 minPos, glm::vec2 maxPos/*const Time &elapsedTime*/)
 {
+    /*m_minPos = minPos;
+    m_maxPos = maxPos;*/
+
     for(auto bodyIt = m_rigidBodies.begin() ; bodyIt != m_rigidBodies.end() ; ++bodyIt)
     {
         auto &body1 = bodyIt->second;
+
+        auto globalPos1 = body1.transform->getGlobalPosition();
+        if(globalPos1.x < minPos.x)
+            body1.transform->move(minPos.x - globalPos1.x,0);
+        if(globalPos1.y < minPos.y)
+            body1.transform->move(0,minPos.y - globalPos1.y);
+        if(globalPos1.x > maxPos.x)
+            body1.transform->move(maxPos.x-globalPos1.x,0);
+        if(globalPos1.y > maxPos.y)
+            body1.transform->move(0,maxPos.y-globalPos1.y);
 
         for(auto nextBodyIt = std::next(bodyIt) ;
             nextBodyIt != m_rigidBodies.end() && nextBodyIt->first <= body1.estimatedRightMost ;

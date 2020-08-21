@@ -28,6 +28,8 @@ class WorldGenerator
         const std::string &getFilePath();
         int getGeneratingSeed();
 
+        std::pair<glm::vec2, glm::vec2> getWorldBounds();
+
     protected:
         bool loadFromXML(TiXmlHandle *hdl);
 

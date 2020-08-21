@@ -63,6 +63,8 @@ class GameWorld : public pou::NotificationListener
         bool    removePlayer(size_t player_id);
 
         void updateSunLight(const pou::Time elapsed_time);
+        void constraintCamera(glm::vec2 windowSize/*glm::vec2 minPos, glm::vec2 maxPos*/);
+        ///void unconstraintCamera(/*glm::vec2 minPos, glm::vec2 maxPos*/);
 
         //void processPlayerActions(const pou::Time elapsed_time);
         void processPlayerActions();
@@ -95,6 +97,7 @@ class GameWorld : public pou::NotificationListener
         ///std::multimap<uint32_t, std::pair<size_t, PlayerAction> > m_playerActions;
 
         //pou::SoundTypeId m_musicEvent;
+        ///glm::vec3 m_oldCameraPos;
 
     public:
         static const int        MAX_NBR_PLAYERS;

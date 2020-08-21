@@ -55,7 +55,7 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
     friend class Singleton<PhysicsEngine>;
 
     public:
-        static void resolveCollisions(/*const Time &elapsedTime*/);
+        static void resolveCollisions(glm::vec2 minPos, glm::vec2 maxPos/*const Time &elapsedTime*/);
 
         static void addBoxBody(const BoxBody &box);
         //static void addBoxBody(SimpleNode *node, const BoxBody &box);
@@ -75,7 +75,7 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
         PhysicsEngine();
         virtual ~PhysicsEngine();
 
-        void resolveCollisionsImpl(/*const Time &elapsedTime*/);
+        void resolveCollisionsImpl(glm::vec2 minPos, glm::vec2 maxPos/*const Time &elapsedTime*/);
 
         float computeMassRatio(float mass1, float mass2);
 
@@ -114,6 +114,9 @@ class PhysicsEngine : public Singleton<PhysicsEngine>
     private:
         std::multimap<float, RigidBody> m_oldRigidBodies;
         std::multimap<float, RigidBody> m_rigidBodies;
+
+        /*glm::vec2   m_minPos,
+                    m_maxPos;*/
 
 
 

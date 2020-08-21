@@ -22,6 +22,7 @@ class Hasher : public Singleton<Hasher>
         static uint32_t crc32(const void* data, size_t data_size, uint32_t crc = 0);
 
         static HashedString hash(const std::string &);
+        static HashedString unique_hash(const char* );
         static HashedString unique_hash(const std::string &);
         //const std::string& recoverFromUniqueHash(HashedString );
 

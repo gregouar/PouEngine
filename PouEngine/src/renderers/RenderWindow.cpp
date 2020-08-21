@@ -142,6 +142,11 @@ AbstractRenderer *RenderWindow::getRenderer(RendererName renderer)
     return (nullptr);
 }
 
+glm::vec2 RenderWindow::getSize()
+{
+    return glm::vec2(this->getSwapchainExtent().width, this->getSwapchainExtent().height);
+}
+
 
 /// PROTECTED ///
 

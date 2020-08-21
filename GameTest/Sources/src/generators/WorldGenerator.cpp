@@ -102,6 +102,12 @@ int WorldGenerator::getGeneratingSeed()
     return m_generatingSeed;
 }
 
+std::pair<glm::vec2, glm::vec2> WorldGenerator::getWorldBounds()
+{
+    auto worldExtent = m_terrainGenerator.getExtent();
+    return {-worldExtent/2.0f, worldExtent/2.0f-m_terrainGenerator.getTileSize()};
+}
+
 ///
 ///Protected
 ///

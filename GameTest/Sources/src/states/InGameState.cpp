@@ -74,6 +74,16 @@ void InGameState::handleEvents(const EventsManager *eventsManager)
     if(!m_world)
         return;
 
+    auto cursorCoord = eventsManager->centeredMousePosition();
+    auto worldCursorCoord = m_world->convertScreenToWorldCoord(cursorCoord);
+    auto playerCoord = m_world->getPlayer(m_playerId)->transform()->getGlobalXYPosition();
+    auto localPlayerCursorCoord = worldCursorCoord - playerCoord;
+
+    /*std::cout<<"cursorCoord: "<<cursorCoord.x<<" "<<cursorCoord.y<<std::endl;
+    std::cout<<"worldCursorCoord: "<<worldCursorCoord.x<<" "<<worldCursorCoord.y<<std::endl;
+    std::cout<<"localPlayerCursorCoord: "<<localPlayerCursorCoord.x<<" "<<localPlayerCursorCoord.y<<std::endl;
+    std::cout<<std::endl;*/
+
     if(eventsManager->keyPressed(GLFW_KEY_1))
         m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,1));
     if(eventsManager->keyPressed(GLFW_KEY_2))
@@ -101,14 +111,14 @@ void InGameState::handleEvents(const EventsManager *eventsManager)
                                      PlayerAction(PlayerActionType_Walk, charDirection));
 
     m_world->addPlayerAction(m_playerId,
-                                     PlayerAction(PlayerActionType_CursorMove, eventsManager->centeredMousePosition()));
+                                     PlayerAction(PlayerActionType_CursorMove, localPlayerCursorCoord));
 
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_1))
         m_world->addPlayerAction(m_playerId,
-                                         PlayerAction(PlayerActionType_Look, eventsManager->centeredMousePosition()));
+                                         PlayerAction(PlayerActionType_Look, localPlayerCursorCoord));
     if(eventsManager->mouseButtonIsPressed(GLFW_MOUSE_BUTTON_2))
         m_world->addPlayerAction(m_playerId,
-                                        PlayerAction(PlayerActionType_Attack, eventsManager->centeredMousePosition()));
+                                        PlayerAction(PlayerActionType_Attack, localPlayerCursorCoord));
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
         m_world->addPlayerAction(m_playerId,
                                          PlayerAction(PlayerActionType_CombatMode));

@@ -11,12 +11,12 @@
 		</parameters>
 		
 		<groundLayer name="dirt" path="dirtLayerModelXML.txt">
-			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 >
-				<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=.5 occulting=1 />
-				<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.8 occulting=0 />
+			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 smooth=2 >
+				<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=.4 occulting=1 smooth=3 />
+				<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.3 occulting=0 smooth=2 />
 			</groundLayer>
 			
-			<groundLayer name="gravel" path="gravelLayerModelXML.txt"spawnProbability=.8   occulting=0>
+			<groundLayer name="gravel" path="gravelLayerModelXML.txt" spawnProbability=.8   occulting=0>
 			</groundLayer>
 		</groundLayer>
 	</terrain>

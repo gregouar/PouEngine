@@ -201,6 +201,7 @@ void TransformComponent::setGlobalPosition(const glm::vec3 &pos)
     if(m_parent)
     {
         glm::vec4 newPos = m_parent->getInvModelMatrix() * glm::vec4(pos,1.0);
+        newPos /= newPos.w;
         this->setPosition({newPos.x, newPos.y, newPos.z});
     }
     else
@@ -294,12 +295,15 @@ size_t TransformComponent::getTreeDepth() const
 
 const glm::vec3 &TransformComponent::getGlobalPosition() const
 {
+    //if(m_needToUpdateModelMat)
+      //  this->updateModelMatrix();
+
     return m_globalPosition;
 }
 
 glm::vec2 TransformComponent::getGlobalXYPosition() const
 {
-    return glm::vec2(m_globalPosition);
+    return glm::vec2(this->getGlobalPosition());
 }
 
 const glm::vec3 &TransformComponent::getPosition() const

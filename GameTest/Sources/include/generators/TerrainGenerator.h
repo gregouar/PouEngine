@@ -23,7 +23,7 @@ struct TerrainGenerator_SpawnOnlyZone
     glm::ivec2 gridPosition;
     glm::ivec2 gridExtent;
 
-    std::string forceGroundType;
+    pou::HashedString forceGroundType;
 };
 
 struct TerrainGenerator_GroundLayer
@@ -31,10 +31,11 @@ struct TerrainGenerator_GroundLayer
     TerrainGenerator_GroundLayer *parentLayer;
     TerrainLayerModelAsset *layerModel;
 
-    std::string name;
+    pou::HashedString  name;
 
     bool    occulting;
     size_t  depth;
+    int     smooth;
 
     int     spawnPointSparsity;
     float   spawnProbability;
@@ -77,7 +78,7 @@ class TerrainGenerator
         glm::vec2 getGridSize();
         glm::vec2 getTileSize();
         glm::vec2 getExtent();
-        const TerrainGenerator_GroundLayer *getGroundLayer(const std::string &name);
+        const TerrainGenerator_GroundLayer *getGroundLayer(pou::HashedString name);
         TerrainGenerator_SpawnType getSpawnType(glm::vec2 worldPos);
         TerrainGenerator_SpawnType getSpawnType(int x, int y);
 
@@ -102,7 +103,8 @@ class TerrainGenerator
         //void printGrid();
 
         void generateGrid();
-        void decreasesGridNoise();
+        ///void decreasesGridNoise();
+        void decreaseGridNoise(TerrainGenerator_GroundLayer *groundLayer);
         //void spawnLayerElement(int x, int y, size_t layer, float spawnProbability, float expandProbability);
         void spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer);
 
@@ -127,7 +129,8 @@ class TerrainGenerator
 
         //int m_nbrLayers;
         //std::list<TerrainLayerModelAsset*> m_layerModels;
-        std::list<TerrainGenerator_GroundLayer> m_groundLayers;
+        //std::list<TerrainGenerator_GroundLayer> m_groundLayers;
+        std::multimap<size_t, TerrainGenerator_GroundLayer> m_groundLayers;
         std::vector<TerrainGenerator_SpawnOnlyZone> m_spawnOnlyZones;
 
         //std::vector<size_t> m_generatingGrid;

@@ -240,8 +240,10 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
     auto changeSpawnTypeAtt = element->Attribute("changeSpawnTypeTo");
     auto changeGroundLayerAtt = element->Attribute("changeGroundLayerTo");
 
+
+    auto hashedGroundLayerName = pou::Hasher::unique_hash(groundLayerAtt);
     if(groundLayerAtt)
-        parameters.groundLayer = m_terrain->getGroundLayer(groundLayerAtt);
+        parameters.groundLayer = m_terrain->getGroundLayer(hashedGroundLayerName);
 
     if(spawnProbabilityAtt)
         parameters.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
@@ -266,8 +268,9 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
 
     if(changeGroundLayerAtt)
     {
+        auto hashedChangeGroundLayer = pou::Hasher::unique_hash(changeGroundLayerAtt);
         parameters.changeGroundLayerTo = true;
-        parameters.newGroundLayer = m_terrain->getGroundLayer(changeGroundLayerAtt);
+        parameters.newGroundLayer = m_terrain->getGroundLayer(hashedChangeGroundLayer);
     }
 
     return (true);

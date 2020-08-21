@@ -44,6 +44,7 @@ class RenderWindow
         VkFormat    getSwapchainImageFormat();
         const std::vector<VFramebufferAttachment> &getSwapchainAttachments();
         const std::vector<VFramebufferAttachment> &getSwapchainDepthAttachments();
+        glm::vec2   getSize();
 
         AbstractRenderer* getRenderer(RendererName renderer);
 
