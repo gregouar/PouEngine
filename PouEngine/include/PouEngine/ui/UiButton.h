@@ -29,6 +29,7 @@ class UiButton : public UiElement
         virtual void update(const Time &elapsedTime = Time(0)) override;
 
         virtual void handleEvents(const EventsManager *eventsManager) override;
+        virtual void handleEventsInvisible(const EventsManager *eventsManager) override;
 
         using UiElement::setSize;
         virtual void setSize(glm::vec2 s);

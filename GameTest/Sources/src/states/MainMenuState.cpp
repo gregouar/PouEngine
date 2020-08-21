@@ -123,7 +123,6 @@ void MainMenuState::init()
     ///
     ///Buttons
     ///
-
     m_createServerButton = std::make_shared<pou::UiButton>();
     m_ui.addUiElement(m_createServerButton);
     m_createServerButton->transform()->setPosition(200,400);
@@ -219,7 +218,7 @@ void MainMenuState::update(const pou::Time &elapsedTime)
 {
     m_ui.update(elapsedTime);
 
-    ///I should add event system heh
+    ///I should add event system heh or simply use the notification system
     if(m_createServerButton->isClicked())
         this->createServerAction();
     else if(m_connectToServerButton->isClicked())

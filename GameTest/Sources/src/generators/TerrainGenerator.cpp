@@ -457,8 +457,20 @@ void TerrainGenerator::decreaseGridNoise(TerrainGenerator_GroundLayer *groundLay
         for(auto yp = y - 1 ; yp <= y + 1 ; ++yp)
         {
             auto cellIndexP = yp * m_gridSize.x + xp;
-            if(m_generatingGrid[cellIndexP].groundLayer == groundLayer)
-                nbrOfTypeLayer++;
+
+            auto oldGroundLayer = m_generatingGrid[cellIndexP].groundLayer;
+            while(oldGroundLayer->depth >= groundLayer->depth)
+            {
+                if(oldGroundLayer == groundLayer)
+                {
+                    nbrOfTypeLayer++;
+                    break;
+                }
+                oldGroundLayer = oldGroundLayer->parentLayer;
+            }
+
+           // if(m_generatingGrid[cellIndexP].groundLayer == groundLayer)
+               // nbrOfTypeLayer++;
         }
 
         if(nbrOfTypeLayer >= 5)

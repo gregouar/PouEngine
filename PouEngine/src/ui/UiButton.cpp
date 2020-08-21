@@ -68,6 +68,13 @@ void UiButton::handleEvents(const EventsManager *eventsManager)
     }
 }
 
+void UiButton::handleEventsInvisible(const EventsManager *eventsManager)
+{
+    UiElement::handleEventsInvisible(eventsManager);
+
+    this->switchState(UiButtonState_Rest);
+}
+
 void UiButton::setSize(glm::vec2 s)
 {
     UiElement::setSize(s);

@@ -93,6 +93,18 @@ void UiElement::setSize(float x, float y)
     this->setSize({x,y});
 }
 
+
+void UiElement::setSizeAndCenter(glm::vec2 s)
+{
+    this->setSize(s);
+    this->transform()->move(-s*0.5f);
+}
+
+void UiElement::setSizeAndCenter(float x, float y)
+{
+    this->setSizeAndCenter({x,y});
+}
+
 const glm::vec2 &UiElement::getSize()
 {
     return m_size;
@@ -120,7 +132,10 @@ void UiElement::handleEvents(const EventsManager *eventsManager)
     m_isMouseHover = false;
 
     if(!m_isVisible)
+    {
+        this->handleEventsInvisible(eventsManager);
         return;
+    }
 
     auto mousePos = eventsManager->mousePosition();
     auto &globalPos = m_transformComponent.getGlobalPosition();
@@ -137,6 +152,12 @@ void UiElement::handleEvents(const EventsManager *eventsManager)
 
     for(auto child : m_childElements)
         child->handleEvents(eventsManager);
+}
+
+void UiElement::handleEventsInvisible(const EventsManager *eventsManager)
+{
+    for(auto child : m_childElements)
+        child->handleEventsInvisible(eventsManager);
 }
 
 void UiElement::show()

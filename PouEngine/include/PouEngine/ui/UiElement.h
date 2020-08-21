@@ -30,10 +30,14 @@ class UiElement : public NotificationListener, public NotificationSender //: pub
         virtual void setSize(glm::vec2 s); //use this one for children
         void setSize(float x, float y);
 
+        void setSizeAndCenter(glm::vec2 s);
+        void setSizeAndCenter(float x, float y);
+
         const glm::vec2 &getSize();
 
         virtual void update(const Time &elapsedTime = Time(0));
         virtual void handleEvents(const EventsManager *eventsManager);
+        virtual void handleEventsInvisible(const EventsManager *eventsManager);
         virtual void render(UiRenderer *renderer);
 
         virtual void show();

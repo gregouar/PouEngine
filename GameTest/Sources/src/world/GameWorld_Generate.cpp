@@ -298,8 +298,7 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
 
     ///player->update(pou::Time(0), 0);
 
-    glm::vec2 pos(pou::RNGesus::uniformFloat(-200,200), pou::RNGesus::uniformFloat(-200,200));
-    player->transform()->setPosition(pos);
+    this->respawnPlayer(player.get());
 
     player->update(pou::Time(0), m_syncComponent.getLocalTime());
 
@@ -375,6 +374,15 @@ bool GameWorld::removePlayer(size_t player_id)
 
     ///return m_syncPlayers.freeId(player_id);
     return (true);
+}
+
+
+void GameWorld::respawnPlayer(Player *player)
+{
+    player->resurrect();
+
+    glm::vec2 pos(pou::RNGesus::uniformFloat(-200,200), pou::RNGesus::uniformFloat(-200,200));
+    player->transform()->setPosition(pos);
 }
 
 

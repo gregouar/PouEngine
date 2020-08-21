@@ -199,6 +199,7 @@ class CharacterState_Dead : public CharacterState
         //virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
         virtual void entered(CharacterInput *input);
+        virtual void leaving(CharacterInput *input);
 
     protected:
 

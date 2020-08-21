@@ -61,6 +61,7 @@ class GameWorld : public pou::NotificationListener
 
         bool    initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerSave);
         bool    removePlayer(size_t player_id);
+        void    respawnPlayer(Player *player);
 
         void updateSunLight(const pou::Time elapsed_time);
         void constraintCamera(glm::vec2 windowSize/*glm::vec2 minPos, glm::vec2 maxPos*/);

@@ -445,7 +445,10 @@ void GameWorld::processPlayerActions()
             continue;
 
         auto& playerAction = it->second;
-        player->processAction(playerAction);
+        if(playerAction.actionType == PlayerActionType_Respawn)
+            this->respawnPlayer(player.get());
+        else
+            player->processAction(playerAction);
     }
 
     m_playerActions.clear();

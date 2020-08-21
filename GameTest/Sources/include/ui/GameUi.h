@@ -4,6 +4,7 @@
 #include "PouEngine/ui/UserInterface.h"
 #include "PouEngine/ui/UiPicture.h"
 #include "PouEngine/ui/UiText.h"
+#include "PouEngine/ui/UiButton.h"
 
 #include "character/Player.h"
 
@@ -28,11 +29,14 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
         void setPlayer(Player *player);
         void setRTTInfo(float RTT);
 
+        bool askForRespawn();
+
     protected:
        // void cleanup();
 
         void updatePlayerHud();
         void updatePlayerList();
+        void updateYouDied();
 
         void addPlayer(Player *player);
         void removePlayer(Player *player);
@@ -52,6 +56,9 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
 
         std::shared_ptr<pou::UiText>        m_charNameText;
         std::vector< OtherPlayerUi >        m_playerList;
+
+        std::shared_ptr<pou::UiElement>     m_youDiedUi;
+        std::shared_ptr<pou::UiButton>      m_respawnButton;
 
         float m_RTTInfo;
         std::shared_ptr<pou::UiText>        m_RTTText;

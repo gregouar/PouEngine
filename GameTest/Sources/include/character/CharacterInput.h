@@ -14,6 +14,7 @@ enum PlayerActionType
     PlayerActionType_Dash,
     PlayerActionType_UseItem,
     PlayerActionType_CombatMode,
+    PlayerActionType_Respawn,
     NBR_PLAYERACTIONTYPES,
 };
 

@@ -526,3 +526,8 @@ void CharacterState_Dead::entered(CharacterInput *input)
 }
 
 
+void CharacterState_Dead::leaving(CharacterInput *input)
+{
+    m_character->startAnimation(CharacterState::ANIMATION_NAME_STAND);
+}
+

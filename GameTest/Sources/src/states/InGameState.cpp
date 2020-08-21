@@ -122,6 +122,10 @@ void InGameState::handleEvents(const EventsManager *eventsManager)
     if(eventsManager->keyIsPressed(GLFW_KEY_LEFT_SHIFT))
         m_world->addPlayerAction(m_playerId,
                                          PlayerAction(PlayerActionType_CombatMode));
+
+    if(m_gameUi.askForRespawn())
+        m_world->addPlayerAction(m_playerId,
+                                         PlayerAction(PlayerActionType_Respawn));
 }
 
 

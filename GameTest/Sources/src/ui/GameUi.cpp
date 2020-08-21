@@ -22,6 +22,11 @@ GameUi::~GameUi()
 
 bool GameUi::init()
 {
+    /// CHANGE pou::Config::getInt BY SOMETHING ELSE, NEED TO GET ACCESS TO THE RENDERWINDOW ACTUALLY
+    auto windowSize = glm::vec2(pou::Config::getInt("window","width"),
+                                pou::Config::getInt("window","height"));
+
+    ///Player Hud //////////
     m_playerHud = std::make_shared<pou::UiElement>();
     this->addUiElement(m_playerHud);
 
@@ -49,8 +54,43 @@ bool GameUi::init()
     m_charNameText->setTextAlign(pou::TextAlignType_Center);
     m_playerHud->addChildElement(m_charNameText);
 
+    ///You Died ///////////
+    m_youDiedUi = std::make_shared<pou::UiElement>();
+    this->addUiElement(m_youDiedUi);
+    m_youDiedUi->hide();
+
+    auto youDiedBackground = std::make_shared<pou::UiPicture>();
+    youDiedBackground->setColor(glm::vec4(0.0,0.0,0.0,.5));
+    youDiedBackground->setSize(windowSize.x, windowSize.y);
+    m_youDiedUi->addChildElement(youDiedBackground);
+
+    auto youDiedText = std::make_shared<pou::UiText>();
+    youDiedText->transform()->setPosition(windowSize.x/2,
+                                          windowSize.y/2 - 108,
+                                          1);
+    youDiedText->setFont(m_font);
+    youDiedText->setFontSize(72);
+    youDiedText->setTextAlign(pou::TextAlignType_Center);
+    youDiedText->setText("You Died");
+    youDiedText->setColor(glm::vec4(1.0,0.0,0.0,1.0));
+    m_youDiedUi->addChildElement(youDiedText);
+
+    m_respawnButton = std::make_shared<pou::UiButton>();
+    m_respawnButton->transform()->setPosition(windowSize.x/2,
+                                            windowSize.y/2 + 72,
+                                            1);
+    m_respawnButton->setSizeAndCenter(200,50);
+    m_respawnButton->setColor(pou::UiButtonState_Rest, {.5,.5,.5,1});
+    m_respawnButton->setColor(pou::UiButtonState_Hover, {.75,.75,.75,1});
+    m_respawnButton->setColor(pou::UiButtonState_Pressed, {.25,.25,.25,1});
+    m_respawnButton->setColor(pou::UiButtonState_Released, {1,0,0,1});
+    m_respawnButton->setLabel("Respawn",24,{1,1,1,1},m_font);
+    m_youDiedUi->addChildElement(m_respawnButton);
+
+    ///Infos /////////////////
+
     m_RTTText = std::make_shared<pou::UiText>();
-    m_RTTText->transform()->setPosition(pou::Config::getInt("window","width"),0,0);
+    m_RTTText->transform()->setPosition(windowSize.x,0,0);
     m_RTTText->setFont(m_font);
     m_RTTText->setFontSize(16);
     m_RTTText->setTextAlign(pou::TextAlignType_Right);
@@ -86,6 +126,15 @@ void GameUi::setRTTInfo(float RTT)
     m_RTTText->show();
 }
 
+bool GameUi::askForRespawn()
+{
+    return (m_respawnButton->isClicked());
+}
+
+///
+///Protected
+///
+
 void GameUi::updatePlayerHud()
 {
     if(!m_player)
@@ -104,6 +153,11 @@ void GameUi::updatePlayerHud()
 
     m_lifeBar->setMinMaxValue(0,playerMaxLife);
     m_lifeBar->setValue(playerLife);
+
+    if(!m_player->isAlive())
+        m_youDiedUi->show();
+    else
+        m_youDiedUi->hide();
 }
 
 
