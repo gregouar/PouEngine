@@ -69,6 +69,16 @@ struct WorldGenerator_SpawnPoint_Parameters
     const TerrainGenerator_GroundLayer *newGroundLayer;
 };
 
+struct WorldGenerator_SpawnPoint_PathConnection
+{
+    WorldGenerator_SpawnPoint_PathConnection();
+
+    float   spawnProbability;
+
+    pou::HashedString pathName;
+    glm::vec2 position;
+};
+
 class WorldGenerator_SpawnPoint
 {
     public:
@@ -86,6 +96,12 @@ class WorldGenerator_SpawnPoint
 
     protected:
         bool loadParameters(TiXmlElement *element, WorldGenerator_SpawnPoint_Parameters &parameters);
+        void loadModifier(TiXmlElement *element);
+        void loadCharacter(TiXmlElement *element);
+        void loadSprite(TiXmlElement *element);
+        void loadPrefab(TiXmlElement *element);
+        void loadPathConnection(TiXmlElement *element);
+
         void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_SpawnPoint_Modifier &modifier);
 
         glm::vec4 generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng);
@@ -100,15 +116,21 @@ class WorldGenerator_SpawnPoint
         void spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
                          pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
+        void spawnPathConnection(WorldGenerator_SpawnPoint_PathConnection &pathConnection, glm::vec2 worldPos,
+                                 pou::RNGenerator *rng);
+
         void applyRandomModifiers(pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
 
     private:
         TerrainGenerator *m_terrain;
+        std::string m_fileDirectory;
 
         std::vector<CharacterSpawn>         m_characterSpawnModels;
         std::vector<pou::SpriteModel*>      m_spriteModelAssets;
         std::vector<PrefabAsset*>           m_prefabAssets;
+
+        std::vector<WorldGenerator_SpawnPoint_PathConnection> m_pathConnections;
 
         WorldGenerator_SpawnPoint_Parameters m_parameters;
         WorldGenerator_SpawnPoint_Modifier m_randomModifiers[NBR_WorldGenerator_SpawnPoint_ModifierTypes];

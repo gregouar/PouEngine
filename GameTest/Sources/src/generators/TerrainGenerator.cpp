@@ -1,5 +1,7 @@
 #include "generators/TerrainGenerator.h"
 
+#include "generators/TerrainGenerator_PathGraph.h"
+
 #include "PouEngine/Types.h"
 #include "PouEngine/assets/AssetHandler.h"
 #include "PouEngine/assets/SpriteSheetAsset.h"
@@ -66,12 +68,21 @@ bool TerrainGenerator::loadFromXML(TiXmlHandle *hdl, const std::string &fileDire
         return (false);
     this->loadGroundLayer(element, nullptr, fileDirectory);
 
+    auto pathElement = hdl->FirstChildElement("path").Element();
+    while(pathElement)
+    {
+        this->loadPath(pathElement);
+        pathElement = pathElement->NextSiblingElement("path");
+    }
+
     return loaded;
 }
 
 void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     m_rng = rng;
+
+    this->generatePaths();
 
     this->generateGrid();
     /**this->decreasesGridNoise();
@@ -94,6 +105,15 @@ void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenera
 void TerrainGenerator::addSpawnOnlyZone(const TerrainGenerator_SpawnOnlyZone &zone)
 {
     m_spawnOnlyZones.push_back(zone);
+}
+
+void TerrainGenerator::addPathConnection(pou::HashedString pathName, glm::vec2 worldPos)
+{
+    auto pathGraphIt = m_pathGraphes.find(pathName);
+    if(pathGraphIt == m_pathGraphes.end())
+        return;
+
+    pathGraphIt->second.addNode(worldPos);
 }
 
 /*const std::string &TerrainGenerator::getFilePath()
@@ -310,6 +330,29 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     return r;
 }
 
+void TerrainGenerator::loadPath(TiXmlElement *pathElement)
+{
+    auto nameAtt = pathElement->Attribute("name");
+    auto groundLayerAtt = pathElement->Attribute("groundLayer");
+    //auto widthAtt = pathElement->Attribute("width");
+
+    if(!nameAtt || !groundLayerAtt)
+        return;
+
+    auto hashedGroundLayer = pou::Hasher::unique_hash(groundLayerAtt);
+    auto groundLayer = this->getGroundLayer(hashedGroundLayer);
+
+    if(!groundLayer)
+        return;
+
+    auto hashedName = pou::Hasher::unique_hash(nameAtt);
+    auto &pathGraph = m_pathGraphes.emplace(hashedName, TerrainGenerator_PathGraph()).first->second;
+    pathGraph.setGroundLayer(groundLayer);
+    pathGraph.loadParameters(pathElement);
+
+    //if(widthAtt && pou::Parser::isInt(widthAtt))
+     //   pathGraph.setWidth(pou::Parser::parseInt(widthAtt));
+}
 
 
 std::pair<bool, bool> TerrainGenerator::lookForParentLayer(int x, int y, TerrainGenerator_GroundLayer *lookedLayer)
@@ -398,6 +441,15 @@ void TerrainGenerator::resetGrid()
     }
 }
 
+void TerrainGenerator::generatePaths()
+{
+    for(auto &pathGraphIt : m_pathGraphes)
+    {
+        pathGraphIt.second.generatesEdges(this);
+        pathGraphIt.second.generatesOnTerrain(this);
+    }
+}
+
 void TerrainGenerator::generateGrid()
 {
     if(m_groundLayers.size() <= 1)
@@ -477,50 +529,6 @@ void TerrainGenerator::decreaseGridNoise(TerrainGenerator_GroundLayer *groundLay
             newGrid[cellIndex].groundLayer = groundLayer;
         else
             newGrid[cellIndex].groundLayer = parentLayer;
-
-
-        /*std::map<const TerrainGenerator_GroundLayer*, int> layerTypes;
-
-        newGrid[y * m_gridSize.x + x].spawnType = m_generatingGrid[y * m_gridSize.x + x].spawnType;
-        newGrid[y * m_gridSize.x + x].preventGroundSpawning = m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning;
-
-        if(newGrid[y * m_gridSize.x + x].preventGroundSpawning)
-        {
-            newGrid[y * m_gridSize.x + x].groundLayer = m_generatingGrid[y * m_gridSize.x + x].groundLayer;
-            continue;
-        }
-
-        for(auto xp = x - 1 ; xp <= x + 1 ; ++xp)
-        for(auto yp = y - 1 ; yp <= y + 1 ; ++yp)
-        {
-            auto oldGridValue = m_generatingGrid[yp * m_gridSize.x + xp].groundLayer;
-
-            while(oldGridValue)
-            {
-                auto layerTypesIt = layerTypes.lower_bound(oldGridValue);
-                if(layerTypesIt != layerTypes.end() && layerTypesIt->first == oldGridValue)
-                    layerTypesIt->second++;
-                else
-                    layerTypes.insert(layerTypesIt, {oldGridValue, 1});
-
-                oldGridValue = oldGridValue->parentLayer;
-            }
-        }
-
-        size_t maxDepth = 0;
-        const TerrainGenerator_GroundLayer* maxGroundLayer = nullptr;
-
-        for(auto it : layerTypes)
-        {
-            if(it.first)
-            if(it.second >= 5 && it.first->depth >= maxDepth)
-            {
-                maxDepth = it.first->depth;
-                maxGroundLayer = it.first;
-            }
-        }
-
-        newGrid[y * m_gridSize.x + x].groundLayer = maxGroundLayer;*/
     }
 
     newGrid.swap(m_generatingGrid);

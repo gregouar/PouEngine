@@ -1,10 +1,11 @@
 #ifndef TERRAINGENERATOR_H
 #define TERRAINGENERATOR_H
 
-#include "PouEngine/scene/SceneNode.h"
 #include "world/GameWorld_Sync.h"
 #include "assets/TerrainLayerModelAsset.h"
+#include "generators/TerrainGenerator_PathGraph.h"
 
+#include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/tools/RNGesus.h"
 
 #include <stack>
@@ -54,6 +55,7 @@ struct TerrainGenerator_GridCell
     bool                            preventGroundSpawning;
 };
 
+
 class TerrainGenerator
 {
     public:
@@ -71,6 +73,8 @@ class TerrainGenerator
                               glm::ivec2 gridPosition,
                               glm::ivec2 gridExtent,
                               const std::string &groundLayerName = std::string());**/
+
+        void addPathConnection(pou::HashedString pathName, glm::vec2 worldPos);
 
         //const std::string &getFilePath();
         //int getGeneratingSeed();
@@ -95,6 +99,7 @@ class TerrainGenerator
     protected:
         bool loadParameters(TiXmlElement *element);
         bool loadGroundLayer(TiXmlElement *element, TerrainGenerator_GroundLayer *parentLayer, const std::string &fileDirectory);
+        void loadPath(TiXmlElement *element);
 
         size_t getGridDepth(int x, int y);
         //bool lookForNonOccludedLayer(int x, int y, TerrainGenerator_GroundLayer *layer);
@@ -102,6 +107,7 @@ class TerrainGenerator
 
         //void printGrid();
 
+        void generatePaths();
         void generateGrid();
         ///void decreasesGridNoise();
         void decreaseGridNoise(TerrainGenerator_GroundLayer *groundLayer);
@@ -132,6 +138,8 @@ class TerrainGenerator
         //std::list<TerrainGenerator_GroundLayer> m_groundLayers;
         std::multimap<size_t, TerrainGenerator_GroundLayer> m_groundLayers;
         std::vector<TerrainGenerator_SpawnOnlyZone> m_spawnOnlyZones;
+
+        std::unordered_map<pou::HashedString, TerrainGenerator_PathGraph> m_pathGraphes;
 
         //std::vector<size_t> m_generatingGrid;
         std::vector<TerrainGenerator_GridCell> m_generatingGrid;

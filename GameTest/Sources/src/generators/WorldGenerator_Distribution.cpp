@@ -165,6 +165,8 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
             parameters.type = WorldGenerator_DistributionType_Uniform;
         else if(typeStr == "poisson")
             parameters.type = WorldGenerator_DistributionType_Poisson;
+        else if(typeStr == "path")
+            parameters.type = WorldGenerator_DistributionType_Path;
     }
 
     if(distanceAtt)

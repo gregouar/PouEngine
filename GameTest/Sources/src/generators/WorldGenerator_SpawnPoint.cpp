@@ -33,6 +33,19 @@ WorldGenerator_SpawnPoint_Parameters::WorldGenerator_SpawnPoint_Parameters() :
 
 }
 
+
+///
+///WorldGenerator_SpawnPoint_PathConnection
+///
+
+WorldGenerator_SpawnPoint_PathConnection::WorldGenerator_SpawnPoint_PathConnection() :
+    spawnProbability(1.0f),
+    pathName(0),
+    position(0)
+{
+
+}
+
 ///
 ///WorldGenerator_SpawnPoint
 ///
@@ -53,6 +66,7 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
     bool r = true;
 
     m_terrain = terrainGenerator;
+    m_fileDirectory = fileDirectory;
 
     if(!this->loadParameters(element, m_parameters))
         r = false;
@@ -73,109 +87,36 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
     auto modifierChild = element->FirstChildElement("modifier");
     while(modifierChild != nullptr)
     {
-        auto modifierElement = modifierChild->ToElement();
-
-        auto typeAtt = modifierElement->Attribute("type");
-        if(typeAtt)
-        {
-            int type = 0;
-            if(std::string(typeAtt) == "position")
-                type = WorldGenerator_SpawnPoint_ModifierType_Position;
-            else if(std::string(typeAtt) == "rotation")
-                type = WorldGenerator_SpawnPoint_ModifierType_Rotation;
-            else if(std::string(typeAtt) == "flip")
-                type = WorldGenerator_SpawnPoint_ModifierType_Flip;
-            else if(std::string(typeAtt) == "color")
-                type = WorldGenerator_SpawnPoint_ModifierType_Color;
-
-            auto &randomModifier = m_randomModifiers[type];
-
-            auto rngAtt = modifierElement->Attribute("rng");
-            if(rngAtt)
-            {
-                if(std::string(rngAtt) == "uniform")
-                    randomModifier.randomType = WorldGenerator_RandomType_Uniform;
-                else if(std::string(rngAtt) == "gaussian")
-                    randomModifier.randomType = WorldGenerator_RandomType_Gaussian;
-            }
-
-            for(int i = 0 ; i < 4 ; ++i)
-                this->loadRandomModifierValue(modifierElement, i, randomModifier);
-        }
-
+        this->loadModifier(modifierChild->ToElement());
         modifierChild = modifierChild->NextSiblingElement("modifier");
     }
-
 
     auto characterChild = element->FirstChildElement("character");
     while(characterChild != nullptr)
     {
-        auto characterElement = characterChild->ToElement();
+        this->loadCharacter(characterChild->ToElement());
         characterChild = characterChild->NextSiblingElement("character");
-
-        auto pathAtt = characterElement->Attribute("path");
-        auto amountAtt = characterElement->Attribute("amount");
-
-        if(!pathAtt)
-            continue;
-
-        auto modelAsset = CharacterModelsHandler::loadAssetFromFile(fileDirectory+pathAtt);
-        if(!modelAsset)
-            continue;
-
-        m_characterSpawnModels.emplace_back();
-        auto &characterSpawnModel = m_characterSpawnModels.back();
-        characterSpawnModel.modelAsset = modelAsset;
-
-        if(amountAtt)
-        {
-            auto [minV, maxV] = pou::Parser::parseIntSegment(amountAtt);
-            characterSpawnModel.minAmount = minV;
-            characterSpawnModel.maxAmount = maxV;
-        }
     }
 
     auto spriteChild = element->FirstChildElement("sprite");
     while(spriteChild != nullptr)
     {
-        auto characterElement = spriteChild->ToElement();
+        this->loadSprite(spriteChild->ToElement());
         spriteChild = spriteChild->NextSiblingElement("sprite");
-
-        auto spriteSheetAtt = characterElement->Attribute("spritesheet");
-        auto spriteAtt = characterElement->Attribute("sprite");
-
-        if(!spriteSheetAtt || !spriteAtt)
-            continue;
-
-        auto spriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile(fileDirectory+spriteSheetAtt);
-        if(!spriteSheet)
-            continue;
-
-        auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);
-        auto spriteModel = spriteSheet->getSpriteModel(hashedSpriteName);
-        if(!spriteModel)
-            continue;
-
-        m_spriteModelAssets.push_back(spriteModel);
     }
-
 
     auto prefabChild = element->FirstChildElement("prefab");
     while(prefabChild != nullptr)
     {
-        auto prefabElement = prefabChild->ToElement();
+        this->loadPrefab(prefabChild->ToElement());
         prefabChild = prefabChild->NextSiblingElement("prefab");
+    }
 
-        auto pathAtt = prefabElement->Attribute("path");
-
-        if(!pathAtt)
-            continue;
-
-        auto modelAsset = PrefabsHandler::loadAssetFromFile(fileDirectory+pathAtt);
-        if(!modelAsset)
-            continue;
-
-        m_prefabAssets.push_back(modelAsset);
+    auto pathChild = element->FirstChildElement("pathConnection");
+    while(pathChild != nullptr)
+    {
+        this->loadPathConnection(pathChild->ToElement());
+        pathChild = pathChild->NextSiblingElement("pathConnection");
     }
 
     return r;
@@ -198,6 +139,10 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNo
 
     for(auto prefabModel : m_prefabAssets)
         this->spawnPrefab(prefabModel, worldPos, targetNode, rng);
+
+
+    for(auto &pathConnection : m_pathConnections)
+        this->spawnPathConnection(pathConnection, worldPos, rng);
 
     if(m_parameters.changeSpawnTypeTo || m_parameters.changeGroundLayerTo)
     {
@@ -275,6 +220,108 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
 
     return (true);
 }
+
+void WorldGenerator_SpawnPoint::loadModifier(TiXmlElement *modifierElement)
+{
+    auto typeAtt = modifierElement->Attribute("type");
+    if(typeAtt)
+    {
+        int type = 0;
+        if(std::string(typeAtt) == "position")
+            type = WorldGenerator_SpawnPoint_ModifierType_Position;
+        else if(std::string(typeAtt) == "rotation")
+            type = WorldGenerator_SpawnPoint_ModifierType_Rotation;
+        else if(std::string(typeAtt) == "flip")
+            type = WorldGenerator_SpawnPoint_ModifierType_Flip;
+        else if(std::string(typeAtt) == "color")
+            type = WorldGenerator_SpawnPoint_ModifierType_Color;
+
+        auto &randomModifier = m_randomModifiers[type];
+
+        auto rngAtt = modifierElement->Attribute("rng");
+        if(rngAtt)
+        {
+            if(std::string(rngAtt) == "uniform")
+                randomModifier.randomType = WorldGenerator_RandomType_Uniform;
+            else if(std::string(rngAtt) == "gaussian")
+                randomModifier.randomType = WorldGenerator_RandomType_Gaussian;
+        }
+
+        for(int i = 0 ; i < 4 ; ++i)
+            this->loadRandomModifierValue(modifierElement, i, randomModifier);
+    }
+}
+
+void WorldGenerator_SpawnPoint::loadCharacter(TiXmlElement *characterElement)
+{
+    auto pathAtt = characterElement->Attribute("path");
+    auto amountAtt = characterElement->Attribute("amount");
+
+    if(!pathAtt)
+        return;
+
+    auto modelAsset = CharacterModelsHandler::loadAssetFromFile(m_fileDirectory+pathAtt);
+    if(!modelAsset)
+        return;
+
+    m_characterSpawnModels.emplace_back();
+    auto &characterSpawnModel = m_characterSpawnModels.back();
+    characterSpawnModel.modelAsset = modelAsset;
+
+    if(amountAtt)
+    {
+        auto [minV, maxV] = pou::Parser::parseIntSegment(amountAtt);
+        characterSpawnModel.minAmount = minV;
+        characterSpawnModel.maxAmount = maxV;
+    }
+}
+
+void WorldGenerator_SpawnPoint::loadSprite(TiXmlElement *spriteElement)
+{
+    auto spriteSheetAtt = spriteElement->Attribute("spritesheet");
+    auto spriteAtt = spriteElement->Attribute("sprite");
+
+    if(!spriteSheetAtt || !spriteAtt)
+        return;
+
+    auto spriteSheet = pou::SpriteSheetsHandler::loadAssetFromFile(m_fileDirectory+spriteSheetAtt);
+    if(!spriteSheet)
+        return;
+
+    auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);
+    auto spriteModel = spriteSheet->getSpriteModel(hashedSpriteName);
+    if(!spriteModel)
+        return;
+
+    m_spriteModelAssets.push_back(spriteModel);
+}
+
+void WorldGenerator_SpawnPoint::loadPrefab(TiXmlElement *prefabElement)
+{
+    auto pathAtt = prefabElement->Attribute("path");
+
+    if(!pathAtt)
+        return;
+
+    auto modelAsset = PrefabsHandler::loadAssetFromFile(m_fileDirectory+pathAtt);
+    if(!modelAsset)
+        return;
+
+    m_prefabAssets.push_back(modelAsset);
+}
+
+void WorldGenerator_SpawnPoint::loadPathConnection(TiXmlElement *pathElement)
+{
+    auto pathAtt = pathElement->Attribute("path");
+
+    if(!pathAtt)
+        return;
+
+    auto hashedPathName = pou::Hasher::unique_hash(pathAtt);
+    auto &pathConnection = m_pathConnections.emplace_back();
+    pathConnection.pathName = hashedPathName;
+}
+
 
 void WorldGenerator_SpawnPoint::loadRandomModifierValue(TiXmlElement *element, int i, WorldGenerator_SpawnPoint_Modifier &modifier)
 {
@@ -362,6 +409,18 @@ void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 
 
     prefabNode->spawnCharactersOnParent();
 }
+
+
+void WorldGenerator_SpawnPoint::spawnPathConnection(WorldGenerator_SpawnPoint_PathConnection &pathConnection, glm::vec2 worldPos,
+                                                    pou::RNGenerator *rng)
+{
+    float probability = pou::RNGesus::uniformFloat(0.0f, 1.0f, rng);
+    if(probability > pathConnection.spawnProbability)
+        return;
+
+    m_terrain->addPathConnection(pathConnection.pathName, worldPos);
+}
+
 
 glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng)
 {

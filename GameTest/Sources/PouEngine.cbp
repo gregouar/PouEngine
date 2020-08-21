@@ -42,6 +42,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -79,6 +80,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -121,6 +123,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -160,6 +163,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -201,6 +205,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -242,6 +247,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -278,6 +284,7 @@
 					<Add directory="GameTest/Sources/include/generators" />
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
+					<Add directory="PouEngine/include/PouEngine/math" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -335,6 +342,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/math/Graph.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/math/TransformComponent.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractClient.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractNetImpl.h" />
@@ -627,6 +635,7 @@
 		<Unit filename="../../PouEngine/src/core/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
+		<Unit filename="../../PouEngine/src/math/Graph.cpp" />
 		<Unit filename="../../PouEngine/src/math/TransformComponent.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractClient.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractServer.cpp" />
@@ -736,6 +745,7 @@
 		<Unit filename="include/character/PlayerSave.h" />
 		<Unit filename="include/generators/PoissonDiskSampler.h" />
 		<Unit filename="include/generators/TerrainGenerator.h" />
+		<Unit filename="include/generators/TerrainGenerator_PathGraph.h" />
 		<Unit filename="include/generators/TerrainGenerator_TileModels.h" />
 		<Unit filename="include/generators/WorldGenerator.h" />
 		<Unit filename="include/generators/WorldGenerator_Distribution.h" />
@@ -776,6 +786,7 @@
 		<Unit filename="src/character/PlayerSave.cpp" />
 		<Unit filename="src/generators/PoissonDiskSampler.cpp" />
 		<Unit filename="src/generators/TerrainGenerator.cpp" />
+		<Unit filename="src/generators/TerrainGenerator_PathGraph.cpp" />
 		<Unit filename="src/generators/TerrainGenerator_TileModels.cpp" />
 		<Unit filename="src/generators/WorldGenerator.cpp" />
 		<Unit filename="src/generators/WorldGenerator_Distribution.cpp" />

@@ -8,6 +8,7 @@ enum WorldGenerator_DistributionType
 {
     WorldGenerator_DistributionType_Uniform,
     WorldGenerator_DistributionType_Poisson,
+    WorldGenerator_DistributionType_Path,
 };
 
 struct WorldGenerator_Distribution_Parameters
