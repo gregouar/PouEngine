@@ -2,8 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 0, set = 0) uniform ViewUBO {
-    mat4 view;
-    mat4 viewInv;
+    ///mat4 view;
+    ///mat4 viewInv;
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
@@ -71,9 +71,10 @@ void main()
 
     fragWorldPos = vec4(fragWorldPos.xyz/fragWorldPos.w, 1.0);
 
-    gl_Position = viewUbo.view* (fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
+    gl_Position = /**viewUbo.view* */(fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
     gl_Position.xyz = gl_Position.xyz/gl_Position.w;
 
+    gl_Position.xy *= pc.camPosAndZoom.w;
 	gl_Position.xy *=  (gl_Position.z/viewUbo.proj+1);
 
     //gl_Position.z = fragWorldPos.z;

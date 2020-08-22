@@ -59,29 +59,15 @@ void Scene::render(SceneRenderer *renderer, CameraObject *camera)
         glm::mat4 camTranslateInv = glm::translate(glm::mat4(1.0), camPos);
 
         ViewInfo viewInfo;
-        viewInfo.view     = m_viewAngle;
-        viewInfo.viewInv  = m_viewAngleInv;
+        ///viewInfo.view     = m_viewAngle;
+        ///viewInfo.viewInv  = m_viewAngleInv;
         viewInfo.projFactor = m_projectionFactor;
-
-        /*glm::mat4 projMat = //glm::perspective(45.0f, 1024.0f/768.0f, 1.0f, 150.0f);
-         glm::perspective(45.0f, 1024.0f/768.0f, .01f, 500.0f);*/
-        //projMat[1][1] *= -1;
-
-        //glm::mat4 projMat = glm::mat4(1);
-
-       /* float K = 10.0f;
-        glm::mat4 projMat = glm::mat4(
-            1,0,0,0,
-            0,1,0,0,
-            );*/
-
-        //viewInfo.proj  = projMat;
 
         renderer->setView(viewInfo);
 
         SceneRenderingInstance *renderingInstance = new SceneRenderingInstance(&m_renderingData, renderer);
-        viewInfo.view     = m_viewAngle*camTranslate;
-        viewInfo.viewInv  = camTranslateInv*m_viewAngleInv;
+        ///viewInfo.view     = m_viewAngle*camTranslate;
+        ///viewInfo.viewInv  = camTranslateInv*m_viewAngleInv;
         viewInfo.viewportOffset = camera->getViewportOffset();
         viewInfo.viewportExtent = camera->getViewportExtent();
 

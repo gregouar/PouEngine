@@ -9,13 +9,18 @@ layout(early_fragment_tests) in;
 //layout (constant_id = 1) const float const_gioIntensity = 1;
 
 layout(set = 0, binding = 0) uniform ViewUBO {
-    mat4 view;
-    mat4 viewInv;
+    ///mat4 view;
+    ///mat4 viewInv;
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
     float proj;
 } viewUbo;
+
+layout(push_constant) uniform PER_OBJECT
+{
+    vec4 camPosAndZoom;
+}pc;
 
 layout(set = 1, binding = 0) uniform sampler samp;
 layout(set = 1, binding = 1) uniform texture2DArray textures[128];
@@ -233,6 +238,9 @@ float linstep(float low, float high, float v){
 float chebyshevUpperBound(vec2 screenPos, float fragZ)
 {
     vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
+
+    shadowPos.xy *= pc.camPosAndZoom.w;
+
     vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
 
     /*vec2 moments = vec2(texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
@@ -276,20 +284,20 @@ float chebyshevUpperBound(vec2 screenPos, float fragZ)
     return p_max;*/
 }
 
-float sampleShadow(vec2 screenPos, float fragZ)
-{
-    vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
-    vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
-
-    float shadowMap = texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
-                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).x;
-
-
-    //return 1.0 - min(1.0,max(0.0, (depth-shadowDepth)*"<<0.1*PBRTextureAsset::DEPTH_BUFFER_NORMALISER_INV<<"));
-
-    float z = viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y;
-    return 1.0 - min(1.0, max(0.0, (shadowMap - z) / (20.0*viewUbo.depthOffsetAndFactor.y)));
-}
+///float sampleShadow(vec2 screenPos, float fragZ)
+//{
+//    vec2 shadowPos = screenPos /* - min(lightShadowShift, vec2(0.0))*/;
+//    vec2 shadowSizeFactor = 1.0/(2.0/viewUbo.screenSizeFactor+abs(lightShadowShift));
+//
+//    float shadowMap = texture(sampler2DArray(renderedTextures[lightShadowMap.x], samp),
+//                               vec3((shadowPos)*shadowSizeFactor+vec2(.5,.5),lightShadowMap.y)).x;
+//
+//
+//    //return 1.0 - min(1.0,max(0.0, (depth-shadowDepth)*"<<0.1*PBRTextureAsset::DEPTH_BUFFER_NORMALISER_INV<<"));
+//
+//    float z = viewUbo.depthOffsetAndFactor.x + fragZ * viewUbo.depthOffsetAndFactor.y;
+//    return 1.0 - min(1.0, max(0.0, (shadowMap - z) / (20.0*viewUbo.depthOffsetAndFactor.y)));
+//}
 
 
 vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRme)
@@ -321,7 +329,7 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
             vec2 lightXYonZ = lightPos.xy / lightPos.z;
             vec4 projWorldPos  = vec4(fragPos.xy - fragPos.z*lightXYonZ,0.0,1.0);
 
-            vec4 projPos = viewUbo.view*(projWorldPos /*- vec4(pc.camPosAndZoom.xyz,0.0)*/);
+            vec4 projPos = /** viewUbo.view* **/(projWorldPos /*- vec4(pc.camPosAndZoom.xyz,0.0)*/);
             //projPos.z = worldPos.z;
 
             projPos.xy -= lightShadowShift * 0.5;

@@ -314,13 +314,12 @@ void GameWorld::createPlayerCamera(Player *player)
         cameraNode->transform()->move(0,0,250);
         cameraNode->attachObject(listeningCamera);
 
+        m_camera->setZoom(.75);
+
         //m_worldGrid->setRenderProbe(cameraNode.get(),2048);
         m_worldGrid->setRenderProbe(cameraNode.get(),1500);
         m_scene->addRevealingProbe(cameraNode.get());
 
-        ///This should be moved somewhere else
-        //m_musicEvent = pou::AudioEngine::createEvent("event:/Music");
-        //pou::AudioEngine::playEvent(m_musicEvent);
         m_worldGenerator.playWorldMusic();
     }
 }

@@ -2,8 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 0, set = 0) uniform ViewUBO {
-    mat4 view;
-    mat4 viewInv;
+    ///mat4 view;
+    ///mat4 viewInv;
     vec2 screenOffset;
     vec2 screenSizeFactor;
     vec2 depthOffsetAndFactor;
@@ -57,9 +57,10 @@ void main()
         gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
     } else {
         lightPos = inPos - vec4(pc.camPosAndZoom.xyz, 0.0);
-        vec4 screenPos = viewUbo.view*lightPos;
+        vec4 screenPos = /**viewUbo.view* */lightPos;
 
         gl_Position = vec4(screenPos.xyz + vec3(vertPos[gl_VertexIndex] * inRadius, 0.0), 1.0);
+        gl_Position.xy *= pc.camPosAndZoom.w;
         gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                             + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
     }

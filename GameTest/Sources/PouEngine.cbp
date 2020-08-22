@@ -613,6 +613,8 @@
 		<Unit filename="../../PouEngine/shaders/lighting/shadowMapBlur.frag" />
 		<Unit filename="../../PouEngine/shaders/toneMapping.frag" />
 		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
+		<Unit filename="../../PouEngine/shaders/uiRendering.frag" />
+		<Unit filename="../../PouEngine/shaders/uiRendering.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />
 		<Unit filename="../../PouEngine/src/assets/AssetHandler.tpp" />
 		<Unit filename="../../PouEngine/src/assets/FontAsset.cpp" />

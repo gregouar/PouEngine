@@ -7,8 +7,8 @@ namespace pou
 {
 
 struct ViewUBO {
-    glm::mat4 view;
-    glm::mat4 viewInv;
+    /**glm::mat4 view;
+    glm::mat4 viewInv;**/
     glm::vec2 screenOffset;
     glm::vec2 screenSizeFactor;
     glm::vec2 depthOffsetAndFactor;
@@ -19,8 +19,8 @@ struct ViewInfo {
     ViewInfo() : viewportOffset(0.0,0.0),
                  viewportExtent(1.0,1.0){}
 
-    glm::mat4 view;
-    glm::mat4 viewInv;
+    /**glm::mat4 view;
+    glm::mat4 viewInv;**/
     glm::vec2 viewportOffset;
     glm::vec2 viewportExtent;
     glm::float32 projFactor;
@@ -43,12 +43,12 @@ class RenderView
         void setExtent(glm::vec2 extent);
         void setScreenOffset(glm::vec3 offset);
 
-        void setLookAt(glm::vec3 position, glm::vec3 lookAt);
+        ///void setLookAt(glm::vec3 position, glm::vec3 lookAt);
         void setProjectionFactor(float factor);
-        void setView(glm::mat4 view, glm::mat4 viewInv);
-        void setZoom(float zoom);
+        ///void setView(glm::mat4 view, glm::mat4 viewInv);
+        ///void setZoom(float zoom);
 
-        glm::vec3 getTranslate();
+        ///glm::vec3 getTranslate();
 
         VkDescriptorSetLayout   getDescriptorSetLayout();
         VkDescriptorSet         getDescriptorSet(size_t frameIndex);

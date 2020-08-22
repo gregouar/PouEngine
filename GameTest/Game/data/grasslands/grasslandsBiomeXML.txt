@@ -131,11 +131,11 @@
 	</distribution>
 	
 	
-	<!--<distribution type="path" distance=250>
+	<distribution type="path" distance=250>
 		<spawnPoint  spawnProbability=1 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
 		</spawnPoint>
-	</distribution>-->
+	</distribution>
 	
 </biome>
 

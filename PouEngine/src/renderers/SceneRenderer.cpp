@@ -605,7 +605,7 @@ bool SceneRenderer::recordLightingCmb(uint32_t imageIndex)
             {
                 m_renderView.setupViewport(renderingInstance->getViewInfo(), cmb);
                 renderingInstance->pushCamPosAndZoom(cmb, m_lightingPipeline.getLayout(),
-                                                    VK_SHADER_STAGE_VERTEX_BIT);
+                                                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
 
 
                 vkCmdDraw(cmb, LIGHT_TRIANGLECOUNT+2, renderingInstance->getLightsVboSize(),
@@ -1585,7 +1585,7 @@ bool SceneRenderer::createLightingPipeline()
     m_lightingPipeline.attachDescriptorSetLayout(VTexturesManager::descriptorSetLayout(true));
     m_lightingPipeline.attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_lightingPass));
 
-    m_lightingPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec4));
+    m_lightingPipeline.attachPushConstant(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(glm::vec4));
 
     m_lightingPipeline.setBlendMode(BlendMode_Add,0);
     //m_lightingPipeline.setBlendMode(BlendMode_Add,1);
