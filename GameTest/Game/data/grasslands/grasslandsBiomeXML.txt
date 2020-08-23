@@ -24,7 +24,9 @@
 			</groundLayer>
 		</groundLayer>
 		
-		<path name="dirtPath" width=1 groundLayer="dirtPath" cellSize=1000 />
+		<!-- Maybe throw in some random extra nodes ? Could try to throw then uniformally, and remove if too close to existing node (just need to give min distance) -->
+		<!-- How to generate extra edges ? -->
+		<path name="dirtPath" width=1 groundLayer="dirtPath" noiseType="perlin" noiseIntensity=200 noiseKernel=10 />
 	</terrain>
 	
 	
@@ -41,7 +43,7 @@
 	
 	
 	<pois type="poisson" distance=2000 useGridPosition=1 startInCenter=1 >
-		<spawnPoint  spawnProbability=.4 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+		<spawnPoint  spawnProbability=.2 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
 			<modifier type="flip" rng="uniform" x="[-1,1]" />
@@ -51,9 +53,8 @@
 			<prefab path="treeCirclePrefabXML.txt" />
 			<size x=10 y=10 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
-			<prefab path="treeCirclePrefabXML.txt" />
-			<size x=10 y=10 />
+		<spawnPoint  spawnProbability=.2  >
+			<pathConnection path="dirtPath" x=0 y=3 />
 		</spawnPoint>
 	</pois>
 	
@@ -88,7 +89,7 @@
 		
 		<spawnPoint groundLayer="grass" spawnProbability=.1 changeSpawnTypeTo="none">
 			<character path="treeXML.txt"/>
-			<modifier type="position" rng="uniform" x="[-32,32]" y="[-32,32]" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" />
 			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
 			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />

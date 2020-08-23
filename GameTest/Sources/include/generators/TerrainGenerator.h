@@ -107,7 +107,7 @@ class TerrainGenerator
 
         //void printGrid();
 
-        void generatePaths();
+        void generatePaths(pou::RNGenerator *rng);
         void generateGrid();
         ///void decreasesGridNoise();
         void decreaseGridNoise(TerrainGenerator_GroundLayer *groundLayer);

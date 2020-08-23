@@ -2,6 +2,7 @@
 #define MATHTOOLS_H
 
 #include "PouEngine/math/TransformComponent.h"
+#include "PouEngine/tools/RNGesus.h"
 
 namespace pou::MathTools
 {
@@ -38,6 +39,11 @@ T computeWantedRotation(T startingRotation, T finalRotation, bool useRad)
 
     return finalRotation;
 }
+
+float quintic(float v);
+
+std::vector<float> generatePerlinNoise(glm::ivec2 noiseSize, int kernelSize, float intensityFactor=1.0f,
+                                       RNGenerator *rng = nullptr, bool tilable = false);
 
 }
 

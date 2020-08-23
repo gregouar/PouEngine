@@ -82,7 +82,11 @@ void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenera
 {
     m_rng = rng;
 
-    this->generatePaths();
+    pou::Logger::write("Generates paths...");
+
+    this->generatePaths(rng);
+
+    pou::Logger::write("Generates ground grid...");
 
     this->generateGrid();
     /**this->decreasesGridNoise();
@@ -441,12 +445,12 @@ void TerrainGenerator::resetGrid()
     }
 }
 
-void TerrainGenerator::generatePaths()
+void TerrainGenerator::generatePaths(pou::RNGenerator *rng)
 {
     for(auto &pathGraphIt : m_pathGraphes)
     {
-        pathGraphIt.second.generatesEdges(this);
-        pathGraphIt.second.generatesOnTerrain(this);
+        pathGraphIt.second.generatesEdges(this, rng);
+        pathGraphIt.second.generatesOnTerrain(this, rng);
     }
 }
 

@@ -1,6 +1,8 @@
 #ifndef TERRAINGENERATOR_PATHGRAPH_H
 #define TERRAINGENERATOR_PATHGRAPH_H
 
+#include "PouEngine/tools/RNGesus.h"
+
 #include "PouEngine/Types.h"
 #include "tinyxml/tinyxml.h"
 #include <vector>
@@ -23,21 +25,24 @@ class TerrainGenerator_PathGraph
         virtual ~TerrainGenerator_PathGraph();
 
         void addNode(glm::vec2 nodePosition);
-        void generatesEdges(TerrainGenerator *terrain);
-        void generatesOnTerrain(TerrainGenerator *terrain);
+        void generatesEdges(TerrainGenerator *terrain, pou::RNGenerator *rng);
+        void generatesOnTerrain(TerrainGenerator *terrain, pou::RNGenerator *rng);
 
         void loadParameters(TiXmlElement *element);
 
         void setGroundLayer(const TerrainGenerator_GroundLayer* groundLayer);
 
     protected:
-        std::vector<glm::vec2> rasterizesEdge(const std::pair<glm::vec2, glm::vec2> &edge, TerrainGenerator *terrain);
+        std::vector<glm::ivec2> rasterizesEdge(const std::pair<glm::vec2, glm::vec2> &edge,
+                                              TerrainGenerator *terrain, pou::RNGenerator *rng);
 
     private:
         const TerrainGenerator_GroundLayer* m_groundLayer;
         std::vector<glm::vec2> m_nodes;
         //std::vector< std::pair<size_t, size_t> > m_edges;
         std::vector< std::pair<glm::vec2, glm::vec2> > m_edges;
+
+        std::vector<float> m_constraintsGrid;
 
         int m_width;
         /*float m_cellSize;

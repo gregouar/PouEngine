@@ -93,7 +93,7 @@ void main()
 
     //screenPos = gl_Position.xyz;
 
-    gl_Position.xy *= pc.camPosAndZoom.w;
+    gl_Position.xyz *= pc.camPosAndZoom.w;
 
 	gl_Position.xy *= (gl_Position.z/viewUbo.proj+1);
 

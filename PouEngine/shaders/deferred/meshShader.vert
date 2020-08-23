@@ -74,7 +74,7 @@ void main()
     gl_Position = /**viewUbo.view* */(fragWorldPos - vec4(pc.camPosAndZoom.xyz,0.0));
     gl_Position.xyz = gl_Position.xyz/gl_Position.w;
 
-    gl_Position.xy *= pc.camPosAndZoom.w;
+    gl_Position.xyz *= pc.camPosAndZoom.w;
 	gl_Position.xy *=  (gl_Position.z/viewUbo.proj+1);
 
     //gl_Position.z = fragWorldPos.z;

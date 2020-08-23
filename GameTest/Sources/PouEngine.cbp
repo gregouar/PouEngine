@@ -342,6 +342,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/core/SingletonsCleaner.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/StatesManager.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/core/VApp.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/math/AstarGrid.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/math/Graph.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/math/TransformComponent.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/net/AbstractClient.h" />
@@ -637,6 +638,7 @@
 		<Unit filename="../../PouEngine/src/core/SingletonsCleaner.cpp" />
 		<Unit filename="../../PouEngine/src/core/StatesManager.cpp" />
 		<Unit filename="../../PouEngine/src/core/VApp.cpp" />
+		<Unit filename="../../PouEngine/src/math/AstarGrid.cpp" />
 		<Unit filename="../../PouEngine/src/math/Graph.cpp" />
 		<Unit filename="../../PouEngine/src/math/TransformComponent.cpp" />
 		<Unit filename="../../PouEngine/src/net/AbstractClient.cpp" />

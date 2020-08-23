@@ -2,6 +2,7 @@
 
 //#include "PouEngine/system/SimpleNode.h"
 
+///I need to clean this file
 
 namespace pou::MathTools
 {
@@ -126,6 +127,61 @@ float computeWantedRotation(float startingRotation, glm::vec2 position)
     return computeWantedRotation(glm::vec1(startingRotation), glm::vec1(wantedRotation), true).x;
 }
 
+
+float quintic(float t)
+{
+     return t*t*t*(t*(6.0*t-15.0)+10.0);
+}
+
+std::vector<float> generatePerlinNoise(glm::ivec2 noiseSize, int kernelSize, float intensityFactor, RNGenerator *rng, bool tilable)
+{
+    std::vector<float> finalNoise(noiseSize.x * noiseSize.y);
+
+    /** IMPLEMENT TILABLE **/
+
+    auto perlinGridSize = glm::ceil(glm::vec2(noiseSize)/(float)kernelSize); glm::vec2(1);
+    std::vector<glm::vec2> perlinVectorGrid((perlinGridSize.x) * (perlinGridSize.y));
+    //auto ceilNoiseSize = perlinGridSize*kernelSize;
+
+    //Generate random unit vectors
+    for(auto &perlinVector : perlinVectorGrid)
+    {
+        float vectorAngle = pou::RNGesus::uniformFloat(0,2*glm::pi<float>()*2.0f, rng);
+        perlinVector = glm::vec2(cos(vectorAngle), sin(vectorAngle));
+    }
+
+    for(int y = 0 ; y < noiseSize.y ; y++)
+    for(int x = 0 ; x < noiseSize.x ; x++)
+    {
+        float noiseValue = 0;
+
+        auto relPos = glm::vec2((float)x/kernelSize,(float)y/kernelSize);
+        auto gridPos = glm::floor(relPos);
+
+        relPos -= gridPos;
+        auto hermitePos = glm::vec2(quintic(relPos.x), quintic(relPos.y));
+
+        auto &rg00 = perlinVectorGrid[gridPos.y * perlinGridSize.x + gridPos.x];
+        auto &rg10 = perlinVectorGrid[gridPos.y * perlinGridSize.x + (gridPos.x+1)];
+        auto &rg01 = perlinVectorGrid[(gridPos.y+1) * perlinGridSize.x + gridPos.x];
+        auto &rg11 = perlinVectorGrid[(gridPos.y+1) * perlinGridSize.x + (gridPos.x+1)];
+
+        float dot00 = glm::dot(rg00, glm::vec2(relPos.x,relPos.y));
+        float dot10 = glm::dot(rg10, glm::vec2(relPos.x-1,relPos.y));
+        float dot01 = glm::dot(rg01, glm::vec2(relPos.x,relPos.y-1));
+        float dot11 = glm::dot(rg11, glm::vec2(relPos.x-1,relPos.y-1));
+
+        float m0010 = glm::mix(dot00, dot10, hermitePos.x);
+        float m0111 = glm::mix(dot01, dot11, hermitePos.x);
+
+        noiseValue = glm::mix(m0010, m0111,hermitePos.y);
+        noiseValue = (noiseValue+1)/2.0f;
+
+        finalNoise[y * noiseSize.x + x] = noiseValue * intensityFactor;
+    }
+
+    return finalNoise;
+}
 
 }
 

@@ -52,7 +52,7 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistributionFrom(glm::
                 reject = true;
 
             if(newPointPos.x < halfMinDist || newPointPos.y < halfMinDist
-            || newPointPos.x > rectSize.x || newPointPos.y > rectSize.y)
+            || newPointPos.x > rectSize.x-halfMinDist || newPointPos.y > rectSize.y-halfMinDist)
                 reject = true;
 
             auto newPointGridPos = glm::floor(newPointPos/m_cellSize);
