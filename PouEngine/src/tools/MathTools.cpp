@@ -133,13 +133,12 @@ float quintic(float t)
      return t*t*t*(t*(6.0*t-15.0)+10.0);
 }
 
-std::vector<float> generatePerlinNoise(glm::ivec2 noiseSize, int kernelSize, float intensityFactor, RNGenerator *rng, bool tilable)
+//std::vector<float>
+void generatePerlinNoise(std::vector<float> &finalNoise, glm::ivec2 noiseSize, int kernelSize, float intensityFactor, RNGenerator *rng, bool tilable)
 {
-    std::vector<float> finalNoise(noiseSize.x * noiseSize.y);
-
     /** IMPLEMENT TILABLE **/
 
-    auto perlinGridSize = glm::ceil(glm::vec2(noiseSize)/(float)kernelSize); glm::vec2(1);
+    auto perlinGridSize = glm::ceil(glm::vec2(noiseSize)/(float)kernelSize) + glm::vec2(1);
     std::vector<glm::vec2> perlinVectorGrid((perlinGridSize.x) * (perlinGridSize.y));
     //auto ceilNoiseSize = perlinGridSize*kernelSize;
 
@@ -175,12 +174,12 @@ std::vector<float> generatePerlinNoise(glm::ivec2 noiseSize, int kernelSize, flo
         float m0111 = glm::mix(dot01, dot11, hermitePos.x);
 
         noiseValue = glm::mix(m0010, m0111,hermitePos.y);
-        noiseValue = (noiseValue+1)/2.0f;
+        //noiseValue = (noiseValue+1)/2.0f;
 
-        finalNoise[y * noiseSize.x + x] = noiseValue * intensityFactor;
+        finalNoise[y * noiseSize.x + x] += noiseValue * intensityFactor;
     }
 
-    return finalNoise;
+   // return finalNoise;
 }
 
 }

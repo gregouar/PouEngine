@@ -16,7 +16,8 @@ AstarNode::AstarNode() :
 
 AstarGrid::AstarGrid() :
     m_gridSize(0),
-    m_weightGrid(nullptr)
+    m_weightGrid(nullptr),
+    m_unreachableGrid(nullptr)
 {
     //ctor
 }
@@ -38,6 +39,11 @@ void AstarGrid::setWeightGrid(const std::vector<float> *weightGrid)
     m_weightGrid = weightGrid;
 }
 
+void AstarGrid::setUnreachableGrid(const std::vector<bool> *unreachableGrid)
+{
+    m_unreachableGrid = unreachableGrid;
+}
+
 std::vector<glm::ivec2> AstarGrid::lookForPath(glm::ivec2 startCell, glm::ivec2 endCell, bool useWeightAsHeight)
 {
     if(m_weightGrid && useWeightAsHeight)
@@ -53,11 +59,15 @@ std::vector<glm::ivec2> AstarGrid::lookForPath(glm::ivec2 startCell, glm::ivec2 
 ///
 
 
-float AstarGrid::estimatesRemainingPathCostWithHeightGrid(const glm::ivec2 &cell, const glm::ivec2 &endCell)
+std::pair<float, bool> AstarGrid::estimatesRemainingPathCostWithHeightGrid(const glm::ivec2 &cell, const glm::ivec2 &endCell)
 {
+    if(m_unreachableGrid && (*m_unreachableGrid)[cell.y * m_gridSize.x + cell.x])
+        return {0, true};
+
     auto cellZ = (*m_weightGrid)[cell.y * m_gridSize.x + cell.x];
     auto endCellZ = (*m_weightGrid)[endCell.y * m_gridSize.x + endCell.x];
-    return glm::length(glm::vec3(endCell.x, endCell.y, endCellZ) - glm::vec3(cell.x, cell.y, cellZ));
+    //return glm::length(glm::vec2(cell) - glm::vec2(endCell)) + endCellZ - cellZ;
+    return {glm::length(glm::vec3(endCell.x, endCell.y, endCellZ) - glm::vec3(cell.x, cell.y, cellZ)), false};
 }
 
 std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 startCell, glm::ivec2 endCell)
@@ -71,7 +81,7 @@ std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 star
     std::unordered_map<std::pair<int, int>, AstarNode, IntPairHash> astarNodesMap;
 
     AstarNode startAstarNode;
-    startAstarNode.estimatedTotalPathCost = estimatesRemainingPathCostWithHeightGrid(startCell, endCell);
+    startAstarNode.estimatedTotalPathCost = estimatesRemainingPathCostWithHeightGrid(startCell, endCell).first;
     startAstarNode.pathToNodeCost = 0;
     astarNodesMap.insert({{startCell.x, startCell.y},startAstarNode});
 
@@ -82,9 +92,9 @@ std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 star
                                                 {-1,0},        {1,0},
                                                 {-1,1} ,{0,1} ,{1,1}};*/
 
-    std::vector<glm::ivec2> neighborSamples = { {0,-1},
+    std::vector<glm::ivec2> neighborSamples = {         {0,-1},
                                                 {-1,0},        {1,0},
-                                                {0,1} };
+                                                        {0,1} };
     while(!openSet.empty())
     {
         auto openSetIt = openSet.extract(openSet.begin());
@@ -104,7 +114,7 @@ std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 star
 
         auto &curAstarCell = astarNodesMap[{curCell.x,curCell.y}];
 
-        for(int i = 0 ; i < 8 ; ++i)
+        for(size_t i = 0 ; i < neighborSamples.size() ; ++i)
         {
             auto sampleCell = curCell + neighborSamples[i];
             if(sampleCell.x < 0 || sampleCell.y < 0 || sampleCell.x >= m_gridSize.x || sampleCell.y >= m_gridSize.y)
@@ -112,23 +122,30 @@ std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 star
 
             auto &sampleAstarCell = astarNodesMap[{sampleCell.x,sampleCell.y}];
 
-            auto newPathToNodeCost = curAstarCell.pathToNodeCost + estimatesRemainingPathCostWithHeightGrid(curCell, sampleCell);
+            auto [nextCellCost, unreachable] = this->estimatesRemainingPathCostWithHeightGrid(curCell, sampleCell);
+
+            if(unreachable)
+                continue;
+
+            auto newPathToNodeCost = curAstarCell.pathToNodeCost + nextCellCost;
             if(newPathToNodeCost < sampleAstarCell.pathToNodeCost)
             {
                 auto oldOpenSetIt = openSet.find(sampleAstarCell.pathToNodeCost);
                 while(oldOpenSetIt != openSet.end() && oldOpenSetIt->first == sampleAstarCell.pathToNodeCost)
+                {
                     if(oldOpenSetIt->second == sampleCell)
                     {
                         openSet.erase(oldOpenSetIt);
                         break;
                     }
+                    ++oldOpenSetIt;
+                }
 
                 sampleAstarCell.parentNode = curCell;
                 sampleAstarCell.pathToNodeCost = newPathToNodeCost;
-                sampleAstarCell.estimatedTotalPathCost = newPathToNodeCost + estimatesRemainingPathCostWithHeightGrid(sampleCell, endCell);
+                sampleAstarCell.estimatedTotalPathCost = newPathToNodeCost + estimatesRemainingPathCostWithHeightGrid(sampleCell, endCell).first;
                 openSet.insert({sampleAstarCell.estimatedTotalPathCost, sampleCell});
             }
-
         }
     }
     return finalPath;

@@ -195,6 +195,20 @@ void TerrainGenerator::setGroundLayer(int x, int y, const TerrainGenerator_Groun
     m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning = true;
 }
 
+void TerrainGenerator::addPathType(glm::vec2 worldPos, pou::HashedString pathName)
+{
+    auto gridPos = this->worldToGridPosition(worldPos);
+    this->addPathType(gridPos.x, gridPos.y, pathName);
+}
+
+void TerrainGenerator::addPathType(int x, int y, pou::HashedString pathName)
+{
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return;
+
+    m_generatingGrid[y * m_gridSize.x + x].pathTypes.insert(pathName);
+}
+
 glm::vec2 TerrainGenerator::gridToWorldPosition(int x, int y)
 {
     return glm::vec2(x,y) * m_tileSize - m_gridSize * m_tileSize * 0.5f;
@@ -221,6 +235,21 @@ size_t TerrainGenerator::getGridDepth(int x, int y)
         return (0);
     return m_generatingGrid[y * m_gridSize.x + x].groundLayer->depth;
 }
+
+bool TerrainGenerator::containsNoPathOrPath(int x, int y, pou::HashedString pathName)
+{
+    if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
+        return (true);
+
+    auto &pathTypes = m_generatingGrid[y * m_gridSize.x + x].pathTypes;
+
+    if(pathTypes.empty())
+        return (true);
+
+    return
+        (pathTypes.find(pathName) != pathTypes.end());
+}
+
 
 ///
 ///Protected
@@ -257,12 +286,12 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     bool r = true;
 
     auto pathAtt = element->Attribute("path");
-    if(pathAtt == nullptr)
-        return (false);
+    /*if(pathAtt == nullptr)
+        return (false);*/
 
-    auto layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile(fileDirectory+std::string(pathAtt));
+    /*auto layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile(fileDirectory+std::string(pathAtt));
     if(!layerModel)
-        return (false);
+        return (false);*/
 
     auto depth = 0;
     if(parentLayer)
@@ -271,8 +300,11 @@ bool TerrainGenerator::loadGroundLayer(TiXmlElement *element, TerrainGenerator_G
     auto groundLayerIt = m_groundLayers.emplace(depth, TerrainGenerator_GroundLayer());
     auto *groundLayer = &(groundLayerIt->second);
     groundLayer->parentLayer = parentLayer;
-    groundLayer->layerModel  = layerModel;
+    groundLayer->layerModel  = nullptr;//layerModel;
     groundLayer->depth = depth;
+
+    if(pathAtt)
+        groundLayer->layerModel = pou::AssetHandler<TerrainLayerModelAsset>::loadAssetFromFile(fileDirectory+std::string(pathAtt));
 
     auto att = element->Attribute("name");
     if(att)
@@ -352,7 +384,7 @@ void TerrainGenerator::loadPath(TiXmlElement *pathElement)
     auto hashedName = pou::Hasher::unique_hash(nameAtt);
     auto &pathGraph = m_pathGraphes.emplace(hashedName, TerrainGenerator_PathGraph()).first->second;
     pathGraph.setGroundLayer(groundLayer);
-    pathGraph.loadParameters(pathElement);
+    pathGraph.loadParameters(pathElement, hashedName);
 
     //if(widthAtt && pou::Parser::isInt(widthAtt))
      //   pathGraph.setWidth(pou::Parser::parseInt(widthAtt));
@@ -698,6 +730,9 @@ void TerrainGenerator::generateSprites(int x, int y, pou::SceneNode *targetNode)
             continue;
 
         int boolGridValue = (isPresent[0]<<3) | (isPresent[1]<<2)| (isPresent[2]<<1) | isPresent[3];
+
+        if(!groundLayer.layerModel)
+            continue;
 
         auto tileModel = groundLayer.layerModel->getTileModels((TerrainGenerator_BorderType)boolGridValue);
         if(!tileModel)

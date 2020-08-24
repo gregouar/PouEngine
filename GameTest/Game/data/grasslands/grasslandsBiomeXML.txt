@@ -11,7 +11,8 @@
 		</parameters>
 		
 		<groundLayer name="dirt" path="dirtLayerModelXML.txt">
-			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 smooth=2 >
+			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 smooth=3 >
+			<!--<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=1 >-->
 				<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=.4 occulting=1 smooth=3 />
 				<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.3 occulting=0 smooth=2 />
 			</groundLayer>
@@ -20,13 +21,15 @@
 			</groundLayer>
 			
 			
-			<groundLayer name="dirtPath" path="gravelLayerModelXML.txt" spawnProbability=0   occulting=0>
+			<groundLayer name="dirtPath" spawnProbability=0   occulting=0>
 			</groundLayer>
 		</groundLayer>
 		
-		<!-- Maybe throw in some random extra nodes ? Could try to throw then uniformally, and remove if too close to existing node (just need to give min distance) -->
-		<!-- How to generate extra edges ? -->
-		<path name="dirtPath" width=1 groundLayer="dirtPath" noiseType="perlin" noiseIntensity=200 noiseKernel=10 />
+		<path name="dirtPath" width=1 groundLayer="dirtPath" cycleFactor=2>
+			<noise type="perlin" intensity=2 kernel= 20 />
+			<noise type="perlin" intensity=2 kernel= 5 />
+			<noise type="perlin" intensity=2 kernel= 2 />
+		</path>
 	</terrain>
 	
 	
@@ -42,7 +45,7 @@
 	</pois>-->
 	
 	
-	<pois type="poisson" distance=2000 useGridPosition=1 startInCenter=1 >
+	<pois type="poisson" distance=3000 useGridPosition=1 startInCenter=1 >
 		<spawnPoint  spawnProbability=.2 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
@@ -53,8 +56,8 @@
 			<prefab path="treeCirclePrefabXML.txt" />
 			<size x=10 y=10 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.2  >
-			<pathConnection path="dirtPath" x=0 y=3 />
+		<spawnPoint  spawnProbability=.4  >
+			<pathConnection path="dirtPath" />
 		</spawnPoint>
 	</pois>
 	

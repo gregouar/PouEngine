@@ -53,6 +53,8 @@ struct TerrainGenerator_GridCell
     const TerrainGenerator_GroundLayer*   groundLayer;
     TerrainGenerator_SpawnType      spawnType;
     bool                            preventGroundSpawning;
+
+    std::unordered_set<pou::HashedString> pathTypes; ///To prevent spawning path on PoI without connection
 };
 
 
@@ -92,9 +94,14 @@ class TerrainGenerator
         void setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer);
         void setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer);
 
+        void addPathType(glm::vec2 worldPos, pou::HashedString pathName);
+        void addPathType(int x, int y, pou::HashedString pathName);
+
         glm::vec2 gridToWorldPosition(int x, int y);
         glm::ivec2 worldToGridPosition(glm::vec2 worldPos);
         const TerrainGenerator_GroundLayer* getGridGroundLayer(int x, int y);
+
+        bool containsNoPathOrPath(int x, int y, pou::HashedString pathName);
 
     protected:
         bool loadParameters(TiXmlElement *element);

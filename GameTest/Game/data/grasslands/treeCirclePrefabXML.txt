@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<spritesheet name="grassSS" path="grassSpritesheetXML.txt" />
+	
+	<node name="root">
+		<node  z=2>
+			<prefab path="rock1Prefab.txt"   /> 
+		</node>
+		<node  z=2 x=32 y=24>
+			<sprite sprite="plant1" spritesheet="grassSS"  /> 
+		</node>
+		<node  z=2 x=-48 y=32>
+			<sprite sprite="plant1" spritesheet="grassSS"  /> 
+		</node>
+		<node  z=2 x=96 y=-104>
+			<sprite sprite="plant1" spritesheet="grassSS"  /> 
+		</node>
+	</node>
+	
+	<character path="treeXML.txt" x=256 y=0 />
+	<character path="treeXML.txt" x=181 y=181 />
+	<character path="treeXML.txt" x=0 y=256 />
+	<character path="treeXML.txt" x=-181 y=181 />
+	<character path="treeXML.txt" x=-256 y=0 />
+	<character path="treeXML.txt" x=-181 y=-181 />
+	<character path="treeXML.txt" x=0 y=-256 />
+	<character path="treeXML.txt" x=181 y=-181 />
+
+</prefab>
+
+
+

@@ -144,7 +144,7 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNo
     for(auto &pathConnection : m_pathConnections)
         this->spawnPathConnection(pathConnection, worldPos, rng);
 
-    if(m_parameters.changeSpawnTypeTo || m_parameters.changeGroundLayerTo)
+    //if(m_parameters.changeSpawnTypeTo || m_parameters.changeGroundLayerTo || !m_pathConnections.empty())
     {
         for(auto y = 0 ; y < m_gridSize.y ; ++y)
         for(auto x = 0 ; x < m_gridSize.x ; ++x)
@@ -155,6 +155,12 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNo
                 m_terrain->setSpawnType(gridElementPos, m_parameters.newSpawnType);
             if(m_parameters.changeGroundLayerTo)
                 m_terrain->setGroundLayer(gridElementPos, m_parameters.newGroundLayer);
+
+            for(auto &pathConnection : m_pathConnections)
+                m_terrain->addPathType(gridElementPos, pathConnection.pathName);
+
+            if(m_pathConnections.empty())
+                m_terrain->addPathType(gridElementPos, 0);
         }
     }
 }

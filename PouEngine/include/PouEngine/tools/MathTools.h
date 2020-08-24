@@ -42,8 +42,10 @@ T computeWantedRotation(T startingRotation, T finalRotation, bool useRad)
 
 float quintic(float v);
 
-std::vector<float> generatePerlinNoise(glm::ivec2 noiseSize, int kernelSize, float intensityFactor=1.0f,
-                                       RNGenerator *rng = nullptr, bool tilable = false);
+//std::vector<float>
+void    generatePerlinNoise(std::vector<float> &grid,
+                            glm::ivec2 noiseSize, int kernelSize, float intensityFactor=1.0f,
+                            RNGenerator *rng = nullptr, bool tilable = false);
 
 }
 

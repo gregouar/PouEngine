@@ -18,6 +18,29 @@ struct TerrainGenerator_PathGraph_GridCell
     std::vector<size_t> pathNodes;
 };
 
+struct TerrainGenerator_PathGraph_Parameters
+{
+    TerrainGenerator_PathGraph_Parameters() : width(1), cycleFactor(2){};
+
+    int width;
+    float cycleFactor;
+};
+
+enum TerrainGenerator_PathGraph_NoiseType
+{
+    TerrainGenerator_PathGraph_Noise_Perlin,
+    TerrainGenerator_PathGraph_Noise_None,
+};
+
+struct TerrainGenerator_PathGraph_Noise
+{
+    TerrainGenerator_PathGraph_Noise();
+
+    TerrainGenerator_PathGraph_NoiseType type;
+    float intensity;
+    int kernel;
+};
+
 class TerrainGenerator_PathGraph
 {
     public:
@@ -28,7 +51,7 @@ class TerrainGenerator_PathGraph
         void generatesEdges(TerrainGenerator *terrain, pou::RNGenerator *rng);
         void generatesOnTerrain(TerrainGenerator *terrain, pou::RNGenerator *rng);
 
-        void loadParameters(TiXmlElement *element);
+        void loadParameters(TiXmlElement *element, pou::HashedString pathName);
 
         void setGroundLayer(const TerrainGenerator_GroundLayer* groundLayer);
 
@@ -36,15 +59,21 @@ class TerrainGenerator_PathGraph
         std::vector<glm::ivec2> rasterizesEdge(const std::pair<glm::vec2, glm::vec2> &edge,
                                               TerrainGenerator *terrain, pou::RNGenerator *rng);
 
+        void loadNoise(TiXmlElement *element);
+
     private:
+        pou::HashedString m_pathName;
+
         const TerrainGenerator_GroundLayer* m_groundLayer;
         std::vector<glm::vec2> m_nodes;
         //std::vector< std::pair<size_t, size_t> > m_edges;
         std::vector< std::pair<glm::vec2, glm::vec2> > m_edges;
 
-        std::vector<float> m_constraintsGrid;
+        std::vector<TerrainGenerator_PathGraph_Noise> m_noises;
+        std::vector<float>  m_weightGrid;
+        std::vector<bool>   m_unreachableGrid;
 
-        int m_width;
+        TerrainGenerator_PathGraph_Parameters m_parameters;
         /*float m_cellSize;
 
         glm::ivec2 m_gridSize;

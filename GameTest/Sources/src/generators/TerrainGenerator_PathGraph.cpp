@@ -6,9 +6,15 @@
 
 #include "generators/TerrainGenerator.h"
 
+TerrainGenerator_PathGraph_Noise::TerrainGenerator_PathGraph_Noise() :
+    type(TerrainGenerator_PathGraph_Noise_None),
+    intensity(1.0f),
+    kernel(1)
+{
+}
+
 TerrainGenerator_PathGraph::TerrainGenerator_PathGraph() :
-    m_groundLayer(nullptr),
-    m_width(1)//,
+    m_groundLayer(nullptr)
    // m_cellSize(0)
 {
     //ctor
@@ -39,65 +45,95 @@ void TerrainGenerator_PathGraph::generatesEdges(TerrainGenerator *terrain, pou::
         }
     }
 
-    auto spanningTree = fullGraph.computeMinimalSpanningTree(2.0f);
+    auto spanningTree = fullGraph.computeMinimalSpanningTree(m_parameters.cycleFactor);
 
     for(auto edge : spanningTree.getEdges())
         m_edges.push_back({m_nodes[edge.startNode],
                            m_nodes[edge.endNode]});
 
 
-    auto kernelSize = 10; ///LOAD FROM XML
-    float noiseIntensity = 200.0f;
-    m_constraintsGrid = pou::MathTools::generatePerlinNoise(terrain->getGridSize(), kernelSize, noiseIntensity, rng);
+    std::cout<<"Generate path noise..."<<std::endl;
 
-    /*for(int y = 0 ; y < terrain->getGridSize().y ; ++y)
+    auto gridSize = terrain->getGridSize();
+
+    m_weightGrid = std::vector<float>(gridSize.x * gridSize.y, 0);
+
+    for(auto &noise : m_noises)
     {
-        for(int x = 0 ; x < terrain->getGridSize().x ; ++x)
-        {
-            if(m_constraintsGrid[y * terrain->getGridSize().x + x] > .75)
-                std::cout<<"X";
-            else if(m_constraintsGrid[y * terrain->getGridSize().x + x] > .5)
-                std::cout<<"x";
-            else if(m_constraintsGrid[y * terrain->getGridSize().x + x] > .25)
-                std::cout<<"-";
-            else
-                std::cout<<" ";
-        }
+        if(noise.type == TerrainGenerator_PathGraph_Noise_Perlin)
+            pou::MathTools::generatePerlinNoise(m_weightGrid, gridSize, noise.kernel, noise.intensity*1000.0f, rng);
+    }
 
-        std::cout<<std::endl;
-    }*/
+    m_unreachableGrid = std::vector<bool>(gridSize.x * gridSize.y);
 
-
-
-
-    /*auto terrainExtent = terrain->getExtent();
-    m_gridSize = glm::ceil(terrainExtent/m_cellSize);
-
-    m_grid.resize(gridSize.x * gridSize.y);*/
-
-    /*for(size_t i = 0 ; i < m_nodes.size() ; ++i)
-    for(size_t j = 0 ; j < m_nodes.size() ; ++j)
-        m_edges.push_back({i,j});*/
+    for(int y = 0 ; y < gridSize.y ; ++y)
+    {
+    for(int x = 0 ; x < gridSize.x ; ++x)
+    {
+        m_unreachableGrid[y * gridSize.x + x] = !terrain->containsNoPathOrPath(x,y,m_pathName);
+        //std::cout<<m_unreachableGrid[y * gridSize.x + x];
+    }
+        //std::cout<<std::endl;
+    }
 }
 
 void TerrainGenerator_PathGraph::generatesOnTerrain(TerrainGenerator *terrain, pou::RNGenerator *rng)
 {
+    std::cout<<"Computing paths..."<<std::endl;
+
+    auto width = m_parameters.width;
+
+    std::vector<glm::ivec2> samples;
+    samples.reserve(width*width);
+    //samples.push_back({0,0});
+
+    auto cellShift = glm::ivec2(width/2);
+    for(int y = 0 ; y < width ; ++y)
+    for(int x = 0 ; x < width ; ++x)
+    {
+        samples.push_back(glm::ivec2(x,y) - cellShift);
+    }
+
     for(auto edge : m_edges)
     {
         auto rasterizedPath = this->rasterizesEdge(edge, terrain, rng);
         for(auto cell : rasterizedPath)
-            terrain->setGroundLayer(cell.x, cell.y, m_groundLayer);
+        {
+            for(auto sample : samples)
+                terrain->setGroundLayer(cell.x + sample.x, cell.y + sample.y, m_groundLayer);
+
+            ///For bigger width ?
+            /*terrain->setGroundLayer(cell.x-1, cell.y, m_groundLayer);
+            terrain->setGroundLayer(cell.x+1, cell.y, m_groundLayer);
+            terrain->setGroundLayer(cell.x, cell.y-1, m_groundLayer);
+            terrain->setGroundLayer(cell.x, cell.y+1, m_groundLayer);*/
+        }
     }
 }
 
-
-void TerrainGenerator_PathGraph::loadParameters(TiXmlElement *pathElement)
+void TerrainGenerator_PathGraph::loadParameters(TiXmlElement *pathElement, pou::HashedString pathName)
 {
+    m_pathName = pathName;
+
     auto widthAtt = pathElement->Attribute("width");
+    auto cycleFactorAtt = pathElement->Attribute("cycleFactor");
     //auto cellSizeAtt = pathElement->Attribute("cellSize");
 
     if(widthAtt && pou::Parser::isInt(widthAtt))
-        m_width = pou::Parser::parseInt(widthAtt);
+        m_parameters.width = pou::Parser::parseInt(widthAtt);
+
+    if(cycleFactorAtt && pou::Parser::isFloat(cycleFactorAtt))
+        m_parameters.cycleFactor = pou::Parser::parseFloat(cycleFactorAtt);
+
+
+    auto noiseChild = pathElement->FirstChildElement("noise");
+    while(noiseChild != nullptr)
+    {
+        auto noiseElement = noiseChild->ToElement();
+        if(noiseElement)
+            this->loadNoise(noiseElement);
+        noiseChild = noiseChild->NextSiblingElement("noise");
+    }
 
     /*if(cellSizeAtt && pou::Parser::isFloat(cellSizeAtt))
         m_cellSize = pou::Parser::parseFloat(cellSizeAtt);*/
@@ -123,24 +159,40 @@ std::vector<glm::ivec2> TerrainGenerator_PathGraph::rasterizesEdge(const std::pa
 
     pou::AstarGrid astar;
     astar.setGridSize(terrain->getGridSize());
-    astar.setWeightGrid(&m_constraintsGrid);
+    astar.setWeightGrid(&m_weightGrid);
+    astar.setUnreachableGrid(&m_unreachableGrid);
 
     std::vector<glm::ivec2> rasterizedPath;
 
     rasterizedPath = astar.lookForPath(startGridPos, endGridPos, true);
 
-    ///DO ACTUAL RASTERIZATION PLEASE POU/OR FIND SOMETHING ELSE (like A*)
-    /*for(auto i = 0 ; i < 1000 ; ++i)
-    {
-        auto worldPos = startWorldPos + deltaWorldPos * (float)i/1000.0f;
-        auto cellPos = terrain->worldToGridPosition(worldPos);
-        rasterizedPath.push_back(cellPos);
-    }*/
-
     return rasterizedPath;
 }
 
 
+void TerrainGenerator_PathGraph::loadNoise(TiXmlElement *noiseElement)
+{
+    auto typeAtt = noiseElement->Attribute("type");
+    if(!typeAtt)
+        return;
+
+    auto &noise = m_noises.emplace_back();
+
+    if(std::string(typeAtt) == "perlin")
+        noise.type = TerrainGenerator_PathGraph_Noise_Perlin;
+    else
+        noise.type = TerrainGenerator_PathGraph_Noise_None;
+
+
+    auto intensityAtt = noiseElement->Attribute("intensity");
+    auto kernelAtt = noiseElement->Attribute("kernel");
+
+    if(intensityAtt && pou::Parser::isFloat(intensityAtt))
+        noise.intensity = pou::Parser::parseFloat(intensityAtt);
+
+    if(kernelAtt && pou::Parser::isInt(intensityAtt))
+        noise.kernel = pou::Parser::parseInt(kernelAtt);
+}
 
 
 

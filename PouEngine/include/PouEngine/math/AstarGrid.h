@@ -24,11 +24,12 @@ class AstarGrid
 
         void setGridSize(const glm::ivec2 gridSize);
         void setWeightGrid(const std::vector<float> *weightGrid);
+        void setUnreachableGrid(const std::vector<bool> *unreachableGrid);
 
         std::vector<glm::ivec2> lookForPath(glm::ivec2 startCell, glm::ivec2 endCell, bool useWeightAsHeight);
 
     protected:
-        float estimatesRemainingPathCostWithHeightGrid(const glm::ivec2 &cell, const glm::ivec2 &endCell);
+        std::pair<float, bool> estimatesRemainingPathCostWithHeightGrid(const glm::ivec2 &cell, const glm::ivec2 &endCell);
         std::vector<glm::ivec2> lookForPathImplWithHeightGrid(glm::ivec2 startCell, glm::ivec2 endCell);
 
         float estimatesRemainingPathCostWithWeightGrid(const glm::ivec2 &cell, const glm::ivec2 &endCell);
@@ -40,6 +41,7 @@ class AstarGrid
     private:
         glm::ivec2 m_gridSize;
         const std::vector<float> *m_weightGrid;
+        const std::vector<bool>  *m_unreachableGrid;
 };
 
 }
