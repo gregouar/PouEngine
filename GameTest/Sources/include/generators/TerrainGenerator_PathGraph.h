@@ -54,6 +54,7 @@ class TerrainGenerator_PathGraph
         void loadParameters(TiXmlElement *element, pou::HashedString pathName);
 
         void setGroundLayer(const TerrainGenerator_GroundLayer* groundLayer);
+        const std::list<std::vector<glm::ivec2> > *getAllRasterizedPaths();
 
     protected:
         std::vector<glm::ivec2> rasterizesEdge(const std::pair<glm::vec2, glm::vec2> &edge,
@@ -68,6 +69,7 @@ class TerrainGenerator_PathGraph
         std::vector<glm::vec2> m_nodes;
         //std::vector< std::pair<size_t, size_t> > m_edges;
         std::vector< std::pair<glm::vec2, glm::vec2> > m_edges;
+        std::list<std::vector<glm::ivec2> > m_rasterizedEdges;
 
         std::vector<TerrainGenerator_PathGraph_Noise> m_noises;
         std::vector<float>  m_weightGrid;

@@ -97,6 +97,8 @@ void main()
 
 	gl_Position.xy *= (gl_Position.z/viewUbo.proj+1);
 
+	//gl_Position.xy = floor(gl_Position.xy) + vec2(0.5);
+
     gl_Position.xyz = gl_Position.xyz * vec3(viewUbo.screenSizeFactor, viewUbo.depthOffsetAndFactor.y)
                         + vec3(viewUbo.screenOffset, viewUbo.depthOffsetAndFactor.x);
 

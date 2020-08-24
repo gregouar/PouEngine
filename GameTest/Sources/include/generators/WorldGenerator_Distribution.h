@@ -23,6 +23,19 @@ struct WorldGenerator_Distribution_Parameters
 
     bool startInCenter;
     bool useGridPosition;
+
+    pou::HashedString pathName; //For WorldGenerator_DistributionType_Path
+};
+
+struct WorldGenerator_Distribution_DistributedPoints
+{
+    WorldGenerator_Distribution_DistributedPoints() :
+        distributedPositions(nullptr),
+        distributedRotations(nullptr)
+        {}
+
+    const std::vector<glm::vec2> *distributedPositions;
+    const std::vector<float> *distributedRotations;
 };
 
 class WorldGenerator_Distribution
@@ -37,7 +50,8 @@ class WorldGenerator_Distribution
                              bool generateCharacters, pou::RNGenerator *rng);
 
     protected:
-        const std::vector<glm::vec2> &generatePointsDistribution(pou::RNGenerator *rng);
+        WorldGenerator_Distribution_DistributedPoints generatePointsDistribution(pou::RNGenerator *rng);
+        WorldGenerator_Distribution_DistributedPoints generatePathDistribution(pou::RNGenerator *rng);
 
         bool loadParameters(TiXmlElement *element, WorldGenerator_Distribution_Parameters &parameters);
 
@@ -50,6 +64,9 @@ class WorldGenerator_Distribution
 
         std::vector<glm::vec2> m_dummyUniformSampler;
         PoissonDiskSampler m_poissonDiskSampler;
+        std::vector<glm::vec2> m_pathSampler;
+
+        std::vector<float> m_distributedRotations;
 
 };
 

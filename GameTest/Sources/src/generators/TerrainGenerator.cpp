@@ -250,6 +250,14 @@ bool TerrainGenerator::containsNoPathOrPath(int x, int y, pou::HashedString path
         (pathTypes.find(pathName) != pathTypes.end());
 }
 
+const std::list<std::vector<glm::ivec2> > *TerrainGenerator::getRasterizedPaths(pou::HashedString pathName)
+{
+    auto pathGraphIt = m_pathGraphes.find(pathName);
+    if(pathGraphIt == m_pathGraphes.end())
+        return (nullptr);
+    return pathGraphIt->second.getAllRasterizedPaths();
+}
+
 
 ///
 ///Protected

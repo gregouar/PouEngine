@@ -102,6 +102,7 @@ class TerrainGenerator
         const TerrainGenerator_GroundLayer* getGridGroundLayer(int x, int y);
 
         bool containsNoPathOrPath(int x, int y, pou::HashedString pathName);
+        const std::list<std::vector<glm::ivec2> > *getRasterizedPaths(pou::HashedString pathName);
 
     protected:
         bool loadParameters(TiXmlElement *element);

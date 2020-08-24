@@ -9,8 +9,8 @@ class PoissonDiskSampler
         PoissonDiskSampler();
         virtual ~PoissonDiskSampler();
 
-        const std::vector<glm::vec2> &generateDistribution(glm::vec2 rectSize, float minDist, int rejectionThresold = 30);
-        const std::vector<glm::vec2> &generateDistributionFrom(glm::vec2 startingPoint, glm::vec2 rectSize,
+        const std::vector<glm::vec2> *generateDistribution(glm::vec2 rectSize, float minDist, int rejectionThresold = 30);
+        const std::vector<glm::vec2> *generateDistributionFrom(glm::vec2 startingPoint, glm::vec2 rectSize,
                                                                float minDist, int rejectionThresold = 30);
 
         void setRng(pou::RNGenerator *rng);

@@ -101,13 +101,8 @@ void TerrainGenerator_PathGraph::generatesOnTerrain(TerrainGenerator *terrain, p
         {
             for(auto sample : samples)
                 terrain->setGroundLayer(cell.x + sample.x, cell.y + sample.y, m_groundLayer);
-
-            ///For bigger width ?
-            /*terrain->setGroundLayer(cell.x-1, cell.y, m_groundLayer);
-            terrain->setGroundLayer(cell.x+1, cell.y, m_groundLayer);
-            terrain->setGroundLayer(cell.x, cell.y-1, m_groundLayer);
-            terrain->setGroundLayer(cell.x, cell.y+1, m_groundLayer);*/
         }
+        m_rasterizedEdges.push_back(std::move(rasterizedPath));
     }
 }
 
@@ -142,6 +137,12 @@ void TerrainGenerator_PathGraph::loadParameters(TiXmlElement *pathElement, pou::
 void TerrainGenerator_PathGraph::setGroundLayer(const TerrainGenerator_GroundLayer* groundLayer)
 {
     m_groundLayer = groundLayer;
+}
+
+
+const std::list<std::vector<glm::ivec2> > *TerrainGenerator_PathGraph::getAllRasterizedPaths()
+{
+    return &m_rasterizedEdges;
 }
 
 ///

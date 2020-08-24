@@ -13,13 +13,13 @@ PoissonDiskSampler::~PoissonDiskSampler()
 
 
 
-const std::vector<glm::vec2> &PoissonDiskSampler::generateDistribution(glm::vec2 rectSize, float minDist, int rejectionThresold)
+const std::vector<glm::vec2> *PoissonDiskSampler::generateDistribution(glm::vec2 rectSize, float minDist, int rejectionThresold)
 {
     glm::vec2 firstPoint = pou::RNGesus::uniformVec2(glm::vec2(0), glm::vec2(rectSize), m_rng);
     return this->generateDistributionFrom(firstPoint, rectSize, minDist, rejectionThresold);
 }
 
-const std::vector<glm::vec2> &PoissonDiskSampler::generateDistributionFrom(glm::vec2 firstPoint, glm::vec2 rectSize,
+const std::vector<glm::vec2> *PoissonDiskSampler::generateDistributionFrom(glm::vec2 firstPoint, glm::vec2 rectSize,
                                                                            float minDist, int rejectionThresold)
 {
     m_pointDistribution = std::vector<glm::vec2>();
@@ -91,7 +91,7 @@ const std::vector<glm::vec2> &PoissonDiskSampler::generateDistributionFrom(glm::
         }
     }
 
-    return m_pointDistribution;
+    return &m_pointDistribution;
 }
 
 

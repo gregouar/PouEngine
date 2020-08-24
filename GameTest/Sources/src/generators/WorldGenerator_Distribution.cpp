@@ -2,6 +2,7 @@
 
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Hasher.h"
 
 
 WorldGenerator_Distribution_Parameters::WorldGenerator_Distribution_Parameters() :
@@ -57,58 +58,72 @@ void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, Ga
                                                   bool generateCharacters, pou::RNGenerator *rng)
 {
     pou::Logger::write("Generate distribution...");
-    auto pointsDistribution = this->generatePointsDistribution(rng);
+    auto distributedPoints = this->generatePointsDistribution(rng);
     glm::ivec2 nbrSections = glm::ceil(m_terrain->getExtent()/m_parameters.sectionSize);
 
 
     pou::Logger::write("Distribute entities...");
 
+    if(!distributedPoints.distributedPositions)
+        return;
+
     for(float y = 0 ; y < nbrSections.y ; ++y)
     for(float x = 0 ; x < nbrSections.x ; ++x)
-    for(auto &point : pointsDistribution)
     {
-        auto pointWorldPos = point + glm::vec2(x,y) * m_parameters.sectionSize - (m_terrain->getExtent()) * 0.5f;
-
-        if(m_parameters.useGridPosition)
-            pointWorldPos = glm::round(pointWorldPos/m_terrain->getTileSize()) * m_terrain->getTileSize();
-
-        if(m_terrain->getSpawnType(pointWorldPos) < m_parameters.spawnType)
-            continue;
-
-        std::map<float, WorldGenerator_SpawnPoint*> spawnPointsWithProb;
-
-        float totalProbability = 0;
-        for(auto &spawnPoint : m_spawnPoints)
+        for(size_t curPoint = 0 ; curPoint < distributedPoints.distributedPositions->size() ; ++curPoint)
         {
-            auto prob = spawnPoint.getSpawnProbability(pointWorldPos);
-            if(prob > 0)
+            auto &pointPos = (*distributedPoints.distributedPositions)[curPoint];
+            auto pointWorldPos = pointPos + glm::vec2(x,y) * m_parameters.sectionSize - (m_terrain->getExtent()) * 0.5f;
+
+            if(m_parameters.useGridPosition)
+                pointWorldPos = glm::round(pointWorldPos/m_terrain->getTileSize()) * m_terrain->getTileSize();
+
+            if(m_terrain->getSpawnType(pointWorldPos) < m_parameters.spawnType)
+                continue;
+
+            std::map<float, WorldGenerator_SpawnPoint*> spawnPointsWithProb;
+
+            float totalProbability = 0;
+            for(auto &spawnPoint : m_spawnPoints)
             {
-                totalProbability += prob;
-                spawnPointsWithProb[totalProbability] = &spawnPoint;
+                auto prob = spawnPoint.getSpawnProbability(pointWorldPos);
+                if(prob > 0)
+                {
+                    totalProbability += prob;
+                    spawnPointsWithProb[totalProbability] = &spawnPoint;
+                }
             }
+
+            glm::ivec2 ditherPos(0);
+            if(m_parameters.type == WorldGenerator_DistributionType_Poisson)
+                ditherPos = glm::round(pointWorldPos/(float)(m_parameters.distance/sqrt(2)));
+            else if(m_parameters.type == WorldGenerator_DistributionType_Path)
+                ditherPos = {curPoint,0};
+            else
+                ditherPos = m_terrain->worldToGridPosition(pointWorldPos);
+
+            bool ditherFactor = (ditherPos.x + ditherPos.y) % 2;
+
+            float probValue = pou::RNGesus::uniformFloat(0.0f, 0.5f, rng) + ditherFactor * 0.5f;
+            if(totalProbability > 1.0f)
+                probValue *= totalProbability;
+
+            /**auto nTotalProbability = std::max(totalProbability, 1.0f);
+            float probValue = pou::RNGesus::uniformFloat(0, nTotalProbability, rng);
+
+            if(probValue >= totalProbability)
+                continue;**/
+
+            float pointRotation = 0;
+            if(distributedPoints.distributedRotations
+            && curPoint < distributedPoints.distributedRotations->size())
+                pointRotation = (*distributedPoints.distributedRotations)[curPoint];
+
+            auto spawnPointIt = spawnPointsWithProb.lower_bound(probValue);
+            if(spawnPointIt != spawnPointsWithProb.end())
+                spawnPointIt->second->generatesOnNode(pointWorldPos, pointRotation, targetNode,
+                                                      syncComponent, generateCharacters, rng);
         }
-
-        glm::ivec2 ditherPos(0);
-        if(m_parameters.type == WorldGenerator_DistributionType_Poisson)
-            ditherPos = glm::round(pointWorldPos/(float)(m_parameters.distance/sqrt(2)));
-        else
-            ditherPos = m_terrain->worldToGridPosition(pointWorldPos);
-
-        bool ditherFactor = (ditherPos.x + ditherPos.y) % 2;
-
-        float probValue = pou::RNGesus::uniformFloat(0.0f, 0.5f, rng) + ditherFactor * 0.5f;
-        if(totalProbability > 1.0f)
-            probValue *= totalProbability;
-
-        /**auto nTotalProbability = std::max(totalProbability, 1.0f);
-        float probValue = pou::RNGesus::uniformFloat(0, nTotalProbability, rng);
-
-        if(probValue >= totalProbability)
-            continue;**/
-
-        auto spawnPointIt = spawnPointsWithProb.lower_bound(probValue);
-        if(spawnPointIt != spawnPointsWithProb.end())
-            spawnPointIt->second->generatesOnNode(pointWorldPos, targetNode, syncComponent, generateCharacters, rng);
     }
 
 }
@@ -118,20 +133,25 @@ void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, Ga
 ///
 
 
-const std::vector<glm::vec2> & WorldGenerator_Distribution::generatePointsDistribution(pou::RNGenerator *rng)
+WorldGenerator_Distribution_DistributedPoints WorldGenerator_Distribution::generatePointsDistribution(pou::RNGenerator *rng)
 {
+    WorldGenerator_Distribution_DistributedPoints distributedPoints;
+
     //auto sectionSize = m_sectionSize;
     if(m_parameters.sectionSize.x == 0 || m_parameters.sectionSize.y == 0)
         m_parameters.sectionSize = m_terrain->getExtent();
 
     if(m_parameters.type == WorldGenerator_DistributionType_Poisson)
     {
+
         m_poissonDiskSampler.setRng(rng);
         if(m_parameters.startInCenter)
-            return m_poissonDiskSampler.generateDistributionFrom(m_parameters.sectionSize/2.0f,
-                                                                 m_parameters.sectionSize, m_parameters.distance);
+            distributedPoints.distributedPositions =
+                m_poissonDiskSampler.generateDistributionFrom(m_parameters.sectionSize/2.0f,
+                                                              m_parameters.sectionSize, m_parameters.distance);
         else
-            return m_poissonDiskSampler.generateDistribution(m_parameters.sectionSize, m_parameters.distance);
+            distributedPoints.distributedPositions =
+                m_poissonDiskSampler.generateDistribution(m_parameters.sectionSize, m_parameters.distance);
     }
 
     if(m_parameters.type == WorldGenerator_DistributionType_Uniform)
@@ -140,10 +160,53 @@ const std::vector<glm::vec2> & WorldGenerator_Distribution::generatePointsDistri
             m_parameters.distance = 1;
 
         m_parameters.sectionSize = m_terrain->getTileSize() * m_parameters.distance;
-        return m_dummyUniformSampler;
+        distributedPoints.distributedPositions = &m_dummyUniformSampler;
     }
 
-    return m_dummyUniformSampler;
+    if(m_parameters.type == WorldGenerator_DistributionType_Path)
+        return this->generatePathDistribution(rng);
+
+    return distributedPoints;
+}
+
+
+WorldGenerator_Distribution_DistributedPoints WorldGenerator_Distribution::generatePathDistribution(pou::RNGenerator *rng)
+{
+    WorldGenerator_Distribution_DistributedPoints distributedPoints;
+
+    auto rasterizedPaths = m_terrain->getRasterizedPaths(m_parameters.pathName);
+
+    if(!rasterizedPaths)
+        return distributedPoints;
+
+    distributedPoints.distributedPositions = &m_pathSampler;
+    distributedPoints.distributedRotations = &m_distributedRotations;
+
+    m_pathSampler.clear();
+    m_distributedRotations.clear();
+
+    for(auto rasterizedPath : *rasterizedPaths)
+    {
+        size_t p = m_parameters.distance/2;
+
+        while(p < rasterizedPath.size() - m_parameters.distance/2)
+        {
+            auto pointPos = glm::vec2(rasterizedPath[p])*m_terrain->getTileSize(); //m_terrain->gridToWorldPosition(rasterizedPath[p].x, rasterizedPath[p].y);
+            m_pathSampler.push_back(pointPos);
+
+            ///Compute rotation
+            size_t precP = std::max(0, (int)p - (int)ceil(m_parameters.distance/2));
+            size_t nextP = std::min((int)rasterizedPath.size()-1, (int)p + (int)ceil(m_parameters.distance/2));
+
+            auto delta = glm::vec2(rasterizedPath[nextP] - rasterizedPath[precP]);
+            float angle = glm::atan(delta.y, delta.x);
+            m_distributedRotations.push_back(angle);
+
+            p += m_parameters.distance;
+        }
+    }
+
+    return distributedPoints;
 }
 
 
@@ -203,6 +266,12 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
 
     if(startInCenterAtt && pou::Parser::isBool(startInCenterAtt))
         parameters.startInCenter = pou::Parser::parseBool(startInCenterAtt);
+
+    if(parameters.type == WorldGenerator_DistributionType_Path)
+    {
+        auto pathNameAtt  = element->Attribute("pathName");
+        parameters.pathName = pou::Hasher::unique_hash(pathNameAtt);
+    }
 
     return (true);
 }

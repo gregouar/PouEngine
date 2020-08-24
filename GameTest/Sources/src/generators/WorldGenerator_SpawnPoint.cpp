@@ -122,7 +122,8 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
     return r;
 }
 
-void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
+void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointRotation,
+                                                pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
     for(auto characterSpawnModel : m_characterSpawnModels)
@@ -131,14 +132,15 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, pou::SceneNo
                                               characterSpawnModel.maxAmount, rng);
 
         for(int i = 0 ; i < amount ; ++i)
-            this->spawnCharacter(characterSpawnModel.modelAsset, worldPos, targetNode, syncComponent, generateCharacters, rng);
+            this->spawnCharacter(characterSpawnModel.modelAsset, worldPos, pointRotation,
+                                 targetNode, syncComponent, generateCharacters, rng);
     }
 
     for(auto spriteModel : m_spriteModelAssets)
-        this->spawnSprite(spriteModel, worldPos, targetNode, rng);
+        this->spawnSprite(spriteModel, worldPos, pointRotation, targetNode, rng);
 
     for(auto prefabModel : m_prefabAssets)
-        this->spawnPrefab(prefabModel, worldPos, targetNode, rng);
+        this->spawnPrefab(prefabModel, worldPos, pointRotation, targetNode, rng);
 
 
     for(auto &pathConnection : m_pathConnections)
@@ -375,14 +377,14 @@ void WorldGenerator_SpawnPoint::loadRandomModifierValue(TiXmlElement *element, i
     }
 }
 
-void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos,
+void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterModel, glm::vec2 worldPos, float pointRotation,
                                                 pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
     auto character = std::make_shared<Character>();
     character->createFromModel(characterModel);
     character->transform()->setPosition(worldPos);
-    this->applyRandomModifiers(character.get(), rng);
+    this->applyRandomModifiers(character.get(), pointRotation, rng);
 
     if(generateCharacters)
     {
@@ -392,12 +394,12 @@ void WorldGenerator_SpawnPoint::spawnCharacter(CharacterModelAsset *characterMod
     }
 }
 
-void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos,
+void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::vec2 worldPos, float pointRotation,
                                             pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     auto spriteNode = targetNode->createChildNode();
     spriteNode->transform()->setPosition(worldPos);
-    this->applyRandomModifiers(spriteNode.get(), rng);
+    this->applyRandomModifiers(spriteNode.get(), pointRotation, rng);
 
     auto sprite = std::make_shared<WorldSprite>();
     sprite->setSpriteModel(spriteModel);
@@ -405,12 +407,12 @@ void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::
     //targetNode->addChildNode(spriteNode);
 }
 
-void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos,
+void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos, float pointRotation,
                                             pou::SceneNode *targetNode, pou::RNGenerator *rng)
 {
     auto prefabNode = prefabAsset->generate();
     prefabNode->transform()->setPosition(worldPos);
-    this->applyRandomModifiers(prefabNode.get(), rng);
+    this->applyRandomModifiers(prefabNode.get(), pointRotation, rng);
     targetNode->addChildNode(prefabNode);
 
     prefabNode->spawnCharactersOnParent();
@@ -447,18 +449,25 @@ glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoi
     return randomValue;
 }
 
-void WorldGenerator_SpawnPoint::applyRandomModifiers(pou::SceneNode *targetNode, pou::RNGenerator *rng)
+void WorldGenerator_SpawnPoint::applyRandomModifiers(pou::SceneNode *targetNode, float pointRotation, pou::RNGenerator *rng)
 {
+    targetNode->transform()->rotateInRadians({0,0,pointRotation});
+
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Position].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Position], rng);
+
+        float cosRot = cos(pointRotation);
+        float sinRot = sin(pointRotation);
+        v = glm::vec4(glm::mat2(cosRot, sinRot, -sinRot, cosRot) * glm::vec2(v), v.z, v.w);
+
         targetNode->transform()->move(glm::vec3(v));
     }
 
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Rotation].randomType != WorldGenerator_RandomType_None)
     {
         auto v = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Rotation], rng);
-        targetNode->transform()->setRotationInDegrees(v);
+        targetNode->transform()->rotateInDegrees(v);
     }
 
     if(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_Flip].randomType != WorldGenerator_RandomType_None)

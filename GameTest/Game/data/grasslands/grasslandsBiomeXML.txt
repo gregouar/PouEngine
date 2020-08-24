@@ -85,10 +85,10 @@
 	
 	
 	<distribution type="poisson" distance=200 sectionSize=2000>
-		<spawnPoint  groundLayer="grass"  spawnProbability=.025 changeSpawnTypeTo="none">
+		<!--<spawnPoint  groundLayer="grass"  spawnProbability=.025 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
 			<modifier type="rotation" rng="uniform" z="[-180,180]" />
-		</spawnPoint>
+		</spawnPoint>-->
 		
 		<spawnPoint groundLayer="grass" spawnProbability=.1 changeSpawnTypeTo="none">
 			<character path="treeXML.txt"/>
@@ -135,9 +135,16 @@
 	</distribution>
 	
 	
-	<distribution type="path" distance=250>
+	<distribution type="path" pathName="dirtPath" distance=10>
 		<spawnPoint  spawnProbability=1 changeSpawnTypeTo="none">
 			<character path="../poleWithLantern/poleWithLanternXML.txt" />
+			<modifier type="rotation" rng="uniform"  z="-90" />
+			<modifier type="position" rng="uniform"  y="96" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.5 changeSpawnTypeTo="none">
+			<character path="../poleWithLantern/poleWithLanternXML.txt" />
+			<modifier type="rotation" rng="uniform"  z="90" />
+			<modifier type="position" rng="uniform"  y="-96" />
 		</spawnPoint>
 	</distribution>
 	

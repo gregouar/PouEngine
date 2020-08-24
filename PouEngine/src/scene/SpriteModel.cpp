@@ -278,8 +278,8 @@ glm::vec2 SpriteModel::getTextureExtent()
         if(texExtent.x == 0 || texExtent.y == 0)
             return {0,0};
 
-        return {m_textureExtent.x/texExtent.x,
-                m_textureExtent.y/texExtent.y};
+        return {(m_textureExtent.x)/texExtent.x,
+                (m_textureExtent.y)/texExtent.y};
     }
 
     return m_textureExtent;
@@ -299,8 +299,8 @@ glm::vec2 SpriteModel::getTexturePosition()
         if(texExtent.x == 0 || texExtent.y == 0)
             return {0,0};
 
-        return {m_texturePosition.x/texExtent.x,
-                m_texturePosition.y/texExtent.y};
+        return {(m_texturePosition.x)/texExtent.x,
+                (m_texturePosition.y)/texExtent.y};
     }
 
     return m_texturePosition;
