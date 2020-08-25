@@ -6,8 +6,8 @@
 #include "tinyxml/tinyxml.h"
 
 #include "PouEngine/scene/SceneNode.h"
-#include "world/WorldSprite.h"
-#include "world/WorldMesh.h"
+#include "PouEngine/scene/SpriteEntity.h"
+#include "PouEngine/scene/MeshEntity.h"
 #include "world/PrefabInstance.h"
 #include "assets/characterModelAsset.h"
 

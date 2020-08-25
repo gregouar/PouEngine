@@ -19,8 +19,8 @@ enum GameMessageType
     GameMessageType_World_PlayerAction,
     //GameMessageType_World_NodeUpdated,
     GameMessageType_World_NodeSyncerUpdated,
-    GameMessageType_World_SpriteUpdated,
-    GameMessageType_World_MeshUpdated,
+    /**GameMessageType_World_SpriteUpdated,
+    GameMessageType_World_MeshUpdated,**/
     GameMessageType_World_CharacterUpdated,
     GameMessageType_World_CharacterDamaged,
     GameMessageType_Game_ChangeWorld,
@@ -50,7 +50,7 @@ struct GameMessage_World_NodeSyncerUpdated
     NodeSyncer  *nodeSyncer;
 };
 
-struct GameMessage_World_SpriteUpdated
+/**struct GameMessage_World_SpriteUpdated
 {
     WorldSprite *sprite;
 };
@@ -58,7 +58,7 @@ struct GameMessage_World_SpriteUpdated
 struct GameMessage_World_MeshUpdated
 {
     WorldMesh *mesh;
-};
+};**/
 
 struct GameMessage_World_CharacterUpdated
 {

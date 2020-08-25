@@ -4,6 +4,8 @@
 #include "PouEngine/scene/SceneNode.h"
 #include "PouEngine/sync/SyncElements.h"
 
+///Could add PrefabSyncer later if needed
+
 class PrefabAsset;
 class GameWorld_Sync;
 
@@ -18,31 +20,31 @@ class PrefabInstance : public pou::SceneNode
 
         //virtual void syncFromPrefab(PrefabInstance* srcPrefab);
 
-        virtual void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);
+        /**virtual void update(const pou::Time &elapsedTime = pou::Time(0), uint32_t localTime = -1);**/
 
         void createFromModel(PrefabAsset *prefabModel);
         void spawnCharactersOnParent();
 
         PrefabAsset *getPrefabModel();
-        uint32_t getLastPrefabModelUpdateTime();
+        /**uint32_t getLastPrefabModelUpdateTime();
 
         uint32_t getLastPrefabUpdateTime();
 
-        uint32_t getPrefabSyncId();
+        uint32_t getPrefabSyncId();**/
 
 
     protected:
         void setPrefabModel(PrefabAsset *prefabModel);
-        void setSyncData(GameWorld_Sync *worldSync, int id);
+        /**void setSyncData(GameWorld_Sync *worldSync, int id);**/
 
     private:
-        GameWorld_Sync *m_worldSync;
+        /**GameWorld_Sync *m_worldSync;
         uint32_t m_prefabSyncId;
 
-        uint32_t m_lastPrefabModelUpdate;
+        uint32_t m_lastPrefabModelUpdate;**/
         PrefabAsset *m_prefabModel;
 
-        pou::SyncComponent m_prefabSyncComponent;
+        /**pou::SyncComponent m_prefabSyncComponent;**/
 
 };
 

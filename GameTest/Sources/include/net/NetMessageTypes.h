@@ -75,24 +75,24 @@ struct NetMessage_WorldSync : public pou::NetMessage
     //int player_id;
 
     std::list<std::shared_ptr<NodeSyncer> >     nodesBuffer;
-    std::list<std::shared_ptr<WorldSprite> >    spritesBuffer;
-    std::list<std::shared_ptr<WorldMesh> >      meshesBuffer;
+    /**std::list<std::shared_ptr<WorldSprite> >    spritesBuffer;
+    std::list<std::shared_ptr<WorldMesh> >      meshesBuffer;**/
     std::list<std::shared_ptr<Character> >      charactersBuffer;
-    std::list<std::shared_ptr<PrefabInstance> > prefabsBuffer;
+    /**std::list<std::shared_ptr<PrefabInstance> > prefabsBuffer;**/
 
     //int nbr_nodes;
     //std::vector< std::pair<int, NodeSync> > nodes; //NodeId, Node
     std::vector< NodeSyncer* > nodeSyncers;
-    std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
+    /**std::vector< std::pair<int, std::string > > spriteSheets; //Id, Path
     std::vector< std::pair<int, SpriteEntitySync> > spriteEntities;
     std::vector< std::pair<int, std::string > > meshModels; //Id, Path
-    std::vector< std::pair<int, MeshEntitySync> > meshEntities;
+    std::vector< std::pair<int, MeshEntitySync> > meshEntities;**/
     std::vector< std::pair<int, std::string > > characterModels; //Id, Path
     std::vector< std::pair<int, CharacterSync > > characters;
     std::vector< std::pair<int, std::string > > itemModels; //Id, Path
     std::vector< std::pair<int, PlayerSync > > players;
-    std::vector< std::pair<int, std::string > > prefabModels; //Id, Path
-    std::vector< std::pair<int, PrefabSync> > prefabs;
+    /**std::vector< std::pair<int, std::string > > prefabModels; //Id, Path
+    std::vector< std::pair<int, PrefabSync> > prefabs;**/
 
     std::vector<int> desyncNodes;
     std::vector<int> desyncCharacters;
@@ -100,17 +100,17 @@ struct NetMessage_WorldSync : public pou::NetMessage
 
     virtual void serializeImpl(pou::Stream *stream);
 
-    virtual void serializeNode(pou::Stream *stream, NodeSyncer *(&nodeSyncer));
-    virtual void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
-    virtual void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
-    virtual void serializeMeshModel(pou::Stream *stream, std::pair<int, std::string > &meshModel);
-    virtual void serializeMeshEntity(pou::Stream *stream, std::pair<int, MeshEntitySync> &meshEntity);
-    virtual void serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel);
-    virtual void serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character);
-    virtual void serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel);
-    virtual void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
-    virtual void serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabAsset);
-    virtual void serializePrefabInstance(pou::Stream *stream, std::pair<int, PrefabSync> &prefabInstance);
+    void serializeNode(pou::Stream *stream, NodeSyncer *(&nodeSyncer));
+    /**void serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet);
+    void serializeSpriteEntity(pou::Stream *stream, std::pair<int, SpriteEntitySync> &spriteEntity);
+    void serializeMeshModel(pou::Stream *stream, std::pair<int, std::string > &meshModel);
+    void serializeMeshEntity(pou::Stream *stream, std::pair<int, MeshEntitySync> &meshEntity);**/
+    void serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel);
+    void serializeCharacter(pou::Stream *stream, std::pair<int, CharacterSync> &character);
+    void serializeItemModel(pou::Stream *stream, std::pair<int, std::string > &itemModel);
+    void serializePlayer(pou::Stream *stream, std::pair<int, PlayerSync> &player);
+    /**void serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabAsset);
+    void serializePrefabInstance(pou::Stream *stream, std::pair<int, PrefabSync> &prefabInstance);**/
 };
 
 struct NetMessage_WorldInit : public NetMessage_WorldSync

@@ -6,9 +6,9 @@
 class Character;
 class Player;
 class NodeSyncer;
-class WorldSprite;
+/**class WorldSprite;
 class WorldMesh;
-class PrefabInstance;
+class PrefabInstance;**/
 
 /*struct NodeSync
 {
@@ -17,7 +17,7 @@ class PrefabInstance;
     NodeSyncer *nodeSyncer;
 };*/
 
-struct SpriteEntitySync
+/**struct SpriteEntitySync
 {
     int spriteSheetId;
     int spriteId; //Inside spritesheet
@@ -33,7 +33,7 @@ struct MeshEntitySync
     int nodeId;
 
     WorldMesh *meshEntity;
-};
+};**/
 
 struct CharacterSync
 {
@@ -53,12 +53,12 @@ struct PlayerSync
     std::shared_ptr<Player> player;
 };
 
-struct PrefabSync
+/**struct PrefabSync
 {
     int prefabModelId;
     int nodeId;
 
     PrefabInstance *prefab;
-};
+};**/
 
 #endif // SYNCELEMENTS_H

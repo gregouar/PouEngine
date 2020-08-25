@@ -401,7 +401,7 @@ void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::
     spriteNode->transform()->setPosition(worldPos);
     this->applyRandomModifiers(spriteNode.get(), pointRotation, rng);
 
-    auto sprite = std::make_shared<WorldSprite>();
+    auto sprite = std::make_shared<pou::SpriteEntity>();
     sprite->setSpriteModel(spriteModel);
     spriteNode->attachObject(sprite);
     //targetNode->addChildNode(spriteNode);

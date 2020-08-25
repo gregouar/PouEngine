@@ -45,7 +45,7 @@
 	</pois>-->
 	
 	
-	<pois type="poisson" distance=3000 useGridPosition=1 startInCenter=1 >
+	<pois type="poisson" distance=2500 useGridPosition=1 startInCenter=1 >
 		<spawnPoint  spawnProbability=.2 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="../wall/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />

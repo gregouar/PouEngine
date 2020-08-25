@@ -3,8 +3,6 @@
 #include "PouEngine/net/NetEngine.h"
 
 #include "world/GameWorld.h"
-#include "world/WorldMesh.h"
-#include "world/PrefabInstance.h"
 #include "character/Character.h"
 #include "character/Player.h"
 #include "sync/NodeSyncer.h"
@@ -74,7 +72,7 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
         this->serializeNode(stream, nodeSyncers[i]);
     //std::cout<<"Nbr nodes:"<<nbr_nodes<<std::endl;
 
-    int nbr_spriteSheets = spriteSheets.size();
+    /**int nbr_spriteSheets = spriteSheets.size();
     stream->serializeBits(nbr_spriteSheets, GameWorld_Sync::SPRITESHEETID_BITS);
     spriteSheets.resize(nbr_spriteSheets);
     for(int i = 0 ; i < nbr_spriteSheets ; ++i)
@@ -98,14 +96,14 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     stream->serializeBits(nbr_meshEntities, GameWorld_Sync::MESHENTITYID_BITS);
     meshEntities.resize(nbr_meshEntities);
     for(int i = 0 ; i < nbr_meshEntities ; ++i)
-        this->serializeMeshEntity(stream, meshEntities[i]);
+        this->serializeMeshEntity(stream, meshEntities[i]);**/
 
     int nbr_characterModels = characterModels.size();
     stream->serializeBits(nbr_characterModels, GameWorld_Sync::CHARACTERMODELSID_BITS);
     characterModels.resize(nbr_characterModels);
     for(int i = 0 ; i < nbr_characterModels ; ++i)
         this->serializeCharacterModel(stream, characterModels[i]);
-    //std::cout<<"Nbr CM:"<<nbr_characterModels<<std::endl;
+    //$std::cout<<"Nbr CM:"<<nbr_characterModels<<std::endl;
 
     int nbr_characters = characters.size();
     stream->serializeBits(nbr_characters, GameWorld_Sync::CHARACTERSID_BITS);
@@ -128,7 +126,7 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
         this->serializePlayer(stream, players[i]);
     //std::cout<<"Nbr P:"<<nbr_players<<std::endl;
 
-    int nbr_prefabModels = prefabModels.size();
+    /**int nbr_prefabModels = prefabModels.size();
     stream->serializeBits(nbr_prefabModels, GameWorld_Sync::PREFABASSETID_BITS);
     prefabModels.resize(nbr_prefabModels);
     for(int i = 0 ; i < nbr_prefabModels ; ++i)
@@ -140,7 +138,7 @@ void NetMessage_WorldSync::serializeImpl(pou::Stream *stream)
     prefabs.resize(nbr_prefabs);
     for(int i = 0 ; i < nbr_prefabs ; ++i)
         this->serializePrefabInstance(stream, prefabs[i]);
-    //std::cout<<"Nbr SE:"<<nbr_prefabs<<std::endl;
+    //std::cout<<"Nbr SE:"<<nbr_prefabs<<std::endl;**/
 
     int nbr_desyncNodes = desyncNodes.size();
     stream->serializeBits(nbr_desyncNodes, GameWorld_Sync::NODEID_BITS);
@@ -200,7 +198,7 @@ void NetMessage_WorldSync::serializeNode(pou::Stream *stream, NodeSyncer *(&node
     nodeSyncerPtr->serialize(stream, lastSyncTime);
 }
 
-void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
+/**void NetMessage_WorldSync::serializeSpriteSheet(pou::Stream *stream, std::pair<int, std::string > &spriteSheet)
 {
     auto& [ spriteSheetId, spriteSheetPath ] = spriteSheet;
     stream->serializeBits(spriteSheetId, GameWorld_Sync::SPRITESHEETID_BITS);
@@ -288,7 +286,7 @@ void NetMessage_WorldSync::serializeMeshEntity(pou::Stream *stream, std::pair<in
         stream->serializeBits(meshEntitySync.nodeId, GameWorld_Sync::NODEID_BITS);
     else
         meshEntitySync.nodeId = 0;
-}
+}**/
 
 void NetMessage_WorldSync::serializeCharacterModel(pou::Stream *stream, std::pair<int, std::string > &characterModel)
 {
@@ -382,7 +380,7 @@ void NetMessage_WorldSync::serializePlayer(pou::Stream *stream, std::pair<int, P
 }
 
 
-void NetMessage_WorldSync::serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabModel)
+/**void NetMessage_WorldSync::serializePrefabAsset(pou::Stream *stream, std::pair<int, std::string > &prefabModel)
 {
     auto& [ prefabModelId, prefabPath ] = prefabModel;
     stream->serializeBits(prefabModelId, GameWorld_Sync::PREFABASSETID_BITS);
@@ -414,7 +412,7 @@ void NetMessage_WorldSync::serializePrefabInstance(pou::Stream *stream, std::pai
         prefabSync.prefabModelId = 0;
 
     stream->serializeBits(prefabSync.nodeId, GameWorld_Sync::NODEID_BITS);
-}
+}**/
 
 
 

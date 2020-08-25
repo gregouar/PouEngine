@@ -367,7 +367,7 @@ bool PrefabAsset::loadMesh(pou::SceneNode *node, TiXmlElement *element)
 
     auto meshModel = pou::MeshesHandler::loadAssetFromFile(m_fileDirectory + std::string(pathAtt), pou::LoadType_InThread);
 
-    auto mesh = std::make_shared<WorldMesh>();
+    auto mesh = std::make_shared<pou::MeshEntity>();
     mesh->setMeshModel(meshModel);
     mesh->setShadowCastingType(pou::ShadowCasting_All);
     node->attachObject(mesh);
@@ -390,7 +390,7 @@ bool PrefabAsset::loadSprite(pou::SceneNode *node, TiXmlElement *element)
     if(spriteAtt == nullptr || spriteSheetAtt == nullptr)
         return (false);
 
-    auto sprite = std::make_shared<WorldSprite>();
+    auto sprite = std::make_shared<pou::SpriteEntity>();
 
     auto hashedSpriteSheetName = pou::Hasher::unique_hash(spriteSheetAtt);
     auto hashedSpriteName = pou::Hasher::unique_hash(spriteAtt);

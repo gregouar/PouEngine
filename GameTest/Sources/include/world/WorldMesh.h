@@ -4,6 +4,8 @@
 #include "PouEngine/scene/MeshEntity.h"
 #include "PouEngine/sync/SyncElements.h"
 
+///Could change this to MeshSyncer if needed later
+
 class WorldMesh : public pou::MeshEntity
 {
     friend class GameWorld_Sync;

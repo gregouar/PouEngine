@@ -2,9 +2,9 @@
 #define TERRAINGENERATOR_TILEMODELS_H
 
 #include "tinyxml/tinyxml.h"
-#include "world/WorldSprite.h"
 
 #include "PouEngine/tools/RNGesus.h"
+#include "PouEngine/scene/SpriteEntity.h"
 
 #include <memory>
 
@@ -12,7 +12,7 @@ class TerrainLayerModelAsset;
 
 struct TerrainGenerator_TileModel
 {
-    std::shared_ptr<WorldSprite> spriteModel;
+    std::shared_ptr<pou::SpriteEntity> spriteModel;
     bool allowFlipX;
     bool allowFlipY;
 };
@@ -26,7 +26,7 @@ class TerrainGenerator_TileModels
         bool loadFromXML(TiXmlElement *element, TerrainLayerModelAsset *parentLayerModel);
 
         void addTileModel(float probability, TerrainGenerator_TileModel tileModel);
-        std::shared_ptr<WorldSprite> generateSprite(int modValue = -1, pou::RNGenerator *rng = nullptr);
+        std::shared_ptr<pou::SpriteEntity> generateSprite(int modValue = -1, pou::RNGenerator *rng = nullptr);
 
     protected:
 

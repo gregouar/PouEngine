@@ -50,7 +50,7 @@ bool TerrainGenerator_TileModels::loadFromXML(TiXmlElement *element, TerrainLaye
 
         auto probability = pou::Parser::parseFloat(std::string(probabilityAtt));
 
-        auto sprite = std::make_shared<WorldSprite>();
+        auto sprite = std::make_shared<pou::SpriteEntity>();
         sprite->setSpriteModel(spriteModel);
         ///this->addTileModel(probability, sprite);
 
@@ -129,7 +129,7 @@ void TerrainGenerator_TileModels::addTileModel(float probability, TerrainGenerat
     m_chosenSpriteMap = !m_chosenSpriteMap;
 }
 
-std::shared_ptr<WorldSprite> TerrainGenerator_TileModels::generateSprite(int modValue, pou::RNGenerator *rng)
+std::shared_ptr<pou::SpriteEntity> TerrainGenerator_TileModels::generateSprite(int modValue, pou::RNGenerator *rng)
 {
     bool chosen = (modValue % 2);
 
@@ -153,7 +153,8 @@ std::shared_ptr<WorldSprite> TerrainGenerator_TileModels::generateSprite(int mod
 
     auto &tileModel = spriteModelIt->second;
 
-    auto createdSprite = std::dynamic_pointer_cast<WorldSprite>(tileModel.spriteModel->createCopy());
+    ///auto createdSprite = std::dynamic_pointer_cast<WorldSprite>(tileModel.spriteModel->createCopy());
+    auto createdSprite = std::dynamic_pointer_cast<pou::SpriteEntity>(tileModel.spriteModel->createCopy());
 
     if(tileModel.allowFlipX)
     {

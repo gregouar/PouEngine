@@ -14,8 +14,6 @@
 #include "net/GameServer.h"
 #include "net/GameClient.h"
 #include "logic/GameMessageTypes.h"
-#include "world/WorldMesh.h"
-#include "assets/PrefabAsset.h"
 
 
 void GameWorld::init()

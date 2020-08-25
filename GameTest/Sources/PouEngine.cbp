@@ -770,8 +770,6 @@
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
 		<Unit filename="include/world/PrefabInstance.h" />
-		<Unit filename="include/world/WorldMesh.h" />
-		<Unit filename="include/world/WorldSprite.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
 		<Unit filename="src/ai/AiScriptedComponent.cpp" />
@@ -810,8 +808,6 @@
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Unit filename="src/world/PrefabInstance.cpp" />
-		<Unit filename="src/world/WorldMesh.cpp" />
-		<Unit filename="src/world/WorldSprite.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
