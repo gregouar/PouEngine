@@ -78,7 +78,7 @@ bool TerrainGenerator::loadFromXML(TiXmlHandle *hdl, const std::string &fileDire
     return loaded;
 }
 
-void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenerator *rng)
+void TerrainGenerator::generatesTopology(pou::RNGenerator *rng)
 {
     m_rng = rng;
 
@@ -92,6 +92,10 @@ void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, pou::RNGenera
     /**this->decreasesGridNoise();
     this->decreasesGridNoise();**/
 
+}
+
+void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode/*, pou::RNGenerator *rng*/)
+{
     auto centeringShift = m_terrainSize * m_tileSize * 0.5f;
 
     for(auto x = 0 ; x < m_terrainSize.x ; x++)
@@ -191,6 +195,10 @@ void TerrainGenerator::setGroundLayer(int x, int y, const TerrainGenerator_Groun
 {
     if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
         return;
+
+    if(m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning)
+        return;
+
     m_generatingGrid[y * m_gridSize.x + x].groundLayer = groundLayer;
     m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning = true;
 }

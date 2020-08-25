@@ -68,7 +68,8 @@ class TerrainGenerator
         bool loadFromXML(TiXmlHandle *hdl, const std::string &fileDirectory);
 
         void resetGrid();
-        void generatesOnNode(pou::SceneNode *targetNode, pou::RNGenerator *rng);
+        void generatesTopology(pou::RNGenerator *rng);
+        void generatesOnNode(pou::SceneNode *targetNode/*, pou::RNGenerator *rng*/);
 
         void addSpawnOnlyZone(const TerrainGenerator_SpawnOnlyZone &zone);
         /**void addSpawnOnlyZone(TerrainGenerator_SpawnType spawnType,

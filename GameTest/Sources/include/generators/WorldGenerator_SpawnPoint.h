@@ -79,6 +79,13 @@ struct WorldGenerator_SpawnPoint_PathConnection
     glm::vec2 position;
 };
 
+struct WorldGenerator_SpawnPoint_Ground
+{
+    glm::ivec2 position;
+    const TerrainGenerator_GroundLayer *groundLayer;
+    //pou::HashedString groundName;
+};
+
 class WorldGenerator_SpawnPoint
 {
     public:
@@ -102,6 +109,7 @@ class WorldGenerator_SpawnPoint
         void loadSprite(TiXmlElement *element);
         void loadPrefab(TiXmlElement *element);
         void loadPathConnection(TiXmlElement *element);
+        void loadGroundElement(TiXmlElement *element);
 
         void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_SpawnPoint_Modifier &modifier);
 
@@ -130,6 +138,7 @@ class WorldGenerator_SpawnPoint
         std::vector<CharacterSpawn>         m_characterSpawnModels;
         std::vector<pou::SpriteModel*>      m_spriteModelAssets;
         std::vector<PrefabAsset*>           m_prefabAssets;
+        std::vector<WorldGenerator_SpawnPoint_Ground> m_groundElements;
 
         std::vector<WorldGenerator_SpawnPoint_PathConnection> m_pathConnections;
 
@@ -137,6 +146,7 @@ class WorldGenerator_SpawnPoint
         WorldGenerator_SpawnPoint_Modifier m_randomModifiers[NBR_WorldGenerator_SpawnPoint_ModifierTypes];
 
         glm::ivec2 m_gridSize;
+        float m_radius;
 };
 
 #endif // WORLDGENERATOR_CHARACTERSPAWN_H

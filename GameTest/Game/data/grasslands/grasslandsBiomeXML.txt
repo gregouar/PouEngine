@@ -14,6 +14,7 @@
 			<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=.7 smooth=3 >
 			<!--<groundLayer name="grass" path="grassLayerModelXML.txt" spawnProbability=1 >-->
 				<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=.4 occulting=1 smooth=3 />
+				<!--<groundLayer name="grass2" path="grass2LayerModelXML.txt" spawnProbability=0 />-->
 				<groundLayer name="flower" path="flowerLayerModelXML.txt" spawnProbability=.3 occulting=0 smooth=2 />
 			</groundLayer>
 			
@@ -52,15 +53,82 @@
 			<modifier type="flip" rng="uniform" x="[-1,1]" />
 			<pathConnection path="dirtPath" x=0 y=3 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
-			<prefab path="treeCirclePrefabXML.txt" />
-			<size x=10 y=10 />
-		</spawnPoint>
 		<spawnPoint  spawnProbability=.4  >
 			<pathConnection path="dirtPath" />
 		</spawnPoint>
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="grass2" changeSpawnTypeTo="none" >
+			<prefab path="treeCirclePrefabXML.txt" />
+			<size radius=6.5 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="grass" changeSpawnTypeTo="none"  >
+			<size x=16 y=8 />
+			<ground x=1 y=1 groundLayer="dirt" />
+			<ground x=1 y=2 groundLayer="dirt" />
+			<ground x=1 y=3 groundLayer="dirt" />
+			<ground x=1 y=4 groundLayer="dirt" />
+			<ground x=1 y=5 groundLayer="dirt" />
+			<ground x=1 y=6 groundLayer="dirt" />
+			<ground x=2 y=2 groundLayer="dirt" />
+			<ground x=2 y=3 groundLayer="dirt" />
+			<ground x=3 y=4 groundLayer="dirt" />
+			<ground x=3 y=5 groundLayer="dirt" />
+			<ground x=4 y=1 groundLayer="dirt" />
+			<ground x=4 y=2 groundLayer="dirt" />
+			<ground x=4 y=3 groundLayer="dirt" />
+			<ground x=4 y=4 groundLayer="dirt" />
+			<ground x=4 y=5 groundLayer="dirt" />
+			<ground x=4 y=6 groundLayer="dirt" />
+			
+			<ground x=6 y=2 groundLayer="dirt" />
+			<ground x=7 y=2 groundLayer="dirt" />
+			<ground x=8 y=2 groundLayer="dirt" />
+			<ground x=9 y=2 groundLayer="dirt" />
+			<ground x=9 y=3 groundLayer="dirt" />
+			<ground x=9 y=4 groundLayer="dirt" />
+			<ground x=9 y=5 groundLayer="dirt" />
+			<ground x=9 y=6 groundLayer="dirt" />
+			<ground x=8 y=6 groundLayer="dirt" />
+			<ground x=7 y=6 groundLayer="dirt" />
+			<ground x=6 y=6 groundLayer="dirt" />
+			<ground x=6 y=5 groundLayer="dirt" />
+			<ground x=7 y=4 groundLayer="dirt" />
+			<ground x=8 y=4 groundLayer="dirt" />
+			
+			<ground x=11 y=1 groundLayer="dirt" />
+			<ground x=11 y=2 groundLayer="dirt" />
+			<ground x=11 y=3 groundLayer="dirt" />
+			<ground x=11 y=4 groundLayer="dirt" />
+			<ground x=11 y=5 groundLayer="dirt" />
+			<ground x=11 y=6 groundLayer="dirt" />
+			<ground x=12 y=2 groundLayer="dirt" />
+			<ground x=12 y=3 groundLayer="dirt" />
+			<ground x=13 y=4 groundLayer="dirt" />
+			<ground x=13 y=5 groundLayer="dirt" />
+			<ground x=14 y=1 groundLayer="dirt" />
+			<ground x=14 y=2 groundLayer="dirt" />
+			<ground x=14 y=3 groundLayer="dirt" />
+			<ground x=14 y=4 groundLayer="dirt" />
+			<ground x=14 y=5 groundLayer="dirt" />
+			<ground x=14 y=6 groundLayer="dirt" />
+		</spawnPoint>
 	</pois>
 	
+	
+	
+	<distribution type="path" pathName="dirtPath" distance=20>
+		<spawnPoint  spawnProbability=.5 changeSpawnTypeTo="none"   >
+			<size radius=3 />
+			<character path="../poleWithLantern/poleWithLanternXML.txt" />
+			<modifier type="rotation" rng="uniform"  z="-90" />
+			<modifier type="position" rng="uniform"  y="128" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.5 changeSpawnTypeTo="none"   >
+			<size radius=3 />
+			<character path="../poleWithLantern/poleWithLanternXML.txt" />
+			<modifier type="rotation" rng="uniform"  z="90" />
+			<modifier type="position" rng="uniform"  y="-128" />
+		</spawnPoint>
+	</distribution>
 	
 	<!--<distribution type="uniform"  distance=1>
 		<spawnPoint groundLayer="grass2" spawnProbability=1>
@@ -137,20 +205,6 @@
 			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
 			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
-		</spawnPoint>
-	</distribution>
-	
-	
-	<distribution type="path" pathName="dirtPath" distance=10>
-		<spawnPoint  spawnProbability=1 changeSpawnTypeTo="none">
-			<character path="../poleWithLantern/poleWithLanternXML.txt" />
-			<modifier type="rotation" rng="uniform"  z="-90" />
-			<modifier type="position" rng="uniform"  y="96" />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.5 changeSpawnTypeTo="none">
-			<character path="../poleWithLantern/poleWithLanternXML.txt" />
-			<modifier type="rotation" rng="uniform"  z="90" />
-			<modifier type="position" rng="uniform"  y="-96" />
 		</spawnPoint>
 	</distribution>
 	

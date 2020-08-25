@@ -64,14 +64,19 @@ void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameW
 
     m_pointsOfInterest.generatesOnNode(targetNode, syncComponent, generateCharacters, &m_rng);
 
-    pou::Logger::write("Generates terrain...");
+    pou::Logger::write("Generates terrain topology...");
 
-    m_terrainGenerator.generatesOnNode(targetNode, &m_rng);
+    m_terrainGenerator.generatesTopology(&m_rng);
+    //m_terrainGenerator.generatesOnNode(targetNode, &m_rng);
 
     pou::Logger::write("Generates entities...");
 
     for(auto &distribution : m_distributions)
         distribution.generatesOnNode(targetNode, syncComponent, generateCharacters, &m_rng);
+
+    pou::Logger::write("Generates terrain sprites...");
+
+    m_terrainGenerator.generatesOnNode(targetNode);
 }
 
 void WorldGenerator::playWorldMusic()

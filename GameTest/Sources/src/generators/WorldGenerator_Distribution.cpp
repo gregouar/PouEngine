@@ -195,8 +195,8 @@ WorldGenerator_Distribution_DistributedPoints WorldGenerator_Distribution::gener
             m_pathSampler.push_back(pointPos);
 
             ///Compute rotation
-            size_t precP = std::max(0, (int)p - (int)ceil(m_parameters.distance/2));
-            size_t nextP = std::min((int)rasterizedPath.size()-1, (int)p + (int)ceil(m_parameters.distance/2));
+            size_t precP = std::max(0, (int)p - (int)ceil(m_parameters.distance/4));
+            size_t nextP = std::min((int)rasterizedPath.size()-1, (int)p + (int)ceil(m_parameters.distance/4));
 
             auto delta = glm::vec2(rasterizedPath[nextP] - rasterizedPath[precP]);
             float angle = glm::atan(delta.y, delta.x);
