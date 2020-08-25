@@ -739,7 +739,10 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
     {
         //if(m_attributes.getValue().life > 0)
         if(m_isDead.getValue() && m_attributes.getValue().life > 0)
+        {
             this->resurrect();
+            std::cout<<"Resurrected from Sync !"<<std::endl;
+        }
     }
 
     if(!m_isDead.getValue() && m_modelAttributes.getValue().maxLife != 0

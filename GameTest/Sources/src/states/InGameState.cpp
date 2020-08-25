@@ -47,7 +47,8 @@ void InGameState::entered()
 void InGameState::leaving()
 {
     m_world = nullptr;
-    m_gameUi.setPlayer(nullptr);
+    m_gameUi.clearPlayersList();
+    //m_gameUi.setPlayer(nullptr);
 }
 
 void InGameState::revealed()

@@ -34,6 +34,8 @@ void AiComponent::update(const pou::Time &elapsedTime, uint32_t localTime)
         auto *world = m_character->getWorldSync();
         if(world)
             m_target = world->getCharacter(m_targetId.getValue()).get();
+
+       // std::cout<<"Sync target !"<<std::endl;
     }
 }
 

@@ -81,13 +81,15 @@ void AiScriptedComponent::lookForTarget(float maxDistance)
     if(!nearbyCharacters)
         return;
 
+    auto &thisGlobalPosition = m_character->transform()->getGlobalPosition();
+
     for(auto otherCharacter : *nearbyCharacters)
     {
         if(!otherCharacter->isAlive())
             continue;
 
-        float distance = glm::dot(otherCharacter->transform()->getGlobalPosition() - m_character->transform()->getGlobalPosition(),
-                                  otherCharacter->transform()->getGlobalPosition() - m_character->transform()->getGlobalPosition());
+        float distance = glm::dot(otherCharacter->transform()->getGlobalPosition() - thisGlobalPosition,
+                                  otherCharacter->transform()->getGlobalPosition() - thisGlobalPosition);
 
         if(otherCharacter->getTeam() == m_character->getTeam())
         {
@@ -109,7 +111,10 @@ void AiScriptedComponent::lookForTarget(float maxDistance)
     }
 
     if(closestEnemyDistance != -1 && closestEnemyDistance < maxDistance*maxDistance)
+    {
         this->setTarget(closestEnemy);
+        //std::cout<<"ClosestTarget: "<<thisGlobalPosition.x<<" "<<thisGlobalPosition.y<<" "<<closestEnemy->transform()->getGlobalPosition().x<<" "<<closestEnemy->transform()->getGlobalPosition().y<<std::endl;
+    }
     else if(closestFriendDistance != -1 && closestFriendDistance < maxDistance*maxDistance)
     {
         auto otherCharAi = closestFriendWithTarget->getAi();

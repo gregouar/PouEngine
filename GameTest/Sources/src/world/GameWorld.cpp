@@ -89,9 +89,12 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
     this->updateSunLight(elapsed_time);
 
-    this->processPlayerActions();
+    ///BEFORE
+    ///this->processPlayerActions();
 
     m_scene->update(elapsed_time, localTime);
+
+    this->processPlayerActions();
 
 
     auto worldBounds = m_worldGenerator.getWorldBounds();

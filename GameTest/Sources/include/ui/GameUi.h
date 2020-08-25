@@ -28,6 +28,7 @@ class GameUi : public pou::UserInterface, public pou::NotificationListener
 
         void setPlayer(Player *player);
         void setRTTInfo(float RTT);
+        void clearPlayersList();
 
         bool askForRespawn();
 

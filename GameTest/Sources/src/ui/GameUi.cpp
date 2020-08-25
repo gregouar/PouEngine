@@ -225,6 +225,12 @@ void GameUi::removePlayer(Player *player)
     }
 }
 
+void GameUi::clearPlayersList()
+{
+    while(!m_playerList.empty())
+        this->removePlayer(m_playerList.begin()->player);
+}
+
 
 void GameUi::notify(pou::NotificationSender* sender, int notificationType,
                     void* data)

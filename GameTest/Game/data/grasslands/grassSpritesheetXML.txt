@@ -176,10 +176,14 @@
 		<position x=0 y=224 />
 	</sprite>
 
-	
 	<sprite name="rock1" castShadow=1>
 		<size x=32 y=32 />
 		<position x=0 y=256 />
+	</sprite>
+
+	<sprite name="treeStump1" >
+		<size x=32 y=32 />
+		<position x=0 y=288 />
 	</sprite>
 
 	

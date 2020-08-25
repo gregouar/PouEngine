@@ -33,7 +33,7 @@ class UiText : public UiElement
         int computeTextSize();
 
     protected:
-        void generatedGlyphes();
+        void generatesGlyphes();
         int computeWordSize(size_t charPos);
         //void jumpLine();
         int computeTextSize(size_t startPos, size_t endPos);

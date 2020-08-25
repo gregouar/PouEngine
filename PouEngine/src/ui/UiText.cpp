@@ -25,7 +25,7 @@ UiText::~UiText()
 void UiText::update(const Time &elapsedTime)
 {
     if(m_needToUpdateGlyphes)
-        this->generatedGlyphes();
+        this->generatesGlyphes();
 
     UiElement::update(elapsedTime);
 }
@@ -117,7 +117,7 @@ int UiText::computeTextSize()
 ///Protected
 ///
 
-void UiText::generatedGlyphes()
+void UiText::generatesGlyphes()
 {
     if(!m_font)
         return;

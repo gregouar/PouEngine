@@ -56,8 +56,8 @@ void UiElement::removeChildElement(UiElement *child)
     for(auto it = m_childElements.begin() ; it != m_childElements.end() ; ++it)
         if(it->get() == child)
         {
-            m_childElements.erase(it);
             (*it)->setParentElement(nullptr);
+            m_childElements.erase(it);
             return;
         }
 }

@@ -215,7 +215,11 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
         auto player = it->second;
 
         if(uint32leq(player->getLastPlayerUpdateTime(), lastSyncTime)
+        //|| (int)it->first == player_id)
         && (int)it->first != player_id)
+            continue;
+
+        if((int)it->first == player_id && lastSyncTime != (uint32_t)-1)
             continue;
 
         worldSyncMsg->players.push_back({it->first, PlayerSync()});
@@ -232,6 +236,7 @@ void GameWorld_Sync::createWorldSyncMsg(std::shared_ptr<NetMessage_WorldSync> wo
             if(itemModel)
                 playerSync.gearModelsId[i] = m_syncItemModels.findId(itemModel);
         }
+
 
         playerSync.inventoryItemModelsId.resize(player->getInventorySize());
         for(size_t i = 0 ; i < playerSync.inventoryItemModelsId.size() ; ++i)
@@ -419,6 +424,8 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
     uint32_t deltaRTT = (uint32_t)(RTT*GameServer::TICKRATE);
     deltaRTT += pou::NetEngine::getSyncDelay();
 
+    bool firstSync = (m_lastWorldSyncTime == (uint32_t)(-1));
+
    // if(deltaRTT < 15) //To avoid too small RTT
      //   deltaRTT = 15;
 
@@ -427,7 +434,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);
 
-        if(m_lastWorldSyncTime == (uint32_t)(-1))
+        if(firstSync)
             m_curLocalTime = desiredLocalTime;
 
         if(desiredMinLocalTime < m_curLocalTime || m_curLocalTime < desiredMaxLocalTime)
@@ -665,6 +672,14 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             auto parentNodePtr = m_syncNodes.findElement(parentNodeId);
             if(parentNodePtr)
                 parentNodePtr->addChildNode(nodePtr);
+        }
+
+        if(firstSync)
+        {
+            auto nodePtr = m_syncNodes.findElement(nodeId);
+            auto nodeSyncPtr = m_nodeSyncers.findElement(nodeId);
+            nodePtr->update();
+            nodeSyncPtr->update();
         }
     }
 

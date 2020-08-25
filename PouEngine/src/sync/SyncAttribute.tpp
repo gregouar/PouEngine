@@ -355,6 +355,8 @@ bool LinSyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         return (true);
     }
 
+
+
     //if(!(evalValue == itSyncValue->second))
     {
         float ratio = 0;
