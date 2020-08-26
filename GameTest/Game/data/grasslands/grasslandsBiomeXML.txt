@@ -111,7 +111,7 @@
 			<ground x=14 y=5 groundLayer="dirt" />
 			<ground x=14 y=6 groundLayer="dirt" />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="rockPentagramPrefabXML.txt" />
 			<size radius=3 />
 		</spawnPoint>

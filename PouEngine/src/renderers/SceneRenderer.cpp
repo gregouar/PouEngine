@@ -794,8 +794,8 @@ bool SceneRenderer::recordBloomCmb(uint32_t imageIndex)
                                     0, 1, descSets, 0, NULL);
 
             ///CHANGE BY SOMETHING GIVEN IN OPTION OR SOMETHING
-            float radius = (i/2 == 0) ? 8.0f : 16.0f;
-            if(i == 0)
+            float radius = (i/2 == 0) ? 8.0f : 24.0f;
+            if(i%2 == 0)
                 radius /= m_targetWindow->getSwapchainExtent().width;
             else
                 radius /= m_targetWindow->getSwapchainExtent().height;
