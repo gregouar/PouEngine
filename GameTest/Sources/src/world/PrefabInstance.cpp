@@ -27,12 +27,12 @@ void PrefabInstance::createFromModel(PrefabAsset *prefabModel)
     prefabModel->generatesToNode(this);
 }
 
-void PrefabInstance::spawnCharactersOnParent()
+/*void PrefabInstance::spawnCharactersOnParent()
 {
     if(!m_prefabModel)
         return;
     m_prefabModel->generateCharacters(this->getParentNode(), this->transform());
-}
+}*/
 
 /**void PrefabInstance::update(const pou::Time &elapsedTime, uint32_t localTime)
 {

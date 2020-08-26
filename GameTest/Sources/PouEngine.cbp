@@ -596,7 +596,6 @@
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlerror.cpp" />
 		<Unit filename="../../PouEngine/libs/tinyxml/tinyxmlparser.cpp" />
 		<Unit filename="../../PouEngine/shaders/blur.frag" />
-		<Unit filename="../../PouEngine/shaders/blur.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshDirectShadow.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/meshShader.frag" />
@@ -605,15 +604,14 @@
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShader.vert" />
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShadow.frag" />
 		<Unit filename="../../PouEngine/shaders/deferred/spriteShadow.vert" />
+		<Unit filename="../../PouEngine/shaders/fullscreen.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.frag" />
-		<Unit filename="../../PouEngine/shaders/lighting/ambientLighting.vert" />
+		<Unit filename="../../PouEngine/shaders/lighting/bloom.frag" />
 		<Unit filename="../../PouEngine/shaders/lighting/brdflut.frag" />
-		<Unit filename="../../PouEngine/shaders/lighting/brdflut.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/lighting.frag" />
 		<Unit filename="../../PouEngine/shaders/lighting/lighting.vert" />
 		<Unit filename="../../PouEngine/shaders/lighting/shadowMapBlur.frag" />
 		<Unit filename="../../PouEngine/shaders/toneMapping.frag" />
-		<Unit filename="../../PouEngine/shaders/toneMapping.vert" />
 		<Unit filename="../../PouEngine/shaders/uiRendering.frag" />
 		<Unit filename="../../PouEngine/shaders/uiRendering.vert" />
 		<Unit filename="../../PouEngine/src/assets/Asset.cpp" />

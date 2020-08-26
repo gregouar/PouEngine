@@ -224,8 +224,8 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
 
     m_team = 0;
 
-    m_isDestinationSet  = false;
-    m_destination       = {0,0};
+    /*m_isDestinationSet  = false;
+    m_destination       = {0,0};*/
 
     m_lastModelUpdateTime       = -1;
 

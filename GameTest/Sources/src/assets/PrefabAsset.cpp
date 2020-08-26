@@ -37,8 +37,10 @@ void PrefabAsset::generatesToNode(PrefabInstance *targetNode)
     targetNode->setPrefabModel(this);
 }
 
-void PrefabAsset::generateCharacters(pou::SceneNode *targetNode, pou::TransformComponent *transform)
+std::list<std::shared_ptr<Character> > PrefabAsset::generateCharacters(/*pou::SceneNode *targetNode,*/ pou::TransformComponent *transform)
 {
+    std::list<std::shared_ptr<Character> > characterList;
+
     for(auto &prefabCharacter : m_prefabCharacters)
     {
         auto character = std::make_shared<Character>();
@@ -55,9 +57,12 @@ void PrefabAsset::generateCharacters(pou::SceneNode *targetNode, pou::TransformC
             auto globalPos = transform->apply(localPos);
             character->transform()->setPosition(globalPos);
 
-            targetNode->addChildNode(character);
+            characterList.push_back(character);
+            //targetNode->addChildNode(character);
         }
     }
+
+    return characterList;
 }
 
 bool PrefabAsset::loadFromFile(const std::string &filePath)

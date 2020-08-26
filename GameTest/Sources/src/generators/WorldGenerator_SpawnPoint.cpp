@@ -153,7 +153,8 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
         this->spawnSprite(spriteModel, worldPos, pointRotation, targetNode, rng);
 
     for(auto prefabModel : m_prefabAssets)
-        this->spawnPrefab(prefabModel, worldPos, pointRotation, targetNode, rng);
+        this->spawnPrefab(prefabModel, worldPos, pointRotation,
+                          targetNode, syncComponent, generateCharacters, rng);
 
 
     for(auto &pathConnection : m_pathConnections)
@@ -454,14 +455,22 @@ void WorldGenerator_SpawnPoint::spawnSprite(pou::SpriteModel *spriteModel, glm::
 }
 
 void WorldGenerator_SpawnPoint::spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos, float pointRotation,
-                                            pou::SceneNode *targetNode, pou::RNGenerator *rng)
+                                            pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
+                                            bool generateCharacters, pou::RNGenerator *rng)
 {
     auto prefabNode = prefabAsset->generate();
     prefabNode->transform()->setPosition(worldPos);
     this->applyRandomModifiers(prefabNode.get(), pointRotation, rng);
     targetNode->addChildNode(prefabNode);
 
-    prefabNode->spawnCharactersOnParent();
+    //prefabNode->spawnCharactersOnParent();
+    auto characterList = prefabAsset->generateCharacters(prefabNode->transform());
+    for(auto character : characterList)
+    {
+        targetNode->addChildNode(character);
+        syncComponent->syncElement(character);
+        syncComponent->syncElement(character->getModel());
+    }
 }
 
 

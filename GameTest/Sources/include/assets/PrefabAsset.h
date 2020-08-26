@@ -26,7 +26,8 @@ class PrefabAsset : public pou::Asset
 
         std::shared_ptr<PrefabInstance> generate();
         void generatesToNode(PrefabInstance *targetNode);
-        void generateCharacters(pou::SceneNode *targetNode, pou::TransformComponent *transform);
+        //void generateCharacters(pou::SceneNode *targetNode, pou::TransformComponent *transform);
+        std::list<std::shared_ptr<Character> > generateCharacters(pou::TransformComponent *transform);
 
         bool loadFromFile(const std::string &filePath);
 

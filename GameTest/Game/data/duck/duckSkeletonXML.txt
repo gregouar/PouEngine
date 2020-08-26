@@ -2,7 +2,7 @@
 <skeleton>
 	<node name="root"> 
 		<node name="body" z="20">
-			<node name="head" x="0" y="-18" z="10" state="quack">
+			<node name="head" x="0" y="-18" z="10" >
 				<node name="beakHB" z=1 />
 			</node>
 			<node name="tail" x="0" y="29" z=".1" />
@@ -78,7 +78,6 @@
 			<command type="colorTo" node="footR" x=10 y=10 z=10 />-->
 			<!--<globalCommand type="colorTo" r=10 g=10 b=10 />-->
 			<!--<command type="colorTo" node="body" r=10 g=10 b=10 />-->
-			<state node="head">calm</state>
 		</frame>
 		
 		<frame frameTime=".15">
@@ -112,7 +111,6 @@
 		<frame frameTime=".05" >
 			<!--<globalCommand type="colorTo" r=10 g=10 b=10 />-->
 			<!--<command type="colorTo" node="body" r=10 g=10 b=10 />-->
-			<state node="head">calm</state>
 		</frame>
 		<frame>
 			<!--<tag value="deathSound">playSound</tag>-->
@@ -180,7 +178,6 @@
 			<command type="moveTo" node="legR" y="0" rate="200" />
 			<command type="rotateTo" node="wingL" z="0" rate="200" />
 			<command type="rotateTo" node="wingR" z="0" rate="200" />
-			<state node="head">quack</state>
 		</frame>
 		
 		<frame>
@@ -211,7 +208,6 @@
 			
 			<command type="scaleTo" node="footL" y="0" rate="3" />
 			<command type="scaleTo" node="footR" y="0" rate="3" />
-			<state node="head">calm</state>
 		</frame>
 	</animation>
 </skeleton>

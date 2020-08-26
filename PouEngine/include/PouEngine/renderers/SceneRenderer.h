@@ -81,6 +81,7 @@ class SceneRenderer : public AbstractRenderer
         /*void prepareAlphaLightingRenderPass();
         void prepareSsgiLightingRenderPass();*/
         void prepareAmbientLightingRenderPass();
+        void prepareBloomRenderPasses();
         //Final pass
         void prepareToneMappingRenderPass();
 
@@ -100,6 +101,9 @@ class SceneRenderer : public AbstractRenderer
         /*bool createAlphaLightingPipeline();
         bool createSsgiLightingPipeline();*/
         bool createAmbientLightingPipeline();
+
+        bool createBloomPipelines();
+
         //Tone mapping
         bool createToneMappingPipeline();
 
@@ -112,6 +116,7 @@ class SceneRenderer : public AbstractRenderer
         virtual bool    recordLightingCmb(uint32_t imageIndex);
         /*virtual bool    recordSsgiBnCmb(uint32_t imageIndex);*/
         virtual bool    recordAmbientLightingCmb(uint32_t imageIndex);
+        virtual bool    recordBloomCmb(uint32_t imageIndex);
         virtual bool    recordToneMappingCmb(uint32_t imageIndex);
 
     private:
@@ -133,7 +138,10 @@ class SceneRenderer : public AbstractRenderer
                             /*m_alphaLightingPipeline,
                             m_ssgiLightingPipeline,
                             m_ssgiLightingBlurPipelines[2],*/
-                            m_ambientLightingPipeline,
+                            m_ambientLightingPipeline;
+
+        VGraphicsPipeline   m_bloomPipeline,
+                            m_bloomBlurPipelines[2],
                             m_toneMappingPipeline;
 
         //std::vector<std::list<VRenderableTexture> > m_spriteShadowBufs;
@@ -156,12 +164,15 @@ class SceneRenderer : public AbstractRenderer
                                m_positionAttachment,
                                m_normalAttachment,
                                m_rmeAttachment;
+        VFramebufferAttachment m_bloomHdrAttachements[2];
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  m_shadowMapsPass,
                 m_deferredPass,
                 m_lightingPass,
                 m_ambientLightingPass,
+                m_bloomPass,
+                m_bloomBlurPasses[4],
                 m_toneMappingPass;
 
 
@@ -192,6 +203,10 @@ class SceneRenderer : public AbstractRenderer
         static const char *LIGHTING_FRAGSHADERFILE;
         static const char *AMBIENTLIGHTING_VERTSHADERFILE;
         static const char *AMBIENTLIGHTING_FRAGSHADERFILE;
+
+        static const char *BLOOM_VERTSHADERFILE;
+        static const char *BLOOM_FRAGSHADERFILE;
+
         static const char *TONEMAPPING_VERTSHADERFILE;
         static const char *TONEMAPPING_FRAGSHADERFILE;
 };

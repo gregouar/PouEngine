@@ -8,7 +8,7 @@ namespace pou
 {
 
 
-const char *PBRToolbox::BRDFLUT_VERTSHADERFILE = "lighting/brdflut.vert.spv";
+const char *PBRToolbox::BRDFLUT_VERTSHADERFILE = "fullscreen.vert.spv";
 const char *PBRToolbox::BRDFLUT_FRAGSHADERFILE = "lighting/brdflut.frag.spv";
 const char *PBRToolbox::IBLFILTERING_VERTSHADERFILE = "lighting/iblfiltering.vert.spv";
 const char *PBRToolbox::IBLFILTERING_FRAGSHADERFILE = "lighting/iblfiltering.frag.spv";

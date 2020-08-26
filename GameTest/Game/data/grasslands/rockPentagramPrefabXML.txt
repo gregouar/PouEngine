@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<node name="root">
+		<node  x=0 y=-168 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+		</node>
+		<node  x=146 y=-48 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=90 />
+		</node>
+		<node  x=94 y=132 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=-90 />
+		</node>
+		<node  x=-94 y=132 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+		</node>
+		<node  x=-146 y=-48 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=180 />
+		</node>
+		
+		<node  x=-44 y=-48 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=90 />
+		</node>
+		<node  x=-64 y=20 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+		</node>
+		<node  x=0 y=72 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=180 />
+		</node>
+		<node  x=64 y=20 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+		</node>
+		<node  x=44 y=-48 z=2 >
+			<prefab path="rock1Prefab.txt" /> 
+			<rotate z=-90 />
+		</node>
+	</node>
+	
+	<character path="../duck/duckWhiteXML.txt" />
+</prefab>
+
+
+

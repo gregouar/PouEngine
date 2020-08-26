@@ -49,7 +49,7 @@ const char *SceneRenderer::SPRITE_SHADOW_FRAGSHADERFILE = "deferred/spriteShadow
 const char *SceneRenderer::MESH_DIRECTSHADOW_VERTSHADERFILE = "deferred/meshDirectShadow.vert.spv";
 const char *SceneRenderer::MESH_DIRECTSHADOW_FRAGSHADERFILE = "deferred/meshDirectShadow.frag.spv";
 
-const char *SceneRenderer::BLUR_VERTSHADERFILE = "blur.vert.spv";
+const char *SceneRenderer::BLUR_VERTSHADERFILE = "fullscreen.vert.spv";
 const char *SceneRenderer::SHADOWMAPBLUR_FRAGSHADERFILE = "lighting/shadowMapBlur.frag.spv";
 const char *SceneRenderer::BLUR_FRAGSHADERFILE = "blur.frag.spv";
 
@@ -59,9 +59,13 @@ const char *SceneRenderer::MESH_DEFERRED_VERTSHADERFILE = "deferred/meshShader.v
 const char *SceneRenderer::MESH_DEFERRED_FRAGSHADERFILE = "deferred/meshShader.frag.spv";
 const char *SceneRenderer::LIGHTING_VERTSHADERFILE = "lighting/lighting.vert.spv";
 const char *SceneRenderer::LIGHTING_FRAGSHADERFILE = "lighting/lighting.frag.spv";
-const char *SceneRenderer::AMBIENTLIGHTING_VERTSHADERFILE = "lighting/ambientLighting.vert.spv";
+const char *SceneRenderer::AMBIENTLIGHTING_VERTSHADERFILE = "fullscreen.vert.spv";
 const char *SceneRenderer::AMBIENTLIGHTING_FRAGSHADERFILE = "lighting/ambientLighting.frag.spv";
-const char *SceneRenderer::TONEMAPPING_VERTSHADERFILE = "toneMapping.vert.spv";
+
+const char *SceneRenderer::BLOOM_VERTSHADERFILE = "fullscreen.vert.spv";
+const char *SceneRenderer::BLOOM_FRAGSHADERFILE = "lighting/bloom.frag.spv";
+
+const char *SceneRenderer::TONEMAPPING_VERTSHADERFILE = "fullscreen.vert.spv";
 const char *SceneRenderer::TONEMAPPING_FRAGSHADERFILE = "toneMapping.frag.spv";
 
 
@@ -766,6 +770,46 @@ bool SceneRenderer::recordAmbientLightingCmb(uint32_t imageIndex)
     return m_renderGraph.endRecording(m_ambientLightingPass);
 }
 
+bool SceneRenderer::recordBloomCmb(uint32_t imageIndex)
+{
+    bool r = true;
+
+    VkCommandBuffer cmb = m_renderGraph.startRecording(m_bloomPass, imageIndex, m_curFrameIndex);
+
+        m_bloomPipeline.bind(cmb);
+        VkDescriptorSet descSets[] = {m_renderGraph.getDescriptorSet(m_bloomPass,imageIndex)};
+        vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bloomPipeline.getLayout(),
+                                0, 1, descSets, 0, NULL);
+        vkCmdDraw(cmb, 3, 1, 0, 0);
+
+    r = r & m_renderGraph.endRecording(m_bloomPass);
+
+    for(int i = 0 ; i < 4 ; ++i)
+    {
+        VkCommandBuffer cmb = m_renderGraph.startRecording(m_bloomBlurPasses[i], imageIndex, m_curFrameIndex);
+
+            m_bloomBlurPipelines[i%2].bind(cmb);
+            VkDescriptorSet descSets[] = {m_renderGraph.getDescriptorSet(m_bloomBlurPasses[i],imageIndex)};
+            vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bloomBlurPipelines[i%2].getLayout(),
+                                    0, 1, descSets, 0, NULL);
+
+            ///CHANGE BY SOMETHING GIVEN IN OPTION OR SOMETHING
+            float radius = (i/2 == 0) ? 8.0f : 16.0f;
+            if(i == 0)
+                radius /= m_targetWindow->getSwapchainExtent().width;
+            else
+                radius /= m_targetWindow->getSwapchainExtent().height;
+
+            m_bloomBlurPipelines[i%2].updatePushConstant(cmb, 0, (char*)&radius);
+
+            vkCmdDraw(cmb, 3, 1, 0, 0);
+
+        r = r & m_renderGraph.endRecording(m_bloomBlurPasses[i]);
+    }
+
+    return r;
+}
+
 /*bool SceneRenderer::updateUbos(uint32_t imageIndex)
 {
     VBuffersAllocator::writeBuffer(m_ambientLightingUbo[imageIndex],
@@ -810,6 +854,7 @@ bool SceneRenderer::init()
     for(size_t i = 0 ; i < m_targetWindow->getSwapchainSize() ; ++i)
     {
         //this->recordSsgiBnCmb(i);
+        this->recordBloomCmb(i);
         this->recordToneMappingCmb(i);
     }
 
@@ -827,6 +872,7 @@ void SceneRenderer::prepareRenderPass()
     /*this->prepareAlphaLightingRenderPass();
     this->prepareSsgiLightingRenderPass();*/
     this->prepareAmbientLightingRenderPass();
+    this->prepareBloomRenderPasses();
     this->prepareToneMappingRenderPass();
 }
 
@@ -860,6 +906,8 @@ bool SceneRenderer::createGraphicsPipeline()
         return (false);*/
     if(!this->createAmbientLightingPipeline())
         return (false);
+    if(!this->createBloomPipelines())
+        return (false);
     if(!this->createToneMappingPipeline())
         return (false);
 
@@ -888,6 +936,11 @@ bool SceneRenderer::createAttachments()
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement)
         )
         return (false);
+
+    for(int i = 0 ; i < 2 ; ++i)
+        if(! VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_bloomHdrAttachements[i]) )
+           return (false);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)
     {
@@ -1169,6 +1222,39 @@ void SceneRenderer::prepareAmbientLightingRenderPass()
     m_renderGraph.addNewUniforms(m_ambientLightingPass, brdflut);
 }
 
+void SceneRenderer::prepareBloomRenderPasses()
+{
+    m_bloomPass = m_renderGraph.addRenderPass(0);
+
+    m_renderGraph.addNewAttachments(m_bloomPass, m_bloomHdrAttachements[0]);
+    m_renderGraph.transferAttachmentsToUniforms(m_ambientLightingPass, m_bloomPass, 0);
+
+    ///Blur 1
+    m_bloomBlurPasses[0] = m_renderGraph.addRenderPass(0);
+
+    m_renderGraph.addNewAttachments(m_bloomBlurPasses[0], m_bloomHdrAttachements[1]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bloomPass, m_bloomBlurPasses[0] , 0);
+
+    ///Blur 2
+    m_bloomBlurPasses[1] = m_renderGraph.addRenderPass(0);
+
+    m_renderGraph.addNewAttachments(m_bloomBlurPasses[1], m_bloomHdrAttachements[0]);
+    //m_renderGraph.addAttachmentType(m_bloomBlurPasses[1], m_bloomHdrAttachements[0]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bloomBlurPasses[0], m_bloomBlurPasses[1] , 0);
+
+    ///Blur 3
+    m_bloomBlurPasses[2] = m_renderGraph.addRenderPass(0);
+
+    m_renderGraph.addNewAttachments(m_bloomBlurPasses[2], m_bloomHdrAttachements[1]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bloomBlurPasses[1], m_bloomBlurPasses[2] , 0);
+
+    ///Blur 4
+    m_bloomBlurPasses[3] = m_renderGraph.addRenderPass(0);
+
+    m_renderGraph.addNewAttachments(m_bloomBlurPasses[3], m_bloomHdrAttachements[0]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bloomBlurPasses[2], m_bloomBlurPasses[3] , 0);
+}
+
 void SceneRenderer::prepareToneMappingRenderPass()
 {
     m_toneMappingPass = m_renderGraph.addRenderPass(0);
@@ -1176,6 +1262,7 @@ void SceneRenderer::prepareToneMappingRenderPass()
     m_renderGraph.addNewAttachments(m_toneMappingPass, m_targetWindow->getSwapchainAttachments(), VK_ATTACHMENT_STORE_OP_STORE);
     m_renderGraph.addNewAttachments(m_toneMappingPass, m_targetWindow->getSwapchainDepthAttachments(), VK_ATTACHMENT_STORE_OP_STORE);
     m_renderGraph.transferAttachmentsToUniforms(m_ambientLightingPass, m_toneMappingPass, 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_bloomBlurPasses[3], m_toneMappingPass, 0);
     //m_renderGraph.transferAttachmentsToUniforms(m_ambientLightingPass, m_toneMappingPass, 1);
 }
 
@@ -1717,6 +1804,51 @@ bool SceneRenderer::createAmbientLightingPipeline()
     return m_ambientLightingPipeline.init(m_renderGraph.getRenderPass(m_ambientLightingPass));
 }
 
+
+bool SceneRenderer::createBloomPipelines()
+{
+    bool r = true;
+
+    {
+        std::ostringstream vertShaderPath,fragShaderPath;
+        vertShaderPath << VApp::DEFAULT_SHADERPATH << BLOOM_VERTSHADERFILE;
+        fragShaderPath << VApp::DEFAULT_SHADERPATH << BLOOM_FRAGSHADERFILE;
+
+        m_bloomPipeline.createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
+        m_bloomPipeline.createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        m_bloomPipeline.setStaticExtent(m_targetWindow->getSwapchainExtent());
+
+        m_bloomPipeline.setBlendMode(BlendMode_None);
+
+        m_bloomPipeline.attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_bloomPass));
+
+        r = r & m_bloomPipeline.init(m_renderGraph.getRenderPass(m_bloomPass));
+    }
+
+    for(size_t i = 0 ; i < 2 ; ++i)
+    {
+        std::ostringstream vertShaderPath,fragShaderPath;
+        vertShaderPath << VApp::DEFAULT_SHADERPATH << BLUR_VERTSHADERFILE;
+        fragShaderPath << VApp::DEFAULT_SHADERPATH << BLUR_FRAGSHADERFILE;
+
+        m_bloomBlurPipelines[i].createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
+        m_bloomBlurPipelines[i].createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
+
+
+        m_bloomBlurPipelines[i].addSpecializationDatum(static_cast<bool>(i),1); //Vertical
+        m_bloomBlurPipelines[i].attachPushConstant(VK_SHADER_STAGE_FRAGMENT_BIT , sizeof(float)); //radius
+
+        m_bloomBlurPipelines[i].setStaticExtent(m_targetWindow->getSwapchainExtent());
+        m_bloomBlurPipelines[i].attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_bloomBlurPasses[i]));
+
+        r = r & m_bloomBlurPipelines[i].init(m_renderGraph.getRenderPass(m_bloomBlurPasses[i]));
+    }
+
+    return r;
+}
+
+
 bool SceneRenderer::createToneMappingPipeline()
 {
     std::ostringstream vertShaderPath,fragShaderPath;
@@ -1764,6 +1896,8 @@ void SceneRenderer::cleanup()
     VulkanHelpers::destroyAttachment(m_positionAttachment);
     VulkanHelpers::destroyAttachment(m_normalAttachment);
     VulkanHelpers::destroyAttachment(m_rmeAttachment);
+    VulkanHelpers::destroyAttachment(m_bloomHdrAttachements[0]);
+    VulkanHelpers::destroyAttachment(m_bloomHdrAttachements[1]);
     VulkanHelpers::destroyAttachment(m_hdrAttachement);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)
@@ -1800,6 +1934,11 @@ void SceneRenderer::cleanup()
     m_lightingPipeline.destroy();
     //m_ssgiLightingPipeline.destroy();
     m_ambientLightingPipeline.destroy();
+
+    m_bloomPipeline.destroy();
+    m_bloomBlurPipelines[0].destroy();
+    m_bloomBlurPipelines[1].destroy();
+
     m_toneMappingPipeline.destroy();
 
     SceneRenderingData::cleanStatic();

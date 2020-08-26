@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>duckWhiteMaterial</name>
+	<height>0</height>
+	<texture type="albedo">duck_white_spritesheet.png</texture>
+	<texture type="normal">duck_spritesheet_n.png</texture>
+	<texture type="rme">duck_spritesheet_rme.png</texture>
+	<roughness>1</roughness>
+	<metalness>0</metalness>
+	<emissivity>.5</emissivity>
+</material>

@@ -35,7 +35,7 @@
 	</node>
 	
 	<animation name="stand" loop=1>
-		<frame frameTime=".001">
+		<frame frameTime=".2">
 			<reset />
 		</frame>
 		<frame frameTime=2>

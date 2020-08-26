@@ -2,6 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (binding = 0) uniform sampler2D samplerHdr;
+layout (binding = 1) uniform sampler2D samplerBloomHdr;
 //layout (binding = 1) uniform sampler2D samplerAlphaHdr;
 
 layout (location = 0) in vec2 inUV;
@@ -19,6 +20,9 @@ void main()
     //vec3 final  = opac * (1.0f-alpha.a) + alpha.rgb * alpha.a;
 
     vec3 hdrFrag  = texture(samplerHdr,inUV).rgb;
+
+    vec3 hdrBloomFrag  = texture(samplerBloomHdr,inUV).rgb;
+    hdrFrag += hdrBloomFrag;
 
     outColor = vec4(vec3(1.0) - exp(-hdrFrag * exposure), 1.0);
     outColor.rgb = pow(outColor.rgb, vec3(1.0/2.2));

@@ -255,8 +255,8 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         std::unordered_map<pou::SceneNode*, HurtNode> m_hurtNodes;
 
-        bool m_isDestinationSet;
-        glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent
+       /* bool m_isDestinationSet;
+        glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent*/
 
         pou::SyncComponent m_characterSyncComponent;
         //NodeSyncer *m_nodeSyncer;

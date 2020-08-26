@@ -31,13 +31,13 @@
 		<size 		x="32" 	y="32" 	/>
 		<center 	x="0" 	y="31" 	/>
 		<position 	x="33" y="33" 	/>
-		<surface  emissivity=.1 />
+		<surface  emissivity=.2 />
 	</sprite>
 	<sprite name="laserSwordTrail">
 		<size 		x="43" 	y="32" 	/>
 		<center 	x="0" 	y="31" 	/>
 		<position 	x="66" y="33" 	/>
-		<surface  emissivity=.05 />
+		<surface  emissivity=.1 />
 	</sprite>
 
 	<sprite name="energySword" castShadow="true">

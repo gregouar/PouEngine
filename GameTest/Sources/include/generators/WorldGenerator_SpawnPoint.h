@@ -123,7 +123,8 @@ class WorldGenerator_SpawnPoint
                          pou::SceneNode *targetNode, pou::RNGenerator *rng);
 
         void spawnPrefab(PrefabAsset *prefabAsset, glm::vec2 worldPos, float pointRotation,
-                         pou::SceneNode *targetNode, pou::RNGenerator *rng);
+                         pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
+                         bool generateCharacters, pou::RNGenerator *rng);
 
         void spawnPathConnection(WorldGenerator_SpawnPoint_PathConnection &pathConnection, glm::vec2 worldPos,
                                  pou::RNGenerator *rng);
