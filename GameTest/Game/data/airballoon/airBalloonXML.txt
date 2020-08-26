@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <character>
 	<spritesheet name="mainSpriteSheet" path="airBalloonSpritesheet.txt" />
+	<spritesheet name="furnituresSpriteSheet" path="../furnitures/furnitures1SpriteSheet.txt" />
+	<spritesheet name="lanternSpriteSheet" path="../poleWithLantern/poleWithLanternSpriteSheet.txt" />
+	
+	<light name="lanternLight" type="omni" radius=300 intensity=10.0 castShadow="false" >
+		<color r=1.0 g=.6 b=0.0 a=1.0 />
+	</light>
 	
 	<skeleton name="mainSkeleton" path="airBalloonSkeletonXML.txt">
-		<limb node="basket" 	sprite="basket" 	spritesheet="mainSpriteSheet" />
+		<limb node="basketRailing" 	sprite="basketRailing" 	spritesheet="mainSpriteSheet" />
+		<limb node="basketFloor" 	sprite="basketFloor" 	spritesheet="mainSpriteSheet" />
 		<limb node="balloon" 	sprite="balloon" 	spritesheet="mainSpriteSheet" />
+		
+		<limb node="chest" 	sprite="chest1" 	spritesheet="furnituresSpriteSheet" />
+		<limb node="bag1" 	sprite="bag1" 	spritesheet="furnituresSpriteSheet" />
+		<limb node="bag2" 	sprite="bag2" 	spritesheet="furnituresSpriteSheet" />
+		<limb node="jar1" 	sprite="jar1" 	spritesheet="furnituresSpriteSheet" />
+		
+		<limb node="lantern" 	sprite="lantern" 	spritesheet="lanternSpriteSheet" />
+		<limb node="lantern" 	light="lanternLight" />
 	</skeleton>
 	
 	<collisions>

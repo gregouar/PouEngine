@@ -31,6 +31,11 @@ class TransformComponent : public NotificationSender, public NotificationListene
         void move(const glm::vec2 &);
         void move(const glm::vec3 &);
 
+        void globalMove(float, float);
+        void globalMove(float, float, float);
+        void globalMove(const glm::vec2 &);
+        void globalMove(const glm::vec3 &);
+
         void setPosition(float, float);
         void setPosition(float, float, float);
         void setPosition(const glm::vec2 &);

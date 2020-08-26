@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <spritesheet material="airBalloonMaterial.txt" scaleX=2 scaleY=2>
-	<sprite name="basket" castShadow="true">
+	<sprite name="basketRailing" castShadow="true">
 		<size 		x="114" 	y="114" 	/>
 		<center 	x="57" 	y="57" 	/>
 		<position 	x="0" 	y="0"	/>
+	</sprite>
+	<sprite name="basketFloor" castShadow="true">
+		<size 		x="114" 	y="114" 	/>
+		<center 	x="57" 	y="57" 	/>
+		<position 	x="114" 	y="0"	/>
 	</sprite>
 	<sprite name="balloon" castShadow="true" revealable=1>
 		<size 		x="256" 	y="256" 	/>

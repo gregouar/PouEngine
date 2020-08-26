@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<spritesheet name="mainSpriteSheet" path="furnitures1SpriteSheet.txt" />
+	
+	<node name="root" z=20>
+		<collision type="box">
+			<mass>1000</mass>
+			<size x=60 y=38 />
+			<center x=30 y=19 />
+		</collision>
+
+		<sprite sprite="chest1" spritesheet="mainSpriteSheet"  />
+	</node>
+	
+</prefab>

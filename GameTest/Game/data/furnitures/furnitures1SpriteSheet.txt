@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet material="furnitures1Material.txt" scaleX=2 scaleY=2>
+	<sprite name="chest1" castShadow="true">
+		<size 		x="30" 	y="19" 	/>
+		<center 	x="15" 	y="9.5" 	/>
+		<position 	x="1" 	y="1"	/>
+	</sprite>
+	<sprite name="jar1" castShadow="true">
+		<size 		x="18" 	y="18" 	/>
+		<!--<center 	x="9" 	y="9" 	/>-->
+		<position 	x="1" 	y="21"	/>
+	</sprite>
+	<sprite name="bag1" castShadow="true">
+		<size 		x="9" 	y="9" 	/>
+		<center 	x="4.5" 	y="4.5" 	/>
+		<position 	x="20" 	y="21"	/>
+	</sprite>
+	<sprite name="bag2" castShadow="true">
+		<size 		x="14" 	y="16" 	/>
+		<center 	x="7" 	y="8" 	/>
+		<position 	x="30" 	y="21"	/>
+	</sprite>
+</spritesheet>

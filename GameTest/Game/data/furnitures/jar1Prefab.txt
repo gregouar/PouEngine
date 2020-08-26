@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<spritesheet name="mainSpriteSheet" path="furnitures1SpriteSheet.txt" />
+	
+	<node name="root" z=20>
+		<collision type="disk">
+			<mass>100</mass>
+			<radius>18</radius>
+		</collision>
+
+		<sprite sprite="jar1" spritesheet="mainSpriteSheet"  />
+	</node>
+	
+</prefab>

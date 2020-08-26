@@ -157,6 +157,41 @@ void TransformComponent::move(const glm::vec3 &p)
     this->setPosition(this->getPosition()+p);
 }
 
+
+
+void TransformComponent::globalMove(float x, float y)
+{
+    this->globalMove(x,y,0);
+}
+
+void TransformComponent::globalMove(float x, float y, float z)
+{
+    this->globalMove(glm::vec3(x,y,z));
+}
+
+void TransformComponent::globalMove(const glm::vec2 &p)
+{
+    this->globalMove(glm::vec3(p.x,p.y,0));
+}
+
+void TransformComponent::globalMove(const glm::vec3 &p)
+{
+
+    this->setGlobalPosition(this->getGlobalPosition()+p);
+
+    /*if(m_parent)
+    {
+        glm::vec4 newPos = glm::vec4(p - this->getGlobalPosition(),1.0);
+        newPos = m_parent->getInvModelMatrix() * newPos;
+        newPos /= newPos.w;
+        this->move(glm::vec3(newPos));
+    }
+    else
+        this->move(p);*/
+}
+
+
+
 void TransformComponent::setPosition(float x, float y)
 {
     this->setPosition(glm::vec2(x,y));

@@ -79,13 +79,13 @@ void PhysicsEngine::resolveCollisionsImpl(glm::vec2 minPos, glm::vec2 maxPos/*co
 
         auto globalPos1 = body1.transform->getGlobalPosition();
         if(globalPos1.x < minPos.x)
-            body1.transform->move(minPos.x - globalPos1.x,0);
+            body1.transform->globalMove(minPos.x - globalPos1.x,0);
         if(globalPos1.y < minPos.y)
-            body1.transform->move(0,minPos.y - globalPos1.y);
+            body1.transform->globalMove(0,minPos.y - globalPos1.y);
         if(globalPos1.x > maxPos.x)
-            body1.transform->move(maxPos.x-globalPos1.x,0);
+            body1.transform->globalMove(maxPos.x-globalPos1.x,0);
         if(globalPos1.y > maxPos.y)
-            body1.transform->move(0,maxPos.y-globalPos1.y);
+            body1.transform->globalMove(0,maxPos.y-globalPos1.y);
 
         for(auto nextBodyIt = std::next(bodyIt) ;
             nextBodyIt != m_rigidBodies.end() && nextBodyIt->first <= body1.estimatedRightMost ;
@@ -171,8 +171,8 @@ void PhysicsEngine::resolveBoxMinkowskiDiff(const glm::vec2 &closestPoint,
 
     auto translationVector = glm::vec2(minimalTranslationVector) - glm::vec2(transform1->getGlobalXYPosition());
 
-    transform2->move(translationVector * ratio * 1.0f);
-    transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+    transform2->globalMove(translationVector * ratio * 1.0f);
+    transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
     transform1->update();
     transform2->update();
 }
@@ -362,8 +362,8 @@ void PhysicsEngine::resolveDiskMinkowskiDiff(const glm::vec2 &diskCenter, float 
     translationVector = glm::vec2(mat * glm::vec4(translationVector.x, translationVector.y, 0, 1));
     translationVector -= glm::vec2(transform1->getGlobalXYPosition());
 
-    transform2->move(translationVector * ratio * 1.0f);
-    transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+    transform2->globalMove(translationVector * ratio * 1.0f);
+    transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
     transform1->update();
     transform2->update();
 }
@@ -483,8 +483,8 @@ void PhysicsEngine::resolveDiskToDiskCollision(RigidBody *body1, RigidBody *body
 
         auto ratio = this->computeMassRatio(body1->mass, body2->mass);
         auto translationVector = delta * (float)(sumRadii - lengthDelta)/lengthDelta;
-        transform2->move(translationVector * ratio * 1.0f);
-        transform1->move(-translationVector * (1.0f-ratio) * 1.0f);
+        transform2->globalMove(translationVector * ratio * 1.0f);
+        transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
         transform1->update();
         transform2->update();
     }
