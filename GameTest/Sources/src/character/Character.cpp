@@ -486,8 +486,6 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
         pou::MessageBus::postMessage(GameMessageType_World_CharacterDamaged, &msg);
     }
 
-
-
 //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
     m_attributes.setValue(att);
 

@@ -91,10 +91,10 @@ void InGameState::handleEvents(const EventsManager *eventsManager)
         m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,2));
     if(eventsManager->keyPressed(GLFW_KEY_3))
         m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,3));
-    if(eventsManager->keyPressed(GLFW_KEY_4))
+    /*if(eventsManager->keyPressed(GLFW_KEY_4))
         m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,4));
     if(eventsManager->keyPressed(GLFW_KEY_5))
-        m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,5));
+        m_world->addPlayerAction(m_playerId, PlayerAction(PlayerActionType_UseItem,5));*/
 
     glm::vec2 charDirection = {0,0};
     if(eventsManager->keyIsPressed(GLFW_KEY_S))

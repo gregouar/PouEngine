@@ -421,7 +421,7 @@ void CharacterState_Dashing::leaving(CharacterInput *input)
 /// CharacterState_Interrupted
 ///
 
-const float CharacterState_Interrupted::DEFAULT_INTERRUPT_DELAY = .5f;
+const float CharacterState_Interrupted::DEFAULT_INTERRUPT_DELAY = .3f;
 const float CharacterState_Interrupted::DEFAULT_PUSH_TIME = .2f;
 
 CharacterState_Interrupted::CharacterState_Interrupted(Character *character) :
@@ -444,9 +444,7 @@ void CharacterState_Interrupted::update(const pou::Time &elapsedTime, uint32_t l
         m_character->transform()->move(charMove);
 
         m_pushTimer.update(elapsedTime);
-    }
-
-
+    } else
     if(m_interruptTimer.update(elapsedTime) || !m_interruptTimer.isActive())
     {
         //popState ?

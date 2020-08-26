@@ -168,17 +168,17 @@ bool GameWorld::initPlayer(size_t player_id, std::shared_ptr<PlayerSave> playerS
     m_syncComponent.syncElement(playerWeapon);
     player->addItemToInventory(playerWeapon,2);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/mokouSwordXML.txt");
+    /*playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/mokouSwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
-    player->addItemToInventory(playerWeapon,3);
+    player->addItemToInventory(playerWeapon,3);*/
 
     playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/laserSwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
-    player->addItemToInventory(playerWeapon,4);
+    player->addItemToInventory(playerWeapon,3);
 
-    playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/energySwordXML.txt");
+    /*playerWeapon = ItemModelsHandler::loadAssetFromFile("../data/player/energySwordXML.txt");
     m_syncComponent.syncElement(playerWeapon);
-    player->addItemToInventory(playerWeapon,5);
+    player->addItemToInventory(playerWeapon,5);*/
 
     player->setTeam(1);
 
