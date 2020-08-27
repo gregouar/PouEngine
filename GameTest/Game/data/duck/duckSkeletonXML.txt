@@ -181,7 +181,7 @@
 		</frame>
 		
 		<frame>
-			<command type="moveTo" node="head" y="10" rate="125" />
+			<command type="moveTo" node="head" y="10" rate="150" />
 		</frame>
 		
 		<frame>
