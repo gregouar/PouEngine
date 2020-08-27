@@ -66,7 +66,7 @@
 			<prefab path="treeCirclePrefabXML.txt" />
 			<size radius=6.5 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="grass" changeSpawnTypeTo="none"  >
+		<spawnPoint  spawnProbability=1  unique=1 changeGroundLayerTo="grass" changeSpawnTypeTo="none"  >
 			<size x=16 y=8 />
 			<ground x=1 y=1 groundLayer="dirt" />
 			<ground x=1 y=2 groundLayer="dirt" />
@@ -117,7 +117,7 @@
 			<ground x=14 y=5 groundLayer="dirt" />
 			<ground x=14 y=6 groundLayer="dirt" />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
+		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
 			<prefab path="rockPentagramPrefabXML.txt" />
 			<size radius=3 />
 		</spawnPoint>

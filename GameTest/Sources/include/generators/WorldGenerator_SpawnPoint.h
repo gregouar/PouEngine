@@ -58,6 +58,7 @@ struct WorldGenerator_SpawnPoint_Parameters
     WorldGenerator_SpawnPoint_Parameters();
 
     float   spawnProbability;
+    bool    unique;
     //bool    preventOtherSpawns;
 
     const TerrainGenerator_GroundLayer *groundLayer; ///I should remove this and change by a list of probability
@@ -67,6 +68,7 @@ struct WorldGenerator_SpawnPoint_Parameters
 
     bool changeGroundLayerTo;
     const TerrainGenerator_GroundLayer *newGroundLayer;
+
 };
 
 struct WorldGenerator_SpawnPoint_PathConnection
@@ -148,6 +150,8 @@ class WorldGenerator_SpawnPoint
 
         glm::ivec2 m_gridSize;
         float m_radius;
+
+        bool m_hasSpawn;
 };
 
 #endif // WORLDGENERATOR_CHARACTERSPAWN_H

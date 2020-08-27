@@ -22,7 +22,8 @@ WorldGenerator_SpawnPoint_Modifier::WorldGenerator_SpawnPoint_Modifier()
 ///
 
 WorldGenerator_SpawnPoint_Parameters::WorldGenerator_SpawnPoint_Parameters() :
-    spawnProbability(0.0f),
+    spawnProbability(1.0f),
+    unique(false),
     //reventOtherSpawns(false),
     groundLayer(nullptr),
     changeSpawnTypeTo(false),
@@ -52,7 +53,8 @@ WorldGenerator_SpawnPoint_PathConnection::WorldGenerator_SpawnPoint_PathConnecti
 
 WorldGenerator_SpawnPoint::WorldGenerator_SpawnPoint() :
     m_gridSize(1),
-    m_radius(-1)
+    m_radius(-1),
+    m_hasSpawn(false)
 {
     //ctor
 }
@@ -139,6 +141,8 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
                                                 pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
+    m_hasSpawn = true;
+
     for(auto characterSpawnModel : m_characterSpawnModels)
     {
         int amount = pou::RNGesus::uniformInt(characterSpawnModel.minAmount,
@@ -194,9 +198,13 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
 
 float WorldGenerator_SpawnPoint::getSpawnProbability(glm::vec2 worldPos)
 {
+    if(m_parameters.unique && m_hasSpawn)
+        return (0);
+
     auto gridPos = m_terrain->worldToGridPosition(worldPos);
     if(m_parameters.groundLayer && m_terrain->getGridGroundLayer(gridPos.x, gridPos.y) != m_parameters.groundLayer)
         return (0);
+
     return m_parameters.spawnProbability;
 }
 
@@ -214,6 +222,7 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
 {
     auto groundLayerAtt = element->Attribute("groundLayer");
     auto spawnProbabilityAtt = element->Attribute("spawnProbability");
+    auto uniqueAtt = element->Attribute("unique");
     //auto preventSpawnsAtt = element->Attribute("preventOtherSpawns");
     auto changeSpawnTypeAtt = element->Attribute("changeSpawnTypeTo");
     auto changeGroundLayerAtt = element->Attribute("changeGroundLayerTo");
@@ -225,6 +234,9 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
 
     if(spawnProbabilityAtt)
         parameters.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+
+    if(uniqueAtt && pou::Parser::isBool(uniqueAtt))
+        parameters.unique = uniqueAtt;
 
     //if(preventSpawnsAtt)
       //  parameters.preventOtherSpawns = pou::Parser::parseBool(preventSpawnsAtt);
@@ -250,6 +262,7 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
         parameters.changeGroundLayerTo = true;
         parameters.newGroundLayer = m_terrain->getGroundLayer(hashedChangeGroundLayer);
     }
+
 
     return (true);
 }
