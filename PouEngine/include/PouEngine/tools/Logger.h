@@ -20,11 +20,13 @@ class Logger : public Singleton<Logger>
         static void warning(const std::ostringstream&);
         static void error(const std::ostringstream&);
         static void fatalError(const std::ostringstream&);
+        static void debug(const std::ostringstream&);
 
         static void write(const std::string&);
         static void warning(const std::string&);
         static void error(const std::string&);
         static void fatalError(const std::string&);
+        static void debug(const std::string&);
 
         void enableConsoleWriting();
         void disableConsoleWriting();
@@ -39,6 +41,7 @@ class Logger : public Singleton<Logger>
         std::unique_ptr<std::ofstream> m_fileStream;
         bool m_enableConsoleWriting;
         bool m_enableWarnings;
+        bool m_enableDebugs;
 
         static const char *DEFAULT_LOG_PATH;
 };

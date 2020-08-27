@@ -10,6 +10,7 @@ Logger::Logger()
 {
     m_enableConsoleWriting = true;
     m_enableWarnings = true;
+    m_enableDebugs = true;
     m_fileStream = std::make_unique<std::ofstream>();
     m_fileStream->open(DEFAULT_LOG_PATH, std::ios::out | std::ios::trunc );
 }
@@ -40,6 +41,11 @@ void Logger::fatalError(const std::ostringstream& s)
     Logger::fatalError(s.str());
 }
 
+void Logger::debug(const std::ostringstream& s)
+{
+    Logger::debug(s.str());
+}
+
 void Logger::write(const std::string& s)
 {
     std::lock_guard<std::mutex> lock(Logger::instance()->m_loggerMutex);
@@ -53,7 +59,7 @@ void Logger::write(const std::string& s)
 void Logger::warning(const std::string& s)
 {
     if(Logger::instance()->m_enableWarnings)
-        Logger::write("Warning : "+s);
+        Logger::write("Warning: "+s);
 }
 
 void Logger::error(const std::string& s)
@@ -64,6 +70,13 @@ void Logger::error(const std::string& s)
 void Logger::fatalError(const std::string& s)
 {
     Logger::write("FATAL ERROR: "+s);
+}
+
+void Logger::debug(const std::string& s)
+{
+    if(!Logger::instance()->m_enableDebugs)
+        return;
+    Logger::write("Debug: "+s);
 }
 
 void Logger::enableConsoleWriting()

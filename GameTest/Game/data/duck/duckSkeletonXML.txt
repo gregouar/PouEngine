@@ -8,13 +8,13 @@
 			<node name="tail" x="0" y="29" z=".1" />
 			<node name="wingR" x="17" y="-1" z=".1" />
 			<node name="wingL" x="-17" y="-1" z=".1" />
-			<node name="legL" x="-8" y="12" z="-2">
-				<node name="footL" x="-8" y="10" z="-17">
+			<node name="legL" x="-8" y="12" z="-14">
+				<node name="footL" x="-8" y="10" z="-5">
 					<rotate z="-30" />
 				</node>
 			</node>
-			<node name="legR" x="8" y="12" z="-2">
-				<node name="footR" x="8" y="10" z="-17" >
+			<node name="legR" x="8" y="12" z="-14">
+				<node name="footR" x="8" y="10" z="-5" >
 					<rotate z="30" />
 				</node>
 			</node>
@@ -129,10 +129,10 @@
 			
 			<command type="moveTo" node="head" z=-9.99 rate=100 />
 			<command type="moveTo" node="body" z=-19 rate=200 />
-			<command type="moveTo" node="legL" z=2 rate=200 />
-			<command type="moveTo" node="legR" z=2 rate=200 />
-			<command type="moveTo" node="footL" z=17 rate=200 />
-			<command type="moveTo" node="footR" z=17 rate=200 />
+			<command type="moveTo" node="legL" z=14 rate=200 />
+			<command type="moveTo" node="legR" z=14 rate=200 />
+			<command type="moveTo" node="footL" z=5 rate=200 />
+			<command type="moveTo" node="footR" z=5 rate=200 />
 			
 			<!--<globalCommand type="colorTo" r=0 g=0 b=0 rate=200 />-->
 			<command type="colorTo" node="body" r=-.25 g=-.25 b=-.25 rate=200 />

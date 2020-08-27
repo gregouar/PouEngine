@@ -30,8 +30,12 @@ bool RenderWindow::create(size_t w, size_t h, const std::string &name, bool full
 {
     m_framesCount = framesCount;
 
+    Logger::debug("Create GLFWindow");
+
     if(!this->createGLFWindow(w,h,name,fullscreen))
         return (false);
+
+    Logger::debug("Create surface");
 
     if(!this->createSurface())
         return (false);

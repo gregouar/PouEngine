@@ -242,8 +242,18 @@ CharacterState_Attacking::~CharacterState_Attacking()
 
 }
 
+/*void CharacterState_Attacking::handleInput(CharacterInput *input)
+{
+    auto [isWalking, walkingDirection] = input->getWalkingInputs();
+    m_walkingDirection = walkingDirection * (float)isWalking;
+}*/
+
 void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t localTime)
 {
+    /*float walkingAmount = m_character->getAttributes().walkingSpeed*elapsedTime.count();
+    glm::vec2 charMove = walkingAmount*m_walkingDirection;
+    m_character->transform()->move(charMove);*/
+
     if(m_attackTimer.update(elapsedTime) || !m_attackTimer.isActive())
     {
         //this->popState(); ?

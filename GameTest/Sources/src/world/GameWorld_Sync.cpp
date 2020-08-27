@@ -430,14 +430,23 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
      //   deltaRTT = 15;
 
     {
-        uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1);
+        /*uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1);
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
-        uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);
+        uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);*/
+
+        deltaRTT += 12;
+        uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT);
+        uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) - 12;
+        uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) + 12;
+
+        std::cout<<std::endl<<"RTT:"<<RTT<<std::endl;
+        std::cout<<desiredMinLocalTime<<" "<<desiredLocalTime<<" "<<desiredMaxLocalTime<<std::endl;
+        std::cout<<m_curLocalTime<<std::endl;
 
         if(firstSync)
             m_curLocalTime = desiredLocalTime;
 
-        if(desiredMinLocalTime < m_curLocalTime || m_curLocalTime < desiredMaxLocalTime)
+        if(m_curLocalTime < desiredMinLocalTime  || m_curLocalTime > desiredMaxLocalTime)
         {
             pou::Logger::write("Jump time from "+std::to_string(m_curLocalTime)+" to "+std::to_string(desiredLocalTime));
 
@@ -782,7 +791,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
     {
         if(playerIt->first != clientPlayerId || useLockStepMode)
         {
-            uint32_t delay = m_deltaRTT*1.5;
+            uint32_t delay = m_deltaRTT + 12;
             playerIt->second->setReconciliationDelay(delay,0);
             playerIt->second->disableInputSync(false);
             playerIt->second->disableDamageReceiving(true);

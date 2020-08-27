@@ -50,7 +50,7 @@
 	</collisions>
 	
 	<attributes>
-		<walkingSpeed>250</walkingSpeed>
+		<walkingSpeed>350</walkingSpeed>
 		<attackDelay>0</attackDelay>
 		<life>1000</life>
 		<!--<attackDamages>25</attackDamages>-->

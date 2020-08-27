@@ -117,6 +117,11 @@ class CharacterState_Attacking : public CharacterState
 
         bool m_attackBounce;
 
+
+        ///TEST
+        //glm::vec2 m_walkingDirection;
+
+
     public:
         const pou::HashedString ATTACK_TAG;
 };

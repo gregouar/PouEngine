@@ -108,10 +108,14 @@ bool VApp::init()
 
     glfwInit();
 
+    Logger::write("Creating window");
+
     Profiler::pushClock("Create window");
     if(!this->createWindow())
         throw std::runtime_error("Cannot create window");
     Profiler::popClock();
+
+    Logger::write("Instancing Vulkan");
 
     Profiler::pushClock("Init vulkan instance");
     VInstance::instance()->init(m_renderWindow.getSurface()); //Throw error
