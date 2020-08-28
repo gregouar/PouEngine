@@ -30,15 +30,21 @@ bool RenderWindow::create(size_t w, size_t h, const std::string &name, bool full
 {
     m_framesCount = framesCount;
 
-    Logger::debug("Create GLFWindow");
+    //Logger::debug("Create GLFWindow");
 
     if(!this->createGLFWindow(w,h,name,fullscreen))
+    {
+        Logger::fatalError("Failed to create window");
         return (false);
+    }
 
-    Logger::debug("Create surface");
+    //Logger::debug("Create surface");
 
     if(!this->createSurface())
+    {
+        Logger::fatalError("Failed to create window surface");
         return (false);
+    }
 
     return (true);
 }

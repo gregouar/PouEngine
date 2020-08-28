@@ -13,7 +13,7 @@
 
 const int       GameClient::TICKRATE    = 60;
 const pou::Time GameClient::TICKDELAY(1.0f/GameClient::TICKRATE);
-const int       GameClient::SYNCRATE    = 30;
+const int       GameClient::SYNCRATE    = 60;
 const pou::Time GameClient::SYNCDELAY(1.0f/GameClient::SYNCRATE);
 const float     GameClient::INTERPOLATIONDELAY = 0.0f;
 const uint32_t  GameClient::MAX_PLAYER_REWIND = 200;
@@ -320,6 +320,8 @@ void GameClient::notify(pou::NotificationSender*, int notificationType, void* da
         playerEventMsg->syncId      = gameMsg->character->getCharacterSyncId();
         playerEventMsg->direction   = gameMsg->direction;
         playerEventMsg->amount      = gameMsg->damages;
+
+        //std::cout<<"Send damage player message at time:"<<playerEventMsg->localTime<<std::endl;
 
         m_client->sendMessage(playerEventMsg);
     }

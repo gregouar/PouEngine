@@ -22,6 +22,8 @@ AbstractSyncElement::~AbstractSyncElement()
 
 bool AbstractSyncElement::update(const Time &elapsedTime, uint32_t localTime)
 {
+    if(m_disableSync)
+        return m_syncAttributePtr->updateWithoutSync(elapsedTime, localTime);
     return m_syncAttributePtr->update(elapsedTime, localTime);
 }
 

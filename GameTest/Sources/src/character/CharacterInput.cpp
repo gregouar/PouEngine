@@ -288,6 +288,8 @@ void PlayerInput::processAction(const PlayerAction &playerAction)
         case PlayerActionType_CombatMode:{
             m_combatModeTimer.reset(DEFAULT_COMBATMODE_DELAY);
         }break;
+        case PlayerActionType_Respawn:{
+        }break;
         case NBR_PLAYERACTIONTYPES:{
         }
     }

@@ -15,6 +15,7 @@ class AbstractSyncAttribute
 
         virtual void syncFrom(const AbstractSyncAttribute *t) = 0;
         virtual bool update(const Time &elapsed_time, uint32_t curTime) = 0;
+        virtual bool updateWithoutSync(const Time &elapsed_time, uint32_t curTime) = 0;
 
         uint32_t getLastUpdateTime() const;
         uint32_t getSyncTime() const;

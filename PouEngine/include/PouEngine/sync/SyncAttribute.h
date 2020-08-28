@@ -20,6 +20,7 @@ class SyncAttribute : public AbstractSyncAttribute
         ///virtual void syncFrom(const SyncAttribute<T> &t);
         virtual void syncFrom(const AbstractSyncAttribute *t);
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
+        virtual bool updateWithoutSync(const Time &elapsed_time, uint32_t curTime);
 
         bool setValue(const T &t, bool forceUpdate = false);
         bool setValue(const T &t, uint32_t curLocalTime, bool forceUpdate = false);
@@ -69,6 +70,7 @@ class LinSyncAttribute : public SyncAttribute<T>
         LinSyncAttribute(const T &t, uint32_t curTime);
 
         virtual bool update(const Time &elapsed_time, uint32_t curTime);
+        virtual bool updateWithoutSync(const Time &elapsed_time, uint32_t curTime);
 
         void setModuloRange(const T& min, const T& max);
 

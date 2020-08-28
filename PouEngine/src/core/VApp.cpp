@@ -115,7 +115,7 @@ bool VApp::init()
         throw std::runtime_error("Cannot create window");
     Profiler::popClock();
 
-    Logger::write("Instancing Vulkan");
+    Logger::write("Initialization of Vulkan instance");
 
     Profiler::pushClock("Init vulkan instance");
     VInstance::instance()->init(m_renderWindow.getSurface()); //Throw error

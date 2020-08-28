@@ -11,7 +11,7 @@
 
 const int   GameServer::TICKRATE    = 60;
 const pou::Time GameServer::TICKDELAY(1.0f/GameServer::TICKRATE);
-const int   GameServer::SYNCRATE    = 20;
+const int   GameServer::SYNCRATE    = 60;
 const pou::Time GameServer::SYNCDELAY(1.0f/GameServer::SYNCRATE);
 ///const int   GameServer::MAX_REWIND_AMOUNT = 200;
 

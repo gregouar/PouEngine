@@ -135,18 +135,19 @@ bool SyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
         if(this->m_rewindValues.empty())
             return (false);
 
-        auto evalIt = --this->m_rewindValues.end();
+        uint32_t localClientTime = 0;
+        if(this->m_reconciliationDelay_client < this->m_curLocalTime)
+            localClientTime = this->m_curLocalTime - this->m_reconciliationDelay_client;
+
+        T evalValue = m_value;
+
+        auto evalIt = this->m_rewindValues.upper_bound(localClientTime);
         if(!this->m_rewindValues.empty())
         {
-            uint32_t localClientTime = 0;
-            if(this->m_reconciliationDelay_client < this->m_curLocalTime)
-                localClientTime = this->m_curLocalTime - this->m_reconciliationDelay_client;
-
-            evalIt = this->m_rewindValues.upper_bound(localClientTime);
             if(evalIt != this->m_rewindValues.begin())
                 --evalIt;
+            evalValue = evalIt->second;
         }
-        T evalValue = evalIt->second;
 
         /*if(!(evalValue == itSyncValue->second))
         {
@@ -157,20 +158,34 @@ bool SyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
 
         if(!(evalValue == itSyncValue->second))
         {
+            //std::cout<<"Desync:"<<localClientTime<<" "<<serverLocalTime<<std::endl;
+            //std::cout<<"True desync time:"<<evalIt->first<<" "<<itSyncValue->first<<std::endl;
             if(!this->m_desyncTimer.isActive())
-                this->m_desyncTimer.reset(.2f);
+                this->m_desyncTimer.reset(.1f);
             else if(this->m_desyncTimer.update(elapsed_time.count()))
             {
+                this->m_rewindValues.erase(evalIt,this->m_rewindValues.end());
+
                 this->m_lastSyncTime = itSyncValue->first;
-                this->setValue(itSyncValue->second);
+                this->setValue(itSyncValue->second, m_lastSyncTime);
                 this->m_desyncTimer.reset();
                 return (true);
             }
         } else {
             if(this->m_desyncTimer.isActive())
-            this->m_desyncTimer.reset();
+                this->m_desyncTimer.reset();
         }
      }
+
+    return (false);
+}
+
+
+template<typename T>
+bool SyncAttribute<T>::updateWithoutSync(const Time &elapsed_time, uint32_t curTime)
+{
+    if(curTime != (uint32_t)(-1))
+        m_curLocalTime = curTime;
 
     return (false);
 }
@@ -390,7 +405,7 @@ bool LinSyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 return (false);
 
             T evalValue = this->m_value;
-            auto evalIt = --this->m_rewindValues.end();
+            auto evalIt = this->m_rewindValues.end()--;
             if(!this->m_rewindValues.empty())
             {
                 evalIt = this->m_rewindValues.lower_bound(this->m_curLocalTime - this->m_reconciliationDelay_client);
@@ -440,6 +455,16 @@ bool LinSyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 this->m_desyncTimer.reset(1.0f);**/
         }
     }
+
+    return (false);
+}
+
+
+template<typename T>
+bool LinSyncAttribute<T>::updateWithoutSync(const Time &elapsed_time, uint32_t curTime)
+{
+    if(curTime != (uint32_t)(-1))
+        this->m_curLocalTime = curTime;
 
     return (false);
 }

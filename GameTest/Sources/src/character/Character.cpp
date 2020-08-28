@@ -230,7 +230,7 @@ Character::Character(std::shared_ptr<CharacterInput> characterInput) :
     m_lastModelUpdateTime       = -1;
 
     m_nodeSyncer = std::make_shared<NodeSyncer>(this);
-    m_nodeSyncer->setReconciliationPrecision(glm::vec3(4),
+    m_nodeSyncer->setReconciliationPrecision(glm::vec3(16),
                                              glm::vec3(glm::pi<float>()/10.0f),
                                              glm::vec3(1.0f/NodeSyncer::NODE_SCALE_DECIMALS));
 
@@ -715,7 +715,10 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
     m_input->update(elapsedTime, localTime);
 
     if(oldState != m_curStateId.getValue())
+    {
+        std::cout<<"Switch state from sync"<<std::endl;
         this->switchState((CharacterStateTypes)m_curStateId.getValue());
+    }
 
     if(m_curState)
     {
@@ -725,6 +728,7 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
 
     if(m_attributes.getValue().life < oldLife)
     {
+        std::cout<<"Damaged from Sync "<<oldLife<<" to "<<m_attributes.getValue().life<<" at time:"<<localTime<<std::endl;
         if(m_attributes.getValue().life <= 0)
         {
             this->kill(oldLife-m_attributes.getValue().life);
@@ -735,6 +739,7 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
     }
     else if (m_attributes.getValue().life > oldLife)
     {
+        std::cout<<"Healed from Sync "<<oldLife<<" to "<<m_attributes.getValue().life<<" at time:"<<localTime<<std::endl;
         //if(m_attributes.getValue().life > 0)
         if(m_isDead.getValue() && m_attributes.getValue().life > 0)
         {

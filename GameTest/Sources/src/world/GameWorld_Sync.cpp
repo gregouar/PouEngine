@@ -434,14 +434,14 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);*/
 
-        deltaRTT += 12;
+        deltaRTT += 24;
         uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT);
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) - 12;
-        uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) + 12;
+        uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) + 24;
 
-        std::cout<<std::endl<<"RTT:"<<RTT<<std::endl;
+        /*std::cout<<std::endl<<"RTT:"<<RTT<<std::endl;
         std::cout<<desiredMinLocalTime<<" "<<desiredLocalTime<<" "<<desiredMaxLocalTime<<std::endl;
-        std::cout<<m_curLocalTime<<std::endl;
+        std::cout<<m_curLocalTime<<std::endl;*/
 
         if(firstSync)
             m_curLocalTime = desiredLocalTime;
@@ -456,6 +456,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         m_lastWorldSyncTime = worldSyncMsg->localTime;
     }
+
+    //std::cout<<"DeltaRTT:"<<m_deltaRTT<<std::endl;
+    //std::cout<<"Sync from server local time:"<<worldSyncMsg->localTime<<std::endl;
 
     m_syncPlayerActions.erase(m_syncPlayerActions.begin(), m_syncPlayerActions.upper_bound(worldSyncMsg->clientTime));
 
@@ -572,13 +575,14 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             this->syncElement(characterPtr, characterId);
 
             characterPtr->disableInputSync(!useLockStepMode);
+            characterPtr->disableStateSync(!useLockStepMode);
         }
 
         characterPtr->syncFromCharacter(characterSync.character);
 
         if(useLockStepMode)
         {
-            uint32_t delay = m_deltaRTT*1.5;
+            uint32_t delay = m_deltaRTT + 12;
             characterPtr->setReconciliationDelay(delay,0);
             characterPtr->disableInputSync(false);
             characterPtr->disableDamageReceiving(true);
@@ -586,9 +590,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         }
         else
         {
-            characterPtr->setReconciliationDelay(0,m_deltaRTT*1);
+            characterPtr->setReconciliationDelay(m_deltaRTT+6,m_deltaRTT+7);
             characterPtr->disableInputSync();
-            //characterPtr->disableStateSync();
+            characterPtr->disableStateSync();
         }
 
         characterPtr->getNodeSyncer()->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
@@ -1241,6 +1245,7 @@ void GameWorld_Sync::removeFromUpdatedCharacters(Character *character)
 void GameWorld_Sync::processPlayerEvents()
 {
     auto upperBound = m_playerEvents.upper_bound(m_curLocalTime);
+    //std::cout<<"Server local time:"<<m_curLocalTime<<std::endl;
 
     for(auto playerEventIt = m_playerEvents.begin() ;
         playerEventIt != upperBound ;
@@ -1255,6 +1260,9 @@ void GameWorld_Sync::processPlayerEvents()
                 if(!character)
                     break;
 
+                std::cout<<"Damage character from sync at time:"<<m_curLocalTime<<std::endl;
+
+                character->update(pou::Time(0), m_curLocalTime);
                 character->damage(playerEventMsg->amount, playerEventMsg->direction);
 
             }break;
