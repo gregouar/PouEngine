@@ -29,11 +29,15 @@ class WorldGenerator
                                        pou::Scene *scene,
                                        float dayTime);
 
+        void addToSpawnGroup(pou::HashedString spawnGroupName, glm::vec2 position);
+        std::vector<glm::vec2> getSpawnGroup(pou::HashedString spawnGroupName);
+
         void playWorldMusic();
         void stopWorldMusic();
 
         const std::string &getFilePath();
         int getGeneratingSeed();
+        TerrainGenerator *terrain();
 
         std::pair<glm::vec2, glm::vec2> getWorldBounds();
 
@@ -67,6 +71,7 @@ class WorldGenerator
         //std::vector<WorldGenerator_CharacterModel> m_characterModels;
         WorldGenerator_Distribution m_pointsOfInterest;
         std::list<WorldGenerator_Distribution> m_distributions;
+        std::unordered_multimap<pou::HashedString, glm::vec2> m_spawnGroups;
 
         pou::SoundTypeId m_musicEvent;
 };

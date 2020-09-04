@@ -23,7 +23,7 @@ bool Parser::isBool(const std::string &data)
     bool value = false;
     std::istringstream ss(data);
     ss>>value;
-    return ss.eof();
+    return ss.eof() || data == "true" || data == "false";
 }
 
 bool Parser::isInt(const std::string &data)

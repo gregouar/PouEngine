@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet material="torchesMaterial.txt" scaleX=2 scaleY=2>
+	<sprite name="wallTorch" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=0 y=0 />
+		<nextSprite name="wallTorch_1"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_1" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=9 y=0 />
+		<nextSprite name="wallTorch_2"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_2" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=18 y=0 />
+		<nextSprite name="wallTorch_3"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_3" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=27 y=0 />
+		<nextSprite name="wallTorch_4"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_4" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=36y y=0 />
+		<nextSprite name="wallTorch"  delay=.1 />
+	</sprite>
+
+	
+</spritesheet>

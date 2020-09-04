@@ -16,177 +16,222 @@
 				
 				<groundLayer name="stone2" path="stone2LayerModelXML.txt" spawnProbability=0  occulting=0>
 				</groundLayer>
-				<!--<groundLayer name="grass2" path="../grasslands/grass2LayerModelXML.txt" spawnProbability=0 occulting=1 />-->
+				<groundLayer name="stoneSlab1" path="stoneSlab1LayerModelXML.txt" spawnProbability=0  occulting=0>
+				</groundLayer>
+				<groundLayer name="damagedStone" path="damagedStoneLayerModelXML.txt" spawnProbability=.1 expandProbability=.25 occulting=0 smooth=1 />
 			</groundLayer>
 		</groundLayer>
 		
-		<path name="stonePath" width=2 groundLayer="stone" cycleFactor=3 heuristic="manhattan">
+		<path name="stonePath" width=2 groundLayer="stone" cycleFactor=3 heuristic="manhattan" preventGroundSpawning="false">
 		</path>
 	</terrain>
 	
 	
-	
-	<!--<pois type="poisson" distance=1000 useGridPosition=1 startInCenter=1 >
-		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"   >
-			<size x=4 y=4 />
-			<pathConnection path="stonePath" />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone"  >
-			<pathConnection path="stonePath" />
-			<size x=4 y=4 />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
-			<pathConnection path="stonePath" />
-			<size x=5 y=3 />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone2"  >
-			<pathConnection path="stonePath" />
-			<size x=5 y=5 />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
-			<pathConnection path="stonePath" />
-			<size x=6 y=6 />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.1   >
+	<pois type="poisson" distance=1800 useGridPosition=1 startInCenter=1 >
+		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"  preventGroundSpawning="false"   >
+			<size x=8 y=8 />
 			<pathConnection path="stonePath" />
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="stone" changeSpawnTypeTo="none"  >
-			<pathConnection path="stonePath" />
+			<pathConnection path="stoneSlab1" />
 			<size x=16 y=8 />
-			<ground x=1 y=1 groundLayer="stone2" />
-			<ground x=1 y=2 groundLayer="stone2" />
-			<ground x=1 y=3 groundLayer="stone2" />
-			<ground x=1 y=4 groundLayer="stone2" />
-			<ground x=1 y=5 groundLayer="stone2" />
-			<ground x=1 y=6 groundLayer="stone2" />
-			<ground x=2 y=2 groundLayer="stone2" />
-			<ground x=2 y=3 groundLayer="stone2" />
-			<ground x=3 y=4 groundLayer="stone2" />
-			<ground x=3 y=5 groundLayer="stone2" />
-			<ground x=4 y=1 groundLayer="stone2" />
-			<ground x=4 y=2 groundLayer="stone2" />
-			<ground x=4 y=3 groundLayer="stone2" />
-			<ground x=4 y=4 groundLayer="stone2" />
-			<ground x=4 y=5 groundLayer="stone2" />
-			<ground x=4 y=6 groundLayer="stone2" />
-			
-			<ground x=6 y=2 groundLayer="stone2" />
-			<ground x=7 y=2 groundLayer="stone2" />
-			<ground x=8 y=2 groundLayer="stone2" />
-			<ground x=9 y=2 groundLayer="stone2" />
-			<ground x=9 y=3 groundLayer="stone2" />
-			<ground x=9 y=4 groundLayer="stone2" />
-			<ground x=9 y=5 groundLayer="stone2" />
-			<ground x=9 y=6 groundLayer="stone2" />
-			<ground x=8 y=6 groundLayer="stone2" />
-			<ground x=7 y=6 groundLayer="stone2" />
-			<ground x=6 y=6 groundLayer="stone2" />
-			<ground x=6 y=5 groundLayer="stone2" />
-			<ground x=7 y=4 groundLayer="stone2" />
-			<ground x=8 y=4 groundLayer="stone2" />
-			
-			<ground x=11 y=1 groundLayer="stone2" />
-			<ground x=11 y=2 groundLayer="stone2" />
-			<ground x=11 y=3 groundLayer="stone2" />
-			<ground x=11 y=4 groundLayer="stone2" />
-			<ground x=11 y=5 groundLayer="stone2" />
-			<ground x=11 y=6 groundLayer="stone2" />
-			<ground x=12 y=4 groundLayer="stone2" />
-			<ground x=12 y=5 groundLayer="stone2" />
-			<ground x=13 y=2 groundLayer="stone2" />
-			<ground x=13 y=3 groundLayer="stone2" />
-			<ground x=14 y=1 groundLayer="stone2" />
-			<ground x=14 y=2 groundLayer="stone2" />
-			<ground x=14 y=3 groundLayer="stone2" />
-			<ground x=14 y=4 groundLayer="stone2" />
-			<ground x=14 y=5 groundLayer="stone2" />
-			<ground x=14 y=6 groundLayer="stone2" />
+			<drawGround groundLayer="stoneSlab1">
+				0000000000000000
+				0100101111010010
+				0110100001010110
+				0110100111010110
+				0101101001011010
+				0101101001011010
+				0100101111010010
+				0000000000000000
+			</drawGround>
 		</spawnPoint>
-	</pois>-->
-	
-	<pois type="poisson" distance=1800 useGridPosition=1 startInCenter=1 >
-		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"   >
-			<size x=8 y=8 />
-			<pathConnection path="stonePath" />
-		</spawnPoint>
-		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone"  >
+		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone"  preventGroundSpawning="false"  >
+			<subSpawn spawnGroup="monstersRoom1" />
 			<pathConnection path="stonePath" />
 			<size x=8 y=8 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+		<spawnPoint  spawnProbability=.2 unique=1  changeGroundLayerTo="stone"  >
+			<subSpawn spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=10 y=9 />
+			<drawGround groundLayer="stoneSlab1">
+				0000000000
+				0111001110
+				0010000100
+				0010000100
+				0011111100
+				0010000100
+				0010000100
+				0111001110
+				0000000000
+			</drawGround>
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stoneSlab1"  >
+			<subSpawn x=-4.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-4 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-3.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-1.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-1 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=.5 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=1.5 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=2 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=3.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=2.5  spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=-2.5  spawnGroup="floorFurnituresSpawn" />
+			<subSpawn spawnGroup="monstersRoom1" />
 			<pathConnection path="stonePath" />
 			<size x=10 y=6 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone2"  >
-			<spawnPoint x=1 y=1 spawnGroup="smallFurnituresSpawn" />
+		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone2"  >
+			<subSpawn x=-4.5 y=-4.5 spawnProbability=.75 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=1 y=2 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=-2 y=3 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=0 y=-3 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn spawnGroup="monstersRoom1" />
 			<pathConnection path="stonePath" />
 			<size x=10 y=10 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
 			<pathConnection path="stonePath" />
 			<size x=12 y=12 />
+			<drawGround groundLayer="stoneSlab1">
+				000000000000
+				011111111110
+				010000000010
+				010000000010
+				010010010010
+				010001100010
+				010001100010
+				010010010010
+				010000000010
+				010000000010
+				011111111110
+				000000000000
+			</drawGround>
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+			<drawGround groundLayer="stoneSlab1">
+				000000000000
+				011111111110
+				010000000010
+				010111111010
+				010100001010
+				010101101010
+				010101101010
+				010100001010
+				010111111010
+				010000000010
+				011111111110
+				000000000000
+			</drawGround>
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+			<drawGround groundLayer="stone2">
+				000000000000
+				011110011110
+				011110011110
+				011110011110
+				011110011110
+				000000000000
+				000000000000
+				011110011110
+				011110011110
+				011110011110
+				011110011110
+				000000000000
+			</drawGround>
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.1   >
 			<pathConnection path="stonePath" />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="stone" changeSpawnTypeTo="none"  >
-			<pathConnection path="stonePath" />
-			<size x=16 y=8 />
-			<ground x=1 y=1 groundLayer="stone2" />
-			<ground x=1 y=2 groundLayer="stone2" />
-			<ground x=1 y=3 groundLayer="stone2" />
-			<ground x=1 y=4 groundLayer="stone2" />
-			<ground x=1 y=5 groundLayer="stone2" />
-			<ground x=1 y=6 groundLayer="stone2" />
-			<ground x=2 y=2 groundLayer="stone2" />
-			<ground x=2 y=3 groundLayer="stone2" />
-			<ground x=3 y=4 groundLayer="stone2" />
-			<ground x=3 y=5 groundLayer="stone2" />
-			<ground x=4 y=1 groundLayer="stone2" />
-			<ground x=4 y=2 groundLayer="stone2" />
-			<ground x=4 y=3 groundLayer="stone2" />
-			<ground x=4 y=4 groundLayer="stone2" />
-			<ground x=4 y=5 groundLayer="stone2" />
-			<ground x=4 y=6 groundLayer="stone2" />
-			
-			<ground x=6 y=2 groundLayer="stone2" />
-			<ground x=7 y=2 groundLayer="stone2" />
-			<ground x=8 y=2 groundLayer="stone2" />
-			<ground x=9 y=2 groundLayer="stone2" />
-			<ground x=9 y=3 groundLayer="stone2" />
-			<ground x=9 y=4 groundLayer="stone2" />
-			<ground x=9 y=5 groundLayer="stone2" />
-			<ground x=9 y=6 groundLayer="stone2" />
-			<ground x=8 y=6 groundLayer="stone2" />
-			<ground x=7 y=6 groundLayer="stone2" />
-			<ground x=6 y=6 groundLayer="stone2" />
-			<ground x=6 y=5 groundLayer="stone2" />
-			<ground x=7 y=4 groundLayer="stone2" />
-			<ground x=8 y=4 groundLayer="stone2" />
-			
-			<ground x=11 y=1 groundLayer="stone2" />
-			<ground x=11 y=2 groundLayer="stone2" />
-			<ground x=11 y=3 groundLayer="stone2" />
-			<ground x=11 y=4 groundLayer="stone2" />
-			<ground x=11 y=5 groundLayer="stone2" />
-			<ground x=11 y=6 groundLayer="stone2" />
-			<ground x=12 y=4 groundLayer="stone2" />
-			<ground x=12 y=5 groundLayer="stone2" />
-			<ground x=13 y=2 groundLayer="stone2" />
-			<ground x=13 y=3 groundLayer="stone2" />
-			<ground x=14 y=1 groundLayer="stone2" />
-			<ground x=14 y=2 groundLayer="stone2" />
-			<ground x=14 y=3 groundLayer="stone2" />
-			<ground x=14 y=4 groundLayer="stone2" />
-			<ground x=14 y=5 groundLayer="stone2" />
-			<ground x=14 y=6 groundLayer="stone2" />
-		</spawnPoint>
 	</pois>
 	
-	<distribution type="spawnGroup" spawnGrounp="smallFurnituresSpawn" spawnType="safe">
+	<distribution type="path" pathName="stonePath" distance=1>
+		<spawnPoint  spawnProbability=.05    >
+			<character path="../furnitures/barrel1XML.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=60 />
+		</spawnPoint>
+	</distribution>
+	
+	<distribution type="path" pathName="stonePath" distance=1 spawnType="unsafe">
+		<spawnPoint  spawnProbability=.05>
+			<character path="../duck/duckXML.txt" amount="[1,3]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-50,0]" />
+		</spawnPoint>
+	</distribution>
+	
+	
+	
+	<distribution type="spawnGroup" spawnGroup="smallFurnituresSpawn" spawnType="safe">
 		<spawnPoint spawnProbability=1>
 			<character path="../furnitures/barrel1XML.txt" />
-			<modifier type="position" rng="uniform" z=60 />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=60 />
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<prefab path="../furnitures/chest1Prefab.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" />
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<prefab path="../furnitures/jar1Prefab.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=10 />
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="bag1" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=3 />
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="bag2" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=1 />
+		</spawnPoint>
+	</distribution>
+	
+	<distribution type="spawnGroup" spawnGroup="floorFurnituresSpawn" spawnType="safe">
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="rug1" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=.1 />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="rug2" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=.1 />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="rug3" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=.1 />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
+		</spawnPoint>
+		<spawnPoint spawnProbability=1>
+			<sprite sprite="rug4" spritesheet="../furnitures/furnitures1SpriteSheet.txt" />
+			<modifier type="position" rng="uniform" x="[-16,16]" y="[-16,16]" z=.1 />
+			<!--<modifier type="rotation" rng="uniform" z="[-180,180]" />-->
+		</spawnPoint>
+	</distribution>
+	
+	<distribution type="spawnGroup" spawnGroup="monstersRoom1" spawnType="unsafe">
+		<spawnPoint  spawnProbability=.7>
+			<character path="../duck/duckXML.txt" amount="[3,5]" />
+			<modifier type="position" rng="uniform" x="[-300,300]" y="[-300,300]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.3>
+			<character path="../duck/duckXML.txt" amount="[5,8]" />
+			<modifier type="position" rng="uniform" x="[-300,300]" y="[-300,300]" />
+		</spawnPoint>
+		<spawnPoint   spawnProbability=0.01>
+			<character path="../duck/duckWhiteXML.txt"  />
+			<character path="../duck/duckXML.txt" amount="[5,8]" />
+			<modifier type="position" rng="uniform" x="[-300,300]" y="[-300,300]" />
 		</spawnPoint>
 	</distribution>
 	

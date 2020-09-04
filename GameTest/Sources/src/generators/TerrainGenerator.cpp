@@ -186,21 +186,24 @@ void TerrainGenerator::setSpawnType(int x, int y, TerrainGenerator_SpawnType spa
     m_generatingGrid[y * m_gridSize.x + x].spawnType = spawnType;
 }
 
-void TerrainGenerator::setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer)
+void TerrainGenerator::setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer, bool preventGroundSpawning)
 {
     auto gridPos = this->worldToGridPosition(worldPos);
-    this->setGroundLayer(gridPos.x, gridPos.y, groundLayer);
+    this->setGroundLayer(gridPos.x, gridPos.y, groundLayer,preventGroundSpawning);
 }
-void TerrainGenerator::setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer)
+void TerrainGenerator::setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer, bool preventGroundSpawning)
 {
     if(x < 0 || y < 0 || x >= m_gridSize.x || y >= m_gridSize.y)
         return;
 
-    if(m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning)
+    auto p = y * m_gridSize.x + x;
+
+    if(m_generatingGrid[p].preventGroundSpawning)
         return;
 
-    m_generatingGrid[y * m_gridSize.x + x].groundLayer = groundLayer;
-    m_generatingGrid[y * m_gridSize.x + x].preventGroundSpawning = true;
+    m_generatingGrid[p].groundLayer = groundLayer;
+    if(preventGroundSpawning)
+        m_generatingGrid[p].preventGroundSpawning = true;
 }
 
 void TerrainGenerator::addPathType(glm::vec2 worldPos, pou::HashedString pathName)

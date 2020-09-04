@@ -11,6 +11,7 @@ namespace XMLLoader
 {
     bool loadFloat(float &v, TiXmlElement *element, const std::string &attName);
     bool loadInt(int &v, TiXmlElement *element, const std::string &attName);
+    bool loadBool(bool &v, TiXmlElement *element, const std::string &attName);
     bool loadColor(Color &color, TiXmlElement *element);
 }
 

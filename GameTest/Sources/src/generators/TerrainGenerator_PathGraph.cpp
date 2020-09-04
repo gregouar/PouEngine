@@ -99,7 +99,7 @@ void TerrainGenerator_PathGraph::generatesOnTerrain(TerrainGenerator *terrain, p
         for(auto cell : rasterizedPath)
         {
             for(auto sample : samples)
-                terrain->setGroundLayer(cell.x + sample.x, cell.y + sample.y, m_groundLayer);
+                terrain->setGroundLayer(cell.x + sample.x, cell.y + sample.y, m_groundLayer, m_parameters.preventGroundSpawning);
         }
         m_rasterizedEdges.push_back(std::move(rasterizedPath));
     }
@@ -123,6 +123,7 @@ void TerrainGenerator_PathGraph::loadParameters(TiXmlElement *pathElement, pou::
 
     pou::XMLLoader::loadFloat(m_parameters.cycleFactor,pathElement,"cycleFactor");
     pou::XMLLoader::loadInt(m_parameters.width,pathElement,"width");
+    pou::XMLLoader::loadBool(m_parameters.preventGroundSpawning,pathElement,"preventGroundSpawning");
 
     m_heuristicType = pou::AstarGrid_EuclideanHeuristic;
     auto heuristicAtt = pathElement->Attribute("heuristic");

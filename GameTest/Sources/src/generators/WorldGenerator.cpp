@@ -126,6 +126,23 @@ void WorldGenerator::updateSunsAndAmbientLight(std::list<std::shared_ptr<pou::Li
 }
 
 
+void WorldGenerator::addToSpawnGroup(pou::HashedString spawnGroupName, glm::vec2 position)
+{
+    m_spawnGroups.insert({spawnGroupName, position});
+}
+
+std::vector<glm::vec2> WorldGenerator::getSpawnGroup(pou::HashedString spawnGroupName)
+{
+    std::vector<glm::vec2> positions;
+
+    auto range = m_spawnGroups.equal_range(spawnGroupName);
+    positions.reserve(std::distance(range.first, range.second));
+    for(auto rangeIt = range.first ; rangeIt != range.second ; ++rangeIt)
+        positions.push_back(rangeIt->second);
+
+    return positions;
+}
+
 void WorldGenerator::playWorldMusic()
 {
     if(m_parameters.musicModel.isEvent())
@@ -152,6 +169,11 @@ const std::string &WorldGenerator::getFilePath()
 int WorldGenerator::getGeneratingSeed()
 {
     return m_generatingSeed;
+}
+
+TerrainGenerator *WorldGenerator::terrain()
+{
+    return &m_terrainGenerator;
 }
 
 std::pair<glm::vec2, glm::vec2> WorldGenerator::getWorldBounds()
@@ -188,7 +210,7 @@ bool WorldGenerator::loadFromXML(TiXmlHandle *hdl)
     {
         auto poisElement = poisChild.Element();
         if(poisElement)
-            m_pointsOfInterest.loadFromXML(m_fileDirectory, poisElement, &m_terrainGenerator);
+            m_pointsOfInterest.loadFromXML(m_fileDirectory, poisElement, this);
     }
 
     auto distributionChild = hdl->FirstChildElement("distribution");
@@ -198,7 +220,7 @@ bool WorldGenerator::loadFromXML(TiXmlHandle *hdl)
         if(distributionElement)
         {
             m_distributions.emplace_back();
-            if(!m_distributions.back().loadFromXML(m_fileDirectory, distributionElement, &m_terrainGenerator))
+            if(!m_distributions.back().loadFromXML(m_fileDirectory, distributionElement, this))
                 m_distributions.pop_back();
         }
         distributionChild = distributionChild.Element()->NextSiblingElement("distribution");

@@ -4,6 +4,8 @@
 #include "generators/TerrainGenerator.h"
 #include "assets/PrefabAsset.h"
 
+class WorldGenerator;
+
 enum WorldGenerator_SpawnPoint_ModifierTypes
 {
     WorldGenerator_SpawnPoint_ModifierType_Position,
@@ -68,6 +70,7 @@ struct WorldGenerator_SpawnPoint_Parameters
 
     bool changeGroundLayerTo;
     const TerrainGenerator_GroundLayer *newGroundLayer;
+    bool preventGroundSpawning;
 
 };
 
@@ -81,10 +84,23 @@ struct WorldGenerator_SpawnPoint_PathConnection
     glm::vec2 position;
 };
 
+struct WorldGenerator_SpawnPoint_SubSpawn
+{
+    WorldGenerator_SpawnPoint_SubSpawn();
+
+    float   spawnProbability;
+
+    pou::HashedString spawnGroupName;
+    glm::vec2 position;
+};
+
 struct WorldGenerator_SpawnPoint_Ground
 {
+    WorldGenerator_SpawnPoint_Ground();
+
     glm::ivec2 position;
     const TerrainGenerator_GroundLayer *groundLayer;
+    bool preventGroundSpawning;
     //pou::HashedString groundName;
 };
 
@@ -94,7 +110,7 @@ class WorldGenerator_SpawnPoint
         WorldGenerator_SpawnPoint();
         virtual ~WorldGenerator_SpawnPoint();
 
-        bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator);
+        bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, WorldGenerator *worldGenerator);
 
         void generatesOnNode(glm::vec2 worldPos, float pointRotation,
                              pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
@@ -111,7 +127,9 @@ class WorldGenerator_SpawnPoint
         void loadSprite(TiXmlElement *element);
         void loadPrefab(TiXmlElement *element);
         void loadPathConnection(TiXmlElement *element);
+        void loadSubSpawnPoint(TiXmlElement *element);
         void loadGroundElement(TiXmlElement *element);
+        void loadDrawGroundElement(TiXmlElement *element);
 
         void loadRandomModifierValue(TiXmlElement *element, int index, WorldGenerator_SpawnPoint_Modifier &modifier);
 
@@ -131,11 +149,14 @@ class WorldGenerator_SpawnPoint
         void spawnPathConnection(WorldGenerator_SpawnPoint_PathConnection &pathConnection, glm::vec2 worldPos,
                                  pou::RNGenerator *rng);
 
+        void spawnSubSpawn(WorldGenerator_SpawnPoint_SubSpawn &subSpawn, glm::vec2 worldPos,
+                                 pou::RNGenerator *rng);
+
         void applyRandomModifiers(pou::SceneNode *targetNode, float pointRotation, pou::RNGenerator *rng);
 
 
     private:
-        TerrainGenerator *m_terrain;
+        WorldGenerator *m_worldGenerator;
         std::string m_fileDirectory;
 
         std::vector<CharacterSpawn>         m_characterSpawnModels;
@@ -143,7 +164,8 @@ class WorldGenerator_SpawnPoint
         std::vector<PrefabAsset*>           m_prefabAssets;
         std::vector<WorldGenerator_SpawnPoint_Ground> m_groundElements;
 
-        std::vector<WorldGenerator_SpawnPoint_PathConnection> m_pathConnections;
+        std::vector<WorldGenerator_SpawnPoint_PathConnection>   m_pathConnections;
+        std::vector<WorldGenerator_SpawnPoint_SubSpawn>         m_subSpawnPoints;
 
         WorldGenerator_SpawnPoint_Parameters m_parameters;
         WorldGenerator_SpawnPoint_Modifier m_randomModifiers[NBR_WorldGenerator_SpawnPoint_ModifierTypes];

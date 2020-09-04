@@ -10,14 +10,39 @@
 		<!--<center 	x="9" 	y="9" 	/>-->
 		<position 	x="1" 	y="21"	/>
 	</sprite>
-	<sprite name="bag1" castShadow="true">
+	<sprite name="bag1" castShadow="false">
 		<size 		x="9" 	y="9" 	/>
 		<center 	x="4.5" 	y="4.5" 	/>
 		<position 	x="20" 	y="21"	/>
 	</sprite>
-	<sprite name="bag2" castShadow="true">
+	<sprite name="bag2" castShadow="false">
 		<size 		x="14" 	y="16" 	/>
 		<center 	x="7" 	y="8" 	/>
 		<position 	x="30" 	y="21"	/>
+	</sprite>
+	
+	<sprite name="rug1" castShadow="false">
+		<size 		x=96 	y=64 	/>
+		<center 	x=48 	y=32 	/>
+		<position 	x=0 	y=39	/>
+		<surface  roughness=.9 />
+	</sprite>
+	<sprite name="rug2" castShadow="false">
+		<size 		x=96 	y=64 	/>
+		<center 	x=48 	y=32 	/>
+		<position 	x=0 	y=103	/>
+		<surface  roughness=.9 />
+	</sprite>
+	<sprite name="rug3" castShadow="false">
+		<size 		x=96 	y=64 	/>
+		<center 	x=48 	y=32 	/>
+		<position 	x=0 	y=167	/>
+		<surface  roughness=.9 />
+	</sprite>
+	<sprite name="rug4" castShadow="false">
+		<size 		x=96 	y=64 	/>
+		<center 	x=48 	y=32 	/>
+		<position 	x=0 	y=231	/>
+		<surface  roughness=.9 />
 	</sprite>
 </spritesheet>

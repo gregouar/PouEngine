@@ -42,6 +42,21 @@ bool loadInt(int &v, TiXmlElement *element, const std::string &attName)
     return (false);
 }
 
+bool loadBool(bool &v, TiXmlElement *element, const std::string &attName)
+{
+    if(!element)
+        return (false);
+
+    auto att = element->Attribute(attName.c_str());
+    if(att && pou::Parser::isBool(att))
+    {
+        v = pou::Parser::parseBool(att);
+        return (true);
+    }
+
+    return (false);
+}
+
 bool loadColor(Color &color, TiXmlElement *element)
 {
     if(!element)

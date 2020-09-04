@@ -92,8 +92,8 @@ class TerrainGenerator
         void setSpawnType(glm::vec2 worldPos, TerrainGenerator_SpawnType spawnType);
         void setSpawnType(int x, int y, TerrainGenerator_SpawnType spawnType);
 
-        void setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer);
-        void setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer);
+        void setGroundLayer(glm::vec2 worldPos, const TerrainGenerator_GroundLayer *groundLayer, bool preventGroundSpawning);
+        void setGroundLayer(int x, int y, const TerrainGenerator_GroundLayer *groundLayer, bool preventGroundSpawning);
 
         void addPathType(glm::vec2 worldPos, pou::HashedString pathName);
         void addPathType(int x, int y, pou::HashedString pathName);

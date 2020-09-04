@@ -2,6 +2,7 @@
 
 #include "PouEngine/assets/AssetHandler.h"
 #include "assets/CharacterModelAsset.h"
+#include "generators/WorldGenerator.h"
 
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/tools/Logger.h"
@@ -29,7 +30,8 @@ WorldGenerator_SpawnPoint_Parameters::WorldGenerator_SpawnPoint_Parameters() :
     changeSpawnTypeTo(false),
     newSpawnType(TerrainGenerator_SpawnType_None),
     changeGroundLayerTo(false),
-    newGroundLayer(nullptr)
+    newGroundLayer(nullptr),
+    preventGroundSpawning(true)
 {
 
 }
@@ -43,6 +45,30 @@ WorldGenerator_SpawnPoint_PathConnection::WorldGenerator_SpawnPoint_PathConnecti
     spawnProbability(1.0f),
     pathName(0),
     position(0)
+{
+
+}
+
+///
+///WorldGenerator_SpawnPoint_SubSpawn
+///
+
+WorldGenerator_SpawnPoint_SubSpawn::WorldGenerator_SpawnPoint_SubSpawn() :
+    spawnProbability(1.0f),
+    spawnGroupName(0),
+    position(0)
+{
+
+}
+
+///
+///WorldGenerator_SpawnPoint_Ground
+///
+
+WorldGenerator_SpawnPoint_Ground::WorldGenerator_SpawnPoint_Ground() :
+    position(0),
+    groundLayer(nullptr),
+    preventGroundSpawning(true)
 {
 
 }
@@ -64,11 +90,11 @@ WorldGenerator_SpawnPoint::~WorldGenerator_SpawnPoint()
     //dtor
 }
 
-bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator)
+bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, TiXmlElement *element, WorldGenerator *worldGenerator)
 {
     bool r = true;
 
-    m_terrain = terrainGenerator;
+    m_worldGenerator = worldGenerator;
     m_fileDirectory = fileDirectory;
 
     if(!this->loadParameters(element, m_parameters))
@@ -127,12 +153,27 @@ bool WorldGenerator_SpawnPoint::loadFromXML(const std::string &fileDirectory, Ti
         pathChild = pathChild->NextSiblingElement("pathConnection");
     }
 
+    auto subSpawnChild = element->FirstChildElement("subSpawn");
+    while(subSpawnChild != nullptr)
+    {
+        this->loadSubSpawnPoint(subSpawnChild->ToElement());
+        subSpawnChild = subSpawnChild->NextSiblingElement("subSpawn");
+    }
+
     auto groundChild = element->FirstChildElement("ground");
     while(groundChild != nullptr)
     {
         this->loadGroundElement(groundChild->ToElement());
         groundChild = groundChild->NextSiblingElement("ground");
     }
+
+    auto drawGroundChild = element->FirstChildElement("drawGround");
+    if(drawGroundChild)
+    {
+        this->loadDrawGroundElement(drawGroundChild->ToElement());
+        drawGroundChild = drawGroundChild->NextSiblingElement("drawGround");
+    }
+       // std::cout<<drawGroundChild->ToElement()->GetText()<std::endl;
 
     return r;
 }
@@ -160,16 +201,18 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
         this->spawnPrefab(prefabModel, worldPos, pointRotation,
                           targetNode, syncComponent, generateCharacters, rng);
 
-
     for(auto &pathConnection : m_pathConnections)
         this->spawnPathConnection(pathConnection, worldPos, rng);
 
-    auto startingPos = worldPos - glm::vec2(m_gridSize) * 0.5f * m_terrain->getTileSize();
+    for(auto &subSpawn : m_subSpawnPoints)
+        this->spawnSubSpawn(subSpawn, worldPos, rng);
+
+    auto startingPos = worldPos - glm::vec2(m_gridSize) * 0.5f * m_worldGenerator->terrain()->getTileSize();
 
     for(auto groundElement : m_groundElements)
     {
-        auto worldElementPos = startingPos + glm::vec2(groundElement.position) * m_terrain->getTileSize();
-        m_terrain->setGroundLayer(worldElementPos, groundElement.groundLayer);
+        auto worldElementPos = startingPos + glm::vec2(groundElement.position) * m_worldGenerator->terrain()->getTileSize();
+        m_worldGenerator->terrain()->setGroundLayer(worldElementPos, groundElement.groundLayer, groundElement.preventGroundSpawning);
     }
 
     //if(m_parameters.changeSpawnTypeTo || m_parameters.changeGroundLayerTo || !m_pathConnections.empty())
@@ -180,18 +223,19 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
             if(m_radius > 0 && glm::length(glm::vec2(x,y) + glm::vec2(.5) - glm::vec2(m_gridSize) * 0.5f) > m_radius)
                 continue;
 
-            auto gridElementPos = startingPos + glm::vec2(x,y) * m_terrain->getTileSize();
+            auto gridElementPos = startingPos + glm::vec2(x,y) * m_worldGenerator->terrain()->getTileSize();
 
             if(m_parameters.changeSpawnTypeTo)
-                m_terrain->setSpawnType(gridElementPos, m_parameters.newSpawnType);
+                m_worldGenerator->terrain()->setSpawnType(gridElementPos, m_parameters.newSpawnType);
             if(m_parameters.changeGroundLayerTo)
-                m_terrain->setGroundLayer(gridElementPos, m_parameters.newGroundLayer);
+                m_worldGenerator->terrain()->setGroundLayer(gridElementPos, m_parameters.newGroundLayer,
+                                                            m_parameters.preventGroundSpawning);
 
             for(auto &pathConnection : m_pathConnections)
-                m_terrain->addPathType(gridElementPos, pathConnection.pathName);
+                m_worldGenerator->terrain()->addPathType(gridElementPos, pathConnection.pathName);
 
             if(m_pathConnections.empty())
-                m_terrain->addPathType(gridElementPos, 0);
+                m_worldGenerator->terrain()->addPathType(gridElementPos, 0);
         }
     }
 }
@@ -201,8 +245,8 @@ float WorldGenerator_SpawnPoint::getSpawnProbability(glm::vec2 worldPos)
     if(m_parameters.unique && m_hasSpawn)
         return (0);
 
-    auto gridPos = m_terrain->worldToGridPosition(worldPos);
-    if(m_parameters.groundLayer && m_terrain->getGridGroundLayer(gridPos.x, gridPos.y) != m_parameters.groundLayer)
+    auto gridPos = m_worldGenerator->terrain()->worldToGridPosition(worldPos);
+    if(m_parameters.groundLayer && m_worldGenerator->terrain()->getGridGroundLayer(gridPos.x, gridPos.y) != m_parameters.groundLayer)
         return (0);
 
     return m_parameters.spawnProbability;
@@ -230,7 +274,7 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
 
     auto hashedGroundLayerName = pou::Hasher::unique_hash(groundLayerAtt);
     if(groundLayerAtt)
-        parameters.groundLayer = m_terrain->getGroundLayer(hashedGroundLayerName);
+        parameters.groundLayer = m_worldGenerator->terrain()->getGroundLayer(hashedGroundLayerName);
 
     if(spawnProbabilityAtt)
     {
@@ -265,9 +309,10 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
     {
         auto hashedChangeGroundLayer = pou::Hasher::unique_hash(changeGroundLayerAtt);
         parameters.changeGroundLayerTo = true;
-        parameters.newGroundLayer = m_terrain->getGroundLayer(hashedChangeGroundLayer);
+        parameters.newGroundLayer = m_worldGenerator->terrain()->getGroundLayer(hashedChangeGroundLayer);
     }
 
+    pou::XMLLoader::loadBool(parameters.preventGroundSpawning, element, "preventGroundSpawning");
 
     return (true);
 }
@@ -371,28 +416,71 @@ void WorldGenerator_SpawnPoint::loadPathConnection(TiXmlElement *pathElement)
     auto hashedPathName = pou::Hasher::unique_hash(pathAtt);
     auto &pathConnection = m_pathConnections.emplace_back();
     pathConnection.pathName = hashedPathName;
+
+    pou::XMLLoader::loadFloat(pathConnection.position.x, pathElement, "x");
+    pou::XMLLoader::loadFloat(pathConnection.position.y, pathElement, "y");
+
+    pou::XMLLoader::loadFloat(pathConnection.spawnProbability, pathElement, "spawnProbability");
+}
+
+void WorldGenerator_SpawnPoint::loadSubSpawnPoint(TiXmlElement *subSpawnElement)
+{
+    auto spawnGroupAtt = subSpawnElement->Attribute("spawnGroup");
+
+    if(!spawnGroupAtt)
+        return;
+
+    auto hashedSpawnGroup = pou::Hasher::unique_hash(spawnGroupAtt);
+    auto &subSpawn = m_subSpawnPoints.emplace_back();
+    subSpawn.spawnGroupName = hashedSpawnGroup;
+
+    pou::XMLLoader::loadFloat(subSpawn.position.x, subSpawnElement, "x");
+    pou::XMLLoader::loadFloat(subSpawn.position.y, subSpawnElement, "y");
+
+    pou::XMLLoader::loadFloat(subSpawn.spawnProbability, subSpawnElement, "spawnProbability");
 }
 
 
 void WorldGenerator_SpawnPoint::loadGroundElement(TiXmlElement *pathElement)
 {
     auto groundLayerAtt = pathElement->Attribute("groundLayer");
-    auto posXAtt = pathElement->Attribute("x");
-    auto posYAtt = pathElement->Attribute("y");
 
     if(!groundLayerAtt)
         return;
 
     auto hashedGroundName = pou::Hasher::unique_hash(groundLayerAtt);
     auto &groundElement = m_groundElements.emplace_back();
-    groundElement.groundLayer = m_terrain->getGroundLayer(hashedGroundName);
+    groundElement.groundLayer = m_worldGenerator->terrain()->getGroundLayer(hashedGroundName);
 
-    auto gridPos = glm::ivec2(0);
-    if(posXAtt && pou::Parser::isInt(posXAtt))
-        gridPos.x = pou::Parser::parseInt(posXAtt);
-    if(posYAtt && pou::Parser::isInt(posYAtt))
-        gridPos.y = pou::Parser::parseInt(posYAtt);
-    groundElement.position = gridPos;
+    pou::XMLLoader::loadInt(groundElement.position.x, pathElement, "x");
+    pou::XMLLoader::loadInt(groundElement.position.y, pathElement, "y");
+}
+
+void WorldGenerator_SpawnPoint::loadDrawGroundElement(TiXmlElement *pathElement)
+{
+    auto groundLayerAtt = pathElement->Attribute("groundLayer");
+
+    if(!groundLayerAtt)
+        return;
+
+    auto hashedGroundName = pou::Hasher::unique_hash(groundLayerAtt);
+
+    auto bmpStr = std::string(pathElement->GetText());
+    int t = 0;
+    for(auto c : bmpStr)
+    {
+        if(c == '0')
+            t++;
+        if(c == '1')
+        {
+            glm::ivec2 pos(t % m_gridSize.x, t / m_gridSize.x);
+            t++;
+
+            auto &groundElement = m_groundElements.emplace_back();
+            groundElement.groundLayer = m_worldGenerator->terrain()->getGroundLayer(hashedGroundName);
+            groundElement.position = pos;
+        }
+    }
 }
 
 
@@ -499,9 +587,21 @@ void WorldGenerator_SpawnPoint::spawnPathConnection(WorldGenerator_SpawnPoint_Pa
     if(probability > pathConnection.spawnProbability)
         return;
 
-    m_terrain->addPathConnection(pathConnection.pathName, worldPos);
+    m_worldGenerator->terrain()->addPathConnection(pathConnection.pathName, worldPos);
 }
 
+
+void WorldGenerator_SpawnPoint::spawnSubSpawn(WorldGenerator_SpawnPoint_SubSpawn &subSpawn, glm::vec2 worldPos,
+                         pou::RNGenerator *rng)
+{
+    float probability = pou::RNGesus::uniformFloat(0.0f, 1.0f, rng);
+    if(probability > subSpawn.spawnProbability)
+        return;
+
+    worldPos += subSpawn.position * m_worldGenerator->terrain()->getTileSize();
+
+    m_worldGenerator->addToSpawnGroup(subSpawn.spawnGroupName, worldPos);
+}
 
 glm::vec4 WorldGenerator_SpawnPoint::generateRandomValue(WorldGenerator_SpawnPoint_Modifier &modifier, pou::RNGenerator *rng)
 {

@@ -21,10 +21,14 @@ struct TerrainGenerator_PathGraph_GridCell
 
 struct TerrainGenerator_PathGraph_Parameters
 {
-    TerrainGenerator_PathGraph_Parameters() : width(1), cycleFactor(2){};
+    TerrainGenerator_PathGraph_Parameters() :
+            width(1),
+            cycleFactor(2),
+            preventGroundSpawning(true){};
 
     int width;
     float cycleFactor;
+    bool preventGroundSpawning;
 };
 
 enum TerrainGenerator_PathGraph_NoiseType

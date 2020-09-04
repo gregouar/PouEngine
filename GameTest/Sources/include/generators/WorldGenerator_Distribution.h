@@ -4,6 +4,8 @@
 #include "generators/WorldGenerator_SpawnPoint.h"
 #include "generators/PoissonDiskSampler.h"
 
+class WorldGenerator;
+
 enum WorldGenerator_DistributionType
 {
     WorldGenerator_DistributionType_Uniform,
@@ -47,7 +49,7 @@ class WorldGenerator_Distribution
         WorldGenerator_Distribution();
         virtual ~WorldGenerator_Distribution();
 
-        bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, TerrainGenerator *terrainGenerator);
+        bool loadFromXML(const std::string &fileDirectory, TiXmlElement *element, WorldGenerator *worldGenerator);
 
         void generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                              bool generateCharacters, pou::RNGenerator *rng);
@@ -61,13 +63,13 @@ class WorldGenerator_Distribution
     private:
         WorldGenerator_Distribution_Parameters m_parameters;
 
-        TerrainGenerator *m_terrain;
+        WorldGenerator *m_worldGenerator;
 
         std::vector<WorldGenerator_SpawnPoint> m_spawnPoints;
 
         std::vector<glm::vec2> m_dummyUniformSampler;
         PoissonDiskSampler m_poissonDiskSampler;
-        std::vector<glm::vec2> m_pathSampler;
+        std::vector<glm::vec2> m_otherSampler;
 
         std::vector<float> m_distributedRotations;
 

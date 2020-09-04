@@ -19,12 +19,14 @@ void main()
 
     //vec3 final  = opac * (1.0f-alpha.a) + alpha.rgb * alpha.a;
 
-    vec3 hdrFrag  = texture(samplerHdr,inUV).rgb;
+    vec4 hdrFrag  = texture(samplerHdr,inUV);
 
     vec3 hdrBloomFrag  = texture(samplerBloomHdr,inUV).rgb;
-    hdrFrag += hdrBloomFrag;
+    hdrFrag.rgb += hdrBloomFrag;
 
-    outColor = vec4(vec3(1.0) - exp(-hdrFrag * exposure), 1.0);
+    outColor = vec4(vec3(1.0) - exp(-hdrFrag.rgb * exposure), 1.0);
     outColor.rgb = pow(outColor.rgb, vec3(1.0/2.2));
+
+    outColor.rgb = mix(vec3(0.0), outColor.rgb ,hdrFrag.a);
 }
 

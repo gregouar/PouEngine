@@ -325,8 +325,8 @@ void GameWorld::createPlayerCamera(Player *player)
         m_worldGenerator.playWorldMusic();
 
         ///FOR TESTING
-        //m_camera->setZoom(.2);
-        //m_worldGrid->setRenderProbe(cameraNode.get(),15000);
+        m_camera->setZoom(.2);
+        m_worldGrid->setRenderProbe(cameraNode.get(),15000);
     }
 }
 

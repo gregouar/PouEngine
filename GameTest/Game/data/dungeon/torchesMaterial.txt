@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>TorchesMaterial</name>
+	<texture type="albedo">torches.png</texture>
+	<texture type="rme">torches_rme.png</texture>
+	<roughness>0.9</roughness>
+	<metalness>0</metalness>
+	<emissivity>0.25</emissivity>
+</material>
