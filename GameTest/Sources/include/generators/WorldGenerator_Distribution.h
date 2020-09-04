@@ -9,6 +9,8 @@ enum WorldGenerator_DistributionType
     WorldGenerator_DistributionType_Uniform,
     WorldGenerator_DistributionType_Poisson,
     WorldGenerator_DistributionType_Path,
+    WorldGenerator_DistributionType_SpawnGroup,
+    WorldGenerator_DistributionType_None,
 };
 
 struct WorldGenerator_Distribution_Parameters
@@ -25,6 +27,7 @@ struct WorldGenerator_Distribution_Parameters
     bool useGridPosition;
 
     pou::HashedString pathName; //For WorldGenerator_DistributionType_Path
+    pou::HashedString spawnGroupName; //For WorldGenerator_DistributionType_SpawnGroup
 };
 
 struct WorldGenerator_Distribution_DistributedPoints

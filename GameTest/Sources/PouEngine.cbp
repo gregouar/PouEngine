@@ -43,6 +43,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -81,6 +82,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -124,6 +126,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -164,6 +167,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -206,6 +210,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -248,6 +253,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -285,6 +291,7 @@
 					<Add directory="GameTest/Sources/include/audio" />
 					<Add directory="GameTest/Sources/include/sync" />
 					<Add directory="PouEngine/include/PouEngine/math" />
+					<Add directory="PouEngine/include/PouEngine/system" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -400,6 +407,7 @@
 		<Unit filename="../../PouEngine/include/PouEngine/system/Stream.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/Timer.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/system/WriteStream.h" />
+		<Unit filename="../../PouEngine/include/PouEngine/system/XMLLoader.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/text/AbstractTextImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/text/FreeTypeTextImpl.h" />
 		<Unit filename="../../PouEngine/include/PouEngine/text/Glyph.h" />
@@ -691,6 +699,7 @@
 		<Unit filename="../../PouEngine/src/system/Stream.cpp" />
 		<Unit filename="../../PouEngine/src/system/Timer.cpp" />
 		<Unit filename="../../PouEngine/src/system/WriteStream.cpp" />
+		<Unit filename="../../PouEngine/src/system/XMLLoader.cpp" />
 		<Unit filename="../../PouEngine/src/text/AbstractTextImpl.cpp" />
 		<Unit filename="../../PouEngine/src/text/FreeTypeTextImpl.cpp" />
 		<Unit filename="../../PouEngine/src/text/Glyph.cpp" />
@@ -768,6 +777,7 @@
 		<Unit filename="include/world/GameWorld.h" />
 		<Unit filename="include/world/GameWorld_Sync.h" />
 		<Unit filename="include/world/PrefabInstance.h" />
+		<Unit filename="include/world/SunModel.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
 		<Unit filename="src/ai/AiScriptedComponent.cpp" />
@@ -806,6 +816,7 @@
 		<Unit filename="src/world/GameWorld_Generate.cpp" />
 		<Unit filename="src/world/GameWorld_Sync.cpp" />
 		<Unit filename="src/world/PrefabInstance.cpp" />
+		<Unit filename="src/world/SunModel.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

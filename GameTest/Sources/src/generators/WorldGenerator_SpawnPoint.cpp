@@ -233,7 +233,12 @@ bool WorldGenerator_SpawnPoint::loadParameters(TiXmlElement *element, WorldGener
         parameters.groundLayer = m_terrain->getGroundLayer(hashedGroundLayerName);
 
     if(spawnProbabilityAtt)
-        parameters.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+    {
+        if(std::string("inf") == spawnProbabilityAtt)
+            parameters.spawnProbability = -1;
+        else if(pou::Parser::isFloat(spawnProbabilityAtt))
+            parameters.spawnProbability = pou::Parser::parseFloat(spawnProbabilityAtt);
+    }
 
     if(uniqueAtt && pou::Parser::isBool(uniqueAtt))
         parameters.unique = uniqueAtt;

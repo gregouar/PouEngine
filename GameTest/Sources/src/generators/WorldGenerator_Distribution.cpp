@@ -7,7 +7,7 @@
 
 WorldGenerator_Distribution_Parameters::WorldGenerator_Distribution_Parameters() :
     sectionSize(0),
-    type(WorldGenerator_DistributionType_Uniform),
+    type(WorldGenerator_DistributionType_None),
     spawnType(TerrainGenerator_SpawnType_Safe),
     distance(1),
     startInCenter(false),
@@ -91,6 +91,10 @@ void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, Ga
                 {
                     totalProbability += prob;
                     spawnPointsWithProb[totalProbability] = &spawnPoint;
+                } else if(prob == -1) {
+                    spawnPointsWithProb.clear();
+                    spawnPointsWithProb[1.0f] = &spawnPoint;
+                    break;
                 }
             }
 
@@ -166,6 +170,10 @@ WorldGenerator_Distribution_DistributedPoints WorldGenerator_Distribution::gener
     if(m_parameters.type == WorldGenerator_DistributionType_Path)
         return this->generatePathDistribution(rng);
 
+    if(m_parameters.type == WorldGenerator_DistributionType_SpawnGroup)
+    {
+    }
+
     return distributedPoints;
 }
 
@@ -220,7 +228,7 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
     auto useGridPositionAtt = element->Attribute("useGridPosition");
     auto startInCenterAtt   = element->Attribute("startInCenter");
 
-    parameters.type = WorldGenerator_DistributionType_Uniform;
+    parameters.type = WorldGenerator_DistributionType_None;
     if(typeAtt)
     {
         auto typeStr = std::string(typeAtt);
@@ -230,6 +238,8 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
             parameters.type = WorldGenerator_DistributionType_Poisson;
         else if(typeStr == "path")
             parameters.type = WorldGenerator_DistributionType_Path;
+        else if(typeStr == "spawnGroup")
+            parameters.type = WorldGenerator_DistributionType_SpawnGroup;
     }
 
     if(distanceAtt)
@@ -271,6 +281,12 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
     {
         auto pathNameAtt  = element->Attribute("pathName");
         parameters.pathName = pou::Hasher::unique_hash(pathNameAtt);
+    }
+
+    if(parameters.type == WorldGenerator_DistributionType_SpawnGroup)
+    {
+        auto spawnGroupAtt  = element->Attribute("spawnGroup");
+        parameters.spawnGroupName = pou::Hasher::unique_hash(spawnGroupAtt);
     }
 
     return (true);

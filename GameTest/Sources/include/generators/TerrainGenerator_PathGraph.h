@@ -2,9 +2,10 @@
 #define TERRAINGENERATOR_PATHGRAPH_H
 
 #include "PouEngine/tools/RNGesus.h"
+#include "PouEngine/math/AstarGrid.h"
+#include "PouEngine/system/XMLLoader.h"
 
 #include "PouEngine/Types.h"
-#include "tinyxml/tinyxml.h"
 #include <vector>
 
 class TerrainGenerator;
@@ -71,6 +72,7 @@ class TerrainGenerator_PathGraph
         std::vector< std::pair<glm::vec2, glm::vec2> > m_edges;
         std::list<std::vector<glm::ivec2> > m_rasterizedEdges;
 
+        pou::AstarGrid_HeuristicType m_heuristicType;
         std::vector<TerrainGenerator_PathGraph_Noise> m_noises;
         std::vector<float>  m_weightGrid;
         std::vector<bool>   m_unreachableGrid;

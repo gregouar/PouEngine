@@ -126,6 +126,13 @@ const std::string &Asset::getFilePath()
     return emptyString;
 }
 
+const std::string &Asset::getFileDirectory()
+{
+    if(m_loadSource == LoadSource_File)
+        return m_fileDirectory;
+    return emptyString;
+}
+
 
 AssetLoadType Asset::getLoadType()
 {

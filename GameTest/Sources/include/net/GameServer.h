@@ -26,7 +26,7 @@ struct GameClientInfos
     std::shared_ptr<PlayerSave> playerSave;
 };
 
-class GameServer
+class GameServer : public pou::NotificationListener
 {
     public:
         GameServer();
@@ -72,6 +72,8 @@ class GameServer
         void disconnectClient(int clientId);
 
         void updateWorlds(const pou::Time &elapsedTime);
+
+        virtual void notify(pou::NotificationSender*, int notificationType, void* data) override;
 
         //void threading();
 

@@ -466,12 +466,17 @@ void Character::setTeam(int team)
     m_team = team;
 }
 
-bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
+void Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
 {
     if(damages == 0 || m_disableDamageReceiving)
-        return (false);
+        return; // (false);
 
-    bool isFatal = false;
+    Character_Damages damagesToTake;
+    damagesToTake.damages = damages * (!onlyCosmetic && !m_disableDamageDealing);
+    damagesToTake.direction = direction;
+    m_damagesToTake.push_back(damagesToTake);
+
+    /*bool isFatal = false;
 
     auto att = m_attributes.getValue();
     if(!onlyCosmetic && !m_disableDamageDealing)
@@ -501,7 +506,7 @@ bool Character::damage(float damages, glm::vec2 direction, bool onlyCosmetic)
         this->interrupt(damages);
     }
 
-    return isFatal;
+    return isFatal;*/
 }
 
 void Character::setHurtNodeColor(pou::SceneNode *hurtNode, const glm::vec4 &hurtColor)
@@ -531,6 +536,8 @@ bool Character::kill(float amount)
     m_attributes.setValue(att);
 
     m_isDead.setValue(true);
+
+    ///COULD DISABLE SYNC OF NODE WHEN DEAD
 
     this->disableCollisions();
 
@@ -694,8 +701,9 @@ void Character::generateRenderingData(pou::SceneRenderingInstance *renderingInst
 
 void Character::update(const pou::Time& elapsedTime, uint32_t localTime)
 {
-    this->updateHurtNodes(elapsedTime);
     this->updateSyncComponent(elapsedTime, localTime);
+    this->updateDamagesToTake();
+    this->updateHurtNodes(elapsedTime);
 
     pou::SceneNode::update(elapsedTime,localTime);
 
@@ -715,10 +723,7 @@ void Character::updateSyncComponent(const pou::Time& elapsedTime, uint32_t local
     m_input->update(elapsedTime, localTime);
 
     if(oldState != m_curStateId.getValue())
-    {
-        std::cout<<"Switch state from sync"<<std::endl;
         this->switchState((CharacterStateTypes)m_curStateId.getValue());
-    }
 
     if(m_curState)
     {
@@ -763,6 +768,45 @@ void Character::updateHurtNodes(const pou::Time& elapsedTime)
             ++hurtNodeIt;
     }
 }
+
+void Character::updateDamagesToTake()
+{
+    for(auto &damagesToTake : m_damagesToTake)
+    {
+        auto &damages = damagesToTake.damages;
+        auto &direction = damagesToTake.direction;
+
+        auto att = m_attributes.getValue();
+        if(damagesToTake.damages > 0 && !m_disableDamageDealing)
+        {
+            att.life -= damages;
+
+            GameMessage_World_CharacterDamaged msg;
+            msg.character   = this;
+            msg.damages     = damages;
+            msg.direction   = direction;
+
+            pou::MessageBus::postMessage(GameMessageType_World_CharacterDamaged, &msg);
+        }
+
+    //    std::cout<<m_attributes.life<<"/"<<m_attributes.maxLife<<std::endl;
+        m_attributes.setValue(att);
+
+        if(att.life <= 0 && !m_disableDeath)
+            this->kill(damages);
+        else //if(!onlyCosmetic)
+        {
+            if(!m_modelAttributes.getValue().immovable)
+            if(direction != glm::vec2(0) && damages >= m_modelAttributes.getValue().maxLife*.25)
+                m_input->setPush(true, glm::normalize(direction)*200.0f);
+
+            //Do something to compute interrupt amount ?
+            this->interrupt(damages);
+        }
+    }
+    m_damagesToTake.clear();
+}
+
 
 /**void Character::rewind(uint32_t time)
 {
@@ -976,6 +1020,9 @@ void Character::syncFromCharacter(Character *srcCharacter)
 
     m_input->getSyncComponent()->syncFrom(*srcCharacter->m_input->getSyncComponent());
     m_aiComponent->getSyncComponent()->syncFrom(*srcCharacter->m_aiComponent->getSyncComponent());
+
+   /* if(m_attributes.getValue().life != srcCharacter->m_attributes.getValue().life && srcCharacter->m_attributes.getValue().life != 0)
+        std::cout<<"Will try to sync to :"<<srcCharacter->m_attributes.getValue().life<<std::endl;*/
 }
 
 

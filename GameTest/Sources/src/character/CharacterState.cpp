@@ -330,7 +330,7 @@ void CharacterState_Attacking::update(const pou::Time &elapsedTime, uint32_t loc
                         for(auto i = 0 ; i < NBR_DAMAGE_TYPES ; ++i)
                             totalDamages += m_character->getModelAttributes().attackDamages * hitBox.getFactor(i) * hurtBox.getFactor(i);
 
-                        //if(!m_character->areDamagesOnlyCosmetic())
+                        if(!m_character->areDamagesOnlyCosmetic())
                             enemy->damage(totalDamages,
                                           enemy->transform()->getGlobalXYPosition()-m_character->transform()->getGlobalXYPosition(),
                                           m_character->areDamagesOnlyCosmetic());

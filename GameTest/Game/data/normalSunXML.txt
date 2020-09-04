@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<sun shadowBlur = 10 >
+	<step t=0>
+		<direct r=1 g=.6 b=0 i=2 />
+		<ambient i=.75 />
+	</step>
+	<step t=0.08  shadowBlur=30>
+		<direct r=.2 g=.2 b=1 i=.5 />
+		<ambient i=.75 />
+	</step>
+	<step t=0.42  shadowBlur=30>
+		<direct r=.2 g=.2 b=1 i=.5 />
+		<ambient i=.75 />
+	</step>
+	<step t=.5>
+		<direct r=1 g=.6 b=0 i=2 />
+		<ambient i=.75 />
+	</step>
+	<step t=0.58>
+		<direct r=1 g=1 b=1 i=3 />
+		<ambient i=.75 />
+	</step>
+	<step t=0.92>
+		<direct r=1 g=1 b=1 i=3 />
+		<ambient i=.75 />
+	</step>
+</sun>
+

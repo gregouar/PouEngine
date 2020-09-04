@@ -63,7 +63,8 @@ class GameWorld : public pou::NotificationListener
         bool    removePlayer(size_t player_id);
         void    respawnPlayer(Player *player);
 
-        void updateSunLight(const pou::Time elapsed_time);
+        //void updateSunLight(const pou::Time elapsed_time);
+        void updateDayTime(const pou::Time elapsed_time);
         void constraintCamera(glm::vec2 windowSize/*glm::vec2 minPos, glm::vec2 maxPos*/);
         ///void unconstraintCamera(/*glm::vec2 minPos, glm::vec2 maxPos*/);
 
@@ -86,8 +87,9 @@ class GameWorld : public pou::NotificationListener
         bool m_isRenderable;
 
         std::shared_ptr<pou::CameraObject> m_camera;
-        std::shared_ptr<pou::LightEntity>  m_sunLight;
-        float              m_dayTime; //Between 0 and 360
+        //std::shared_ptr<pou::LightEntity>  m_sunLight;
+        std::list<std::shared_ptr<pou::LightEntity> > m_suns;
+        float m_dayTime; //Between 0 and 1.0f
 
         std::list< std::pair<int, std::shared_ptr<PlayerSave> > > m_addedPlayersList;
         std::list<int> m_removedPlayersList;

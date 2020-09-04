@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <map>
+#include <cmath>
 
 namespace pou
 {
@@ -15,6 +16,7 @@ AstarNode::AstarNode() :
 }
 
 AstarGrid::AstarGrid() :
+    m_heuristicType(AstarGrid_EuclideanHeuristic),
     m_gridSize(0),
     m_weightGrid(nullptr),
     m_unreachableGrid(nullptr)
@@ -27,6 +29,10 @@ AstarGrid::~AstarGrid()
     //dtor
 }
 
+void AstarGrid::setHeuristicType(AstarGrid_HeuristicType type)
+{
+    m_heuristicType = type;
+}
 
 
 void AstarGrid::setGridSize(const glm::ivec2 gridSize)
@@ -66,8 +72,17 @@ std::pair<float, bool> AstarGrid::estimatesRemainingPathCostWithHeightGrid(const
 
     auto cellZ = (*m_weightGrid)[cell.y * m_gridSize.x + cell.x];
     auto endCellZ = (*m_weightGrid)[endCell.y * m_gridSize.x + endCell.x];
-    //return glm::length(glm::vec2(cell) - glm::vec2(endCell)) + endCellZ - cellZ;
-    return {glm::length(glm::vec3(endCell.x, endCell.y, endCellZ) - glm::vec3(cell.x, cell.y, cellZ)), false};
+
+    float cost = glm::abs(endCellZ - cellZ);
+
+    if(m_heuristicType == AstarGrid_EuclideanHeuristic)
+        cost = glm::length(glm::vec3(endCell.x, endCell.y, endCellZ) - glm::vec3(cell.x, cell.y, cellZ));
+
+    else if(m_heuristicType == AstarGrid_ManhattanHeuristic)
+        cost = glm::abs(endCell.x - cell.x) + glm::abs(endCell.y - cell.y) + glm::abs(endCellZ - cellZ);
+
+
+    return {cost, false};
 }
 
 std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 startCell, glm::ivec2 endCell)
@@ -98,7 +113,7 @@ std::vector<glm::ivec2> AstarGrid::lookForPathImplWithHeightGrid(glm::ivec2 star
     while(!openSet.empty())
     {
         auto openSetIt = openSet.extract(openSet.begin());
-        auto curTotalCost = openSetIt.key();
+        //auto curTotalCost = openSetIt.key();
         auto curCell = openSetIt.mapped();
 
         if(curCell == endCell)

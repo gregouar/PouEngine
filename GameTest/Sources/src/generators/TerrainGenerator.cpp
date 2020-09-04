@@ -754,9 +754,11 @@ void TerrainGenerator::generateSprites(int x, int y, pou::SceneNode *targetNode)
         if(!tileModel)
             continue;
 
-        auto sprite = tileModel->generateSprite(x+y, m_rng);
+        /*auto sprite = tileModel->generateSprite(x+y, m_rng);
         if(sprite)
-            targetNode->attachObject(sprite);
+            targetNode->attachObject(sprite);*/
+
+        tileModel->generatesOnNode(targetNode, x+y, m_rng);
     }
 }
 

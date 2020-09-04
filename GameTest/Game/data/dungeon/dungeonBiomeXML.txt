@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<biome>
+	<parameters>
+		<ambientLight r=1 g=1 b=1 i=.5 />
+		<music path="event:/DungeonMusic" type="event" />
+	</parameters>
+
+	<terrain>
+		<parameters>
+			<tileSize x=128 y=128 />
+			<terrainSize x=100 y=100 />
+		</parameters>
+		
+		<groundLayer name="dirt" >
+			<groundLayer name="stone" path="stoneLayerModelXML.txt" spawnProbability=0  occulting=1>
+				
+				<groundLayer name="stone2" path="stone2LayerModelXML.txt" spawnProbability=0  occulting=0>
+				</groundLayer>
+				<!--<groundLayer name="grass2" path="../grasslands/grass2LayerModelXML.txt" spawnProbability=0 occulting=1 />-->
+			</groundLayer>
+		</groundLayer>
+		
+		<path name="stonePath" width=2 groundLayer="stone" cycleFactor=3 heuristic="manhattan">
+		</path>
+	</terrain>
+	
+	
+	
+	<!--<pois type="poisson" distance=1000 useGridPosition=1 startInCenter=1 >
+		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"   >
+			<size x=4 y=4 />
+			<pathConnection path="stonePath" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=4 y=4 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=5 y=3 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone2"  >
+			<pathConnection path="stonePath" />
+			<size x=5 y=5 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=6 y=6 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1   >
+			<pathConnection path="stonePath" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="stone" changeSpawnTypeTo="none"  >
+			<pathConnection path="stonePath" />
+			<size x=16 y=8 />
+			<ground x=1 y=1 groundLayer="stone2" />
+			<ground x=1 y=2 groundLayer="stone2" />
+			<ground x=1 y=3 groundLayer="stone2" />
+			<ground x=1 y=4 groundLayer="stone2" />
+			<ground x=1 y=5 groundLayer="stone2" />
+			<ground x=1 y=6 groundLayer="stone2" />
+			<ground x=2 y=2 groundLayer="stone2" />
+			<ground x=2 y=3 groundLayer="stone2" />
+			<ground x=3 y=4 groundLayer="stone2" />
+			<ground x=3 y=5 groundLayer="stone2" />
+			<ground x=4 y=1 groundLayer="stone2" />
+			<ground x=4 y=2 groundLayer="stone2" />
+			<ground x=4 y=3 groundLayer="stone2" />
+			<ground x=4 y=4 groundLayer="stone2" />
+			<ground x=4 y=5 groundLayer="stone2" />
+			<ground x=4 y=6 groundLayer="stone2" />
+			
+			<ground x=6 y=2 groundLayer="stone2" />
+			<ground x=7 y=2 groundLayer="stone2" />
+			<ground x=8 y=2 groundLayer="stone2" />
+			<ground x=9 y=2 groundLayer="stone2" />
+			<ground x=9 y=3 groundLayer="stone2" />
+			<ground x=9 y=4 groundLayer="stone2" />
+			<ground x=9 y=5 groundLayer="stone2" />
+			<ground x=9 y=6 groundLayer="stone2" />
+			<ground x=8 y=6 groundLayer="stone2" />
+			<ground x=7 y=6 groundLayer="stone2" />
+			<ground x=6 y=6 groundLayer="stone2" />
+			<ground x=6 y=5 groundLayer="stone2" />
+			<ground x=7 y=4 groundLayer="stone2" />
+			<ground x=8 y=4 groundLayer="stone2" />
+			
+			<ground x=11 y=1 groundLayer="stone2" />
+			<ground x=11 y=2 groundLayer="stone2" />
+			<ground x=11 y=3 groundLayer="stone2" />
+			<ground x=11 y=4 groundLayer="stone2" />
+			<ground x=11 y=5 groundLayer="stone2" />
+			<ground x=11 y=6 groundLayer="stone2" />
+			<ground x=12 y=4 groundLayer="stone2" />
+			<ground x=12 y=5 groundLayer="stone2" />
+			<ground x=13 y=2 groundLayer="stone2" />
+			<ground x=13 y=3 groundLayer="stone2" />
+			<ground x=14 y=1 groundLayer="stone2" />
+			<ground x=14 y=2 groundLayer="stone2" />
+			<ground x=14 y=3 groundLayer="stone2" />
+			<ground x=14 y=4 groundLayer="stone2" />
+			<ground x=14 y=5 groundLayer="stone2" />
+			<ground x=14 y=6 groundLayer="stone2" />
+		</spawnPoint>
+	</pois>-->
+	
+	<pois type="poisson" distance=1800 useGridPosition=1 startInCenter=1 >
+		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"   >
+			<size x=8 y=8 />
+			<pathConnection path="stonePath" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=8 y=8 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=10 y=6 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone2"  >
+			<spawnPoint x=1 y=1 spawnGroup="smallFurnituresSpawn" />
+			<pathConnection path="stonePath" />
+			<size x=10 y=10 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.4  changeGroundLayerTo="stone"  >
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1   >
+			<pathConnection path="stonePath" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="stone" changeSpawnTypeTo="none"  >
+			<pathConnection path="stonePath" />
+			<size x=16 y=8 />
+			<ground x=1 y=1 groundLayer="stone2" />
+			<ground x=1 y=2 groundLayer="stone2" />
+			<ground x=1 y=3 groundLayer="stone2" />
+			<ground x=1 y=4 groundLayer="stone2" />
+			<ground x=1 y=5 groundLayer="stone2" />
+			<ground x=1 y=6 groundLayer="stone2" />
+			<ground x=2 y=2 groundLayer="stone2" />
+			<ground x=2 y=3 groundLayer="stone2" />
+			<ground x=3 y=4 groundLayer="stone2" />
+			<ground x=3 y=5 groundLayer="stone2" />
+			<ground x=4 y=1 groundLayer="stone2" />
+			<ground x=4 y=2 groundLayer="stone2" />
+			<ground x=4 y=3 groundLayer="stone2" />
+			<ground x=4 y=4 groundLayer="stone2" />
+			<ground x=4 y=5 groundLayer="stone2" />
+			<ground x=4 y=6 groundLayer="stone2" />
+			
+			<ground x=6 y=2 groundLayer="stone2" />
+			<ground x=7 y=2 groundLayer="stone2" />
+			<ground x=8 y=2 groundLayer="stone2" />
+			<ground x=9 y=2 groundLayer="stone2" />
+			<ground x=9 y=3 groundLayer="stone2" />
+			<ground x=9 y=4 groundLayer="stone2" />
+			<ground x=9 y=5 groundLayer="stone2" />
+			<ground x=9 y=6 groundLayer="stone2" />
+			<ground x=8 y=6 groundLayer="stone2" />
+			<ground x=7 y=6 groundLayer="stone2" />
+			<ground x=6 y=6 groundLayer="stone2" />
+			<ground x=6 y=5 groundLayer="stone2" />
+			<ground x=7 y=4 groundLayer="stone2" />
+			<ground x=8 y=4 groundLayer="stone2" />
+			
+			<ground x=11 y=1 groundLayer="stone2" />
+			<ground x=11 y=2 groundLayer="stone2" />
+			<ground x=11 y=3 groundLayer="stone2" />
+			<ground x=11 y=4 groundLayer="stone2" />
+			<ground x=11 y=5 groundLayer="stone2" />
+			<ground x=11 y=6 groundLayer="stone2" />
+			<ground x=12 y=4 groundLayer="stone2" />
+			<ground x=12 y=5 groundLayer="stone2" />
+			<ground x=13 y=2 groundLayer="stone2" />
+			<ground x=13 y=3 groundLayer="stone2" />
+			<ground x=14 y=1 groundLayer="stone2" />
+			<ground x=14 y=2 groundLayer="stone2" />
+			<ground x=14 y=3 groundLayer="stone2" />
+			<ground x=14 y=4 groundLayer="stone2" />
+			<ground x=14 y=5 groundLayer="stone2" />
+			<ground x=14 y=6 groundLayer="stone2" />
+		</spawnPoint>
+	</pois>
+	
+	<distribution type="spawnGroup" spawnGrounp="smallFurnituresSpawn" spawnType="safe">
+		<spawnPoint spawnProbability=1>
+			<character path="../furnitures/barrel1XML.txt" />
+			<modifier type="position" rng="uniform" z=60 />
+		</spawnPoint>
+	</distribution>
+	
+	<!--<distribution type="poisson" distance=500 sectionSize=5000 spawnType="unsafe">
+		<spawnPoint  groundLayer="stone"  spawnProbability=.35>
+			<character path="../duck/duckXML.txt" amount="[1,3]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-100,100]" />
+		</spawnPoint>
+		<spawnPoint   groundLayer="stone" spawnProbability=.15>
+			<character path="../duck/duckXML.txt" amount="[3,5]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-100,100]" />
+		</spawnPoint>
+		<spawnPoint  groundLayer="stone"  spawnProbability=0.01>
+			<character path="../duck/duckWhiteXML.txt"  />
+			<character path="../duck/duckXML.txt" amount="[3,5]" />
+			<modifier type="position" rng="uniform" x="[-100,100]" y="[-100,100]" />
+		</spawnPoint>
+	</distribution>-->
+	
+</biome>
+
+

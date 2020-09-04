@@ -132,8 +132,8 @@ bool SyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
     }
     else
     {
-        if(this->m_rewindValues.empty())
-            return (false);
+       // if(this->m_rewindValues.empty())
+         //   return (false);
 
         uint32_t localClientTime = 0;
         if(this->m_reconciliationDelay_client < this->m_curLocalTime)
@@ -164,10 +164,11 @@ bool SyncAttribute<T>::update(const Time &elapsed_time, uint32_t curTime)
                 this->m_desyncTimer.reset(.1f);
             else if(this->m_desyncTimer.update(elapsed_time.count()))
             {
+                //auto syncTime = evalIt->first;
                 this->m_rewindValues.erase(evalIt,this->m_rewindValues.end());
 
                 this->m_lastSyncTime = itSyncValue->first;
-                this->setValue(itSyncValue->second, m_lastSyncTime);
+                this->setValue(itSyncValue->second, this->m_lastSyncTime);
                 this->m_desyncTimer.reset();
                 return (true);
             }

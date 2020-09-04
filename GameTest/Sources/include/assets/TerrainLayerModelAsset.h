@@ -9,6 +9,22 @@
 enum TerrainGenerator_BorderType
 {
     TerrainGenerator_BorderType_Blank = 0,
+    TerrainGenerator_BorderType_SmallCorner_BR,
+    TerrainGenerator_BorderType_SmallCorner_BL,
+    TerrainGenerator_BorderType_Side_B,
+    TerrainGenerator_BorderType_SmallCorner_TR,
+    TerrainGenerator_BorderType_Side_R,
+    TerrainGenerator_BorderType_Diag_BL_TR,
+    TerrainGenerator_BorderType_BigCorner_BR,
+    TerrainGenerator_BorderType_SmallCorner_TL,
+    TerrainGenerator_BorderType_Diag_TL_BR,
+    TerrainGenerator_BorderType_Side_L,
+    TerrainGenerator_BorderType_BigCorner_BL,
+    TerrainGenerator_BorderType_Side_T,
+    TerrainGenerator_BorderType_BigCorner_TR,
+    TerrainGenerator_BorderType_BigCorner_TL,
+    TerrainGenerator_BorderType_Fill,
+    /*
     TerrainGenerator_BorderType_SmallCorner_TL,
     TerrainGenerator_BorderType_SmallCorner_TR,
     TerrainGenerator_BorderType_Side_T,
@@ -23,7 +39,7 @@ enum TerrainGenerator_BorderType
     TerrainGenerator_BorderType_Side_B,
     TerrainGenerator_BorderType_BigCorner_TR,
     TerrainGenerator_BorderType_BigCorner_TL,
-    TerrainGenerator_BorderType_Fill,
+    TerrainGenerator_BorderType_Fill,*/
     NBR_BORDER_TYPES,
 };
 

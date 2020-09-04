@@ -42,7 +42,6 @@ void GameWorld::destroy()
 
     m_camera = nullptr;
 
-    m_sunLight.reset();
     m_worldGrid.reset();
     m_worldRootNode.reset();
 
@@ -87,7 +86,7 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
         m_removedPlayersList.pop_back();
     }
 
-    this->updateSunLight(elapsed_time);
+    this->updateDayTime(elapsed_time);
 
     ///BEFORE
     ///this->processPlayerActions();
@@ -292,7 +291,7 @@ void GameWorld::createScene()
     this->destroy();
     m_scene = new pou::Scene();
 
-    if(m_isRenderable)
+    /*if(m_isRenderable)
     {
         m_sunLight = std::make_shared<pou::LightEntity>();
         m_sunLight->setType(pou::LightType_Directional);
@@ -301,7 +300,7 @@ void GameWorld::createScene()
         m_sunLight->setShadowBlurRadius(10);
 
         m_scene->getRootNode()->attachObject(m_sunLight);
-    }
+    }*/
 }
 
 void GameWorld::createPlayerCamera(Player *player)
@@ -326,12 +325,20 @@ void GameWorld::createPlayerCamera(Player *player)
         m_worldGenerator.playWorldMusic();
 
         ///FOR TESTING
-        //m_camera->setZoom(.1);
+        //m_camera->setZoom(.2);
         //m_worldGrid->setRenderProbe(cameraNode.get(),15000);
     }
 }
 
-void GameWorld::updateSunLight(const pou::Time elapsed_time)
+void GameWorld::updateDayTime(const pou::Time elapsed_time)
+{
+    m_dayTime = m_dayTime + elapsed_time.count() * 1.0f/360.0f;
+    m_dayTime = glm::mod(m_dayTime, 1.0f);
+
+    m_worldGenerator.updateSunsAndAmbientLight(m_suns, m_scene, m_dayTime);
+}
+
+/*void GameWorld::updateSunLight(const pou::Time elapsed_time)
 {
     m_dayTime = m_dayTime + elapsed_time.count();
     if(m_dayTime >= 360)
@@ -384,10 +391,11 @@ void GameWorld::updateSunLight(const pou::Time elapsed_time)
         sunColor = glm::mix(dayColor,sunsetColor, (m_dayTime-330)/30.0f);
         sunIntensity = glm::mix(dayIntensity,sunsetIntensity, (m_dayTime-330)/30.0f);
     }
+
     m_scene->setAmbientLight(sunColor * glm::vec4(1.0,1.0,1.0,.75));
     m_sunLight->setDiffuseColor(sunColor);
     m_sunLight->setIntensity(sunIntensity);
-}
+}*/
 
 void GameWorld::constraintCamera(glm::vec2 windowSize /*glm::vec2 minPos, glm::vec2 maxPos*/)
 {

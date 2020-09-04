@@ -39,7 +39,7 @@ bool WorldGenerator::loadFromFile(const std::string &filePath)
 
 
 void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameWorld_Sync *syncComponent,
-                                     bool generateCharacters)
+                                     bool generateCharacters, bool preventCentralSpawn)
 {
     pou::Logger::write("Initialize procedural world generation...");
 
@@ -52,11 +52,14 @@ void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameW
     airBalloonSafeZone.spawnType    = TerrainGenerator_SpawnType_Safe;
     m_terrainGenerator.addSpawnOnlyZone(airBalloonSafeZone);
 
-    TerrainGenerator_SpawnOnlyZone airBalloonZone;
-    airBalloonZone.gridPosition = glm::ivec2(m_terrainGenerator.getGridSize()/2.0f) - glm::ivec2(6);
-    airBalloonZone.gridExtent   = glm::ivec2(12);
-    airBalloonZone.spawnType    = TerrainGenerator_SpawnType_None;
-    m_terrainGenerator.addSpawnOnlyZone(airBalloonZone);
+    if(preventCentralSpawn)
+    {
+        TerrainGenerator_SpawnOnlyZone airBalloonZone;
+        airBalloonZone.gridPosition = glm::ivec2(m_terrainGenerator.getGridSize()/2.0f) - glm::ivec2(6);
+        airBalloonZone.gridExtent   = glm::ivec2(12);
+        airBalloonZone.spawnType    = TerrainGenerator_SpawnType_None;
+        m_terrainGenerator.addSpawnOnlyZone(airBalloonZone);
+    }
 
     m_terrainGenerator.resetGrid();
 
@@ -78,6 +81,50 @@ void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameW
 
     m_terrainGenerator.generatesOnNode(targetNode);
 }
+
+std::list<std::shared_ptr<pou::LightEntity> > WorldGenerator::generatesSuns(pou::SceneNode *targetNode)
+{
+    pou::Logger::write("Generates sun...");
+
+    std::list<std::shared_ptr<pou::LightEntity> > suns;
+
+    for(auto &sunModel : m_sunModels)
+    {
+        auto sun = sunModel.generatesSun();
+        suns.push_back(sun);
+        targetNode->attachObject(sun);
+    }
+
+    return suns;
+}
+
+void WorldGenerator::updateSunsAndAmbientLight(std::list<std::shared_ptr<pou::LightEntity> > &suns,
+                                               pou::Scene *scene,
+                                               float dayTime)
+{
+    //pou::Color avgColor(0.0f);
+    //float avgIntensity(0.0f);
+
+    pou::Color ambientLight(m_parameters.ambientLight);
+
+    auto sunIt = suns.begin();
+    auto sunModelIt = m_sunModels.begin();
+    for(;sunIt != suns.end() && sunModelIt != m_sunModels.end() ;
+        ++sunIt, ++sunModelIt)
+    {
+        ambientLight += sunModelIt->updateSun(sunIt->get(), dayTime);
+        //avgColor += (*sunIt)->getDiffuseColor();
+        //avgIntensity += (*sunIt)->getIntensity();
+    }
+
+    //avgColor /= suns.size();
+    //avgIntensity /= suns.size();
+
+    ///AMBIENT
+    //glm::vec4 ambientLight = glm::vec4(avgColor.r, avgColor.g, avgColor.b, .75);
+    scene->setAmbientLight(ambientLight);
+}
+
 
 void WorldGenerator::playWorldMusic()
 {
@@ -166,6 +213,25 @@ bool WorldGenerator::loadParameters(TiXmlElement *element)
     auto e = element->FirstChildElement("music");
     if(e != nullptr)
         m_parameters.musicModel.loadFromXML(e);
+
+    e = element->FirstChildElement("sun");
+    while(e)
+    {
+        auto pathAtt = e->Attribute("path");
+        if(!pathAtt)
+            continue;
+
+         auto &sunModel = m_sunModels.emplace_back();
+         sunModel.loadFromFile(m_fileDirectory+pathAtt);
+
+         e = e->NextSiblingElement("sun");
+    }
+
+    m_parameters.ambientLight = glm::vec4(0.0f);
+
+    e = element->FirstChildElement("ambientLight");
+    if(e != nullptr)
+        pou::XMLLoader::loadColor(m_parameters.ambientLight, e);
 
     return (true);
 }

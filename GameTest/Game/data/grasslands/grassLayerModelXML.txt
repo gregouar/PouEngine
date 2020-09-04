@@ -10,33 +10,33 @@
 	</tileModel>
 	
 	<tileModel type="smallCornerTopLeft">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" />
 	</tileModel>
 	<tileModel type="smallCornerTopRight">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" rotation=-90 />
-	</tileModel>
-	<tileModel type="smallCornerBottomLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" rotation=90 />
 	</tileModel>
+	<tileModel type="smallCornerBottomLeft">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" rotation=-90 />
+	</tileModel>
 	<tileModel type="smallCornerBottomRight">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_smallcorner1" rotation=180 />
 	</tileModel>
 	
 	<tileModel type="sideBottom">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" allowRandomFlipX=1 />
-	</tileModel>
-	<tileModel type="sideLeft">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" rotation=90 allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" rotation=90 allowRandomFlipX=1 />
-	</tileModel>
-	<tileModel type="sideTop">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" rotation=180 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" rotation=180 allowRandomFlipX=1 />
 	</tileModel>
-	<tileModel type="sideRight">
+	<tileModel type="sideLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" rotation=-90 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" rotation=-90 allowRandomFlipX=1 />
+	</tileModel>
+	<tileModel type="sideTop">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" allowRandomFlipX=1 />
+	</tileModel>
+	<tileModel type="sideRight">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom1" rotation=90 allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="grass1_bottom2" rotation=90 allowRandomFlipX=1 />
 	</tileModel>
 	
 	<tileModel type="bigCornerTopRight">

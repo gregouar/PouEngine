@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<mesh>
+	<name>Wall</name>
+	<scale>1</scale>
+	<model flipUV=1 >wall.obj</model>
+	<material>dungeonMaterial.txt</material>
+</mesh>

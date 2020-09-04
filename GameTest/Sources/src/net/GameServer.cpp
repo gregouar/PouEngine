@@ -28,6 +28,9 @@ GameServer::GameServer() :
 
     /**if(GameServer::USEREWIND)
         pou::NetEngine::setMaxRewindAmount(GameServer::MAX_REWIND_AMOUNT);**/
+
+
+    pou::MessageBus::addListener(this, GameMessageType_World_CharacterDamaged);
 }
 
 GameServer::~GameServer()
@@ -568,4 +571,22 @@ std::pair<GameClientInfos*, GameWorld*> GameServer::getClientInfosAndWorld(size_
 
     return {clientInfos, worldIt->second.get()};
 }
+
+
+void GameServer::notify(pou::NotificationSender*, int notificationType, void* data)
+{
+    ///I NEED TO SHARE PLAYER EVENTS WITH CLIENTS OR I COULD SYNC WITHOUT DELAY DAMAGES TAKEN ?
+    /**if(notificationType == GameMessageType_World_CharacterDamaged)
+    {
+        auto *gameMsg = static_cast<GameMessage_World_CharacterDamaged*>(data);
+
+        eventType   = PlayerEventType_CharacterDamaged;
+        syncId      = gameMsg->character->getCharacterSyncId();
+        direction   = gameMsg->direction;
+        amount      = gameMsg->damages;
+
+    }**/
+}
+
+
 

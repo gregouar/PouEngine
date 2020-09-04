@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <biome>
 	<parameters>
+		<sun path="../normalSunXML.txt" />
+		<!--<ambientLight r="sun" g="sun" b="sun" i=.75 />-->
 		<music path="event:/GrasslandsMusic" type="event" />
 	</parameters>
 
@@ -26,7 +28,7 @@
 			</groundLayer>
 		</groundLayer>
 		
-		<path name="dirtPath" width=1 groundLayer="dirtPath" cycleFactor=2>
+		<path name="dirtPath" width=1 groundLayer="dirtPath" cycleFactor=2 heuristic="euclidean">
 			<noise type="perlin" intensity=2 kernel= 20 />
 			<noise type="perlin" intensity=2 kernel= 5 />
 			<noise type="perlin" intensity=2 kernel= 2 />
@@ -48,13 +50,13 @@
 	
 	<pois type="poisson" distance=2500 useGridPosition=1 startInCenter=1 >
 		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
-			<prefab path="../wall/smallHousePrefabXML.txt" />
+			<prefab path="../house/smallHousePrefabXML.txt" />
 			<size x=6 y=6 />
 			<modifier type="flip" rng="uniform" x="[-1,1]" />
 			<pathConnection path="dirtPath" x=0 y=3 />
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="dirt" changeSpawnTypeTo="none" >
-			<prefab path="../wall/smallHouse2PrefabXML.txt" />
+			<prefab path="../house/smallHouse2PrefabXML.txt" />
 			<size x=6 y=6 />
 			<modifier type="flip" rng="uniform" x="[-1,1]" />
 			<pathConnection path="dirtPath" x=0 y=3 />
@@ -66,7 +68,7 @@
 			<prefab path="treeCirclePrefabXML.txt" />
 			<size radius=6.5 />
 		</spawnPoint>
-		<spawnPoint  spawnProbability=1  unique=1 changeGroundLayerTo="grass" changeSpawnTypeTo="none"  >
+		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="grass" changeSpawnTypeTo="none"  >
 			<size x=16 y=8 />
 			<ground x=1 y=1 groundLayer="dirt" />
 			<ground x=1 y=2 groundLayer="dirt" />
@@ -106,10 +108,10 @@
 			<ground x=11 y=4 groundLayer="dirt" />
 			<ground x=11 y=5 groundLayer="dirt" />
 			<ground x=11 y=6 groundLayer="dirt" />
-			<ground x=12 y=2 groundLayer="dirt" />
-			<ground x=12 y=3 groundLayer="dirt" />
-			<ground x=13 y=4 groundLayer="dirt" />
-			<ground x=13 y=5 groundLayer="dirt" />
+			<ground x=12 y=4 groundLayer="dirt" />
+			<ground x=12 y=5 groundLayer="dirt" />
+			<ground x=13 y=2 groundLayer="dirt" />
+			<ground x=13 y=3 groundLayer="dirt" />
 			<ground x=14 y=1 groundLayer="dirt" />
 			<ground x=14 y=2 groundLayer="dirt" />
 			<ground x=14 y=3 groundLayer="dirt" />
@@ -188,6 +190,13 @@
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
 			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
 		</spawnPoint>
+		
+		<spawnPoint  groundLayer="grass2"  spawnProbability=.05>
+			<prefab path="treeStump1Prefab.txt" />
+			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
+			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
+			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
 	</distribution>
 	
 	<distribution type="poisson" distance=50 sectionSize=500>
@@ -211,12 +220,6 @@
 		</spawnPoint>
 		<spawnPoint  groundLayer="dirt"  spawnProbability=.1>
 			<prefab path="rock1Prefab.txt" />
-			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
-			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
-			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />
-		</spawnPoint>
-		<spawnPoint  groundLayer="grass2"  spawnProbability=.01>
-			<prefab path="treeStump1Prefab.txt" />
 			<modifier type="position" rng="uniform" x="[-4,4]" y="[-4,4]" z=2 />
 			<modifier type="color" rng="uniform" r=0 g="[-.2,0]" b="g" />
 			<modifier type="flip" rng="uniform" x="[-1,1]" y="[-1,1]" />

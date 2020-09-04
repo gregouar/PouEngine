@@ -2,7 +2,6 @@
 
 #include "PouEngine/tools/Parser.h"
 #include "PouEngine/math/Graph.h"
-#include "PouEngine/math/AstarGrid.h"
 
 #include "generators/TerrainGenerator.h"
 
@@ -110,16 +109,31 @@ void TerrainGenerator_PathGraph::loadParameters(TiXmlElement *pathElement, pou::
 {
     m_pathName = pathName;
 
-    auto widthAtt = pathElement->Attribute("width");
-    auto cycleFactorAtt = pathElement->Attribute("cycleFactor");
+
+    //auto widthAtt = pathElement->Attribute("width");
+    //auto cycleFactorAtt = pathElement->Attribute("cycleFactor");
     //auto cellSizeAtt = pathElement->Attribute("cellSize");
 
-    if(widthAtt && pou::Parser::isInt(widthAtt))
-        m_parameters.width = pou::Parser::parseInt(widthAtt);
+    //if(widthAtt && pou::Parser::isInt(widthAtt))
+      //  m_parameters.width = pou::Parser::parseInt(widthAtt);
 
-    if(cycleFactorAtt && pou::Parser::isFloat(cycleFactorAtt))
-        m_parameters.cycleFactor = pou::Parser::parseFloat(cycleFactorAtt);
+    //if(cycleFactorAtt && pou::Parser::isFloat(cycleFactorAtt))
+      //  m_parameters.cycleFactor = pou::Parser::parseFloat(cycleFactorAtt);
 
+
+    pou::XMLLoader::loadFloat(m_parameters.cycleFactor,pathElement,"cycleFactor");
+    pou::XMLLoader::loadInt(m_parameters.width,pathElement,"width");
+
+    m_heuristicType = pou::AstarGrid_EuclideanHeuristic;
+    auto heuristicAtt = pathElement->Attribute("heuristic");
+    if(heuristicAtt)
+    {
+        auto heuristicStr = std::string(heuristicAtt);
+        if(heuristicStr == "euclidian")
+            m_heuristicType = pou::AstarGrid_EuclideanHeuristic;
+        else if(heuristicStr == "manhattan")
+            m_heuristicType = pou::AstarGrid_ManhattanHeuristic;
+    }
 
     auto noiseChild = pathElement->FirstChildElement("noise");
     while(noiseChild != nullptr)
@@ -159,6 +173,7 @@ std::vector<glm::ivec2> TerrainGenerator_PathGraph::rasterizesEdge(const std::pa
     auto endGridPos = terrain->worldToGridPosition(endWorldPos);
 
     pou::AstarGrid astar;
+    astar.setHeuristicType(m_heuristicType);
     astar.setGridSize(terrain->getGridSize());
     astar.setWeightGrid(&m_weightGrid);
     astar.setUnreachableGrid(&m_unreachableGrid);

@@ -7,6 +7,12 @@
 namespace pou
 {
 
+enum AstarGrid_HeuristicType
+{
+    AstarGrid_EuclideanHeuristic,
+    AstarGrid_ManhattanHeuristic,
+};
+
 struct AstarNode
 {
     AstarNode();
@@ -22,6 +28,7 @@ class AstarGrid
         AstarGrid();
         virtual ~AstarGrid();
 
+        void setHeuristicType(AstarGrid_HeuristicType heuristicType);
         void setGridSize(const glm::ivec2 gridSize);
         void setWeightGrid(const std::vector<float> *weightGrid);
         void setUnreachableGrid(const std::vector<bool> *unreachableGrid);
@@ -39,6 +46,7 @@ class AstarGrid
         std::vector<glm::ivec2> lookForPathImplWithoutGrid(glm::ivec2 startCell, glm::ivec2 endCell);
 
     private:
+        AstarGrid_HeuristicType m_heuristicType;
         glm::ivec2 m_gridSize;
         const std::vector<float> *m_weightGrid;
         const std::vector<bool>  *m_unreachableGrid;

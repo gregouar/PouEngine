@@ -27,6 +27,7 @@ class Asset : public NotificationSender
 
         bool isLoaded();
         const std::string& getFilePath();
+        const std::string& getFileDirectory();
 
         AssetTypeId getId();
         AssetLoadType getLoadType();

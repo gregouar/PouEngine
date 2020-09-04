@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<!--<spritesheet name="mainSpriteSheet" path="../player/playerSpritesheetXML.txt" />-->
+	
+	<node name="root">
+		<mesh path="wallMeshXML.txt" />
+		<collision type="box">
+			<mass>-1</mass>
+			<size x=128 y=24 />
+			<center x=64 y=12 />
+		</collision>
+		<!--<light type="omni" radius=150 intensity=10.0 castShadow="false" >
+			<color r=1.0 g=0.0 b=0.0 a=1.0 />
+		</light>
+		<sprite sprite="body_1" spritesheet="mainSpriteSheet"  />-->
+	</node>
+	
+	<!--<character path="../duck/duckXML.txt" x=100 />-->
+</prefab>

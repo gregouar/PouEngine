@@ -86,7 +86,10 @@ class GameWorld_Sync : public pou::NotificationListener
         uint32_t m_syncTime;
         uint32_t m_lastWorldSyncTime;
         std::map<int, uint32_t> m_lastPlayerSyncTime;
+
         uint32_t m_deltaRTT;
+        int m_curRTT;
+        std::vector<uint32_t> m_lastDeltaRTT;
 
         std::vector<NodeSyncer*>    m_updatedNodeSyncers;
         /**std::vector<WorldSprite*>   m_updatedSprites;
@@ -135,6 +138,8 @@ class GameWorld_Sync : public pou::NotificationListener
         static const int        ITEMMODELSID_BITS;
         /**static const int        PREFABASSETID_BITS;
         static const int        PREFABINSTANCEID_BITS;**/
+
+        static const int        MAX_LASTRTT;
 };
 
 #endif // GAMEWORLD_SYNC_H

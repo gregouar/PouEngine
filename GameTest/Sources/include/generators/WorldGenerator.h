@@ -3,12 +3,14 @@
 
 #include "generators/TerrainGenerator.h"
 #include "generators/WorldGenerator_Distribution.h"
+#include "world/SunModel.h"
 
 #include "audio/SoundModel.h"
 
 struct WorldGenerator_Parameters
 {
-    SoundModel musicModel;
+    SoundModel  musicModel;
+    pou::Color  ambientLight;
 };
 
 class WorldGenerator
@@ -20,7 +22,12 @@ class WorldGenerator
         bool loadFromFile(const std::string &filePath);
 
         void generatesOnNode(pou::SceneNode *targetNode, int seed, GameWorld_Sync *syncComponent,
-                             bool generateCharacters = true);
+                             bool generateCharacters, bool preventCentralSpawn);
+
+        std::list<std::shared_ptr<pou::LightEntity> > generatesSuns(pou::SceneNode *targetNode);
+        void updateSunsAndAmbientLight(std::list<std::shared_ptr<pou::LightEntity> > &suns,
+                                       pou::Scene *scene,
+                                       float dayTime);
 
         void playWorldMusic();
         void stopWorldMusic();
@@ -54,6 +61,8 @@ class WorldGenerator
 
         WorldGenerator_Parameters m_parameters;
         TerrainGenerator m_terrainGenerator;
+
+        std::list<SunModel> m_sunModels;
 
         //std::vector<WorldGenerator_CharacterModel> m_characterModels;
         WorldGenerator_Distribution m_pointsOfInterest;

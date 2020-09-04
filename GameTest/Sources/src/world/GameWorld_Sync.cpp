@@ -23,6 +23,7 @@ const int    GameWorld_Sync::CHARACTERSID_BITS      = 16;
 const int    GameWorld_Sync::ITEMMODELSID_BITS      = 12;
 /**const int    GameWorld_Sync::PREFABASSETID_BITS     = 10;
 const int    GameWorld_Sync::PREFABINSTANCEID_BITS  = 16;**/
+const int    GameWorld_Sync::MAX_LASTRTT = 60;
 
 GameWorld_Sync::GameWorld_Sync() :
     m_curLocalTime(0),
@@ -49,6 +50,9 @@ GameWorld_Sync::GameWorld_Sync() :
     pou::MessageBus::addListener(this, GameMessageType_World_MeshUpdated);**/
     pou::MessageBus::addListener(this, GameMessageType_World_CharacterUpdated);
     //pou::MessageBus::addListener(this, GameMessageType_World_PrefabUpdated); //Maybe ?
+
+    m_curRTT = 0;
+    m_lastDeltaRTT.resize(MAX_LASTRTT, 0);
 }
 
 GameWorld_Sync::~GameWorld_Sync()
@@ -430,11 +434,17 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
      //   deltaRTT = 15;
 
     {
+        deltaRTT += 12;
+
+        m_lastDeltaRTT[(++m_curRTT) % MAX_LASTRTT] = deltaRTT;
+
+        for(int i = 0 ; i < MAX_LASTRTT ; ++i)
+            deltaRTT = std::max(deltaRTT, m_lastDeltaRTT[i]);
+
         /*uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1);
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*1.5);
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT*.75);*/
 
-        deltaRTT += 24;
         uint32_t desiredLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT);
         uint32_t desiredMinLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) - 12;
         uint32_t desiredMaxLocalTime = (int64_t)worldSyncMsg->localTime + (int64_t)(deltaRTT) + 24;
@@ -448,7 +458,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
 
         if(m_curLocalTime < desiredMinLocalTime  || m_curLocalTime > desiredMaxLocalTime)
         {
-            pou::Logger::write("Jump time from "+std::to_string(m_curLocalTime)+" to "+std::to_string(desiredLocalTime));
+            pou::Logger::write("Jump time from "+std::to_string(m_curLocalTime)+" to "+std::to_string(desiredLocalTime)+" (RTT: "+std::to_string(deltaRTT)+")");
 
             m_curLocalTime = desiredLocalTime;
             m_deltaRTT = deltaRTT;
@@ -575,7 +585,7 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
             this->syncElement(characterPtr, characterId);
 
             characterPtr->disableInputSync(!useLockStepMode);
-            characterPtr->disableStateSync(!useLockStepMode);
+            //characterPtr->disableStateSync(!useLockStepMode);
         }
 
         characterPtr->syncFromCharacter(characterSync.character);
@@ -590,9 +600,9 @@ void GameWorld_Sync::syncWorldFromMsg(std::shared_ptr<NetMessage_WorldSync> worl
         }
         else
         {
-            characterPtr->setReconciliationDelay(m_deltaRTT+6,m_deltaRTT+7);
+            characterPtr->setReconciliationDelay(m_deltaRTT,m_deltaRTT);
             characterPtr->disableInputSync();
-            characterPtr->disableStateSync();
+           // characterPtr->disableStateSync();
         }
 
         characterPtr->getNodeSyncer()->setMaxRewind(GameClient::MAX_PLAYER_REWIND);
@@ -1260,9 +1270,9 @@ void GameWorld_Sync::processPlayerEvents()
                 if(!character)
                     break;
 
-                std::cout<<"Damage character from sync at time:"<<m_curLocalTime<<std::endl;
+                //std::cout<<"Damage character from sync at time:"<<m_curLocalTime<<std::endl;
 
-                character->update(pou::Time(0), m_curLocalTime);
+                //character->update(pou::Time(0), m_curLocalTime);
                 character->damage(playerEventMsg->amount, playerEventMsg->direction);
 
             }break;

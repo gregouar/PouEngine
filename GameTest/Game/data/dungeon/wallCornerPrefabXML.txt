@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<prefab>
+	<spritesheet name="mainSpriteSheet" path="dungeonSpritesheetXML.txt" />
+	
+	<node name="root">
+		<mesh path="wallCornerMeshXML.txt" />
+		<collision type="box">
+			<mass>-1</mass>
+			<size x=76 y=24 />
+			<center x=12 y=12 />
+		</collision>
+		<collision type="box">
+			<mass>-1</mass>
+			<size x=24 y=76 />
+			<center x=12 y=64 />
+		</collision>
+		<node x=32 y=-32>
+			<sprite sprite="stone1_small1" spritesheet="mainSpriteSheet" />
+		</node>
+	</node>
+</prefab>

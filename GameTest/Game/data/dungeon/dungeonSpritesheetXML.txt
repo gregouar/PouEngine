@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet material="dungeonMaterial.txt" scaleX=2 scaleY=2>
+	<sprite name="stone1_fill1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=0 y=128 />
+	</sprite>
+	<sprite name="stone1_side1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=32 y=128 />
+	</sprite>
+	<sprite name="stone1_smallcorner1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=64 y=128 />
+	</sprite>
+	<sprite name="stone1_diag1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=96 y=128 />
+	</sprite>
+	<sprite name="stone1_bigcorner1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=128 y=128 />
+	</sprite>
+	
+	<sprite name="stone2_fill1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=194 y=128 />
+	</sprite>
+	<sprite name="stone2_side1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=226 y=128 />
+	</sprite>
+	<sprite name="stone2_smallcorner1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=258 y=128 />
+	</sprite>
+	<sprite name="stone2_diag1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=290 y=128 />
+	</sprite>
+	<sprite name="stone2_bigcorner1" castShadow=1>
+		<size 	x=64 y=64 />
+		<position 	x=322 y=128 />
+	</sprite>
+</spritesheet>

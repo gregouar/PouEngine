@@ -50,14 +50,14 @@ void GameWorld::generateImpl()
 {
     pou::Logger::write("Creating new world...");
 
-    m_dayTime = pou::RNGesus::uniformInt(0,360);
+    m_dayTime = pou::RNGesus::uniformFloat(0.0f,1.0f);
 
     auto loadType = pou::LoadType_Now;
 
     auto worldSeed = pou::RNGesus::rand();
+     /**
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
-    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent);
-
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent, true, true);
     auto airBalloonModel = CharacterModelsHandler::loadAssetFromFile("../data/airBalloon/airBalloonXML.txt",loadType);
     m_syncComponent.syncElement(airBalloonModel);
     {
@@ -70,6 +70,15 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(airBalloon);
         m_syncComponent.syncElement(airBalloon);
     }
+     **/
+
+   //  /**
+    m_worldGenerator.loadFromFile("../data/dungeon/dungeonBiomeXML.txt");
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent,true, false);
+    // **/
+
+     m_suns = m_worldGenerator.generatesSuns(m_scene->getRootNode());
+
 
     m_scene->update(pou::Time(0));
     m_worldReady = true;
@@ -80,7 +89,7 @@ void GameWorld::generateImpl()
 void GameWorld::createWorldInitializationMsg(std::shared_ptr<NetMessage_WorldInit> worldInitMsg)
 {
     //worldInitMsg->localTime = m_curLocalTime;
-    worldInitMsg->dayTime = (int)m_dayTime;
+    worldInitMsg->dayTime = m_dayTime;
 
     worldInitMsg->worldGeneratorModel = m_worldGenerator.getFilePath();
     worldInitMsg->worldGeneratorSeed  = m_worldGenerator.getGeneratingSeed();
@@ -105,7 +114,8 @@ void GameWorld::generateFromMsgImpl(std::shared_ptr<NetMessage_WorldInit> worldI
     m_dayTime = worldInitMsg->dayTime;
 
     m_worldGenerator.loadFromFile(worldInitMsg->worldGeneratorModel);
-    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldInitMsg->worldGeneratorSeed, &m_syncComponent, false);
+    m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldInitMsg->worldGeneratorSeed, &m_syncComponent,
+                                     false, false);
 
     m_syncComponent.syncWorldFromMsg(worldInitMsg, worldInitMsg->player_id,0,useLockStepMode);
     ///m_curLocalTime = m_syncComponent.getLastSyncTime();

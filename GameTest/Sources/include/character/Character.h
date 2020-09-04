@@ -117,6 +117,12 @@ class HurtNode
         static const float DEFAULT_HURTCOLOR_FADEOUTSPEED;
 };
 
+struct Character_Damages
+{
+    glm::vec2 direction;
+    float damages;
+};
+
 class Character : //public pou::SceneObject, public pou::NotificationSender
     public pou::SceneNode
 {
@@ -146,7 +152,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         void setSyncData(GameWorld_Sync *worldSync, int id);
         void setTeam(int team);
 
-        virtual bool damage(float damages, glm::vec2 direction = glm::vec2(0),
+        virtual void damage(float damages, glm::vec2 direction = glm::vec2(0),
                             bool onlyCosmetic = false);
         virtual void setHurtNodeColor(pou::SceneNode *hurtNode, const glm::vec4 &hurtColor);
         //virtual void setSkeletonHurtColor(pou::Skeleton *skeleton, const glm::vec4 &color); ///Maybe replace naked ptr by ID
@@ -207,6 +213,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
 
         virtual void updateSyncComponent(const pou::Time &elapsedTime, uint32_t localTime);
         virtual void updateHurtNodes(const pou::Time &elapsedTime);
+        virtual void updateDamagesToTake();
 
         virtual bool addSkeleton(std::shared_ptr<CharacterSkeleton> skeleton, pou::HashedString name);
 
@@ -254,6 +261,9 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         std::unordered_map<SoundModel*, std::shared_ptr<pou::SoundObject> >   m_sounds;
 
         std::unordered_map<pou::SceneNode*, HurtNode> m_hurtNodes;
+
+
+        std::list<Character_Damages> m_damagesToTake;
 
        /* bool m_isDestinationSet;
         glm::vec2 m_destination; ///This should probably be moved somewhere in AIComponent*/

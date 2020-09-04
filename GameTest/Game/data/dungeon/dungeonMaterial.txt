@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<material>
+	<name>DungeonMaterial</name>
+	<texture type="albedo">dungeon.png</texture>
+	<texture type="normal">dungeon_n.png</texture>
+	<roughness>0.9</roughness>
+	<metalness>0</metalness>
+	<emissivity>0</emissivity>
+</material>
