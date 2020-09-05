@@ -318,8 +318,8 @@ bool VGraphicsPipeline::init(const VRenderPass *renderPass, uint32_t subpass/*, 
                     colorBlendAttachments[i].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
                     colorBlendAttachments[i].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
                     colorBlendAttachments[i].colorBlendOp = VK_BLEND_OP_ADD;
-                    colorBlendAttachments[i].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-                    colorBlendAttachments[i].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+                    colorBlendAttachments[i].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; //VK_BLEND_FACTOR_ONE;
+                    colorBlendAttachments[i].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; //VK_BLEND_FACTOR_ZERO;
                     colorBlendAttachments[i].alphaBlendOp = VK_BLEND_OP_ADD;
                     break;
 

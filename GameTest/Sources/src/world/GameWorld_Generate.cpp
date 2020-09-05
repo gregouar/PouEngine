@@ -72,7 +72,7 @@ void GameWorld::generateImpl()
     }
      **/
 
-   //  /**
+    // /**
     m_worldGenerator.loadFromFile("../data/dungeon/dungeonBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent,true, false);
     // **/

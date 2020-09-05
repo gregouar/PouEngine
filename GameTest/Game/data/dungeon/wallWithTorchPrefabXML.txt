@@ -9,7 +9,7 @@
 			<size x=128 y=24 />
 			<center x=64 y=12 />
 		</collision>
-		<node z=64 y=48>
+		<node z=80 y=48>
 			<light type="omni" radius=250 intensity=10.0 castShadow="false" >
 				<color r=1 g=.75 b=.1 a=1.0 />
 			</light>
