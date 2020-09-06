@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<spritesheet material="torchesMaterial.txt" scaleX=2 scaleY=2>
+	<sprite name="wallTorch" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=0 y=0 />
+		<nextSprite name="wallTorch_1"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_1" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=9 y=0 />
+		<nextSprite name="wallTorch_2"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_2" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=18 y=0 />
+		<nextSprite name="wallTorch_3"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_3" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=27 y=0 />
+		<nextSprite name="wallTorch_4"  delay=.1 />
+	</sprite>
+	<sprite name="wallTorch_4" castShadow=0>
+		<size 	x=9 y=16 />
+		<position 	x=36 y=0 />
+		<nextSprite name="wallTorch"  delay=.1 />
+	</sprite>
+	
+	
+	
+	<sprite name="wallBrazierAttach" castShadow=0>
+		<size 	x=5 y=9 />
+		<position 	x=3 y=29 />
+	</sprite>
+	<sprite name="wallBrazier" castShadow=0>
+		<size 	x=9 y=9 />
+		<position 	x=1 y=16 />
+		<nextSprite name="wallBrazier_1"  delay=.2 />
+	</sprite>
+	<sprite name="wallBrazier_1" castShadow=0>
+		<size 	x=9 y=9 />
+		<position 	x=11 y=16 />
+		<nextSprite name="wallBrazier_2"  delay=.2 />
+	</sprite>
+	<sprite name="wallBrazier_2" castShadow=0>
+		<size 	x=9 y=9 />
+		<position 	x=21 y=16 />
+		<nextSprite name="wallBrazier_3"  delay=.2 />
+	</sprite>
+	<sprite name="wallBrazier_3" castShadow=0>
+		<size 	x=9 y=9 />
+		<position 	x=31 y=16 />
+		<nextSprite name="wallBrazier_4"  delay=.2 />
+	</sprite>
+	<sprite name="wallBrazier_4" castShadow=0>
+		<size 	x=9 y=9 />
+		<position 	x=41 y=16 />
+		<nextSprite name="wallBrazier"  delay=.2 />
+	</sprite>
+	
+	
+	<sprite name="chandelier" castShadow=0 revealable=0>
+		<size 		x=64 y=64 />
+		<position 	x=0 y=40 />
+		<nextSprite name="chandelier_1"  delay=.15 />
+	</sprite>
+	<sprite name="chandelier_1" castShadow=0 revealable=0>
+		<size 		x=64 y=64 />
+		<position 	x=65 y=40 />
+		<nextSprite name="chandelier_2"  delay=.15 />
+	</sprite>
+	<sprite name="chandelier_2" castShadow=0 revealable=0>
+		<size 		x=64 y=64 />
+		<position 	x=130 y=40 />
+		<nextSprite name="chandelier"  delay=.15 />
+	</sprite>
+	
+</spritesheet>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <prefab>
-	<spritesheet name="torchesSpriteSheet" path="torchesSpritesheetXML.txt" />
+	<spritesheet name="torchesSpriteSheet" path="../spritesheets/torchesSpritesheetXML.txt" />
 	
 	<node name="root">
-		<mesh path="wallMeshXML.txt" />
+		<mesh path="../meshes/wallDungeonMeshXML.txt" />
 		<collision type="box">
 			<mass>-1</mass>
 			<size x=128 y=24 />
 			<center x=64 y=12 />
 		</collision>
 		<node z=80 y=48>
-			<light type="omni" radius=250 intensity=10.0 castShadow="false" >
+			<light type="omni" radius=500 intensity=10.0 castShadow="false" >
 				<color r=1 g=.75 b=.1 a=1.0 />
 			</light>
 		</node>
@@ -18,6 +18,15 @@
 			<sprite sprite="wallTorch" spritesheet="torchesSpriteSheet"/>
 			<rotate z=180/>
 		</node>
+		
+		<!--<node z=50 y=26>
+			<sprite sprite="wallBrazier" spritesheet="torchesSpriteSheet"/>
+			<rotate z=180/>
+			
+			<node z=20 y=8>
+				<sprite sprite="wallBrazierAttach" spritesheet="torchesSpriteSheet"/>
+			</node>
+		</node>-->
 	</node>
 	
 	<!--<character path="../duck/duckXML.txt" x=100 />-->
