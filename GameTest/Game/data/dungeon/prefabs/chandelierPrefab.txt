@@ -3,16 +3,19 @@
 	<spritesheet name="torchesSpriteSheet" path="../spritesheets/torchesSpritesheetXML.txt" />
 	
 	<node name="root">
-		<node z=160 >
-			<light type="omni" radius=2000 intensity=20.0 castShadow="false" >
+		<!--<node z=160 >
+			<light type="omni" radius=1250 intensity=20.0 castShadow="false" >
 				<color r=1 g=.75 b=.1 a=1.0 />
 			</light>
 		</node>
 		<node z=150>
 			<sprite sprite="chandelier" spritesheet="torchesSpriteSheet"/>
-		</node>
+		</node>-->
 		
 	</node>
+	
+	<character path="../characters/chandelierXML.txt" >
+	</character>
 	
 	<!--<character path="../duck/duckXML.txt" x=100 />-->
 </prefab>

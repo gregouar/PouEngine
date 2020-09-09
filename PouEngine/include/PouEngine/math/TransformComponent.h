@@ -63,16 +63,16 @@ class TransformComponent : public NotificationSender, public NotificationListene
 
         size_t getTreeDepth() const;
 
-        const glm::vec3 &getGlobalPosition() const;
-        glm::vec2 getGlobalXYPosition() const;
+        const glm::vec3 &getGlobalPosition();
+        glm::vec2 getGlobalXYPosition();
 
         const glm::vec3 &getPosition() const;
         const glm::vec3 &getScale() const;
         const glm::vec3 &getEulerRotation()const;
         float getRigidity() const;
 
-        const glm::mat4 &getModelMatrix() const;
-        const glm::mat4 &getInvModelMatrix() const;
+        const glm::mat4 &getModelMatrix();
+        const glm::mat4 &getInvModelMatrix();
 
         //glm::vec3 getLocalXRotationVector() const;
         //static glm::vec3 convertZRotationVectorToYZRotation(const glm::vec3 &rotationVector);

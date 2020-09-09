@@ -100,6 +100,10 @@ void GameWorld_Sync::update(const pou::Time &elapsedTime)
     m_updatedMeshes.clear();**/
     m_updatedCharacters[m_updatedCharactersBuffer].clear();
 
+    m_players.clear();
+    for(auto player : m_syncPlayers)
+        m_players.push_back(player.second.get());
+
     for(auto nodeSyncer : m_nodeSyncers)
         nodeSyncer.second->update(elapsedTime, m_curLocalTime);
 
@@ -1198,6 +1202,11 @@ uint32_t GameWorld_Sync::getLastWorldSyncTime()
 std::vector<Character*>    *GameWorld_Sync::getUpdatedCharacters()
 {
     return &m_updatedCharacters[!m_updatedCharactersBuffer];
+}
+
+std::vector<Player*>    *GameWorld_Sync::getPlayers()
+{
+    return &m_players;
 }
 
 std::shared_ptr<Character>  GameWorld_Sync::getCharacter(int character_id)

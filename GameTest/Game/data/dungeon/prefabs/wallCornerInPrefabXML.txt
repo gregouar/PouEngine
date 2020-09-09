@@ -14,5 +14,12 @@
 			<size x=24 y=76 />
 			<center x=12 y=64 />
 		</collision>
+		<node z=128 y=60>
+			<sprite sprite="topwall1" spritesheet="mainSpriteSheet"/>
+		</node>
+		<node z=128 x=-60>
+			<sprite sprite="topwall1" spritesheet="mainSpriteSheet"/>
+			<rotate z=90 />
+		</node>
 	</node>
 </prefab>

@@ -120,6 +120,7 @@ class CharacterModelAsset : public pou::Asset
 
     private:
         AiScriptModelAsset *m_aiScriptModel;
+        Predefined_AiComponent_Type m_predefinedAiComponentType;
 
         std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>   m_spriteSheets;
         std::unordered_map<pou::HashedString, pou::LightModel>          m_lightModels;

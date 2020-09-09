@@ -445,7 +445,7 @@ void SceneNode::updateFinalColor()
     for(auto child : m_childNodes)
         child->updateFinalColor();
 
-    this->sendNotification(NotificationType_NodeMoved);
+    ///this->sendNotification(NotificationType_NodeMoved);
 }
 
 }

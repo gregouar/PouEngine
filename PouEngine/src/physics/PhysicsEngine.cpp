@@ -173,8 +173,8 @@ void PhysicsEngine::resolveBoxMinkowskiDiff(const glm::vec2 &closestPoint,
 
     transform2->globalMove(translationVector * ratio * 1.0f);
     transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
-    transform1->update();
-    transform2->update();
+    ///transform1->update();
+    ///transform2->update();
 }
 
 //void PhysicsEngine::resolveBoxToBoxCollision(BoxBody *body1, BoxBody *body2)
@@ -364,8 +364,8 @@ void PhysicsEngine::resolveDiskMinkowskiDiff(const glm::vec2 &diskCenter, float 
 
     transform2->globalMove(translationVector * ratio * 1.0f);
     transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
-    transform1->update();
-    transform2->update();
+    ///transform1->update();
+    ///transform2->update();
 }
 
 //void PhysicsEngine::resolveBoxToDiskCollision(BoxBody *boxBody, DiskBody *diskBody)
@@ -485,8 +485,8 @@ void PhysicsEngine::resolveDiskToDiskCollision(RigidBody *body1, RigidBody *body
         auto translationVector = delta * (float)(sumRadii - lengthDelta)/lengthDelta;
         transform2->globalMove(translationVector * ratio * 1.0f);
         transform1->globalMove(-translationVector * (1.0f-ratio) * 1.0f);
-        transform1->update();
-        transform2->update();
+        ///transform1->update();
+        ///transform2->update();
     }
 }
 

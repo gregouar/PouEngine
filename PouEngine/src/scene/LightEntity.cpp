@@ -171,7 +171,7 @@ LightEntity::LightEntity() : SceneEntity()
     m_lightModel.shadowMapExtent = {512.0, 512.0};*/
 
     m_datum.shadowShift = {0,0};
-    this->updateDatum();
+    ///this->updateDatum();
 }
 
 LightEntity::~LightEntity()
@@ -194,6 +194,7 @@ std::shared_ptr<SceneObject> LightEntity::createCopy()
 
 void LightEntity::generateRenderingData(SceneRenderingInstance *renderingInstance)
 {
+    this->updateDatum();
     renderingInstance->addToLightsVbo(this->getLightDatum());
 }
 
@@ -252,7 +253,7 @@ void LightEntity::setType(LightType type)
     {
         m_lightModel.type = type;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -263,7 +264,7 @@ void LightEntity::setDirection(glm::vec3 direction)
         //glm::vec3 oldDirection = m_lightModel.direction;
         m_lightModel.direction = direction;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
 
         //this->sendNotification(NotificationType_UpdateShadow, &oldDirection);
     }
@@ -280,7 +281,7 @@ void LightEntity::setDiffuseColor(Color color)
     {
         m_lightModel.color = color;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -290,7 +291,7 @@ void LightEntity::setRadius(float radius)
     {
         m_lightModel.radius = radius;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -300,7 +301,7 @@ void LightEntity::setIntensity(float intensity)
     {
         m_lightModel.intensity = intensity;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -310,7 +311,7 @@ void LightEntity::setModel(const LightModel &lightModel)
     {
         m_lightModel = lightModel;
         ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -322,7 +323,7 @@ void LightEntity::setShadowMapExtent(glm::vec2 extent)
 void LightEntity::setShadowBlurRadius(float blurRadius)
 {
     m_lightModel.shadowBlurRadius = blurRadius;
-    this->updateDatum();
+    ///this->updateDatum();
 }
 
 void LightEntity::enableShadowCasting()
@@ -330,7 +331,7 @@ void LightEntity::enableShadowCasting()
     if(!m_lightModel.castShadow)
     {
         m_lightModel.castShadow = true;
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -339,7 +340,7 @@ void LightEntity::disableShadowCasting()
     if(m_lightModel.castShadow)
     {
         m_lightModel.castShadow = false;
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -353,8 +354,8 @@ LightDatum LightEntity::getLightDatum()
 void LightEntity::notify(NotificationSender *sender, int notificationType,
                          void* data)
 {
-    if(notificationType == NotificationType_NodeMoved)
-        this->updateDatum();
+    /**if(notificationType == NotificationType_NodeMoved)
+        this->updateDatum();**/
 }
 
 void LightEntity::updateDatum()
@@ -368,6 +369,12 @@ void LightEntity::updateDatum()
     m_datum.color.a  *= m_lightModel.intensity;
 
     m_datum.radius    = m_lightModel.radius;
+
+    if(m_parentNode != nullptr)
+    {
+        m_datum.radius *= m_parentNode->transform()->getScale().x;
+        m_datum.color  *= m_parentNode->getColor();
+    }
 
     if(m_lightModel.castShadow)
     {
@@ -395,7 +402,7 @@ void LightEntity::recreateShadowMap(SceneRenderer* renderer)
    // VTexturesManager::allocRenderableTexture(m_lightModel.shadowMapExtent.x, m_lightModel.shadowMapExtent.y, VK_FORMAT_D16_UNORM /*VK_FORMAT_R32_SFLOAT*/,
    //                                          renderer->getShadowMapsRenderPass(), &m_shadowMap);
 
-    this->updateDatum();
+    ///this->updateDatum();
 }
 
 

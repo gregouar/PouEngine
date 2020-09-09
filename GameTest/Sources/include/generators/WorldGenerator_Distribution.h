@@ -27,6 +27,7 @@ struct WorldGenerator_Distribution_Parameters
 
     bool startInCenter;
     bool useGridPosition;
+    bool useDithering;
 
     pou::HashedString pathName; //For WorldGenerator_DistributionType_Path
     pou::HashedString spawnGroupName; //For WorldGenerator_DistributionType_SpawnGroup

@@ -11,7 +11,7 @@
 		<size 		x="17" 	y="15" 	/>
 		<center 	x="8" 	y="9" 	/>
 		<position 	x="18" 	y="0" 	/>
-		<surface roughness=.2 metalness=1.0 emissivity=0.0 />
+		<!--<surface roughness=.2 metalness=1.0 emissivity=0.0 />-->
 	</sprite>
 	<sprite name="head_sith" castShadow="true">
 		<size 		x="17" 	y="15" 	/>
@@ -43,13 +43,13 @@
 		<size 		x="13" 	y="15" 	/>
 		<center 	x="9" 	y="7" 	/>
 		<position 	x="0" 	y="35" 	/>
-		<surface roughness=.2 metalness=1.0 emissivity=0.0 />
+		<!--<surface roughness=.2 metalness=1.0 emissivity=0.0 />-->
 	</sprite>
 	<sprite name="shoulderR_mokou" castShadow="true">
 		<size 		x="13" 	y="15" 	/>
 		<center 	x="3" 	y="7" 	/>
 		<position 	x="14" 	y="35" 	/>
-		<surface roughness=.2 metalness=1.0 emissivity=0.0 />
+		<!--<surface roughness=.2 metalness=1.0 emissivity=0.0 />-->
 	</sprite>
 	<sprite name="shoulderL_sith" castShadow="true">
 		<size 		x="13" 	y="15" 	/>

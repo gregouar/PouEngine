@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<skeleton>
+	<node name="root"> 
+		<node name="chandelier" z=150 state="off">
+			<node name="chandelierLight" z=10 state="off" />
+		</node>
+	</node>
+	
+	
+	<animation name="stand" loop=1>
+		<frame frameTime=".1">
+			<!--<reset />-->
+			<command type="scaleTo" node="chandelierLight" x=-.5 />
+			<command type="colorTo" node="chandelierLight" a=-1 />
+		</frame>
+	</animation>
+	
+	<animation name="activate" loop=0>
+		<frame frameTime=".01">
+			<!--<reset />-->
+			<state node="chandelier">on</state>
+			<state node="chandelierLight">on</state>
+		</frame>
+		<frame frameTime="2">
+			<!--<reset />-->
+			<command type="scaleTo" node="chandelierLight" x=0 />
+			<command type="colorTo" node="chandelierLight" a=0 />
+		</frame>
+	</animation>
+</skeleton>
+
+

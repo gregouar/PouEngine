@@ -37,7 +37,8 @@ class TerrainGenerator_TileModels
         void addTileSpriteModel(float probability, TerrainGenerator_TileSpriteModel tileModel);
         void addTilePrefabModel(float probability, TerrainGenerator_TilePrefabModel tileModel);
 
-        void generatesOnNode(pou::SceneNode *targetNode, int modValue = -1, pou::RNGenerator *rng = nullptr);
+        void generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
+                             int modValue = -1, pou::RNGenerator *rng = nullptr);
 
     protected:
         void loadSpriteElement(TiXmlElement *element, TerrainLayerModelAsset *parentLayerModel);

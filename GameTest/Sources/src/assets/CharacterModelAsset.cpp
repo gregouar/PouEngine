@@ -15,6 +15,7 @@
 
 #include "character/Character.h"
 #include "ai/AiScriptedComponent.h"
+#include "ai/AutolightAiComponent.h"
 #include "assets/AiScriptModelAsset.h"
 
 CharacterModelAsset::CharacterModelAsset() :
@@ -25,7 +26,8 @@ CharacterModelAsset::CharacterModelAsset() :
 
 
 CharacterModelAsset::CharacterModelAsset(const pou::AssetTypeId id) : Asset(id),
-    m_aiScriptModel(nullptr)
+    m_aiScriptModel(nullptr),
+    m_predefinedAiComponentType(NBR_Predefined_AiComponent_Types)
 {
     m_allowLoadFromFile     = true;
     m_allowLoadFromMemory   = false;
@@ -90,8 +92,10 @@ bool CharacterModelAsset::generateCharacter(Character *targetCharacter)
         targetCharacter->addSkeleton(skeleton, skeletonModel.first);
     }
 
-    if(m_aiScriptModel)
+    if(m_predefinedAiComponentType != NBR_Predefined_AiComponent_Types)
     {
+        targetCharacter->setAiComponent(std::make_shared<AutoLightAiComponent>(targetCharacter));
+    } else if(m_aiScriptModel) {
         auto aiScript = std::make_shared<AiScriptedComponent>(targetCharacter);
         aiScript->createFromModel(m_aiScriptModel);
         targetCharacter->setAiComponent(aiScript);
@@ -248,6 +252,16 @@ bool CharacterModelAsset::loadFromXML(TiXmlHandle *hdl)
 
 bool CharacterModelAsset::loadAiScript(TiXmlElement *element)
 {
+    auto predefinedAi = element->Attribute("predef");
+    if(predefinedAi)
+    {
+        auto predefinedAiStr = std::string(predefinedAi);
+        if(predefinedAiStr == "autolight")
+            m_predefinedAiComponentType = Predefined_AiComponent_AutoLight;
+
+        return (true);
+    }
+
     auto pathAtt = element->Attribute("path");
     if(pathAtt == nullptr)
         return (false);

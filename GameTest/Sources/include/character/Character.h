@@ -19,6 +19,7 @@
 
 class AiComponent;
 class GameWorld_Sync;
+class Player;
 
 struct CharacterAttributes
 {
@@ -174,6 +175,7 @@ class Character : //public pou::SceneObject, public pou::NotificationSender
         virtual const std::vector<Hitbox> *getHurtboxes() const;
 
         std::vector<Character*> *getNearbyCharacters();
+        std::vector<Player*>    *getNearbyPlayers();
 
         CharacterModelAsset *getModel() const;
         CharacterSkeleton   *getSkeleton(pou::HashedString skeletonName);

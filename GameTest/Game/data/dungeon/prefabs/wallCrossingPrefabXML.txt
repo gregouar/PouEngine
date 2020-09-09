@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <prefab>
+	<spritesheet name="mainSpriteSheet" path="../spritesheets/dungeonSpritesheetXML.txt" />
+	
 	<node name="root">
 		<mesh path="../meshes/wallDungeonMeshXML.txt" />
 		<collision type="box">
@@ -16,6 +18,14 @@
 				<size x=128 y=24 />
 				<center x=64 y=12 />
 			</collision>
+		</node>
+		
+		<node z=128 y=-60 x=60>
+			<sprite sprite="topwallSmall" spritesheet="mainSpriteSheet"/>
+		</node>
+		
+		<node z=128 y=60 x=-60>
+			<sprite sprite="topwallSmall" spritesheet="mainSpriteSheet"/>
 		</node>
 	</node>
 </prefab>

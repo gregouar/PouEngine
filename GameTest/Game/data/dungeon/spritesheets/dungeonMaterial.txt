@@ -3,7 +3,8 @@
 	<name>DungeonMaterial</name>
 	<texture type="albedo">dungeon.png</texture>
 	<texture type="normal">dungeon_n.png</texture>
-	<roughness>0.9</roughness>
+	<texture type="rme">dungeon_rme.png</texture>
+	<!--<roughness>0.9</roughness>
 	<metalness>0</metalness>
-	<emissivity>0</emissivity>
+	<emissivity>0</emissivity>-->
 </material>

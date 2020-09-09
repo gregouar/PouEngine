@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <biome>
 	<parameters>
+		<!--<sun path="../../normalSunXML.txt" />-->
 		<ambientLight r=1 g=1 b=1 i=.1 />
 		<music path="event:/DungeonMusic" type="event" />
 	</parameters>
@@ -26,6 +27,139 @@
 		</path>
 	</terrain>
 	
+	<!--<pois type="uniform" distance=13 useGridPosition=1 startInCenter=1 dither="true" >
+		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"  preventGroundSpawning="false"   >
+			<size x=8 y=8 />
+			<pathConnection path="stonePath" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1 changeGroundLayerTo="stone"  preventGroundSpawning="false"   >
+			<size x=8 y=8 />
+			<pathConnection path="stonePath" />
+			<modifier type="gridPosition" rng="uniform" x="[-2,2]" y="[-2,2]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stone"  preventGroundSpawning="false"  >
+			<subSpawn spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=8 y=8 />
+			<prefab path="../prefabs/chandelierPrefab.txt" />
+			<modifier type="gridPosition" rng="uniform" x="[-2,2]" y="[-2,2]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1 unique=1  changeGroundLayerTo="stone"  >
+			<subSpawn spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=10 y=9 />
+			<drawGround groundLayer="stoneSlab1">
+				0000000000
+				0111001110
+				0010000100
+				0010000100
+				0011111100
+				0010000100
+				0010000100
+				0111001110
+				0000000000
+			</drawGround>
+			<prefab path="../prefabs/chandelierPrefab.txt" />
+			<modifier type="gridPosition" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stoneSlab1"  >
+			<subSpawn x=-4.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-4 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-3.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-1.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=-1 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=.5 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=1.5 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=2 y=2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=3.5 y=-2.5 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=2.5  spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=-2.5  spawnGroup="floorFurnituresSpawn" />
+			<subSpawn spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=10 y=6 />
+			<prefab path="../prefabs/chandelierPrefab.txt" />
+			<modifier type="gridPosition" rng="uniform" x="[-1,1]" y="[-4,4]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.1  changeGroundLayerTo="stone2"  >
+			<subSpawn x=-4.5 y=-4.5 spawnProbability=.75 spawnGroup="smallFurnituresSpawn" />
+			<subSpawn x=1 y=2 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=-2 y=3 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn x=0 y=-3 spawnProbability=.5 spawnGroup="floorFurnituresSpawn" />
+			<subSpawn spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=10 y=10 />
+			<prefab path="../prefabs/chandelierPrefab.txt" />
+			<modifier type="gridPosition" rng="uniform" x="[-1,1]" y="[-1,1]" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.05  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+			<drawGround groundLayer="stoneSlab1">
+				000000000000
+				011111111110
+				010000000010
+				010000000010
+				010010010010
+				010001100010
+				010001100010
+				010010010010
+				010000000010
+				010000000010
+				011111111110
+				000000000000
+			</drawGround>
+			<prefab path="../prefabs/pillarsBigRoom.txt" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.05  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+			<drawGround groundLayer="stoneSlab1">
+				000000000000
+				011111111110
+				010000000010
+				010111111010
+				010100001010
+				010101101010
+				010101101010
+				010100001010
+				010111111010
+				010000000010
+				011111111110
+				000000000000
+			</drawGround>
+			<prefab path="../prefabs/pillarsBigRoom.txt" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.05  changeGroundLayerTo="stone"  >
+			<subSpawn x=-3 y=-3 spawnGroup="monstersRoom1" />
+			<subSpawn x=2 y=3 spawnGroup="monstersRoom1" />
+			<pathConnection path="stonePath" />
+			<size x=12 y=12 />
+			<drawGround groundLayer="stone2">
+				000000000000
+				011110011110
+				011110011110
+				011110011110
+				011110011110
+				000000000000
+				000000000000
+				011110011110
+				011110011110
+				011110011110
+				011110011110
+				000000000000
+			</drawGround>
+			<prefab path="../prefabs/pillarsBigRoom.txt" />
+		</spawnPoint>
+		<spawnPoint  spawnProbability=.2   >
+			<pathConnection path="stonePath" />
+			<modifier type="gridPosition" rng="uniform" x="[-6,6]" y="[-6,6]" />
+		</spawnPoint>
+	</pois>-->
+	
 	
 	<pois type="poisson" distance=1800 useGridPosition=1 startInCenter=1 >
 		<spawnPoint  spawnProbability="inf" unique=1  changeGroundLayerTo="stone"  preventGroundSpawning="false"   >
@@ -33,7 +167,7 @@
 			<pathConnection path="stonePath" />
 		</spawnPoint>
 		<spawnPoint  spawnProbability=.1  unique=1 changeGroundLayerTo="stone" changeSpawnTypeTo="none"  >
-			<pathConnection path="stoneSlab1" />
+			<pathConnection path="stonePath" />
 			<size x=16 y=8 />
 			<drawGround groundLayer="stoneSlab1">
 				0000000000000000

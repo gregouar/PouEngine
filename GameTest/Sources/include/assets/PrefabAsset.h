@@ -52,6 +52,7 @@ class PrefabAsset : public pou::Asset
 
         std::unordered_map<pou::HashedString, pou::SpriteSheetAsset*>   m_spriteSheets;
         std::list<PrefabCharacter> m_prefabCharacters;
+        std::list<PrefabInstance*> m_subPrefabs;
 };
 
 #endif // PREFABASSET_H

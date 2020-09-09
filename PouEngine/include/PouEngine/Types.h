@@ -96,6 +96,7 @@ enum NotificationType
     NotificationType_NodeMoved,
     NotificationType_NodeParentChanged,
     NotificationType_TransformChanged,
+    NotificationType_TransformAskForUpdateModelMatrix,
     NotificationType_UpdateCmb,
     NotificationType_ModelChanged,
     NotificationType_TextureChanged,

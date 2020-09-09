@@ -50,16 +50,49 @@ std::list<std::shared_ptr<Character> > PrefabAsset::generateCharacters(/*pou::Sc
             character->transform()->combineTransform(&prefabCharacter.transform);*/
 
             character->transform()->copyFrom(&prefabCharacter.transform);
-            character->transform()->rotateInRadians(glm::vec3(0,0, transform->getEulerRotation().z));
-            //character->transform()->scale(transform->getScale());
 
-            auto localPos = prefabCharacter.transform.getPosition();
-            auto globalPos = transform->apply(localPos);
-            character->transform()->setPosition(globalPos);
+            if(transform)
+            {
+                character->transform()->rotateInRadians(glm::vec3(0,0, transform->getEulerRotation().z));
+                //character->transform()->scale(transform->getScale());
+
+                auto localPos = prefabCharacter.transform.getPosition();
+                auto globalPos = transform->apply(localPos);
+                character->transform()->setPosition(globalPos);
+            }
 
             characterList.push_back(character);
             //targetNode->addChildNode(character);
         }
+    }
+
+    for(auto subPrefab : m_subPrefabs)
+    {
+        /*if(transform)
+        {
+            subPrefab->transform()->rotateInRadians(glm::vec3(0,0, transform->getEulerRotation().z));
+
+            auto localPos = subPrefab->transform()->getPosition();
+            auto globalPos = transform->apply(localPos);
+            subPrefab->transform()->setPosition(globalPos);
+        }*/
+
+        //auto newCharacterList = subPrefab->getPrefabModel()->generateCharacters(subPrefab->transform());
+        auto newCharacterList = subPrefab->getPrefabModel()->generateCharacters(subPrefab->transform());
+
+
+        if(transform)
+        for(auto character : newCharacterList)
+        {
+            character->transform()->rotateInRadians(glm::vec3(0,0, transform->getEulerRotation().z));
+            //character->transform()->scale(transform->getScale());
+
+            auto localPos = character->transform()->getPosition();
+            auto globalPos = transform->apply(localPos);
+            character->transform()->setPosition(globalPos);
+        }
+
+        characterList.merge(newCharacterList);
     }
 
     return characterList;
@@ -432,6 +465,8 @@ bool PrefabAsset::loadPrefab(pou::SceneNode *node, TiXmlElement *element)
 
     auto newNode = prefabModel->generate();
     node->addChildNode(newNode);
+
+    m_subPrefabs.push_back(newNode.get());
 
     return (true);
 }

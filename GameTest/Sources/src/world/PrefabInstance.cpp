@@ -27,6 +27,27 @@ void PrefabInstance::createFromModel(PrefabAsset *prefabModel)
     prefabModel->generatesToNode(this);
 }
 
+void PrefabInstance::generateCharactersOnParent()
+{
+    auto targetNode = this->getParentNode();
+
+    if(!targetNode)
+        return;
+
+    auto characterList = m_prefabModel->generateCharacters(this->transform());
+    for(auto character : characterList)
+        targetNode->addChildNode(character);
+}
+
+std::list<std::shared_ptr<Character> > PrefabInstance::generateCharactersAsChilds()
+{
+    auto characterList = m_prefabModel->generateCharacters(nullptr);
+    for(auto character : characterList)
+        this->addChildNode(character);
+    return characterList;
+}
+
+
 /*void PrefabInstance::spawnCharactersOnParent()
 {
     if(!m_prefabModel)

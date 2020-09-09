@@ -863,6 +863,14 @@ std::vector<Character*> *Character::getNearbyCharacters()
     return m_worldSync->getUpdatedCharacters();
 }
 
+std::vector<Player*> *Character::getNearbyPlayers()
+{
+    if(!m_worldSync)
+        return (nullptr);
+
+    return m_worldSync->getPlayers();
+}
+
 bool Character::isAlive() const
 {
     return (!m_isDead.getValue());

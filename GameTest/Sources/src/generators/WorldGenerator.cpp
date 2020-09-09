@@ -79,7 +79,7 @@ void WorldGenerator::generatesOnNode(pou::SceneNode *targetNode, int seed, GameW
 
     pou::Logger::write("Generates terrain sprites...");
 
-    m_terrainGenerator.generatesOnNode(targetNode);
+    m_terrainGenerator.generatesOnNode(targetNode, syncComponent);
 }
 
 std::list<std::shared_ptr<pou::LightEntity> > WorldGenerator::generatesSuns(pou::SceneNode *targetNode)

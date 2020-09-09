@@ -10,7 +10,7 @@
 			<center x=12 y=12 />
 		</collision>
 		
-		<node>
+		<!--<node>
 			<node z=80 y=48>
 				<light type="omni" radius=750 intensity=10.0 castShadow="false" >
 					<color r=1 g=.75 b=.1 a=1.0 />
@@ -56,7 +56,20 @@
 				<rotate z=180/>
 			</node>
 			<rotate z=-90/>
-		</node>
+		</node>-->
 	</node>
+	
+	<character path="../characters/wallTorchXML.txt" y=-24 >
+			<rotate z=0/>
+	</character>
+	<character path="../characters/wallTorchXML.txt" x=24 >
+			<rotate z=90/>
+	</character>
+	<character path="../characters/wallTorchXML.txt" x=-24 >
+			<rotate z=-90/>
+	</character>
+	<character path="../characters/wallTorchXML.txt" y=24 >
+			<rotate z=180/>
+	</character>
 	
 </prefab>

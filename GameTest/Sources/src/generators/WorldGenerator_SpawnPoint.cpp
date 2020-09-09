@@ -182,6 +182,13 @@ void WorldGenerator_SpawnPoint::generatesOnNode(glm::vec2 worldPos, float pointR
                                                 pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
                                                 bool generateCharacters, pou::RNGenerator *rng)
 {
+    auto gridShift = this->generateRandomValue(m_randomModifiers[WorldGenerator_SpawnPoint_ModifierType_GridPosition], rng);
+    worldPos += glm::vec2(gridShift) * m_worldGenerator->terrain()->getTileSize();
+
+    if(abs(worldPos.x) + m_gridSize.x*0.5 > m_worldGenerator->terrain()->getExtent().x*0.5
+    || abs(worldPos.y) + m_gridSize.y*0.5 > m_worldGenerator->terrain()->getExtent().y*0.5)
+        return;
+
     m_hasSpawn = true;
 
     for(auto characterSpawnModel : m_characterSpawnModels)
@@ -323,7 +330,9 @@ void WorldGenerator_SpawnPoint::loadModifier(TiXmlElement *modifierElement)
     if(typeAtt)
     {
         int type = 0;
-        if(std::string(typeAtt) == "position")
+        if(std::string(typeAtt) == "gridPosition")
+            type = WorldGenerator_SpawnPoint_ModifierType_GridPosition;
+        else if(std::string(typeAtt) == "position")
             type = WorldGenerator_SpawnPoint_ModifierType_Position;
         else if(std::string(typeAtt) == "rotation")
             type = WorldGenerator_SpawnPoint_ModifierType_Rotation;

@@ -8,49 +8,49 @@
 	</tileModel>
 	
 	<tileModel type="smallCornerTopLeft">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=180 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=180 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=180 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=0 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=0 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=0 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=0 />
 	</tileModel>
 	<tileModel type="smallCornerTopRight">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=-90 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=-90 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=-90 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=-90 />
-	</tileModel>
-	<tileModel type="smallCornerBottomLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=90 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=90 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=90 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=90 />
 	</tileModel>
+	<tileModel type="smallCornerBottomLeft">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=-90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=-90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=-90 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=-90 />
+	</tileModel>
 	<tileModel type="smallCornerBottomRight">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner1" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner2" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner3" rotation=180 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_smallcorner4" rotation=180 />
 	</tileModel>
 	
 	<tileModel type="sideBottom">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" allowRandomFlipX=1 />
-	</tileModel>
-	<tileModel type="sideLeft">
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" rotation=90 allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" rotation=90 allowRandomFlipX=1 />
-		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" rotation=90 allowRandomFlipX=1 />
-	</tileModel>
-	<tileModel type="sideTop">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" rotation=180 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" rotation=180 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" rotation=180 allowRandomFlipX=1 />
 	</tileModel>
-	<tileModel type="sideRight">
+	<tileModel type="sideLeft">
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" rotation=-90 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" rotation=-90 allowRandomFlipX=1 />
 		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" rotation=-90 allowRandomFlipX=1 />
+	</tileModel>
+	<tileModel type="sideTop">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" rotation=0 allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" rotation=0 allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" rotation=0 allowRandomFlipX=1 />
+	</tileModel>
+	<tileModel type="sideRight">
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom1" rotation=90 allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom2" rotation=90 allowRandomFlipX=1 />
+		<sprite probability=1 spritesheet="mainSpriteSheet" sprite="flower1_bottom3" rotation=90 allowRandomFlipX=1 />
 	</tileModel>
 	
 	<tileModel type="bigCornerTopRight">

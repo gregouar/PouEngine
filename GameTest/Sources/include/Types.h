@@ -22,6 +22,12 @@ enum GearType
     NBR_GEAR_TYPES,
 };
 
+enum Predefined_AiComponent_Type
+{
+    Predefined_AiComponent_AutoLight,
+    NBR_Predefined_AiComponent_Types,
+};
+
 template<class AssetType> class AssetHandler;
 typedef pou::AssetHandler<CharacterModelAsset>  CharacterModelsHandler;
 typedef pou::AssetHandler<ItemModelAsset>       ItemModelsHandler;

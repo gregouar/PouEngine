@@ -28,6 +28,7 @@ class Parser : public Singleton<Parser>
         static std::string findFileDirectory(const std::string&);
         static std::string findFileExtension(const std::string&);
         static std::string removeFileExtension(const std::string&);
+        static std::string simplifyFilePath(const std::string &);
 
     protected:
         Parser();

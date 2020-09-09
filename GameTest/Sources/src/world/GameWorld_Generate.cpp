@@ -55,7 +55,7 @@ void GameWorld::generateImpl()
     auto loadType = pou::LoadType_Now;
 
     auto worldSeed = pou::RNGesus::rand();
-    // /**
+    /**
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent, true, true);
     auto airBalloonModel = CharacterModelsHandler::loadAssetFromFile("../data/airBalloon/airBalloonXML.txt",loadType);
@@ -70,12 +70,12 @@ void GameWorld::generateImpl()
         m_worldGrid->addChildNode(airBalloon);
         m_syncComponent.syncElement(airBalloon);
     }
-    // **/
+     **/
 
-    /**
+    // /**
     m_worldGenerator.loadFromFile("../data/dungeon/biome/dungeonBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent,true, false);
-    **/
+    // **/
 
      m_suns = m_worldGenerator.generatesSuns(m_scene->getRootNode());
 

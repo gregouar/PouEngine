@@ -328,15 +328,15 @@ size_t TransformComponent::getTreeDepth() const
     return m_treeDepth;
 }
 
-const glm::vec3 &TransformComponent::getGlobalPosition() const
+const glm::vec3 &TransformComponent::getGlobalPosition()
 {
-    //if(m_needToUpdateModelMat)
-      //  this->updateModelMatrix();
+    if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
 
     return m_globalPosition;
 }
 
-glm::vec2 TransformComponent::getGlobalXYPosition() const
+glm::vec2 TransformComponent::getGlobalXYPosition()
 {
     return glm::vec2(this->getGlobalPosition());
 }
@@ -361,13 +361,17 @@ float TransformComponent::getRigidity() const
     return m_rigidity;
 }
 
-const glm::mat4 &TransformComponent::getModelMatrix() const
+const glm::mat4 &TransformComponent::getModelMatrix()
 {
+    if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
     return m_modelMatrix;
 }
 
-const glm::mat4 &TransformComponent::getInvModelMatrix() const
+const glm::mat4 &TransformComponent::getInvModelMatrix()
 {
+    if(m_needToUpdateModelMat)
+        this->updateModelMatrix();
     return m_invModelMatrix;
 }
 
@@ -422,7 +426,7 @@ void TransformComponent::notify(NotificationSender* sender, int notificationType
 {
     if(sender == m_parent)
     {
-        if(notificationType == NotificationType_TransformChanged)
+        if(notificationType == NotificationType_TransformAskForUpdateModelMatrix)
         {
             ///this->updateGlobalPosition();
             this->askForUpdateModelMatrix();
@@ -439,6 +443,7 @@ void TransformComponent::notify(NotificationSender* sender, int notificationType
 void TransformComponent::askForUpdateModelMatrix()
 {
     m_needToUpdateModelMat = true;
+    this->sendNotification(NotificationType_TransformAskForUpdateModelMatrix);
 }
 
 
@@ -502,8 +507,6 @@ void TransformComponent::updateModelMatrix()
 
     m_needToUpdateModelMat = false;
     this->sendNotification(NotificationType_TransformChanged,&oldGlobalPosition);
-
-
 
     ///TEST
    /* glm::mat4 testMat = m_modelMatrix * m_invModelMatrix;

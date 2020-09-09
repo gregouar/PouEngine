@@ -149,6 +149,31 @@ std::string Parser::removeFileExtension(const std::string &filePath)
     return filePath;
 }
 
+std::string Parser::simplifyFilePath(const std::string &filePath)
+{
+    std::string newFilePath(filePath);
+
+    size_t last = 0;
+
+    while(true)
+    {
+       std::string toFind("/..");
+        auto found = newFilePath.find(toFind, last+1);
+
+        if(found == std::string::npos)
+            break;
+
+        auto prec = newFilePath.find_last_of('/', found-1);
+        if(prec != std::string::npos
+        && newFilePath.substr(prec, found-prec+3) != "/../..")
+            newFilePath.erase(prec, found-prec+3);
+        else
+            last = found;
+    }
+
+    return newFilePath;
+}
+
 
 }
 

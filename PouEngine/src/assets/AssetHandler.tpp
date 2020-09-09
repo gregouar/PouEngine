@@ -1,5 +1,6 @@
 
 #include "PouEngine/tools/Logger.h"
+#include "PouEngine/tools/Parser.h"
 
 namespace pou
 {
@@ -77,7 +78,9 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
     //std::lock_guard<std::mutex> lock(m_assetAccessMutex);
     ///m_assetAccessMutex.lock();
 
-    auto hashedFilePath = Hasher::unique_hash(filePath);
+    auto newFilePath = pou::Parser::simplifyFilePath(filePath);
+
+    auto hashedFilePath = Hasher::unique_hash(newFilePath);
 
 	auto filesIter = m_filesList.find(hashedFilePath);
 	if(filesIter != m_filesList.end())
@@ -100,7 +103,7 @@ AssetType* AssetHandler<AssetType>::loadAssetFromFileImpl(const AssetTypeId id,
     ///m_assetAccessMutex.unlock();
 
     AssetType* newAsset = this->addAssetImpl(id);
-    newAsset->prepareLoadFromFile(filePath, loadType);
+    newAsset->prepareLoadFromFile(newFilePath, loadType);
     if(loadType == LoadType_Now) {
         newAsset->loadNow();
     } else {

@@ -57,7 +57,8 @@ class GameWorld_Sync : public pou::NotificationListener
         uint32_t getLocalTime();
         uint32_t getLastWorldSyncTime();
 
-        std::vector<Character*>    *getUpdatedCharacters();
+        std::vector<Character*>     *getUpdatedCharacters();
+        std::vector<Player*>        *getPlayers();
         std::shared_ptr<Character>  getCharacter(int character_id);
         std::shared_ptr<Player>     getPlayer(int player_id);
 
@@ -95,6 +96,7 @@ class GameWorld_Sync : public pou::NotificationListener
         /**std::vector<WorldSprite*>   m_updatedSprites;
         std::vector<WorldMesh*>     m_updatedMeshes;**/
         bool m_updatedCharactersBuffer;
+        std::vector<Player*>        m_players;
         std::vector<Character*>     m_updatedCharacters[2];
 
         pou::IdPtrAllocator<pou::SceneNode>         m_syncNodes;

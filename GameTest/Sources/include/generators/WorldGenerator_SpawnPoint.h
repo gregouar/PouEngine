@@ -8,6 +8,7 @@ class WorldGenerator;
 
 enum WorldGenerator_SpawnPoint_ModifierTypes
 {
+    WorldGenerator_SpawnPoint_ModifierType_GridPosition,
     WorldGenerator_SpawnPoint_ModifierType_Position,
     WorldGenerator_SpawnPoint_ModifierType_Rotation,
     WorldGenerator_SpawnPoint_ModifierType_Flip,

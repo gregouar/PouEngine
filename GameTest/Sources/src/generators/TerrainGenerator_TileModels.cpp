@@ -7,6 +7,8 @@
 #include "PouEngine/assets/AssetHandler.h"
 #include "assets/TerrainLayerModelAsset.h"
 
+#include "character/Character.h"
+
 
 ///
 ///TerrainGenerator_TileModels
@@ -75,7 +77,8 @@ void TerrainGenerator_TileModels::addTilePrefabModel(float probability, TerrainG
 }
 
 
-void TerrainGenerator_TileModels::generatesOnNode(pou::SceneNode *targetNode, int modValue, pou::RNGenerator *rng)
+void TerrainGenerator_TileModels::generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent,
+                                                  int modValue, pou::RNGenerator *rng)
 {
     auto sprite = this->generateSprite(modValue, rng);
     if(sprite)
@@ -83,7 +86,16 @@ void TerrainGenerator_TileModels::generatesOnNode(pou::SceneNode *targetNode, in
 
     auto prefabInstance = this->generatePrefab(modValue, rng);
     if(prefabInstance)
+    {
         targetNode->addChildNode(prefabInstance);
+        auto characterList = prefabInstance->generateCharactersAsChilds();
+        for(auto character : characterList)
+            character->setSyncData(syncComponent, 0);
+        /*auto prefabNode = targetNode->addChildNode(prefabInstance);
+        auto characterList = prefabInstance->generateCharacters(prefabNode->transform());
+        for(auto character : characterList)
+            targetNode->addChildNode(character);*/
+    }
 }
 
 

@@ -87,4 +87,15 @@
 		<position 	x=128 y=260 />
 	</sprite>
 	
+	
+	<sprite name="topwall1" castShadow=0>
+		<size 	x=64 y=48 />
+		<position 	x=65 y=67 />
+	</sprite>
+	<sprite name="topwallSmall" castShadow=0>
+		<size 	x=48 y=48 />
+		<position 	x=65 y=67 />
+	</sprite>
+	
+	
 </spritesheet>

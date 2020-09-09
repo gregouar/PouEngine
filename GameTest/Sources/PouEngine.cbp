@@ -741,6 +741,7 @@
 		<Unit filename="include/Types.h" />
 		<Unit filename="include/ai/AiComponent.h" />
 		<Unit filename="include/ai/AiScriptedComponent.h" />
+		<Unit filename="include/ai/AutoLightAiComponent.h" />
 		<Unit filename="include/ai/Pathfinder.h" />
 		<Unit filename="include/assets/AiScriptModelAsset.h" />
 		<Unit filename="include/assets/CharacterModelAsset.h" />
@@ -781,6 +782,7 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="src/ai/AiComponent.cpp" />
 		<Unit filename="src/ai/AiScriptedComponent.cpp" />
+		<Unit filename="src/ai/AutoLightAiComponent.cpp" />
 		<Unit filename="src/ai/Pathfinder.cpp" />
 		<Unit filename="src/assets/AiScriptModelAsset.cpp" />
 		<Unit filename="src/assets/CharacterModelAsset.cpp" />

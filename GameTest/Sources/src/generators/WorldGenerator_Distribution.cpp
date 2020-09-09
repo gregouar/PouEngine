@@ -13,7 +13,8 @@ WorldGenerator_Distribution_Parameters::WorldGenerator_Distribution_Parameters()
     spawnType(TerrainGenerator_SpawnType_Safe),
     distance(1),
     startInCenter(false),
-    useGridPosition(false)
+    useGridPosition(false),
+    useDithering(true)
     //changeSpawnTypeTo(false),
     //newSpawnType(TerrainGenerator_SpawnType_None)
 {
@@ -104,17 +105,23 @@ void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, Ga
                 }
             }
 
-            glm::ivec2 ditherPos(0);
-            if(m_parameters.type == WorldGenerator_DistributionType_Poisson)
-                ditherPos = glm::round(pointWorldPos/(float)(m_parameters.distance/sqrt(2)));
-            else if(m_parameters.type == WorldGenerator_DistributionType_Path)
-                ditherPos = {curPoint,0};
-            else
-                ditherPos = m_worldGenerator->terrain()->worldToGridPosition(pointWorldPos);
+            float probValue = pou::RNGesus::uniformFloat(0.0f, 1.0f, rng);
 
-            bool ditherFactor = (ditherPos.x + ditherPos.y) % 2;
+            if(m_parameters.useDithering)
+            {
+                glm::ivec2 ditherPos(0);
+                if(m_parameters.type == WorldGenerator_DistributionType_Poisson)
+                    ditherPos = glm::round(pointWorldPos/(float)(m_parameters.distance/sqrt(2)));
+                else if(m_parameters.type == WorldGenerator_DistributionType_Path)
+                    ditherPos = {curPoint,0};
+                else
+                    ditherPos = glm::vec2(m_worldGenerator->terrain()->worldToGridPosition(pointWorldPos))/m_parameters.distance;
 
-            float probValue = pou::RNGesus::uniformFloat(0.0f, 0.5f, rng) + ditherFactor * 0.5f;
+                bool ditherFactor = (ditherPos.x + ditherPos.y) % 2;
+
+                probValue = probValue*0.5f + ditherFactor * 0.5f;
+            }
+
             if(totalProbability > 1.0f)
                 probValue *= totalProbability;
 
@@ -135,6 +142,7 @@ void WorldGenerator_Distribution::generatesOnNode(pou::SceneNode *targetNode, Ga
                                                       syncComponent, generateCharacters, rng);
         }
     }
+
 
 }
 
@@ -295,6 +303,8 @@ bool WorldGenerator_Distribution::loadParameters(TiXmlElement *element, WorldGen
         auto spawnGroupAtt  = element->Attribute("spawnGroup");
         parameters.spawnGroupName = pou::Hasher::unique_hash(spawnGroupAtt);
     }
+
+    pou::XMLLoader::loadBool(parameters.useDithering, element, "dither");
 
     return (true);
 }

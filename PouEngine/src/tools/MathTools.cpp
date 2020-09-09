@@ -22,7 +22,7 @@ bool detectSegmentCollision(glm::vec2 seg1, glm::vec2 seg2)
 }
 
 bool detectBoxCollision(const Box &box1, const Box &box2,
-                        const TransformComponent *transform1, const TransformComponent *transform2)
+                        TransformComponent *transform1, TransformComponent *transform2)
 {
    /* glm::vec4 base1 = glm::vec4(-box1.center.x,-box1.center.y,0,1);
     glm::vec4 v1 = glm::vec4(box1.size.x,0,0,1);
@@ -70,7 +70,7 @@ bool detectBoxCollision(const Box &box1, const Box &box2,
 }
 
 
-bool isInBox(glm::vec2 position, const Box &box, const TransformComponent *boxTransform)
+bool isInBox(glm::vec2 position, const Box &box, TransformComponent *boxTransform)
 {
     if(boxTransform)
     {

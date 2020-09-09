@@ -95,7 +95,6 @@ void GameWorld::update(const pou::Time elapsed_time/*, bool isRewinding*/)
 
     this->processPlayerActions();
 
-
     auto worldBounds = m_worldGenerator.getWorldBounds();
     pou::PhysicsEngine::resolveCollisions(worldBounds.first, worldBounds.second);
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<aiscript predef="autolight" />
+	
+	<spritesheet name="torchesSpriteSheet" path="../spritesheets/torchesSpritesheetXML.txt" />
+	
+	<light name="chandelierLight" type="omni" radius=1250 intensity=20.0 castShadow="true" >
+		<color r=1.0 g=.9 b=0.5 a=1.0 />
+	</light>
+	
+	<skeleton name="mainSkeleton" path="chandelierSkeletonXML.txt">
+		<limb node="chandelier" 	sprite="chandelierOff" spritesheet="torchesSpriteSheet" state="off" />
+		<limb node="chandelier" 	sprite="chandelierOn" spritesheet="torchesSpriteSheet" state="on" />
+		<limb node="chandelierLight" light="chandelierLight" state="on" />
+	</skeleton>
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>1</life>
+	</attributes>
+</character>

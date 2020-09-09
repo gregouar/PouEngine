@@ -101,7 +101,7 @@ class CharacterState_Attacking : public CharacterState
         CharacterState_Attacking(Character *character);
         virtual ~CharacterState_Attacking();
 
-        //virtual void handleInput(CharacterInput *input);
+        virtual void handleInput(CharacterInput *input);
         virtual void update(const pou::Time &elapsedTime, uint32_t localTime);
 
         virtual void entered(CharacterInput *input);
@@ -119,8 +119,7 @@ class CharacterState_Attacking : public CharacterState
 
 
         ///TEST
-        //glm::vec2 m_walkingDirection;
-
+        glm::vec2 m_walkingDirection;
 
     public:
         const pou::HashedString ATTACK_TAG;

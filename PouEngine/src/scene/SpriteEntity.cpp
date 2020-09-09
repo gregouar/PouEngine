@@ -230,8 +230,7 @@ void SpriteEntity::setRotation(float rotation, bool inRadians)
     if(m_rotation != rotation)
     {
         m_rotation = rotation;
-        ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -251,8 +250,7 @@ void SpriteEntity::setColor(Color color)
     if(m_color != color)
     {
         m_color = color;
-        ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -267,7 +265,7 @@ void SpriteEntity::setInheritRotation(bool inheritRotation)
     if(m_inheritRotation != inheritRotation)
     {
         m_inheritRotation = inheritRotation;
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -276,8 +274,7 @@ void SpriteEntity::setRme(glm::vec3 rme)
     if(m_rme != rme)
     {
         m_rme = rme;
-        ///this->setLastUpdateTime(m_curLocalTime);
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 
@@ -287,15 +284,14 @@ bool SpriteEntity::setSpriteModel(SpriteModel* model)
     {
         this->stopListeningTo(m_spriteModel);
         m_spriteModel = model;
-        /**m_lastModelUpdateTime = m_curLocalTime;
-        this->setLastUpdateTime(m_curLocalTime);**/
+
         if(m_spriteModel != nullptr)
         {
             this->startListeningTo(m_spriteModel);
             this->setRme(m_spriteModel->getRme());
             this->setShadowCastingType(m_spriteModel->getShadowCastingType());
         }
-        this->updateDatum();
+        ///this->updateDatum();
         return (true);
     }
     return (false);
@@ -343,6 +339,8 @@ void SpriteEntity::generateRenderingData(SceneRenderingInstance *renderingInstan
 {
     if(m_spriteModel == nullptr || m_parentNode == nullptr)
         return;
+
+    this->updateDatum();
 
     if(m_spriteModel->isReady())
     {
@@ -428,11 +426,11 @@ void SpriteEntity::update(const Time &elapsedTime, uint32_t localTime)
 void SpriteEntity::notify(NotificationSender *sender, int notificationType,
                           void* data)
 {
-    if(notificationType == NotificationType_AssetLoaded ||
+    /**if(notificationType == NotificationType_AssetLoaded ||
        notificationType == NotificationType_TextureChanged ||
        notificationType == NotificationType_ModelChanged ||
        notificationType == NotificationType_NodeMoved)
-        this->updateDatum();
+        this->updateDatum();**/
 
     /*if(notification == NotificationType_UpdateShadow)
     {
@@ -449,7 +447,7 @@ void SpriteEntity::notify(NotificationSender *sender, int notificationType,
         if(sender == m_spriteModel)
         {
             m_spriteModel = nullptr;
-            this->updateDatum();
+            ///this->updateDatum();
         }
     }
 }
@@ -616,7 +614,7 @@ void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
             m_revealedAmount += elapsedTime.count();
             if(m_revealedAmount > .9)
                 m_revealedAmount = .9;
-            this->updateDatum();
+            ///this->updateDatum();
         }
     }
     else if(m_revealedAmount != 0.0)
@@ -624,7 +622,7 @@ void SpriteEntity::updateRevealingAnimation(const Time &elapsedTime)
         m_revealedAmount -= elapsedTime.count();
         if(m_revealedAmount < 0.0)
             m_revealedAmount = 0.0;
-        this->updateDatum();
+        ///this->updateDatum();
     }
 }
 

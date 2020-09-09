@@ -8,6 +8,7 @@
 
 class PrefabAsset;
 class GameWorld_Sync;
+class Character;
 
 class PrefabInstance : public pou::SceneNode
 {
@@ -24,6 +25,8 @@ class PrefabInstance : public pou::SceneNode
 
         void createFromModel(PrefabAsset *prefabModel);
         //void spawnCharactersOnParent();
+        void generateCharactersOnParent();
+        std::list<std::shared_ptr<Character> >  generateCharactersAsChilds();
 
         PrefabAsset *getPrefabModel();
         /**uint32_t getLastPrefabModelUpdateTime();

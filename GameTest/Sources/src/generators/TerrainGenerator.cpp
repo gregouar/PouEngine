@@ -94,7 +94,7 @@ void TerrainGenerator::generatesTopology(pou::RNGenerator *rng)
 
 }
 
-void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode/*, pou::RNGenerator *rng*/)
+void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent/*, pou::RNGenerator *rng*/)
 {
     auto centeringShift = m_terrainSize * m_tileSize * 0.5f;
 
@@ -104,7 +104,7 @@ void TerrainGenerator::generatesOnNode(pou::SceneNode *targetNode/*, pou::RNGene
         auto tileNode = std::make_shared<pou::SceneNode>();
         tileNode->transform()->setPosition(x * m_tileSize.x, y * m_tileSize.y);
         tileNode->transform()->move(-centeringShift);
-        this->generateSprites(x, y, tileNode.get());
+        this->generateSpritesAndCo(x, y, syncComponent, tileNode.get());
 
         targetNode->addChildNode(tileNode);
     }
@@ -722,7 +722,7 @@ void TerrainGenerator::spawnLayerElement(int x, int y, TerrainGenerator_GroundLa
     }
 }**/
 
-void TerrainGenerator::generateSprites(int x, int y, pou::SceneNode *targetNode)
+void TerrainGenerator::generateSpritesAndCo(int x, int y, GameWorld_Sync *syncComponent, pou::SceneNode *targetNode)
 {
     for(auto &groundLayerIt : m_groundLayers)
     {
@@ -761,7 +761,7 @@ void TerrainGenerator::generateSprites(int x, int y, pou::SceneNode *targetNode)
         if(sprite)
             targetNode->attachObject(sprite);*/
 
-        tileModel->generatesOnNode(targetNode, x+y, m_rng);
+        tileModel->generatesOnNode(targetNode, syncComponent, x+y, m_rng);
     }
 }
 

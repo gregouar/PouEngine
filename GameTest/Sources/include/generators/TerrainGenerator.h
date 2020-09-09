@@ -69,7 +69,7 @@ class TerrainGenerator
 
         void resetGrid();
         void generatesTopology(pou::RNGenerator *rng);
-        void generatesOnNode(pou::SceneNode *targetNode/*, pou::RNGenerator *rng*/);
+        void generatesOnNode(pou::SceneNode *targetNode, GameWorld_Sync *syncComponent/*, pou::RNGenerator *rng*/);
 
         void addSpawnOnlyZone(const TerrainGenerator_SpawnOnlyZone &zone);
         /**void addSpawnOnlyZone(TerrainGenerator_SpawnType spawnType,
@@ -123,8 +123,8 @@ class TerrainGenerator
         //void spawnLayerElement(int x, int y, size_t layer, float spawnProbability, float expandProbability);
         void spawnLayerElement(int x, int y, TerrainGenerator_GroundLayer *groundLayer);
 
-        void generateSprites(int x, int y,
-                             pou::SceneNode *targetNode);
+        void generateSpritesAndCo(int x, int y, GameWorld_Sync *syncComponent,
+                                    pou::SceneNode *targetNode);
         //void generateSprite(std::list<TerrainGenerator_LayerModelElement> *listModel,
         //                    std::shared_ptr<pou::SceneNode> targetNode, GameWorld_Sync *syncComponent);
 

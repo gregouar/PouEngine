@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<character>
+	<aiscript predef="autolight" />
+	
+	<spritesheet name="torchesSpriteSheet" path="../spritesheets/torchesSpritesheetXML.txt" />
+	
+	<light name="torchLight" type="omni" radius=1000 intensity=10.0 castShadow="false" >
+		<color r=1.0 g=.65 b=0.25 a=1.0 />
+	</light>
+	
+	<skeleton name="mainSkeleton" path="wallTorchSkeletonXML.txt">
+		<limb node="torch" 	sprite="wallTorchOff" spritesheet="torchesSpriteSheet" state="off" />
+		<limb node="torch" 	sprite="wallTorchOn" spritesheet="torchesSpriteSheet" state="on" />
+		<limb node="torchLight" light="torchLight" state="on" />
+	</skeleton>
+	
+	<attributes>
+		<walkingSpeed>0</walkingSpeed>
+		<immovable>true</immovable>
+		<life>1</life>
+	</attributes>
+</character>
