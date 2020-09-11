@@ -30,7 +30,7 @@ layout (set = 2, binding = 0) uniform sampler2D samplerAlbedo;
 layout (set = 2, binding = 1) uniform sampler2D samplerPosition;
 layout (set = 2, binding = 2) uniform sampler2D samplerNormal;
 layout (set = 2, binding = 3) uniform sampler2D samplerRme;
-/*layout (set = 2, binding = 4) uniform sampler2D samplerBentNormal;*/
+layout (set = 2, binding = 4) uniform sampler2D samplerBentNormals;
 
 
 /*layout(push_constant) uniform PER_OBJECT
@@ -300,7 +300,7 @@ float chebyshevUpperBound(vec2 screenPos, float fragZ)
 //}
 
 
-vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRme)
+vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRme, vec4 fragBentNormals)
 {
     vec4 lighting = vec4(0.0);
 
@@ -404,6 +404,13 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
 
         //NdotL = discretize(NdotL, 3);
 
+        float AOBNDotL = max(dot(fragBentNormals.xyz, lightDirection), 0.0);
+        float ao = fragBentNormals.w;
+        ao = clamp(ao,0.9,1.0);
+        ao = (ao-.9)*10.0;
+        AOBNDotL = mix(AOBNDotL, NdotL, ao);
+        NdotL = min(NdotL, AOBNDotL);
+
         vec3 specular       = nominator / max(denominator, 0.01);
         lighting.rgb       += (kD * fragAlbedo.rgb * 0.31830988618 + specular)  * NdotL * radiance /* * occlusion*/;
 
@@ -420,12 +427,14 @@ void main()
     vec3 fragPos    = texture(samplerPosition, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
     vec3 fragNormal = texture(samplerNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
     vec3 fragRme    = texture(samplerRme, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5).xyz;
-    /*vec4 fragBentNormal = texture(samplerBentNormal, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
-	fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
+    vec4 fragBentNormals = texture(samplerBentNormals, gl_FragCoord.xy*viewUbo.screenSizeFactor.xy*0.5);
+	/*fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
     outColor = ComputeLighting(fragAlbedo, fragPos, fragNormal, fragBentNormal, fragRme);*/
 
+    fragBentNormals.rgb = fragBentNormals.rgb*2 - vec3(1);
+
 	fragAlbedo.rgb = pow(fragAlbedo.rgb, vec3(2.2));
-    outColor = ComputeLighting(fragAlbedo, fragPos, fragNormal, fragRme);
+    outColor = ComputeLighting(fragAlbedo, fragPos, fragNormal, fragRme, fragBentNormals);
 
 }
 

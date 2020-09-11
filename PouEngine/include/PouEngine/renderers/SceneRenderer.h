@@ -77,6 +77,7 @@ class SceneRenderer : public AbstractRenderer
         void prepareAlphaDeferredRenderPass();*/
         //Lighting
         /*void prepareSsgiBNRenderPasses();*/
+        void prepareBentNormalsRenderPass();
         void prepareLightingRenderPass();
         /*void prepareAlphaLightingRenderPass();
         void prepareSsgiLightingRenderPass();*/
@@ -97,6 +98,7 @@ class SceneRenderer : public AbstractRenderer
         bool createAlphaDeferredPipeline();*/
         //Lighting
         /*bool createSsgiBNPipelines();*/
+        bool createBentNormalsPipeline();
         bool createLightingPipeline();
         /*bool createAlphaLightingPipeline();
         bool createSsgiLightingPipeline();*/
@@ -113,6 +115,7 @@ class SceneRenderer : public AbstractRenderer
 
         virtual bool    recordShadowCmb(uint32_t imageIndex);
         virtual bool    recordDeferredCmb(uint32_t imageIndex);
+        virtual bool    recordBentNormalsCmb(uint32_t imageIndex);
         virtual bool    recordLightingCmb(uint32_t imageIndex);
         /*virtual bool    recordSsgiBnCmb(uint32_t imageIndex);*/
         virtual bool    recordAmbientLightingCmb(uint32_t imageIndex);
@@ -131,6 +134,10 @@ class SceneRenderer : public AbstractRenderer
                             m_deferredMeshesPipeline/*,
                             m_alphaDetectPipeline,
                             m_alphaDeferredPipeline*/;
+
+        VGraphicsPipeline   m_bentNormalsPipeline,
+                            m_bentNormalsBlurPipelines[2];
+
 
         VGraphicsPipeline   /*m_ssgiBNPipeline,
                             m_ssgiBNBlurPipelines[2],*/
@@ -164,11 +171,15 @@ class SceneRenderer : public AbstractRenderer
                                m_positionAttachment,
                                m_normalAttachment,
                                m_rmeAttachment;
+        VFramebufferAttachment m_bentNormalsAttachment,
+                               m_bentNormalsBlurAttachments[2];
         VFramebufferAttachment m_bloomHdrAttachements[2];
         VFramebufferAttachment m_hdrAttachement;
 
         size_t  m_shadowMapsPass,
                 m_deferredPass,
+                m_bentNormalsPass,
+                m_bentNormalsBlurPasses[2],
                 m_lightingPass,
                 m_ambientLightingPass,
                 m_bloomPass,
@@ -199,6 +210,12 @@ class SceneRenderer : public AbstractRenderer
         static const char *SPRITE_DEFERRED_FRAGSHADERFILE;
         static const char *MESH_DEFERRED_VERTSHADERFILE;
         static const char *MESH_DEFERRED_FRAGSHADERFILE;
+
+        static const char *BENTNORMALS_VERTSHADERFILE;
+        static const char *BENTNORMALS_FRAGSHADERFILE;
+        static const char *SMARTBLUR_VERTSHADERFILE;
+        static const char *SMARTBLUR_FRAGSHADERFILE;
+
         static const char *LIGHTING_VERTSHADERFILE;
         static const char *LIGHTING_FRAGSHADERFILE;
         static const char *AMBIENTLIGHTING_VERTSHADERFILE;

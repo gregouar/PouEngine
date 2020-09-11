@@ -31,7 +31,7 @@ void AutoLightAiComponent::update(const pou::Time &elapsedTime, uint32_t localTi
     if(!nearbyPlayers)
         return;
 
-    float sqMinDistance = 350.0f;
+    float sqMinDistance = 400.0f;
     sqMinDistance *= sqMinDistance;
 
     for(auto player : *nearbyPlayers)

@@ -54,7 +54,7 @@ void GameWorld::generateImpl()
 
     auto loadType = pou::LoadType_Now;
 
-    auto worldSeed = pou::RNGesus::rand();
+    auto worldSeed = 2; //pou::RNGesus::rand();
     /**
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent, true, true);
@@ -77,8 +77,7 @@ void GameWorld::generateImpl()
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent,true, false);
     // **/
 
-     m_suns = m_worldGenerator.generatesSuns(m_scene->getRootNode());
-
+    m_suns = m_worldGenerator.generatesSuns(m_scene->getRootNode());
 
     m_scene->update(pou::Time(0));
     m_worldReady = true;

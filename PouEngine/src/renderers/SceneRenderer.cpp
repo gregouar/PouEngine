@@ -57,6 +57,12 @@ const char *SceneRenderer::SPRITE_DEFERRED_VERTSHADERFILE = "deferred/spriteShad
 const char *SceneRenderer::SPRITE_DEFERRED_FRAGSHADERFILE = "deferred/spriteShader.frag.spv";
 const char *SceneRenderer::MESH_DEFERRED_VERTSHADERFILE = "deferred/meshShader.vert.spv";
 const char *SceneRenderer::MESH_DEFERRED_FRAGSHADERFILE = "deferred/meshShader.frag.spv";
+
+const char *SceneRenderer::BENTNORMALS_VERTSHADERFILE = "fullscreen.vert.spv";
+const char *SceneRenderer::BENTNORMALS_FRAGSHADERFILE = "lighting/bentNormals.frag.spv";
+const char *SceneRenderer::SMARTBLUR_VERTSHADERFILE = "fullscreen.vert.spv";
+const char *SceneRenderer::SMARTBLUR_FRAGSHADERFILE = "smartBlur.frag.spv";
+
 const char *SceneRenderer::LIGHTING_VERTSHADERFILE = "lighting/lighting.vert.spv";
 const char *SceneRenderer::LIGHTING_FRAGSHADERFILE = "lighting/lighting.frag.spv";
 const char *SceneRenderer::AMBIENTLIGHTING_VERTSHADERFILE = "fullscreen.vert.spv";
@@ -582,6 +588,42 @@ bool SceneRenderer::recordDeferredCmb(uint32_t imageIndex)
     return (true);
 }
 
+
+bool SceneRenderer::recordBentNormalsCmb(uint32_t imageIndex)
+{
+    bool r = true;
+
+    VkCommandBuffer cmb = m_renderGraph.startRecording(m_bentNormalsPass, imageIndex, m_curFrameIndex);
+
+        m_bentNormalsPipeline.bind(cmb);
+
+        VkDescriptorSet descSets[] = {  m_renderView.getDescriptorSet(m_curFrameIndex),
+                                        m_renderGraph.getDescriptorSet(m_bentNormalsPass,imageIndex)};
+
+        vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bentNormalsPipeline.getLayout(),
+                                0, 2, descSets, 0, NULL);
+
+        vkCmdDraw(cmb, 3, 1, 0, 0);
+
+    r = r & m_renderGraph.endRecording(m_bentNormalsPass);
+
+    for(int i = 0 ; i < 2 ; ++i)
+    {
+        VkCommandBuffer cmb = m_renderGraph.startRecording(m_bentNormalsBlurPasses[i], imageIndex, m_curFrameIndex);
+
+            m_bentNormalsBlurPipelines[i%2].bind(cmb);
+            VkDescriptorSet descSets[] = {m_renderGraph.getDescriptorSet(m_bentNormalsBlurPasses[i],imageIndex)};
+            vkCmdBindDescriptorSets(cmb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bentNormalsBlurPipelines[i%2].getLayout(),
+                                    0, 1, descSets, 0, NULL);
+
+            vkCmdDraw(cmb, 3, 1, 0, 0);
+
+        r = r & m_renderGraph.endRecording(m_bentNormalsBlurPasses[i]);
+    }
+
+    return r;
+}
+
 bool SceneRenderer::recordLightingCmb(uint32_t imageIndex)
 {
     size_t  lightsVboSize       = m_lightsVbos[m_curFrameIndex]->getUploadedSize();
@@ -854,6 +896,7 @@ bool SceneRenderer::init()
     for(size_t i = 0 ; i < m_targetWindow->getSwapchainSize() ; ++i)
     {
         //this->recordSsgiBnCmb(i);
+        this->recordBentNormalsCmb(i);
         this->recordBloomCmb(i);
         this->recordToneMappingCmb(i);
     }
@@ -868,6 +911,7 @@ void SceneRenderer::prepareRenderPass()
     /*this->prepareAlphaDetectRenderPass();
     this->prepareAlphaDeferredRenderPass();
     this->prepareSsgiBNRenderPasses();*/
+    this->prepareBentNormalsRenderPass();
     this->prepareLightingRenderPass();
     /*this->prepareAlphaLightingRenderPass();
     this->prepareSsgiLightingRenderPass();*/
@@ -898,6 +942,8 @@ bool SceneRenderer::createGraphicsPipeline()
         return (false);
     if(!this->createSsgiBNPipelines())
         return (false);*/
+    if(!this->createBentNormalsPipeline())
+        return (false);
     if(!this->createLightingPipeline())
         return (false);
     /*if(!this->createAlphaLightingPipeline())
@@ -933,13 +979,18 @@ bool SceneRenderer::createAttachments()
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_rmeAttachment) &
             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
-                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement)
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_hdrAttachement) &
+            VulkanHelpers::createAttachment(width/2, height/2, VK_FORMAT_R8G8B8A8_UNORM,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_bentNormalsAttachment)
         )
         return (false);
 
     for(int i = 0 ; i < 2 ; ++i)
         if(! VulkanHelpers::createAttachment(width, height, VK_FORMAT_R16G16B16A16_SFLOAT,
-                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_bloomHdrAttachements[i]) )
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_bloomHdrAttachements[i]) &
+             VulkanHelpers::createAttachment(width, height, VK_FORMAT_R8G8B8A8_UNORM,
+                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, m_bentNormalsBlurAttachments[i])
+           )
            return (false);
 
     /*for(size_t a = 0 ; a < NBR_ALPHA_LAYERS ; ++a)
@@ -1117,6 +1168,32 @@ void SceneRenderer::prepareSsgiBNRenderPasses()
 
 }*/
 
+void SceneRenderer::prepareBentNormalsRenderPass()
+{
+    m_bentNormalsPass = m_renderGraph.addRenderPass();
+
+    m_renderGraph.addNewAttachments(m_bentNormalsPass, m_bentNormalsAttachment, VK_ATTACHMENT_STORE_OP_STORE);
+
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_bentNormalsPass, 1);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_bentNormalsPass, 2);
+
+    /*** BLUR ***/
+
+    /// blur horizontal
+    m_bentNormalsBlurPasses[0] = m_renderGraph.addRenderPass();
+
+    m_renderGraph.addNewAttachments(m_bentNormalsBlurPasses[0], m_bentNormalsBlurAttachments[0]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bentNormalsPass        , m_bentNormalsBlurPasses[0], 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass   , m_bentNormalsBlurPasses[0], 1); //Position
+
+    /// blur vertical
+    m_bentNormalsBlurPasses[1] = m_renderGraph.addRenderPass();
+
+    m_renderGraph.addNewAttachments(m_bentNormalsBlurPasses[1], m_bentNormalsBlurAttachments[1]);
+    m_renderGraph.transferAttachmentsToUniforms(m_bentNormalsBlurPasses[0], m_bentNormalsBlurPasses[1], 0);
+    m_renderGraph.transferAttachmentsToUniforms(m_deferredPass    , m_bentNormalsBlurPasses[1], 1); //Position
+}
+
 void SceneRenderer::prepareLightingRenderPass()
 {
     m_lightingPass = m_renderGraph.addRenderPass(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -1127,6 +1204,7 @@ void SceneRenderer::prepareLightingRenderPass()
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 1);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 3);
+    m_renderGraph.transferAttachmentsToUniforms(m_bentNormalsBlurPasses[1], m_lightingPass, 0);
 
     /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDetectPass, m_lightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_lightingPass, 2);
@@ -1207,6 +1285,7 @@ void SceneRenderer::prepareAmbientLightingRenderPass()
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 1);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 2);
     m_renderGraph.transferAttachmentsToUniforms(m_deferredPass, m_ambientLightingPass, 3);
+    m_renderGraph.transferAttachmentsToUniforms(m_bentNormalsBlurPasses[1], m_ambientLightingPass, 0);
 
     /*m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 0);
     m_renderGraph.transferAttachmentsToUniforms(m_alphaDeferredPass, m_ambientLightingPass, 1);
@@ -1649,6 +1728,76 @@ bool SceneRenderer::createSsgiBNPipelines()
     return (true);
 }*/
 
+bool SceneRenderer::createBentNormalsPipeline()
+{
+    ///Bent normals computation
+    {
+        std::ostringstream vertShaderPath,fragShaderPath;
+        vertShaderPath << VApp::DEFAULT_SHADERPATH << BENTNORMALS_VERTSHADERFILE;
+        fragShaderPath << VApp::DEFAULT_SHADERPATH << BENTNORMALS_FRAGSHADERFILE;
+
+        /**m_bentNormalsPipeline.addSpecializationDatum(15.0f, 1); //Ray length
+        m_bentNormalsPipeline.addSpecializationDatum(1.0f, 1); //Ray length factor
+        m_bentNormalsPipeline.addSpecializationDatum(30.0f, 1); //Ray threshold
+        m_bentNormalsPipeline.addSpecializationDatum(2.0f, 1); //Ray threshold factor
+        m_bentNormalsPipeline.addSpecializationDatum(0.5f, 1); //Half screen res**/
+
+        m_bentNormalsPipeline.addSpecializationDatum(15.0f, 1); //Ray length
+        m_bentNormalsPipeline.addSpecializationDatum(1.0f, 1); //Ray length factor
+        m_bentNormalsPipeline.addSpecializationDatum(30.0f, 1); //Ray threshold
+        m_bentNormalsPipeline.addSpecializationDatum(2.0f, 1); //Ray threshold factor
+        m_bentNormalsPipeline.addSpecializationDatum(0.5f, 1); //Half screen res
+
+        m_bentNormalsPipeline.createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
+        m_bentNormalsPipeline.createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        VkExtent2D extent = m_targetWindow->getSwapchainExtent();
+        extent.width  *= 0.5;
+        extent.height *= 0.5;
+        m_bentNormalsPipeline.setStaticExtent(extent);
+
+        m_bentNormalsPipeline.attachDescriptorSetLayout(m_renderView.getDescriptorSetLayout());
+        m_bentNormalsPipeline.attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_bentNormalsPass));
+
+       /// m_bentNormalsPipeline.attachPushConstant(VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(int));
+
+       // m_ssgiBNPipeline.setBlendMode(BlendMode_Accu, 0);
+
+        if(!m_bentNormalsPipeline.init(m_renderGraph.getRenderPass(m_bentNormalsPass)))
+            return (false);
+    }
+
+    ///Horizontal and vertical blur
+    for(size_t i = 0 ; i < 2 ; ++i)
+    {
+        std::ostringstream vertShaderPath,fragShaderPath;
+        vertShaderPath << VApp::DEFAULT_SHADERPATH << SMARTBLUR_VERTSHADERFILE;
+        fragShaderPath << VApp::DEFAULT_SHADERPATH << SMARTBLUR_FRAGSHADERFILE;
+
+        m_bentNormalsBlurPipelines[i].createShader(vertShaderPath.str(), VK_SHADER_STAGE_VERTEX_BIT);
+        m_bentNormalsBlurPipelines[i].createShader(fragShaderPath.str(), VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        //m_ssgiBNBlurPipelines[i].setSpecializationInfo(specializationInfo, 1);
+
+        float radius = 4.0f;
+        if(i == 0) radius /= float(m_bentNormalsBlurAttachments[0].extent.width);
+        if(i == 1) radius /= float(m_bentNormalsBlurAttachments[0].extent.height);
+
+        m_bentNormalsBlurPipelines[i].addSpecializationDatum(radius ,1); //Radius
+        m_bentNormalsBlurPipelines[i].addSpecializationDatum(15.0f,1); //Smart thresold
+        m_bentNormalsBlurPipelines[i].addSpecializationDatum(static_cast<bool>(i),1); //Vertical
+
+        m_bentNormalsBlurPipelines[i].setStaticExtent(m_targetWindow->getSwapchainExtent());
+
+        m_bentNormalsBlurPipelines[i].attachDescriptorSetLayout(m_renderGraph.getDescriptorLayout(m_bentNormalsBlurPasses[i]));
+
+        if(!m_bentNormalsBlurPipelines[i].init(m_renderGraph.getRenderPass(m_bentNormalsBlurPasses[i])))
+            return (false);
+    }
+
+    return (true);
+}
+
 bool SceneRenderer::createLightingPipeline()
 {
     std::ostringstream vertShaderPath,fragShaderPath;
@@ -1896,6 +2045,9 @@ void SceneRenderer::cleanup()
     VulkanHelpers::destroyAttachment(m_positionAttachment);
     VulkanHelpers::destroyAttachment(m_normalAttachment);
     VulkanHelpers::destroyAttachment(m_rmeAttachment);
+    VulkanHelpers::destroyAttachment(m_bentNormalsAttachment);
+    VulkanHelpers::destroyAttachment(m_bentNormalsBlurAttachments[0]);
+    VulkanHelpers::destroyAttachment(m_bentNormalsBlurAttachments[1]);
     VulkanHelpers::destroyAttachment(m_bloomHdrAttachements[0]);
     VulkanHelpers::destroyAttachment(m_bloomHdrAttachements[1]);
     VulkanHelpers::destroyAttachment(m_hdrAttachement);
@@ -1931,6 +2083,9 @@ void SceneRenderer::cleanup()
     /*m_alphaDetectPipeline.destroy();
     m_alphaDeferredPipeline.destroy();
     m_ssgiBNPipeline.destroy();*/
+    m_bentNormalsPipeline.destroy();
+    m_bentNormalsBlurPipelines[0].destroy();
+    m_bentNormalsBlurPipelines[1].destroy();
     m_lightingPipeline.destroy();
     //m_ssgiLightingPipeline.destroy();
     m_ambientLightingPipeline.destroy();

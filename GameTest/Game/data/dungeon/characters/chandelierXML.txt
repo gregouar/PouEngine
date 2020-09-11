@@ -4,7 +4,7 @@
 	
 	<spritesheet name="torchesSpriteSheet" path="../spritesheets/torchesSpritesheetXML.txt" />
 	
-	<light name="chandelierLight" type="omni" radius=1250 intensity=20.0 castShadow="true" >
+	<light name="chandelierLight" type="omni" radius=1250 intensity=20.0 castShadow="false" >
 		<color r=1.0 g=.9 b=0.5 a=1.0 />
 	</light>
 	

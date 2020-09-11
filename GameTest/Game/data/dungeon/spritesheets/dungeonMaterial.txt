@@ -5,6 +5,6 @@
 	<texture type="normal">dungeon_n.png</texture>
 	<texture type="rme">dungeon_rme.png</texture>
 	<!--<roughness>0.9</roughness>
-	<metalness>0</metalness>
-	<emissivity>0</emissivity>-->
+	<metalness>0</metalness>-->
+	<emissivity>1</emissivity>
 </material>
