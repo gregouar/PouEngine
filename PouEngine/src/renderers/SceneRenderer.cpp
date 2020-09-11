@@ -1743,8 +1743,8 @@ bool SceneRenderer::createBentNormalsPipeline()
         m_bentNormalsPipeline.addSpecializationDatum(0.5f, 1); //Half screen res**/
 
         m_bentNormalsPipeline.addSpecializationDatum(15.0f, 1); //Ray length
-        m_bentNormalsPipeline.addSpecializationDatum(1.0f, 1); //Ray length factor
-        m_bentNormalsPipeline.addSpecializationDatum(30.0f, 1); //Ray threshold
+        m_bentNormalsPipeline.addSpecializationDatum(.25f, 1); //Ray length factor
+        m_bentNormalsPipeline.addSpecializationDatum(50.0f, 1); //Ray threshold
         m_bentNormalsPipeline.addSpecializationDatum(2.0f, 1); //Ray threshold factor
         m_bentNormalsPipeline.addSpecializationDatum(0.5f, 1); //Half screen res
 

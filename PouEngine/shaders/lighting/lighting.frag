@@ -404,12 +404,16 @@ vec4 ComputeLighting(vec4 fragAlbedo, vec3 fragPos, vec3 fragNormal, vec3 fragRm
 
         //NdotL = discretize(NdotL, 3);
 
-        float AOBNDotL = max(dot(fragBentNormals.xyz, lightDirection), 0.0);
-        float ao = fragBentNormals.w;
-        ao = clamp(ao,0.9,1.0);
-        ao = (ao-.9)*10.0;
-        AOBNDotL = mix(AOBNDotL, NdotL, ao);
-        NdotL = min(NdotL, AOBNDotL);
+
+        //if(lightShadowMap.x == 0)
+        {
+            float AOBNDotL = max(dot(fragBentNormals.xyz, lightDirection), 0.0);
+            float ao = fragBentNormals.w;
+            ao = clamp(ao,0.9,1.0);
+            ao = (ao-.9)*10.0;
+            AOBNDotL = mix(AOBNDotL, NdotL, ao);
+            NdotL = min(NdotL, AOBNDotL);
+        }
 
         vec3 specular       = nominator / max(denominator, 0.01);
         lighting.rgb       += (kD * fragAlbedo.rgb * 0.31830988618 + specular)  * NdotL * radiance /* * occlusion*/;

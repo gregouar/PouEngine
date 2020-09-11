@@ -54,7 +54,7 @@ void GameWorld::generateImpl()
 
     auto loadType = pou::LoadType_Now;
 
-    auto worldSeed = 2; //pou::RNGesus::rand();
+    auto worldSeed = pou::RNGesus::rand();
     /**
     m_worldGenerator.loadFromFile("../data/grasslands/grasslandsBiomeXML.txt");
     m_worldGenerator.generatesOnNode(m_worldGrid.get(), worldSeed, &m_syncComponent, true, true);
